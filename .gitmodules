@@ -1,0 +1,4 @@
+[submodule "vendor/regex"]
+	path = vendor/regex
+	url = https://github.com/rust-lang/regex.git
+	branch = master
