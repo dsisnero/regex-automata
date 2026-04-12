@@ -4,6 +4,7 @@ require "./look"
 require "./byte_set"
 require "./config"
 require "./automaton"
+require "./hir_compiler"
 require "set"
 
 module Regex::Automata::DFA
@@ -81,8 +82,14 @@ module Regex::Automata::DFA
     getter byte_classes : Int32
     # Accelerator bytes for each state (empty slice if not accelerated)
     getter accelerators : Array(Bytes)
+    # Prefilter for accelerating searches (optional)
+    getter prefilter : Prefilter?
+    # Set of bytes that cause the DFA to quit (stop searching)
+    getter quitset : ByteSet
+    # Various flags describing DFA behavior
+    getter flags : DFAFlags
 
-    def initialize(@states : Array(State), start_unanchored : StateID, byte_classes : ByteClasses | Int32, start_anchored : StateID? = nil, accelerators : Array(Bytes)? = nil)
+    def initialize(@states : Array(State), start_unanchored : StateID, byte_classes : ByteClasses | Int32, start_anchored : StateID? = nil, accelerators : Array(Bytes)? = nil, prefilter : Prefilter? = nil, quitset : ByteSet = ByteSet.new, flags : DFAFlags = DFAFlags.new)
       @start_unanchored = start_unanchored
       @start_anchored = start_anchored || start_unanchored
       @byte_classifier = case byte_classes
@@ -95,6 +102,9 @@ module Regex::Automata::DFA
                          end
       @byte_classes = @byte_classifier.alphabet_len
       @accelerators = accelerators || Array.new(@states.size) { Bytes.empty }
+      @prefilter = prefilter
+      @quitset = quitset
+      @flags = flags
     end
 
     def start : StateID
@@ -243,7 +253,7 @@ module Regex::Automata::DFA
     end
 
     # Try to search forward, returning either a match or a MatchError
-    def try_search_fwd(slice : Bytes) : Tuple(Int32, Array(PatternID))? | MatchError
+    def try_search_fwd(slice : Bytes) : Tuple(Int32, Array(PatternID)) | Nil | MatchError
       last_match : Tuple(Int32, Array(PatternID))? = nil
       current_state_id = @start_unanchored
       states = @states
@@ -284,7 +294,7 @@ module Regex::Automata::DFA
     end
 
     # Try to search in reverse, returning either a match or a MatchError
-    def try_search_rev(slice : Bytes) : Tuple(Int32, Array(PatternID))? | MatchError
+    def try_search_rev(slice : Bytes) : Tuple(Int32, Array(PatternID)) | Nil | MatchError
       last_match : Tuple(Int32, Array(PatternID))? = nil
       current_state_id = @start_unanchored
       states = @states
@@ -436,19 +446,61 @@ module Regex::Automata::DFA
       is_match_state?(@start_unanchored)
     end
 
-    # Returns the start state for a forward search
-    def start_state_forward_method(anchored : Anchored) : StateID
-      case anchored
+    # Returns the prefilter for this DFA, if one exists
+    def get_prefilter : Prefilter?
+      @prefilter
+    end
+
+    # Returns the start state for the given configuration
+    def start_state(config : StartConfig) : StateID | StartError
+      # Check for quit bytes in look-behind
+      if look_behind = config.look_behind
+        if @quitset.includes?(look_behind)
+          return QuitStartError.new(look_behind)
+        end
+      end
+
+      # Check for unsupported anchored modes
+      case config.anchored
+      when Anchored::No, Anchored::Yes
+        # Supported
+      else
+        return UnsupportedAnchoredStartError.new(config.anchored)
+      end
+
+      # Return appropriate start state
+      case config.anchored
       when Anchored::No
         @start_unanchored
       when Anchored::Yes
         @start_anchored || @start_unanchored
       else
+        # Should not reach here due to check above
         @start_unanchored
       end
     end
 
-    # Returns the start state for a reverse search
+    # Returns the start state for a forward search (for backward compatibility)
+    def start_state_forward_method(anchored : Anchored) : StateID
+      config = StartConfig.new(nil, anchored)
+      result = start_state(config)
+      case result
+      when StateID
+        result
+      when StartError
+        # For backward compatibility, return start state even on error
+        case anchored
+        when Anchored::No
+          @start_unanchored
+        when Anchored::Yes
+          @start_anchored || @start_unanchored
+        else
+          @start_unanchored
+        end
+      end
+    end
+
+    # Returns the start state for a reverse search (for backward compatibility)
     def start_state_reverse(anchored : Anchored) : StateID
       # For now, use same as forward
       start_state_forward_method(anchored)

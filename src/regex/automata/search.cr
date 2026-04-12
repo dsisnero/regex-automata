@@ -75,6 +75,16 @@ module Regex::Automata
     def earliest(@earliest : Bool) : Input
       self
     end
+
+    # Get the start position of the search
+    def start : Int32
+      @span_start
+    end
+
+    # Get the end position of the search
+    def end : Int32
+      @span_end
+    end
   end
 
   # State for overlapping searches

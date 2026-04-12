@@ -33,17 +33,82 @@ module Regex::Automata
     # last EOI transition.
     abstract def next_eoi_state(current : StateID) : StateID
 
+    # Returns the start state for the given configuration.
+    #
+    # This is the base method for computing start states. Implementations
+    # should return either a valid state ID or a StartError.
+    #
+    # # Errors
+    #
+    # This may return a StartError if the search needs to give up when
+    # determining the start state (for example, if it sees a "quit" byte).
+    # This can also return an error if the given configuration contains an
+    # unsupported Anchored configuration.
+    abstract def start_state(config : StartConfig) : StateID | StartError
+
     # Returns the start state for a forward search.
     #
-    # The state returned is always a valid start state for this automaton.
-    # The `anchored` flag should be set if this is an anchored search.
-    abstract def start_state_forward_method(anchored : Anchored) : StateID
+    # This is a convenience method that converts the given Input to a
+    # StartConfig and calls start_state. If an error occurs, it is converted
+    # from a StartError to a MatchError.
+    #
+    # # Errors
+    #
+    # This may return a MatchError if the search needs to give up when
+    # determining the start state (for example, if it sees a "quit" byte).
+    # This can also return an error if the given Input contains an
+    # unsupported Anchored configuration.
+    def start_state_forward(input : Input) : StateID | MatchError
+      config = StartConfig.from_input_forward(input)
+      result = start_state(config)
+      case result
+      when StateID
+        result
+      when StartError
+        case result
+        when QuitStartError
+          # For forward search, the quit byte is at position start-1
+          offset = input.start > 0 ? input.start - 1 : 0
+          MatchError.quit(result.byte, offset)
+        when UnsupportedAnchoredStartError
+          MatchError.unsupported_anchored(result.mode)
+        else
+          MatchError.generic("Unknown start error")
+        end
+      end
+    end
 
     # Returns the start state for a reverse search.
     #
-    # The state returned is always a valid start state for this automaton.
-    # The `anchored` flag should be set if this is an anchored search.
-    abstract def start_state_reverse(anchored : Anchored) : StateID
+    # This is a convenience method that converts the given Input to a
+    # StartConfig and calls start_state. If an error occurs, it is converted
+    # from a StartError to a MatchError.
+    #
+    # # Errors
+    #
+    # This may return a MatchError if the search needs to give up when
+    # determining the start state (for example, if it sees a "quit" byte).
+    # This can also return an error if the given Input contains an
+    # unsupported Anchored configuration.
+    def start_state_reverse(input : Input) : StateID | MatchError
+      config = StartConfig.from_input_reverse(input)
+      result = start_state(config)
+      case result
+      when StateID
+        result
+      when StartError
+        case result
+        when QuitStartError
+          # For reverse search, the quit byte is at position end
+          offset = input.end
+          MatchError.quit(result.byte, offset)
+        when UnsupportedAnchoredStartError
+          MatchError.unsupported_anchored(result.mode)
+        else
+          MatchError.generic("Unknown start error")
+        end
+      end
+    end
 
     # Returns true if and only if the given state ID corresponds to a "special"
     # state. Special states are states that have some kind of significance,
@@ -110,12 +175,16 @@ module Regex::Automata
     # Executes a forward search and returns a match if one is found.
     #
     # This is the core search routine for forward searches.
-    abstract def try_search_fwd(slice : Bytes) : Tuple(Int32, Array(PatternID))? | MatchError
+    # Returns either a Tuple(match_position, pattern_ids) or nil if no match,
+    # or a MatchError if an error occurred.
+    abstract def try_search_fwd(slice : Bytes) : Tuple(Int32, Array(PatternID)) | Nil | MatchError
 
     # Executes a reverse search and returns a match if one is found.
     #
     # This is the core search routine for reverse searches.
-    abstract def try_search_rev(slice : Bytes) : Tuple(Int32, Array(PatternID))? | MatchError
+    # Returns either a Tuple(match_position, pattern_ids) or nil if no match,
+    # or a MatchError if an error occurred.
+    abstract def try_search_rev(slice : Bytes) : Tuple(Int32, Array(PatternID)) | Nil | MatchError
 
     # Executes a forward overlapping search.
     #
@@ -197,11 +266,41 @@ module Regex::Automata
   end
 
   # Error type for start state computation failures.
-  enum StartError
-    # The automaton does not support the given anchored mode.
-    UnsupportedAnchored
-    # The automaton does not have a start state for the given configuration.
-    Invalid
+  class StartError < Exception
+    # Get the anchored mode (defaults to Anchored::No)
+    def mode : Anchored
+      Anchored::No
+    end
+
+    # Get the byte (defaults to 0)
+    def byte : UInt8
+      0_u8
+    end
+  end
+
+  # The automaton does not support the given anchored mode.
+  class UnsupportedAnchoredStartError < StartError
+    getter mode : Anchored
+
+    def initialize(@mode : Anchored)
+      super("Unsupported anchored mode: #{@mode}")
+    end
+  end
+
+  # The automaton encountered a quit byte while computing the start state.
+  class QuitStartError < StartError
+    getter byte : UInt8
+
+    def initialize(@byte : UInt8)
+      super("Quit byte: #{@byte}")
+    end
+  end
+
+  # The automaton does not have a start state for the given configuration.
+  class InvalidStartError < StartError
+    def initialize
+      super("Invalid start configuration")
+    end
   end
 
   # Note: OverlappingState is defined in search.cr

@@ -1,5 +1,6 @@
 require "./utf8_sequences"
 require "./look"
+require "./types"
 
 module Regex::Automata::NFA
   alias StateID = Regex::Automata::StateID
