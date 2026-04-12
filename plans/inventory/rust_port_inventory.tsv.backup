@@ -16,7 +16,7 @@ src/dfa/accel.rs::func::write_to_len	func	missing	-	auto-generated
 src/dfa/accel.rs::method::Accel.new	method	missing	-	auto-generated
 src/dfa/accel.rs::method::Accels.empty	method	missing	-	auto-generated
 src/dfa/accel.rs::method::Accels.from_bytes_unchecked	method	missing	-	auto-generated
-src/dfa/automaton.rs::enum::StartError	enum	missing	-	auto-generated
+src/dfa/automaton.rs::enum::StartError	enum	ported	src/regex/automata/automaton.cr:244	Ported as enum with UnsupportedAnchored and Invalid variants
 src/dfa/automaton.rs::func::get_match	func	missing	-	auto-generated
 src/dfa/automaton.rs::func::start	func	missing	-	auto-generated
 src/dfa/automaton.rs::method::OverlappingState.start	method	missing	-	auto-generated

@@ -1,3 +1,7 @@
+require "./search"
+require "./types"
+require "./errors"
+
 module Regex::Automata
   # A trait describing the interface of a deterministic finite automaton (DFA).
   #

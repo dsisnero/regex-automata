@@ -53,7 +53,7 @@ src/dfa/dense.rs::func::minimize	missing	-	baseline
 src/dfa/dense.rs::func::never_match	missing	-	baseline
 src/dfa/dense.rs::func::new	missing	-	baseline
 src/dfa/dense.rs::func::prefilter	missing	-	baseline
-src/dfa/dense.rs::func::quit	mapped	src/regex/automata/config.cr:32	Implemented with Unicode word boundary validation
+src/dfa/dense.rs::func::quit	missing	-	baseline
 src/dfa/dense.rs::func::set_prefilter	missing	-	baseline
 src/dfa/dense.rs::func::specialize_start_states	missing	-	baseline
 src/dfa/dense.rs::func::start_kind	missing	-	baseline

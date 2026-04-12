@@ -89,6 +89,18 @@ module Regex::Automata::DFA
     # Various flags describing DFA behavior
     getter flags : DFAFlags
 
+    # Create a new DFA from a pattern string using default configuration
+    def self.new(pattern : String) : DFA
+      Builder.new.build(pattern)
+    end
+
+    # Create a new DFA from multiple pattern strings using default configuration
+    def self.new_many(patterns : Array(String)) : DFA
+      # For now, just build a DFA for the first pattern
+      # TODO: Implement proper multi-pattern DFA
+      Builder.new.build(patterns.first? || "")
+    end
+
     def initialize(@states : Array(State), start_unanchored : StateID, byte_classes : ByteClasses | Int32, start_anchored : StateID? = nil, accelerators : Array(Bytes)? = nil, prefilter : Prefilter? = nil, quitset : ByteSet = ByteSet.new, flags : DFAFlags = DFAFlags.new)
       @start_unanchored = start_unanchored
       @start_anchored = start_anchored || start_unanchored
