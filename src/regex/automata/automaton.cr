@@ -252,7 +252,9 @@ module Regex::Automata
     def is_match_at(slice : Bytes, at : Int32) : Bool
       # Simple implementation: run a forward search starting at the given position
       # This is not optimal but works for the basic case
-      result = try_search_fwd(slice[at..]?)
+      subslice = slice[at..]?
+      return false unless subslice
+      result = try_search_fwd(subslice)
       case result
       when Tuple(Int32, Array(PatternID))
         true

@@ -629,6 +629,11 @@ module Regex::Automata::DFA
       idx = 0
       size = slice.size
 
+      # Check if start state is accepting (empty string match at position 0)
+      if states[@start_unanchored.to_i].accepting?
+        return {0, states[@start_unanchored.to_i].match}
+      end
+
       while idx < size
         byte = slice[idx]
         byte_class = byte_classifier[byte]
@@ -650,11 +655,6 @@ module Regex::Automata::DFA
           last_match = {idx + 1, state.match}
         end
         idx += 1
-      end
-
-      # Check if start state is accepting (empty string match)
-      if last_match.nil? && states[@start_unanchored.to_i].accepting?
-        last_match = {0, states[@start_unanchored.to_i].match}
       end
 
       last_match
@@ -890,6 +890,8 @@ module Regex::Automata::DFA
     @config : Config
     @quitset : ByteSet
     @hir_compiler : HirCompiler
+    @start_unanchored : StateID?
+    @start_anchored : StateID?
 
     # Create a new builder with default configuration
     def self.new : Builder
@@ -951,12 +953,14 @@ module Regex::Automata::DFA
                       else
                         raise "Unreachable"
                       end
-      @dfa_states = [] of State
-      @state_map = {} of Tuple(Set(StateID), LookSet, Bool, Bool) => StateID
+       @dfa_states = [] of State
+       @state_map = {} of Tuple(Set(StateID), LookSet, Bool, Bool) => StateID
+       @start_unanchored = nil
+       @start_anchored = nil
 
-      # Precompute whether NFA contains word boundary or CRLF assertions
-      @nfa_has_word = false
-      @nfa_has_crlf = false
+       # Precompute whether NFA contains word boundary or CRLF assertions
+       @nfa_has_word = false
+       @nfa_has_crlf = false
       if nfa = @nfa
         nfa.states.each do |state|
           if state.is_a?(NFA::Look)
@@ -1093,6 +1097,8 @@ module Regex::Automata::DFA
       end
       unanchored_start_id = add_dfa_state(unanchored_start_set, start_look_have, false, false)
       anchored_start_id = add_dfa_state(anchored_start_set, start_look_have, false, false)
+      @start_unanchored = unanchored_start_id
+      @start_anchored = anchored_start_id
 
       # Add quit state if we have quit bytes
       unless @quitset.empty?
@@ -1219,6 +1225,15 @@ module Regex::Automata::DFA
               end
             end
             dfa_state.set_transition(byte_class, next_id)
+          else
+            # No transition from this NFA state set for this byte class
+            # For unanchored start state with no look-around assertions, add self-loop
+            # to create universal start state
+            if @start_unanchored && dfa_id == @start_unanchored && dfa_state.look_need.empty?
+              # Universal start state: self-loop for bytes that don't match
+              dfa_state.set_transition(byte_class, dfa_id)
+            end
+            # Otherwise, no transition is set (goes to dead state)
           end
         end
       end
