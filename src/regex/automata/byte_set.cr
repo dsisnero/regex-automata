@@ -36,5 +36,31 @@ module Regex::Automata
       end
       true
     end
+
+    # Convert to bytes (32 bytes for 256 bits)
+    def to_bytes : Bytes
+      bytes = Bytes.new(32)
+      256.times do |i|
+        if @bits[i]
+          byte_index = i // 8
+          bit_index = i % 8
+          bytes[byte_index] |= (1 << bit_index).to_u8
+        end
+      end
+      bytes
+    end
+
+    # Create from bytes
+    def self.from_bytes(bytes : Bytes) : ByteSet
+      set = ByteSet.new
+      256.times do |i|
+        byte_index = i // 8
+        bit_index = i % 8
+        if bytes[byte_index] & (1 << bit_index) != 0
+          set.add(i.to_u8)
+        end
+      end
+      set
+    end
   end
 end

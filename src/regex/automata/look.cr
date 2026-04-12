@@ -289,9 +289,18 @@ module Regex::Automata
       @mask
     end
 
+    def to_u64 : UInt64
+      @mask.to_u64
+    end
+
     # Create from a bitmask representation.
     def self.from_u32(mask : UInt32) : LookSet
       new(mask)
+    end
+
+    # Create from a UInt64 (for serialization)
+    def self.new(mask : UInt64)
+      new(mask.to_u32)
     end
 
     # Helper methods for checking specific assertion categories

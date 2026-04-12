@@ -7,6 +7,10 @@ module Regex::Automata
   class BuildError < Error
   end
 
+  # Error returned when deserialization fails
+  class DeserializeError < Error
+  end
+
   # Match error returned when a search fails
   class MatchError < Error
     enum Kind
