@@ -5,6 +5,7 @@ require "./byte_set"
 require "./config"
 require "./automaton"
 require "./hir_compiler"
+require "./transition_table"
 require "set"
 require "regex-syntax"
 
@@ -35,11 +36,11 @@ module Regex::Automata::DFA
     getter id : StateID
     property next : Array(StateID)    # indexed by byte class
     property match : Array(PatternID) # empty if not accepting
-    getter look_need : LookSet      # look-around assertions present in this state
-    getter look_have : LookSet      # look-around assertions satisfied at this state
-    getter? is_from_word : Bool     # whether previous byte was a word byte (for word boundaries)
-    getter? is_half_crlf : Bool     # whether we're in a half-CRLF state (for CRLF anchors)
-    property eoi_next : StateID     # transition on end-of-input (-1 = none)
+    getter look_need : LookSet        # look-around assertions present in this state
+    getter look_have : LookSet        # look-around assertions satisfied at this state
+    getter? is_from_word : Bool       # whether previous byte was a word byte (for word boundaries)
+    getter? is_half_crlf : Bool       # whether we're in a half-CRLF state (for CRLF anchors)
+    property eoi_next : StateID       # transition on end-of-input (-1 = none)
 
     def initialize(@id : StateID, byte_classes : Int32, @look_need : LookSet = LookSet.new, @look_have : LookSet = LookSet.new, @is_from_word : Bool = false, @is_half_crlf : Bool = false)
       @next = Array.new(byte_classes, StateID.new(-1)) # -1 = no transition
@@ -73,13 +74,13 @@ module Regex::Automata::DFA
     end
   end
 
-  # Deterministic Finite Automaton
+  # Deterministic Finite Automaton with flat transition table optimization
   class DFA < Regex::Automata::Automaton
-    getter states : Array(State)
-    getter start_unanchored : StateID
-    getter start_anchored : StateID
+    getter states : Array(State)      # Original state array (for compatibility)
+    getter tt : TransitionTable?      # Flat transition table (optional optimization)
+    getter start_unanchored : StateID # State ID for unanchored start
+    getter start_anchored : StateID   # State ID for anchored start
     getter byte_classifier : ByteClasses
-    # For backward compatibility, returns alphabet length
     getter byte_classes : Int32
     # Accelerator bytes for each state (empty slice if not accelerated)
     getter accelerators : Array(Bytes)
@@ -89,6 +90,53 @@ module Regex::Automata::DFA
     getter quitset : ByteSet
     # Various flags describing DFA behavior
     getter flags : DFAFlags
+
+    # Constructor with flat transition table optimization
+    def initialize(@states : Array(State), @tt : TransitionTable?, start_unanchored : StateID, byte_classes : ByteClasses | Int32, start_anchored : StateID? = nil, accelerators : Array(Bytes)? = nil, prefilter : Prefilter? = nil, quitset : ByteSet = ByteSet.new, flags : DFAFlags = DFAFlags.new)
+      @start_unanchored = start_unanchored
+      @start_anchored = start_anchored || start_unanchored
+      @byte_classifier = case byte_classes
+                         when ByteClasses
+                           byte_classes
+                         when Int32
+                           ByteClasses.identity
+                         else
+                           raise "Unreachable"
+                         end
+      @byte_classes = @byte_classifier.alphabet_len
+      @accelerators = accelerators || Array.new(@states.size) { Bytes.empty }
+      @prefilter = prefilter
+      @quitset = quitset
+      @flags = flags
+
+      # If tt is not provided, create one from states
+      if @tt.nil?
+        # Calculate stride (next power of 2 >= alphabet_len)
+        alphabet_len = @byte_classifier.alphabet_len
+        stride2 = 0
+        stride = 1
+        while stride < alphabet_len
+          stride <<= 1
+          stride2 += 1
+        end
+
+        # Create transition table
+        @tt = TransitionTable.new(@byte_classifier, stride2, @states.size)
+
+        # Copy states to flat table
+        @states.each_with_index do |state, idx|
+          state_id = @tt.not_nil!.to_state_id(idx)
+
+          # Copy transitions
+          state.next.each_with_index do |next_id, byte_class|
+            @tt.not_nil!.set_transition_by_class(state_id, byte_class, next_id)
+          end
+
+          # Note: EOI transitions are not copied to flat table
+          # They remain in the State objects
+        end
+      end
+    end
 
     # Create a new DFA from a pattern string using default configuration
     def self.new(pattern : String) : DFA
@@ -216,7 +264,7 @@ module Regex::Automata::DFA
       quitset = ByteSet.from_bytes(quit_bytes)
 
       # Create DFA
-      dfa = DFA.new(states, start_unanchored, byte_classes_obj, start_anchored, accelerators, nil, quitset)
+      dfa = DFA.new(states, nil, start_unanchored, byte_classes_obj, start_anchored, accelerators, nil, quitset)
 
       {dfa, offset}
     end
@@ -225,14 +273,14 @@ module Regex::Automata::DFA
       case endianness
       when :little
         slice[offset].to_u32 |
-        (slice[offset + 1].to_u32 << 8) |
-        (slice[offset + 2].to_u32 << 16) |
-        (slice[offset + 3].to_u32 << 24)
+          (slice[offset + 1].to_u32 << 8) |
+          (slice[offset + 2].to_u32 << 16) |
+          (slice[offset + 3].to_u32 << 24)
       when :big
         (slice[offset].to_u32 << 24) |
-        (slice[offset + 1].to_u32 << 16) |
-        (slice[offset + 2].to_u32 << 8) |
-        slice[offset + 3].to_u32
+          (slice[offset + 1].to_u32 << 16) |
+          (slice[offset + 2].to_u32 << 8) |
+          slice[offset + 3].to_u32
       when :native
         read_u32(slice, offset, :little)
       else
@@ -456,24 +504,6 @@ module Regex::Automata::DFA
       end
     end
 
-    def initialize(@states : Array(State), start_unanchored : StateID, byte_classes : ByteClasses | Int32, start_anchored : StateID? = nil, accelerators : Array(Bytes)? = nil, prefilter : Prefilter? = nil, quitset : ByteSet = ByteSet.new, flags : DFAFlags = DFAFlags.new)
-      @start_unanchored = start_unanchored
-      @start_anchored = start_anchored || start_unanchored
-      @byte_classifier = case byte_classes
-                         when ByteClasses
-                           byte_classes
-                         when Int32
-                           ByteClasses.identity
-                         else
-                           raise "Unreachable"
-                         end
-      @byte_classes = @byte_classifier.alphabet_len
-      @accelerators = accelerators || Array.new(@states.size) { Bytes.empty }
-      @prefilter = prefilter
-      @quitset = quitset
-      @flags = flags
-    end
-
     def start : StateID
       @start_unanchored
     end
@@ -634,27 +664,53 @@ module Regex::Automata::DFA
         return {0, states[@start_unanchored.to_i].match}
       end
 
-      while idx < size
-        byte = slice[idx]
-        byte_class = byte_classifier[byte]
-        next_state_id = states[current_state_id.to_i].next[byte_class]
+      # Use flat transition table if available for faster lookups
+      if tt = @tt
+        while idx < size
+          byte = slice[idx]
+          next_state_id = tt.next_state(current_state_id, byte)
 
-        # Check for quit state
-        if ::Regex::Automata::DFA.quit_state?(next_state_id)
-          return MatchError.quit(byte, idx)
-        end
+          # Check for quit state
+          if ::Regex::Automata::DFA.quit_state?(next_state_id)
+            return MatchError.quit(byte, idx)
+          end
 
-        if next_state_id.to_i < 0
-          # No transition - stop searching
-          break
-        end
+          if next_state_id.to_i < 0
+            # No transition - stop searching
+            break
+          end
 
-        current_state_id = next_state_id
-        state = states[current_state_id.to_i]
-        if state.accepting?
-          last_match = {idx + 1, state.match}
+          current_state_id = next_state_id
+          state = states[current_state_id.to_i]
+          if state.accepting?
+            last_match = {idx + 1, state.match}
+          end
+          idx += 1
         end
-        idx += 1
+      else
+        # Fall back to original implementation
+        while idx < size
+          byte = slice[idx]
+          byte_class = byte_classifier[byte]
+          next_state_id = states[current_state_id.to_i].next[byte_class]
+
+          # Check for quit state
+          if ::Regex::Automata::DFA.quit_state?(next_state_id)
+            return MatchError.quit(byte, idx)
+          end
+
+          if next_state_id.to_i < 0
+            # No transition - stop searching
+            break
+          end
+
+          current_state_id = next_state_id
+          state = states[current_state_id.to_i]
+          if state.accepting?
+            last_match = {idx + 1, state.match}
+          end
+          idx += 1
+        end
       end
 
       last_match
@@ -668,33 +724,66 @@ module Regex::Automata::DFA
       byte_classifier = @byte_classifier
 
       idx = slice.size - 1
-      while idx >= 0
-        byte = slice[idx]
-        byte_class = byte_classifier[byte]
-        next_state_id = states[current_state_id.to_i].next[byte_class]
 
-        # Debug: print state and transition
-        if ENV["LOGOS_DEBUG_DFA_SEARCH"]?
-          puts "Reverse search: idx=#{idx}, byte=#{byte}, byte_class=#{byte_class}, current_state=#{current_state_id.to_i}, next_state=#{next_state_id.to_i}"
-        end
+      # Use flat transition table if available for faster lookups
+      if tt = @tt
+        while idx >= 0
+          byte = slice[idx]
+          next_state_id = tt.next_state(current_state_id, byte)
 
-        # Check for quit state
-        if ::Regex::Automata::DFA.quit_state?(next_state_id)
-          return MatchError.quit(byte, idx)
-        end
+          # Debug: print state and transition
+          if ENV["LOGOS_DEBUG_DFA_SEARCH"]?
+            puts "Reverse search: idx=#{idx}, byte=#{byte}, current_state=#{current_state_id.to_i}, next_state=#{next_state_id.to_i}"
+          end
 
-        if next_state_id.to_i < 0
-          # No transition - stop searching
-          break
-        end
+          # Check for quit state
+          if ::Regex::Automata::DFA.quit_state?(next_state_id)
+            return MatchError.quit(byte, idx)
+          end
 
-        current_state_id = next_state_id
-        state = states[current_state_id.to_i]
-        if state.accepting?
-          # In reverse search, we report the start position (idx)
-          last_match = {idx, state.match}
+          if next_state_id.to_i < 0
+            # No transition - stop searching
+            break
+          end
+
+          current_state_id = next_state_id
+          state = states[current_state_id.to_i]
+          if state.accepting?
+            # In reverse search, we report the start position (idx)
+            last_match = {idx, state.match}
+          end
+          idx -= 1
         end
-        idx -= 1
+      else
+        # Fall back to original implementation
+        while idx >= 0
+          byte = slice[idx]
+          byte_class = byte_classifier[byte]
+          next_state_id = states[current_state_id.to_i].next[byte_class]
+
+          # Debug: print state and transition
+          if ENV["LOGOS_DEBUG_DFA_SEARCH"]?
+            puts "Reverse search: idx=#{idx}, byte=#{byte}, byte_class=#{byte_class}, current_state=#{current_state_id.to_i}, next_state=#{next_state_id.to_i}"
+          end
+
+          # Check for quit state
+          if ::Regex::Automata::DFA.quit_state?(next_state_id)
+            return MatchError.quit(byte, idx)
+          end
+
+          if next_state_id.to_i < 0
+            # No transition - stop searching
+            break
+          end
+
+          current_state_id = next_state_id
+          state = states[current_state_id.to_i]
+          if state.accepting?
+            # In reverse search, we report the start position (idx)
+            last_match = {idx, state.match}
+          end
+          idx -= 1
+        end
       end
 
       # Check if start state is accepting (empty string match)
@@ -707,21 +796,35 @@ module Regex::Automata::DFA
 
     # Get next state ID for given byte
     def next_state(current : StateID, input : UInt8) : StateID
-      byte_class = @byte_classifier[input]
-      next_id = @states[current.to_i].next[byte_class]
-      next_id.to_i >= 0 ? next_id : StateID.new(0)
+      if tt = @tt
+        next_id = tt.next_state(current, input)
+        next_id.to_i >= 0 ? next_id : StateID.new(0)
+      else
+        byte_class = @byte_classifier[input]
+        next_id = @states[current.to_i].next[byte_class]
+        next_id.to_i >= 0 ? next_id : StateID.new(0)
+      end
     end
 
     # Unsafe version of next_state that assumes valid state ID
     def next_state_unchecked(current : StateID, input : UInt8) : StateID
-      byte_class = @byte_classifier[input]
-      @states[current.to_i].next[byte_class]
+      if tt = @tt
+        tt.next_state(current, input)
+      else
+        byte_class = @byte_classifier[input]
+        @states[current.to_i].next[byte_class]
+      end
     end
 
     # Get next state ID for end-of-input (EOI) transition
     def next_eoi_state(current : StateID) : StateID
-      next_id = @states[current.to_i].eoi_next
-      next_id.to_i >= 0 ? next_id : StateID.new(0)
+      if tt = @tt
+        next_id = tt.next_eoi_state(current)
+        next_id.to_i >= 0 ? next_id : StateID.new(0)
+      else
+        next_id = @states[current.to_i].eoi_next
+        next_id.to_i >= 0 ? next_id : StateID.new(0)
+      end
     end
 
     # Check if state is a match state
@@ -953,14 +1056,14 @@ module Regex::Automata::DFA
                       else
                         raise "Unreachable"
                       end
-       @dfa_states = [] of State
-       @state_map = {} of Tuple(Set(StateID), LookSet, Bool, Bool) => StateID
-       @start_unanchored = nil
-       @start_anchored = nil
+      @dfa_states = [] of State
+      @state_map = {} of Tuple(Set(StateID), LookSet, Bool, Bool) => StateID
+      @start_unanchored = nil
+      @start_anchored = nil
 
-       # Precompute whether NFA contains word boundary or CRLF assertions
-       @nfa_has_word = false
-       @nfa_has_crlf = false
+      # Precompute whether NFA contains word boundary or CRLF assertions
+      @nfa_has_word = false
+      @nfa_has_crlf = false
       if nfa = @nfa
         nfa.states.each do |state|
           if state.is_a?(NFA::Look)
@@ -1307,10 +1410,10 @@ module Regex::Automata::DFA
 
       # Compute accelerators if enabled
       accelerators = if @config.accelerate?
-                        compute_accelerators(@dfa_states, @byte_classes)
-                      else
-                        Array.new(@dfa_states.size) { Bytes.empty }
-                      end
+                       compute_accelerators(@dfa_states, @byte_classes)
+                     else
+                       Array.new(@dfa_states.size) { Bytes.empty }
+                     end
 
       # Create DFA flags from config
       flags = DFAFlags.new(
@@ -1320,7 +1423,7 @@ module Regex::Automata::DFA
         is_anchored: @config.start_kind == StartKind::Anchored
       )
 
-      DFA.new(@dfa_states, unanchored_start_id, @byte_classes, anchored_start_id, accelerators, nil, @quitset, flags)
+      DFA.new(@dfa_states, nil, unanchored_start_id, @byte_classes, anchored_start_id, accelerators, nil, @quitset, flags)
     end
 
     private def valid_nfa_start(start : StateID, fallback : StateID? = nil) : StateID
