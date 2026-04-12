@@ -6,6 +6,9 @@ module Regex::Automata
     @accelerate : Bool?
     @prefilter : Bool?
     @minimize : Bool?
+    @match_kind : MatchKind?
+    @start_kind : StartKind?
+    @starts_for_each_pattern : Bool?
     @byte_classes : Bool?
     @unicode_word_boundary : Bool?
     @quitset : ByteSet?
@@ -83,6 +86,39 @@ module Regex::Automata
       self
     end
 
+    # Set the match kind
+    def match_kind(kind : MatchKind) : Config
+      @match_kind = kind
+      self
+    end
+
+    # Get the match kind
+    def match_kind : MatchKind
+      @match_kind || MatchKind::LeftmostFirst
+    end
+
+    # Set the start kind
+    def start_kind(kind : StartKind) : Config
+      @start_kind = kind
+      self
+    end
+
+    # Get the start kind
+    def start_kind : StartKind
+      @start_kind || StartKind::Both
+    end
+
+    # Enable or disable start states for each pattern
+    def starts_for_each_pattern(yes : Bool) : Config
+      @starts_for_each_pattern = yes
+      self
+    end
+
+    # Check if start states for each pattern are enabled
+    def starts_for_each_pattern? : Bool
+      @starts_for_each_pattern || false
+    end
+
     # Get the quit set
     def quitset : ByteSet
       @quitset || ByteSet.empty
@@ -109,6 +145,9 @@ module Regex::Automata
       @accelerate = other.@accelerate
       @prefilter = other.@prefilter
       @minimize = other.@minimize
+      @match_kind = other.@match_kind
+      @start_kind = other.@start_kind
+      @starts_for_each_pattern = other.@starts_for_each_pattern
       @byte_classes = other.@byte_classes
       @unicode_word_boundary = other.@unicode_word_boundary
       @quitset = other.@quitset

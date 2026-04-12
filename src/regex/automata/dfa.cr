@@ -33,8 +33,8 @@ module Regex::Automata::DFA
   # DFA state with transitions for each byte class
   class State
     getter id : StateID
-    getter next : Array(StateID)    # indexed by byte class
-    getter match : Array(PatternID) # empty if not accepting
+    property next : Array(StateID)    # indexed by byte class
+    property match : Array(PatternID) # empty if not accepting
     getter look_need : LookSet      # look-around assertions present in this state
     getter look_have : LookSet      # look-around assertions satisfied at this state
     getter? is_from_word : Bool     # whether previous byte was a word byte (for word boundaries)
@@ -97,9 +97,363 @@ module Regex::Automata::DFA
 
     # Create a new DFA from multiple pattern strings using default configuration
     def self.new_many(patterns : Array(String)) : DFA
-      # For now, just build a DFA for the first pattern
-      # TODO: Implement proper multi-pattern DFA
-      Builder.new.build(patterns.first? || "")
+      Builder.new.build_many(patterns)
+    end
+
+    # Deserialize a DFA from bytes
+    # Returns a tuple of (DFA, bytes_read) or raises DeserializeError
+    def self.from_bytes(slice : Bytes) : Tuple(DFA, Int32)
+      from_bytes_with_endianness(slice, :little)
+    end
+
+    private def self.from_bytes_with_endianness(slice : Bytes, endianness : Symbol) : Tuple(DFA, Int32)
+      offset = 0
+
+      # Check magic
+      magic = slice[offset, 8]
+      unless magic == "CRDFA001".to_slice
+        raise DeserializeError.new("Invalid magic bytes")
+      end
+      offset += 8
+
+      # Read version
+      version = read_u32(slice, offset, endianness)
+      unless version == 1
+        raise DeserializeError.new("Unsupported version: #{version}")
+      end
+      offset += 4
+
+      # Read flags (ignored for now)
+      _flags = read_u32(slice, offset, endianness)
+      offset += 4
+
+      # Read state count
+      state_count = read_u32(slice, offset, endianness).to_i32
+      offset += 4
+
+      # Read start states
+      start_unanchored_unsigned = read_u32(slice, offset, endianness)
+      start_unanchored = StateID.new(unsigned_to_signed(start_unanchored_unsigned))
+      offset += 4
+      start_anchored_unsigned = read_u32(slice, offset, endianness)
+      start_anchored = StateID.new(unsigned_to_signed(start_anchored_unsigned))
+      offset += 4
+
+      # Read byte classes count
+      byte_classes_count = read_u32(slice, offset, endianness).to_i32
+      offset += 4
+
+      # Read byte class mapping
+      class_mapping = Array.new(256) do
+        byte_class = slice[offset].to_i32
+        offset += 1
+        byte_class
+      end
+
+      # Create ByteClasses object
+      byte_classes_obj = ByteClasses.new(class_mapping, byte_classes_count)
+
+      # Read states
+      states = Array(State).new(state_count)
+      state_count.times do
+        # Read state ID
+        id_unsigned = read_u32(slice, offset, endianness)
+        id = StateID.new(unsigned_to_signed(id_unsigned))
+        offset += 4
+
+        # Read transitions
+        trans_count = read_u32(slice, offset, endianness).to_i32
+        offset += 4
+        next_states = Array.new(trans_count) do
+          next_id_unsigned = read_u32(slice, offset, endianness)
+          offset += 4
+          StateID.new(unsigned_to_signed(next_id_unsigned))
+        end
+
+        # Read match patterns
+        match_count = read_u32(slice, offset, endianness).to_i32
+        offset += 4
+        match_patterns = Array.new(match_count) do
+          PatternID.new(read_u32(slice, offset, endianness).to_i32)
+        end
+        offset += match_count * 4
+
+        # Read look sets and flags
+        look_need = LookSet.new(read_u32(slice, offset, endianness))
+        offset += 4
+        look_have = LookSet.new(read_u32(slice, offset, endianness))
+        offset += 4
+        is_from_word = slice[offset] != 0
+        offset += 1
+        is_half_crlf = slice[offset] != 0
+        offset += 1
+        eoi_next_unsigned = read_u32(slice, offset, endianness)
+        eoi_next = StateID.new(unsigned_to_signed(eoi_next_unsigned))
+        offset += 4
+
+        # Create state
+        state = State.new(id, trans_count, look_need, look_have, is_from_word, is_half_crlf)
+        state.next = next_states
+        state.match = match_patterns
+        state.eoi_next = eoi_next
+        states << state
+      end
+
+      # Read accelerators
+      accel_count = read_u32(slice, offset, endianness).to_i32
+      offset += 4
+      accelerators = Array.new(accel_count) do
+        accel_size = read_u32(slice, offset, endianness).to_i32
+        offset += 4
+        accel = slice[offset, accel_size]
+        offset += accel_size
+        accel
+      end
+
+      # Read quit set
+      quit_bytes = slice[offset, 32]
+      offset += 32
+      quitset = ByteSet.from_bytes(quit_bytes)
+
+      # Create DFA
+      dfa = DFA.new(states, start_unanchored, byte_classes_obj, start_anchored, accelerators, nil, quitset)
+
+      {dfa, offset}
+    end
+
+    private def self.read_u32(slice : Bytes, offset : Int32, endianness : Symbol) : UInt32
+      case endianness
+      when :little
+        slice[offset].to_u32 |
+        (slice[offset + 1].to_u32 << 8) |
+        (slice[offset + 2].to_u32 << 16) |
+        (slice[offset + 3].to_u32 << 24)
+      when :big
+        (slice[offset].to_u32 << 24) |
+        (slice[offset + 1].to_u32 << 16) |
+        (slice[offset + 2].to_u32 << 8) |
+        slice[offset + 3].to_u32
+      when :native
+        read_u32(slice, offset, :little)
+      else
+        raise "Unsupported endianness: #{endianness}"
+      end
+    end
+
+    private def self.read_u64(slice : Bytes, offset : Int32, endianness : Symbol) : UInt64
+      case endianness
+      when :little
+        value = 0_u64
+        (0..7).each do |i|
+          value |= slice[offset + i].to_u64 << (i * 8)
+        end
+        value
+      when :big
+        value = 0_u64
+        (0..7).each do |i|
+          value |= slice[offset + i].to_u64 << ((7 - i) * 8)
+        end
+        value
+      when :native
+        read_u64(slice, offset, :little)
+      else
+        raise "Unsupported endianness: #{endianness}"
+      end
+    end
+
+    private def self.unsigned_to_signed(unsigned : UInt32) : Int32
+      if unsigned >= 0x80000000_u32
+        # Negative value stored as two's complement
+        -((0xFFFFFFFF_u32 - unsigned + 1).to_i32)
+      else
+        unsigned.to_i32
+      end
+    end
+
+    # Serialize this DFA to bytes in little-endian format
+    # Returns a tuple of (bytes, bytes_written)
+    def to_bytes_little_endian : Tuple(Bytes, Int32)
+      to_bytes_with_endianness(:little)
+    end
+
+    # Serialize this DFA to bytes in big-endian format
+    # Returns a tuple of (bytes, bytes_written)
+    def to_bytes_big_endian : Tuple(Bytes, Int32)
+      to_bytes_with_endianness(:big)
+    end
+
+    # Serialize this DFA to bytes in native-endian format
+    # Returns a tuple of (bytes, bytes_written)
+    def to_bytes_native_endian : Tuple(Bytes, Int32)
+      to_bytes_with_endianness(:native)
+    end
+
+    private def to_bytes_with_endianness(endianness : Symbol) : Tuple(Bytes, Int32)
+      # Calculate total size needed
+      total_size = 0
+
+      # Header: magic (8 bytes), version (4 bytes), flags (4 bytes)
+      total_size += 8 + 4 + 4
+
+      # State count (4 bytes), start_unanchored (4 bytes), start_anchored (4 bytes)
+      total_size += 4 + 4 + 4
+
+      # Byte classes count (4 bytes) + byte class mapping (256 bytes)
+      total_size += 4 + 256
+
+      # For each state:
+      @states.each do |state|
+        # id (4 bytes), transitions count (4 bytes), match patterns count (4 bytes)
+        total_size += 4 + 4 + 4
+        # transitions (each 4 bytes)
+        total_size += state.next.size * 4
+        # match patterns (each 4 bytes)
+        total_size += state.match.size * 4
+        # look_need (4 bytes), look_have (4 bytes), is_from_word (1 byte), is_half_crlf (1 byte), eoi_next (4 bytes)
+        total_size += 4 + 4 + 1 + 1 + 4
+      end
+
+      # Accelerators: count (4 bytes) + for each accelerator: length (4 bytes) + bytes
+      total_size += 4
+      @accelerators.each do |accel|
+        total_size += 4 + accel.size
+      end
+
+      # Quit set: 32 bytes (256 bits / 8)
+      total_size += 32
+
+      # Allocate buffer
+      buffer = Bytes.new(total_size)
+      offset = 0
+
+      # Write magic "CRDFA001"
+      buffer[offset, 8].copy_from("CRDFA001".to_slice)
+      offset += 8
+
+      # Write version (1)
+      write_u32(1, buffer, offset, endianness)
+      offset += 4
+
+      # Write flags (placeholder for now)
+      write_u32(0, buffer, offset, endianness)
+      offset += 4
+
+      # Write state count
+      write_u32(@states.size.to_u32, buffer, offset, endianness)
+      offset += 4
+
+      # Write start states
+      start_unanchored_value = @start_unanchored.to_i
+      start_unanchored_unsigned = start_unanchored_value < 0 ? (0xFFFFFFFF_u32 + start_unanchored_value + 1).to_u32 : start_unanchored_value.to_u32
+      write_u32(start_unanchored_unsigned, buffer, offset, endianness)
+      offset += 4
+
+      start_anchored_value = @start_anchored.to_i
+      start_anchored_unsigned = start_anchored_value < 0 ? (0xFFFFFFFF_u32 + start_anchored_value + 1).to_u32 : start_anchored_value.to_u32
+      write_u32(start_anchored_unsigned, buffer, offset, endianness)
+      offset += 4
+
+      # Write byte classes count
+      write_u32(@byte_classes.to_u32, buffer, offset, endianness)
+      offset += 4
+
+      # Write byte class mapping
+      (0..255).each do |byte|
+        buffer[offset] = @byte_classifier[byte].to_u8
+        offset += 1
+      end
+
+      # Write states
+      @states.each do |state|
+        # Write state ID
+        id_value = state.id.to_i
+        id_unsigned = id_value < 0 ? (0xFFFFFFFF_u32 + id_value + 1).to_u32 : id_value.to_u32
+        write_u32(id_unsigned, buffer, offset, endianness)
+        offset += 4
+
+        # Write transitions count and transitions
+        write_u32(state.next.size.to_u32, buffer, offset, endianness)
+        offset += 4
+        state.next.each do |next_id|
+          # Convert signed to unsigned, preserving negative values as large positive values
+          value = next_id.to_i
+          unsigned_value = value < 0 ? (0xFFFFFFFF_u32 + value + 1).to_u32 : value.to_u32
+          write_u32(unsigned_value, buffer, offset, endianness)
+          offset += 4
+        end
+
+        # Write match patterns count and patterns
+        write_u32(state.match.size.to_u32, buffer, offset, endianness)
+        offset += 4
+        state.match.each do |pattern_id|
+          write_u32(pattern_id.to_i.to_u32, buffer, offset, endianness)
+          offset += 4
+        end
+
+        # Write look sets and flags
+        write_u32(state.look_need.to_u32, buffer, offset, endianness)
+        offset += 4
+        write_u32(state.look_have.to_u32, buffer, offset, endianness)
+        offset += 4
+        buffer[offset] = state.is_from_word? ? 1_u8 : 0_u8
+        offset += 1
+        buffer[offset] = state.is_half_crlf? ? 1_u8 : 0_u8
+        offset += 1
+        eoi_next_value = state.eoi_next.to_i
+        eoi_next_unsigned = eoi_next_value < 0 ? (0xFFFFFFFF_u32 + eoi_next_value + 1).to_u32 : eoi_next_value.to_u32
+        write_u32(eoi_next_unsigned, buffer, offset, endianness)
+        offset += 4
+      end
+
+      # Write accelerators
+      write_u32(@accelerators.size.to_u32, buffer, offset, endianness)
+      offset += 4
+      @accelerators.each do |accel|
+        write_u32(accel.size.to_u32, buffer, offset, endianness)
+        offset += 4
+        buffer[offset, accel.size].copy_from(accel)
+        offset += accel.size
+      end
+
+      # Write quit set (32 bytes for 256 bits)
+      quit_bytes = @quitset.to_bytes
+      buffer[offset, 32].copy_from(quit_bytes)
+      offset += 32
+
+      {buffer, offset}
+    end
+
+    private def write_u32(value : UInt32, buffer : Bytes, offset : Int32, endianness : Symbol)
+      case endianness
+      when :little
+        buffer[offset] = (value & 0xFF).to_u8
+        buffer[offset + 1] = ((value >> 8) & 0xFF).to_u8
+        buffer[offset + 2] = ((value >> 16) & 0xFF).to_u8
+        buffer[offset + 3] = ((value >> 24) & 0xFF).to_u8
+      when :big
+        buffer[offset] = ((value >> 24) & 0xFF).to_u8
+        buffer[offset + 1] = ((value >> 16) & 0xFF).to_u8
+        buffer[offset + 2] = ((value >> 8) & 0xFF).to_u8
+        buffer[offset + 3] = (value & 0xFF).to_u8
+      when :native
+        # Native is little-endian on most systems
+        write_u32(value, buffer, offset, :little)
+      end
+    end
+
+    private def write_u64(value : UInt64, buffer : Bytes, offset : Int32, endianness : Symbol)
+      case endianness
+      when :little
+        (0..7).each do |i|
+          buffer[offset + i] = ((value >> (i * 8)) & 0xFF).to_u8
+        end
+      when :big
+        (0..7).each do |i|
+          buffer[offset + i] = ((value >> ((7 - i) * 8)) & 0xFF).to_u8
+        end
+      when :native
+        write_u64(value, buffer, offset, :little)
+      end
     end
 
     def initialize(@states : Array(State), start_unanchored : StateID, byte_classes : ByteClasses | Int32, start_anchored : StateID? = nil, accelerators : Array(Bytes)? = nil, prefilter : Prefilter? = nil, quitset : ByteSet = ByteSet.new, flags : DFAFlags = DFAFlags.new)
@@ -635,6 +989,20 @@ module Regex::Automata::DFA
       Builder.from_nfa(nfa, @config).build
     end
 
+    # Build a DFA from multiple pattern strings
+    def build_many(patterns : Array(String)) : DFA
+      # Parse patterns to HIRs
+      hirs = patterns.map do |pattern|
+        Regex::Syntax::Parser.new.parse(pattern)
+      end
+
+      # Compile HIRs to NFA
+      nfa = @hir_compiler.compile_multi(hirs)
+
+      # Build DFA from NFA
+      Builder.from_nfa(nfa, @config).build
+    end
+
     # Compute accelerators for DFA states
     private def compute_accelerators(states : Array(State), byte_classes : ByteClasses) : Array(Bytes)
       accelerators = Array.new(states.size) { Bytes.empty }
@@ -884,12 +1252,19 @@ module Regex::Automata::DFA
 
       # Compute accelerators if enabled
       accelerators = if @config.accelerate?
-                       compute_accelerators(@dfa_states, @byte_classes)
-                     else
-                       Array.new(@dfa_states.size) { Bytes.empty }
-                     end
+                        compute_accelerators(@dfa_states, @byte_classes)
+                      else
+                        Array.new(@dfa_states.size) { Bytes.empty }
+                      end
 
-      DFA.new(@dfa_states, unanchored_start_id, @byte_classes, anchored_start_id, accelerators)
+      # Create DFA flags from config
+      flags = DFAFlags.new(
+        has_byte_classes: true,
+        is_utf8: @config.unicode_word_boundary?,
+        # TODO: Set other flags from config
+      )
+
+      DFA.new(@dfa_states, unanchored_start_id, @byte_classes, anchored_start_id, accelerators, nil, @quitset, flags)
     end
 
     private def valid_nfa_start(start : StateID, fallback : StateID? = nil) : StateID
