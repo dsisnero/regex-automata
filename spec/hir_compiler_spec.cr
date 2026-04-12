@@ -1,5 +1,5 @@
 require "./spec_helper"
-require "../../regex-syntax/src/regex-syntax"
+require "regex-syntax"
 require "../../regex-automata/src/regex/automata/dfa"
 
 describe Regex::Automata::HirCompiler do

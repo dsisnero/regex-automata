@@ -6,6 +6,7 @@ require "./config"
 require "./automaton"
 require "./hir_compiler"
 require "set"
+require "regex-syntax"
 
 module Regex::Automata::DFA
   include Regex::Automata

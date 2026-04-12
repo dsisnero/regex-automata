@@ -1,5 +1,5 @@
 require "./spec_helper"
-require "../../regex-syntax/src/regex-syntax"
+require "regex-syntax"
 require "../src/regex/automata/search"
 
 describe "DFA API" do
