@@ -170,4 +170,70 @@ describe "DFA API" do
       end
     end
   end
+
+  describe "serialization" do
+    it "serializes and deserializes a DFA" do
+      # Create a simple DFA
+      dfa = Regex::Automata::DFA::Builder.new.build("abc")
+
+      # Serialize to little-endian
+      bytes, bytes_written = dfa.to_bytes_little_endian
+      bytes_written.should be > 0
+
+      # Deserialize
+      dfa2, bytes_read = Regex::Automata::DFA::DFA.from_bytes(bytes)
+      bytes_read.should eq(bytes_written)
+
+      # Test that deserialized DFA works
+      result = dfa2.try_search_fwd("abc".to_slice)
+      result.should_not be_nil
+      result.should_not be_a(Regex::Automata::MatchError)
+
+      if match = result.as?(Tuple(Int32, Array(Regex::Automata::PatternID)))
+        end_pos, pattern_ids = match
+        end_pos.should eq(3) # "abc" ends at position 3
+        pattern_ids.should eq([Regex::Automata::PatternID.new(0)])
+      end
+    end
+
+    it "serializes and deserializes a DFA with quit bytes" do
+      # Create a DFA with quit bytes
+      config = Regex::Automata::Config.new.quit('x'.ord.to_u8, true)
+      dfa = Regex::Automata::DFA::Builder.new
+        .configure(config)
+        .build("abcd")
+
+      # Serialize to little-endian (from_bytes assumes little-endian)
+      bytes, bytes_written = dfa.to_bytes_little_endian
+      bytes_written.should be > 0
+
+      # Deserialize
+      dfa2, bytes_read = Regex::Automata::DFA::DFA.from_bytes(bytes)
+      bytes_read.should eq(bytes_written)
+
+      # Test that quit bytes still work
+      result = dfa2.try_search_fwd("abcxyz".to_slice)
+      result.should be_a(Regex::Automata::MatchError)
+    end
+
+    it "serializes and deserializes a multi-pattern DFA" do
+      # Create a multi-pattern DFA
+      dfa = Regex::Automata::DFA::DFA.new_many(["abc", "def"])
+
+      # Serialize to little-endian (from_bytes assumes little-endian)
+      bytes, bytes_written = dfa.to_bytes_little_endian
+      bytes_written.should be > 0
+
+      # Deserialize
+      dfa2, bytes_read = Regex::Automata::DFA::DFA.from_bytes(bytes)
+      bytes_read.should eq(bytes_written)
+
+      # Test that both patterns work
+      result1 = dfa2.try_search_fwd("abc".to_slice)
+      result1.should_not be_a(Regex::Automata::MatchError)
+
+      result2 = dfa2.try_search_fwd("def".to_slice)
+      result2.should_not be_a(Regex::Automata::MatchError)
+    end
+  end
 end
