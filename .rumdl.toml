@@ -1,0 +1,28 @@
+# Rumdl configuration for regex-automata Crystal port
+# See: https://github.com/rumdl/rumdl
+
+[global]
+name = "regex-automata"
+version = "0.1.0"
+description = "Crystal port of Rust's regex-automata crate"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/dsisnero/regex-automata"
+upstream = "https://github.com/rust-lang/regex/tree/master/regex-automata"
+exclude = [
+  "lib",
+  "temp",
+  "vendor",
+  ".crystal-cache",
+  ".shards",
+]
+
+[quality]
+crystal_version = ">= 1.19.1"
+format_check = true
+lint_check = true
+test_check = true
+
+[inventory]
+source_path = "vendor/regex/regex-automata"
+language = "rust"
+parity_tracking = true
