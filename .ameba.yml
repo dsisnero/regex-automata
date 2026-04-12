@@ -1,0 +1,221 @@
+# Crystal Forge baseline ameba configuration
+# See https://github.com/crystal-ameba/ameba
+
+Version: 0.1.0
+
+# Enable/disable rules
+AllCops:
+  Enabled: true
+
+# Style rules
+Style/AndOr:
+  Enabled: true
+
+Style/BlockDelimiters:
+  Enabled: true
+
+Style/CaseEquality:
+  Enabled: true
+
+Style/ClassVars:
+  Enabled: true
+
+Style/ConstantNames:
+  Enabled: true
+
+Style/Documentation:
+  Enabled: false  # Disable for porting work
+
+Style/DoubleNegation:
+  Enabled: true
+
+Style/EmptyElse:
+  Enabled: true
+
+Style/GlobalVars:
+  Enabled: true
+
+Style/GuardClause:
+  Enabled: true
+
+Style/IfUnlessModifier:
+  Enabled: true
+
+Style/InlineComment:
+  Enabled: true
+
+Style/MethodNames:
+  Enabled: true
+
+Style/MultilineBlockChain:
+  Enabled: true
+
+Style/MultilineTernaryOperator:
+  Enabled: true
+
+Style/NegatedIf:
+  Enabled: true
+
+Style/NegatedWhile:
+  Enabled: true
+
+Style/NestedModifier:
+  Enabled: true
+
+Style/NilComparison:
+  Enabled: true
+
+Style/NotNil:
+  Enabled: true
+
+Style/PreferredFileMethods:
+  Enabled: true
+
+Style/RedundantBegin:
+  Enabled: true
+
+Style/RedundantReturn:
+  Enabled: true
+
+Style/SelfAssignment:
+  Enabled: true
+
+Style/SignalException:
+  Enabled: true
+
+Style/SingleLineMethods:
+  Enabled: true
+
+Style/SpecialGlobalVars:
+  Enabled: true
+
+Style/StringLiterals:
+  Enabled: true
+  EnforcedStyle: double_quotes
+
+Style/SymbolArray:
+  Enabled: true
+
+Style/TernaryParentheses:
+  Enabled: true
+
+Style/TrailingComma:
+  Enabled: true
+
+Style/UnlessElse:
+  Enabled: true
+
+Style/VerboseBlock:
+  Enabled: true
+
+# Lint rules
+Lint/AssignmentInCondition:
+  Enabled: true
+
+Lint/BeginBlock:
+  Enabled: true
+
+Lint/DeprecatedClassMethods:
+  Enabled: true
+
+Lint/DuplicatedKey:
+  Enabled: true
+
+Lint/EmptyExpression:
+  Enabled: true
+
+Lint/ImplicitStringConcatenation:
+  Enabled: true
+
+Lint/MissingCopEnableDirective:
+  Enabled: true
+
+Lint/NotNilCheck:
+  Enabled: true
+
+Lint/ShadowingOuterLocalVar:
+  Enabled: true
+
+Lint/Syntax:
+  Enabled: true
+
+Lint/UnreachableCode:
+  Enabled: true
+
+Lint/UselessAssign:
+  Enabled: true
+
+Lint/UselessCmp:
+  Enabled: true
+
+# Performance rules
+Performance/AnyAllNone:
+  Enabled: true
+
+Performance/ArrayLiteralPush:
+  Enabled: true
+
+Performance/CompactMap:
+  Enabled: true
+
+Performance/Count:
+  Enabled: true
+
+Performance/DeletePrefixSuffix:
+  Enabled: true
+
+Performance/DoubleStartEndWith:
+  Enabled: true
+
+Performance/EndWith:
+  Enabled: true
+
+Performance/FlattenAfterMap:
+  Enabled: true
+
+Performance/InefficientHashMethod:
+  Enabled: true
+
+Performance/MapCompact:
+  Enabled: true
+
+Performance/ReverseFirst:
+  Enabled: true
+
+Performance/Size:
+  Enabled: true
+
+Performance/StartWith:
+  Enabled: true
+
+Performance/StringInclude:
+  Enabled: true
+
+Performance/TimesMap:
+  Enabled: true
+
+# Metrics rules
+Metrics/AbcSize:
+  Enabled: false  # Disable for porting work
+
+Metrics/BlockLength:
+  Enabled: false  # Disable for porting work
+
+Metrics/ClassLength:
+  Enabled: false  # Disable for porting work
+
+Metrics/CyclomaticComplexity:
+  Enabled: false  # Disable for porting work
+
+Metrics/MethodLength:
+  Enabled: false  # Disable for porting work
+
+Metrics/ModuleLength:
+  Enabled: false  # Disable for porting work
+
+# Exclude directories
+Excluded:
+  - lib/**/*
+  - temp/**/*
+  - vendor/**/*
+  - .crystal-cache/

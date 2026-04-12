@@ -1,0 +1,27 @@
+name: regex-automata
+version: 0.1.0
+
+authors:
+  - Logos Maintainers <logos@maciej.codes>
+
+crystal: '>= 1.19.1'
+
+license: MIT OR Apache-2.0
+
+description: |
+  Automata construction and matching using regular expressions for Crystal,
+  ported from Rust's regex-automata crate.
+
+  This crate provides NFA and DFA construction from regular expressions,
+  with support for both dense and sparse representations.
+
+repository: https://github.com/maciejhirsz/logos
+
+dependencies:
+  regex-syntax:
+    github: dsisnero/regex-syntax
+
+development_dependencies:
+  ameba:
+    github: crystal-ameba/ameba
+    version: ~> 1.0
