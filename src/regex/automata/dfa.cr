@@ -1086,19 +1086,53 @@ module Regex::Automata::DFA
       raise "No NFA configured. Use build(pattern) or provide an NFA to the builder." unless @nfa
 
       nfa = @nfa.not_nil!
-      unanchored_start_nfa = valid_nfa_start(nfa.start_unanchored)
-      anchored_start_nfa = valid_nfa_start(nfa.start_anchored, fallback: unanchored_start_nfa)
-      # Start with epsilon closure of NFA start states
-      unanchored_start_set = nfa.epsilon_closure(Set{unanchored_start_nfa})
-      anchored_start_set = nfa.epsilon_closure(Set{anchored_start_nfa})
+
+      # Create start states based on start_kind configuration
       start_look_have = LookSet.new.insert(Look::StartLF).insert(Look::Start)
       if @nfa_has_crlf
         start_look_have = start_look_have.insert(Look::StartCRLF)
       end
-      unanchored_start_id = add_dfa_state(unanchored_start_set, start_look_have, false, false)
-      anchored_start_id = add_dfa_state(anchored_start_set, start_look_have, false, false)
-      @start_unanchored = unanchored_start_id
-      @start_anchored = anchored_start_id
+
+      unanchored_start_id = nil
+      anchored_start_id = nil
+      unanchored_start_set = nil
+      anchored_start_set = nil
+
+      case @config.start_kind
+      when StartKind::Both, StartKind::Unanchored
+        # Create unanchored start state
+        unanchored_start_nfa = valid_nfa_start(nfa.start_unanchored)
+        unanchored_start_set = nfa.epsilon_closure(Set{unanchored_start_nfa})
+        unanchored_start_id = add_dfa_state(unanchored_start_set, start_look_have, false, false)
+        @start_unanchored = unanchored_start_id
+      end
+
+      case @config.start_kind
+      when StartKind::Both, StartKind::Anchored
+        # Create anchored start state
+        anchored_start_nfa = valid_nfa_start(nfa.start_anchored, fallback: unanchored_start_nfa)
+        anchored_start_set = nfa.epsilon_closure(Set{anchored_start_nfa})
+        anchored_start_id = add_dfa_state(anchored_start_set, start_look_have, false, false)
+        @start_anchored = anchored_start_id
+      end
+
+      # DFA constructor requires at least unanchored start state
+      # If unanchored start state wasn't created (start_kind == Anchored),
+      # use anchored start state as unanchored
+      unless unanchored_start_id
+        unanchored_start_id = anchored_start_id
+        @start_unanchored = unanchored_start_id
+      end
+
+      # If anchored start state wasn't created, use unanchored as anchored
+      unless anchored_start_id
+        anchored_start_id = unanchored_start_id
+        @start_anchored = anchored_start_id
+      end
+
+      # At this point, both should be non-nil
+      unanchored_start_id = unanchored_start_id.not_nil!
+      anchored_start_id = anchored_start_id.not_nil!
 
       # Add quit state if we have quit bytes
       unless @quitset.empty?
@@ -1106,15 +1140,21 @@ module Regex::Automata::DFA
       end
 
       # Process queue of unprocessed DFA states
-      queue = [unanchored_start_id]
-      processed = Set{unanchored_start_id}
-      unless processed.includes?(anchored_start_id)
+      queue = [] of StateID
+      processed = Set(StateID).new
+
+      if unanchored_start_id
+        queue << unanchored_start_id
+        processed.add(unanchored_start_id)
+      end
+
+      if anchored_start_id && anchored_start_id != unanchored_start_id && !processed.includes?(anchored_start_id)
         queue << anchored_start_id
         processed.add(anchored_start_id)
       end
 
       if ENV["LOGOS_DEBUG_DFA_BUILD"]?
-        puts "DFA build: unanchored_start_set size #{unanchored_start_set.size}, unanchored_start_id #{unanchored_start_id}, anchored_start_id #{anchored_start_id}"
+        puts "DFA build: unanchored_start_set size #{unanchored_start_set.try(&.size) || 0}, unanchored_start_id #{unanchored_start_id}, anchored_start_id #{anchored_start_id}"
       end
 
       while !queue.empty?
@@ -1276,7 +1316,8 @@ module Regex::Automata::DFA
       flags = DFAFlags.new(
         has_byte_classes: true,
         is_utf8: @config.unicode_word_boundary?,
-        # TODO: Set other flags from config
+        is_leftmost: @config.match_kind == MatchKind::LeftmostFirst,
+        is_anchored: @config.start_kind == StartKind::Anchored
       )
 
       DFA.new(@dfa_states, unanchored_start_id, @byte_classes, anchored_start_id, accelerators, nil, @quitset, flags)
