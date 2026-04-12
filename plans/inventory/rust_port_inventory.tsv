@@ -22,7 +22,7 @@ src/dfa/automaton.rs::func::start	func	missing	-	auto-generated
 src/dfa/automaton.rs::method::OverlappingState.start	method	missing	-	auto-generated
 src/dfa/automaton.rs::struct::OverlappingState	struct	missing	-	auto-generated
 src/dfa/automaton.rs::test::object_safe	test	missing	-	auto-generated
-src/dfa/dense.rs::func::accelerate	func	missing	-	auto-generated
+src/dfa/dense.rs::func::accelerate	func	ported	src/regex/automata/config.cr:Config.accelerate	auto-generated
 src/dfa/dense.rs::func::alphabet_len	func	missing	-	auto-generated
 src/dfa/dense.rs::func::always_match	func	missing	-	auto-generated
 src/dfa/dense.rs::func::as_ref	func	missing	-	auto-generated
@@ -41,7 +41,7 @@ src/dfa/dense.rs::func::get_determinize_size_limit	func	missing	-	auto-generated
 src/dfa/dense.rs::func::get_dfa_size_limit	func	missing	-	auto-generated
 src/dfa/dense.rs::func::get_match_kind	func	missing	-	auto-generated
 src/dfa/dense.rs::func::get_minimize	func	missing	-	auto-generated
-src/dfa/dense.rs::func::get_prefilter	func	missing	-	auto-generated
+src/dfa/dense.rs::func::get_prefilter	func	ported	src/regex/automata/dfa.cr:DFA.get_prefilter	auto-generated
 src/dfa/dense.rs::func::get_quit	func	missing	-	auto-generated
 src/dfa/dense.rs::func::get_specialize_start_states	func	missing	-	auto-generated
 src/dfa/dense.rs::func::get_starts	func	missing	-	auto-generated
@@ -54,7 +54,7 @@ src/dfa/dense.rs::func::minimize	func	missing	-	auto-generated
 src/dfa/dense.rs::func::never_match	func	missing	-	auto-generated
 src/dfa/dense.rs::func::new	func	missing	-	auto-generated
 src/dfa/dense.rs::func::prefilter	func	missing	-	auto-generated
-src/dfa/dense.rs::func::quit	func	missing	-	auto-generated
+src/dfa/dense.rs::func::quit	func	ported	src/regex/automata/config.cr:Config.quit	auto-generated
 src/dfa/dense.rs::func::set_prefilter	func	missing	-	auto-generated
 src/dfa/dense.rs::func::specialize_start_states	func	missing	-	auto-generated
 src/dfa/dense.rs::func::start_kind	func	missing	-	auto-generated
@@ -68,7 +68,7 @@ src/dfa/dense.rs::func::to_bytes_little_endian	func	missing	-	auto-generated
 src/dfa/dense.rs::func::to_bytes_native_endian	func	missing	-	auto-generated
 src/dfa/dense.rs::func::to_owned	func	missing	-	auto-generated
 src/dfa/dense.rs::func::to_sparse	func	missing	-	auto-generated
-src/dfa/dense.rs::func::unicode_word_boundary	func	missing	-	auto-generated
+src/dfa/dense.rs::func::unicode_word_boundary	func	ported	src/regex/automata/config.cr:Config.unicode_word_boundary	auto-generated
 src/dfa/dense.rs::func::write_to_big_endian	func	missing	-	auto-generated
 src/dfa/dense.rs::func::write_to_len	func	missing	-	auto-generated
 src/dfa/dense.rs::func::write_to_little_endian	func	missing	-	auto-generated

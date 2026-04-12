@@ -9,6 +9,26 @@ module Regex::Automata
     Pattern
   end
 
+  # The match semantics to use for a regex
+  enum MatchKind
+    # Report all possible matches
+    All
+    # Report only the leftmost matches. When multiple leftmost matches exist,
+    # report the match corresponding to the part of the regex that appears
+    # first in the syntax.
+    LeftmostFirst
+  end
+
+  # The kind of start states to support in a DFA
+  enum StartKind
+    # Support both anchored and unanchored searches
+    Both
+    # Support only unanchored searches
+    Unanchored
+    # Support only anchored searches
+    Anchored
+  end
+
   # A half match reported by a regex engine
   struct HalfMatch
     # The pattern ID
