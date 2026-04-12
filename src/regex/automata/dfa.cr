@@ -93,8 +93,14 @@ module Regex::Automata::DFA
 
     # Constructor with flat transition table optimization
     def initialize(@states : Array(State), @tt : TransitionTable?, start_unanchored : StateID, byte_classes : ByteClasses | Int32, start_anchored : StateID? = nil, accelerators : Array(Bytes)? = nil, prefilter : Prefilter? = nil, quitset : ByteSet = ByteSet.new, flags : DFAFlags = DFAFlags.new)
-      @start_unanchored = start_unanchored
-      @start_anchored = start_anchored || start_unanchored
+      # Convert start states to premultiplied IDs if we have a transition table
+      if @tt
+        @start_unanchored = @tt.not_nil!.to_state_id(start_unanchored.to_i)
+        @start_anchored = @tt.not_nil!.to_state_id((start_anchored || start_unanchored).to_i)
+      else
+        @start_unanchored = start_unanchored
+        @start_anchored = start_anchored || start_unanchored
+      end
       @byte_classifier = case byte_classes
                          when ByteClasses
                            byte_classes
@@ -111,11 +117,12 @@ module Regex::Automata::DFA
 
       # If tt is not provided, create one from states
       if @tt.nil?
-        # Calculate stride (next power of 2 >= alphabet_len)
+        # Calculate stride (next power of 2 >= alphabet_len + 1 for EOI)
+        # alphabet_len is number of byte classes, EOI is alphabet_len
         alphabet_len = @byte_classifier.alphabet_len
         stride2 = 0
         stride = 1
-        while stride < alphabet_len
+        while stride < alphabet_len + 1
           stride <<= 1
           stride2 += 1
         end
@@ -129,12 +136,29 @@ module Regex::Automata::DFA
 
           # Copy transitions
           state.next.each_with_index do |next_id, byte_class|
-            @tt.not_nil!.set_transition_by_class(state_id, byte_class, next_id)
+            # Convert old state ID to premultiplied state ID
+            # Special states (dead = -1, quit = -2) remain unchanged
+            premultiplied_next_id = if next_id.to_i >= 0
+                                      @tt.not_nil!.to_state_id(next_id.to_i)
+                                    else
+                                      next_id
+                                    end
+            @tt.not_nil!.set_transition_by_class(state_id, byte_class, premultiplied_next_id)
           end
 
-          # Note: EOI transitions are not copied to flat table
-          # They remain in the State objects
+          # Copy EOI transition
+          eoi_next = state.eoi_next
+          premultiplied_eoi_next = if eoi_next.to_i >= 0
+                                     @tt.not_nil!.to_state_id(eoi_next.to_i)
+                                   else
+                                     eoi_next
+                                   end
+          @tt.not_nil!.set_eoi_transition(state_id, premultiplied_eoi_next)
         end
+
+        # Convert start states to premultiplied IDs now that we have a transition table
+        @start_unanchored = @tt.not_nil!.to_state_id(@start_unanchored.to_i)
+        @start_anchored = @tt.not_nil!.to_state_id(@start_anchored.to_i)
       end
     end
 
@@ -515,7 +539,11 @@ module Regex::Automata::DFA
 
     # Get state by ID
     def [](id : StateID) : State
-      @states[id.to_i]
+      state_idx = id.to_i
+      if tt = @tt
+        state_idx = tt.to_index(id)
+      end
+      @states[state_idx]
     end
 
     # Remove dead states (unreachable or can't reach accept state)
@@ -525,7 +553,11 @@ module Regex::Automata::DFA
       stack = [@start_unanchored]
       while !stack.empty?
         state_id = stack.pop
-        current_state = @states[state_id.to_i]
+        state_idx = state_id.to_i
+        if tt = @tt
+          state_idx = tt.to_index(state_id)
+        end
+        current_state = @states[state_idx]
         current_state.next.each do |next_id|
           if next_id.to_i >= 0 && !forward.includes?(next_id)
             forward.add(next_id)
@@ -578,7 +610,11 @@ module Regex::Automata::DFA
         new_id = StateID.new(new_index)
         old_to_new[old_id] = new_id
         # Create copy of state with new ID
-        old_state = @states[old_id.to_i]
+        state_idx = old_id.to_i
+        if tt = @tt
+          state_idx = tt.to_index(old_id)
+        end
+        old_state = @states[state_idx]
         new_state = old_state.dup(new_id)
         new_states << new_state
       end
@@ -681,7 +717,8 @@ module Regex::Automata::DFA
           end
 
           current_state_id = next_state_id
-          state = states[current_state_id.to_i]
+          state_idx = tt.to_index(current_state_id)
+          state = states[state_idx]
           if state.accepting?
             last_match = {idx + 1, state.match}
           end
@@ -747,7 +784,9 @@ module Regex::Automata::DFA
           end
 
           current_state_id = next_state_id
-          state = states[current_state_id.to_i]
+          state_idx = current_state_id.to_i
+          state_idx = tt.to_index(current_state_id) if tt
+          state = states[state_idx]
           if state.accepting?
             # In reverse search, we report the start position (idx)
             last_match = {idx, state.match}
@@ -829,7 +868,11 @@ module Regex::Automata::DFA
 
     # Check if state is a match state
     def match_state?(id : StateID) : Bool
-      !@states[id.to_i].match.empty?
+      state_idx = id.to_i
+      if tt = @tt
+        state_idx = tt.to_index(id)
+      end
+      !@states[state_idx].match.empty?
     end
 
     # Alias for compatibility with Rust Automaton trait
@@ -869,12 +912,20 @@ module Regex::Automata::DFA
 
     # Returns the number of matches in the given state
     def match_len(id : StateID) : Int32
-      @states[id.to_i].match.size
+      state_idx = id.to_i
+      if tt = @tt
+        state_idx = tt.to_index(id)
+      end
+      @states[state_idx].match.size
     end
 
     # Returns the pattern ID for the match at the given index in the given state
     def match_pattern(id : StateID, index : Int32) : PatternID
-      @states[id.to_i].match[index]
+      state_idx = id.to_i
+      if tt = @tt
+        state_idx = tt.to_index(id)
+      end
+      @states[state_idx].match[index]
     end
 
     # Returns true if and only if this automaton is guaranteed to be valid for UTF-8 input

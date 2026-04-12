@@ -30,8 +30,9 @@ module Regex::Automata
     end
 
     # Get the alphabet length (number of byte classes including EOI)
+    # This returns the total number of entries per state in the table
     def alphabet_len : Int32
-      @classes.alphabet_len
+      @classes.alphabet_len + 1 # +1 for EOI
     end
 
     # Get number of states in the table
@@ -73,15 +74,10 @@ module Regex::Automata
     # Get next state for EOI (end of input) transition
     # Note: EOI is handled as a special case, not through byte classes
     def next_eoi_state(state_id : StateID) : StateID
-      # For now, return dead state since we don't have EOI transitions in flat table
-      StateID.new(-1)
-    end
-
-    # Set EOI transition for given state ID
-    # Note: EOI is handled as a special case, not through byte classes
-    def set_eoi_transition(state_id : StateID, target : StateID)
-      # For now, do nothing since we don't have EOI transitions in flat table
-      # EOI transitions are stored in the State objects
+      # EOI is stored at offset = state_id + alphabet_len (where alphabet_len is number of byte classes)
+      eoi_class = @classes.alphabet_len
+      offset = state_id.to_i + eoi_class
+      @table[offset]
     end
 
     # Set transition for given state ID and byte
@@ -98,8 +94,9 @@ module Regex::Automata
     end
 
     # Set EOI transition for given state ID
+    # EOI is treated as one past the last regular byte class
     def set_eoi_transition(state_id : StateID, target : StateID)
-      eoi_class = @classes.eoi
+      eoi_class = @classes.alphabet_len
       offset = state_id.to_i + eoi_class
       @table[offset] = target
     end
