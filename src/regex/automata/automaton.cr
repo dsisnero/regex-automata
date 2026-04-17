@@ -65,20 +65,17 @@ module Regex::Automata
     def start_state_forward(input : Input) : StateID | MatchError
       config = StartConfig.from_input_forward(input)
       result = start_state(config)
+      return result if result.is_a?(StateID)
+
       case result
-      when StateID
-        result
-      when StartError
-        case result
-        when QuitStartError
-          # For forward search, the quit byte is at position start-1
-          offset = input.start > 0 ? input.start - 1 : 0
-          MatchError.quit(result.byte, offset)
-        when UnsupportedAnchoredStartError
-          MatchError.unsupported_anchored(result.mode)
-        else
-          MatchError.generic("Unknown start error")
-        end
+      when QuitStartError
+        # For forward search, the quit byte is at position start-1
+        offset = input.start > 0 ? input.start - 1 : 0
+        MatchError.quit(result.byte, offset)
+      when UnsupportedAnchoredStartError
+        MatchError.unsupported_anchored(result.mode)
+      else
+        MatchError.unsupported_anchored(input.anchored)
       end
     end
 
@@ -97,20 +94,17 @@ module Regex::Automata
     def start_state_reverse(input : Input) : StateID | MatchError
       config = StartConfig.from_input_reverse(input)
       result = start_state(config)
+      return result if result.is_a?(StateID)
+
       case result
-      when StateID
-        result
-      when StartError
-        case result
-        when QuitStartError
-          # For reverse search, the quit byte is at position end
-          offset = input.end
-          MatchError.quit(result.byte, offset)
-        when UnsupportedAnchoredStartError
-          MatchError.unsupported_anchored(result.mode)
-        else
-          MatchError.generic("Unknown start error")
-        end
+      when QuitStartError
+        # For reverse search, the quit byte is at position end
+        offset = input.end
+        MatchError.quit(result.byte, offset)
+      when UnsupportedAnchoredStartError
+        MatchError.unsupported_anchored(result.mode)
+      else
+        MatchError.unsupported_anchored(input.anchored)
       end
     end
 
@@ -267,7 +261,34 @@ module Regex::Automata
 
     # Returns the earliest match found in the given slice.
     def find_earliest_match(slice : Bytes) : Tuple(Int32, Array(PatternID))? | MatchError
-      try_search_fwd(slice)
+      current_state = start_state(StartConfig.new(nil, Anchored::No))
+      case current_state
+      when StartError
+        return MatchError.quit(current_state.byte, 0) if current_state.is_a?(QuitStartError)
+        return MatchError.unsupported_anchored(current_state.mode)
+      when StateID
+        if is_match_state?(current_state)
+          return {0, Array.new(match_len(current_state)) { |i| match_pattern(current_state, i) }}
+        end
+
+        idx = 0
+        while idx < slice.size
+          next_state = next_state(current_state, slice[idx])
+          return MatchError.quit(slice[idx], idx) if is_quit_state?(next_state)
+          break if is_dead_state?(next_state)
+
+          current_state = next_state
+          if is_match_state?(current_state)
+            return {idx + 1, Array.new(match_len(current_state)) { |i| match_pattern(current_state, i) }}
+          end
+          idx += 1
+        end
+
+        eoi_state = next_eoi_state(current_state)
+        return MatchError.quit(0_u8, slice.size) if is_quit_state?(eoi_state)
+        return {slice.size, Array.new(match_len(eoi_state)) { |i| match_pattern(eoi_state, i) }} if is_match_state?(eoi_state)
+        nil
+      end
     end
   end
 

@@ -44,7 +44,7 @@ module Regex::Automata
   DEAD_STATE_ID = StateID.new(0)
 
   # Quit state ID
-  QUIT_STATE_ID = StateID.new(-2)
+  QUIT_STATE_ID = StateID.new(1)
 
   # Special state ranges for a DFA
   struct Special
@@ -194,6 +194,29 @@ module Regex::Automata
     def set_quit_id(id : StateID)
       @quit_id = id
       update_max
+    end
+
+    # Removes start states from the set of special states.
+    #
+    # This is used when 'specialize_start_states' is disabled. When start states
+    # are not specialized, they are not considered "special" and thus do not
+    # appear in the contiguous region of special states at the beginning of the
+    # DFA. This in turn means that 'is_special_state' will return false for
+    # start states.
+    #
+    # This is useful when there is no prefilter. If there's no prefilter, then
+    # there's no reason to specialize start states. But if we don't specialize
+    # start states, then we probably don't want them to be considered special
+    # since being special would mean that we waste time checking whether we're
+    # in a start state during a search.
+    def set_no_special_start_states
+      # Recalculate max special state ID excluding start states
+      candidates = [@quit_id, @max_match, @max_accel]
+      @max = candidates.max? || DEAD_STATE_ID
+
+      # Reset start state range to empty
+      @min_start = DEAD_STATE_ID
+      @max_start = DEAD_STATE_ID
     end
 
     # Adds a match state with the given ID.
