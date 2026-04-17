@@ -125,7 +125,9 @@ describe "DFA API" do
       # This corresponds to the Rust test `universal_start_search` in tests/dfa/api.rs
 
       # Simple test: build a DFA and check that universal start state methods work
-      dfa = Regex::Automata::DFA::Builder.new.build("[a-z]+")
+      # Enable specialize_start_states to make start states special
+      config = Regex::Automata::Config.new.specialize_start_states(true)
+      dfa = Regex::Automata::DFA::Builder.new.configure(config).build("[a-z]+")
 
       # Check that universal_start_state returns a state
       start_state = dfa.universal_start_state(Regex::Automata::Anchored::No)
@@ -165,9 +167,228 @@ describe "DFA API" do
         pattern_ids.should eq([Regex::Automata::PatternID.new(0)])
 
         # Check match_pattern - we need a match state ID to test this
-        # For now, just verify we got the right pattern ID from the search result
+        match_state = dfa.universal_start_state(Regex::Automata::Anchored::No).not_nil!
+        "abc".to_slice.each do |byte|
+          match_state = dfa.next_state(match_state, byte)
+        end
+        dfa.is_match_state?(match_state).should be_true
+        dfa.match_len(match_state).should eq(1)
+        dfa.match_pattern(match_state, 0).should eq(Regex::Automata::PatternID.new(0))
         pattern_ids[0].should eq(Regex::Automata::PatternID.new(0))
       end
+    end
+  end
+
+  describe "dense metadata" do
+    it "builds the dense transition table directly during determinization" do
+      dfa = Regex::Automata::DFA::Builder.new
+        .configure { |config| config.starts_for_each_pattern(true) }
+        .build_many(["abc", "\\bdef", "ghi$"])
+
+      rebuilt = Regex::Automata::DFA::DFA.build_transition_table(dfa.states, dfa.byte_classifier)
+
+      dfa.tt.should_not be_nil
+      dfa.tt.not_nil!.table.should eq(rebuilt.table)
+      dfa.tt.not_nil!.stride2.should eq(rebuilt.stride2)
+    end
+
+    it "tracks the number of patterns in a multi-pattern DFA" do
+      dfa = Regex::Automata::DFA::DFA.new_many(["abc", "def"])
+
+      dfa.pattern_len.should eq(2)
+      dfa.universal_start_state(Regex::Automata::Anchored::No).should eq(
+        dfa.start_state(Regex::Automata::StartConfig.new(nil, Regex::Automata::Anchored::No))
+      )
+    end
+
+    it "uses delayed EOI matches for end-text anchors" do
+      dfa = Regex::Automata::DFA::Builder.new.build("a\\z")
+
+      result = dfa.try_search_fwd("a".to_slice)
+      result.should eq({1, [Regex::Automata::PatternID.new(0)]})
+    end
+
+    it "uses delayed EOI matches for word boundaries" do
+      dfa = Regex::Automata::DFA::Builder.new.build("a\\b")
+
+      result = dfa.try_search_fwd("a".to_slice)
+      result.should eq({1, [Regex::Automata::PatternID.new(0)]})
+    end
+
+    it "reports anchored configuration via flags" do
+      dfa = Regex::Automata::DFA::Builder.new
+        .configure { |config| config.start_kind(Regex::Automata::StartKind::Anchored) }
+        .build("abc")
+
+      dfa.is_always_start_anchored?.should be_true
+      dfa.start_state(Regex::Automata::StartConfig.new(nil, Regex::Automata::Anchored::No))
+        .should be_a(Regex::Automata::UnsupportedAnchoredStartError)
+    end
+
+    it "maps unsupported anchored pattern starts to match errors" do
+      dfa = Regex::Automata::DFA::Builder.new.build_many(["abc", "def"])
+      input = Regex::Automata::Input.new("abc").anchored_pattern(Regex::Automata::PatternID.new(0))
+
+      result = dfa.start_state_forward(input)
+
+      result.should be_a(Regex::Automata::MatchError)
+      error = result.as(Regex::Automata::MatchError)
+      error.unsupported_anchored?.should be_true
+      error.mode.should eq(Regex::Automata::Anchored::Pattern)
+    end
+
+    it "returns the dead state for an out-of-range anchored pattern start" do
+      dfa = Regex::Automata::DFA::Builder.new
+        .configure { |config| config.starts_for_each_pattern(true) }
+        .build_many(["abc", "def"])
+
+      result = dfa.start_state(
+        Regex::Automata::StartConfig.new(
+          nil,
+          Regex::Automata::Anchored::Pattern,
+          Regex::Automata::PatternID.new(99)
+        )
+      )
+
+      result.should eq(Regex::Automata::DFA::DEAD_STATE_ID)
+    end
+
+    it "tracks always-start-anchored behavior independently from start-kind support" do
+      dfa = Regex::Automata::DFA::Builder.new.build("^abc")
+
+      dfa.is_always_start_anchored?.should be_true
+      dfa.start_state(Regex::Automata::StartConfig.new(nil, Regex::Automata::Anchored::No))
+        .should be_a(Regex::Automata::StateID)
+    end
+
+    it "tracks empty-match capability through start and EOI states" do
+      Regex::Automata::DFA::Builder.new.build("a+").has_empty?.should be_false
+      Regex::Automata::DFA::Builder.new.build("a*").has_empty?.should be_true
+      Regex::Automata::DFA::Builder.new.build("^$").has_empty?.should be_true
+    end
+
+    it "reports UTF-8 mode from the Thompson compiler configuration" do
+      Regex::Automata::DFA::Builder.new.build("abc").is_utf8?.should be_true
+
+      dfa = Regex::Automata::DFA::Builder.new
+        .thompson { |config| config.utf8(false) }
+        .build("abc")
+
+      dfa.is_utf8?.should be_false
+    end
+
+    it "supports anchored starts for a specific pattern when enabled" do
+      dfa = Regex::Automata::DFA::Builder.new
+        .configure { |config| config.starts_for_each_pattern(true) }
+        .build("foo[0-9]+")
+
+      start = dfa.start_state(
+        Regex::Automata::StartConfig.new(nil, Regex::Automata::Anchored::Pattern, Regex::Automata::PatternID.new(0))
+      ).as(Regex::Automata::StateID)
+      state = start
+      "quux foo123".to_slice.each { |byte| state = dfa.next_state(state, byte) }
+      state = dfa.next_eoi_state(state)
+      dfa.is_match_state?(state).should be_false
+
+      ranged_start = dfa.start_state(
+        Regex::Automata::StartConfig.new(' '.ord.to_u8, Regex::Automata::Anchored::Pattern, Regex::Automata::PatternID.new(0))
+      ).as(Regex::Automata::StateID)
+      state = ranged_start
+      "foo123".to_slice.each { |byte| state = dfa.next_state(state, byte) }
+      state = dfa.next_eoi_state(state)
+      dfa.is_match_state?(state).should be_true
+    end
+
+    it "chooses different anchored start states based on look-behind" do
+      dfa = Regex::Automata::DFA::Builder.new
+        .configure { |config| config.start_kind(Regex::Automata::StartKind::Anchored) }
+        .build("\\babc")
+
+      text_start = dfa.start_state(Regex::Automata::StartConfig.new(nil, Regex::Automata::Anchored::Yes)).as(Regex::Automata::StateID)
+      word_start = dfa.start_state(Regex::Automata::StartConfig.new('q'.ord.to_u8, Regex::Automata::Anchored::Yes)).as(Regex::Automata::StateID)
+
+      text_start.should_not eq(word_start)
+
+      state = text_start
+      "abc".to_slice.each { |byte| state = dfa.next_state(state, byte) }
+      state = dfa.next_eoi_state(state)
+      dfa.is_match_state?(state).should be_true
+
+      state = word_start
+      "abc".to_slice.each { |byte| state = dfa.next_state(state, byte) }
+      state = dfa.next_eoi_state(state)
+      dfa.is_match_state?(state).should be_false
+
+      dfa.universal_start_state(Regex::Automata::Anchored::Yes).should be_nil
+    end
+
+    it "records accelerator needles for skip-heavy states" do
+      dfa = Regex::Automata::DFA::Builder.new.build("a[^x]*x")
+      found_accelerated = dfa.states.each_index.any? do |i|
+        sid = if tt = dfa.tt
+                tt.to_state_id(i)
+              else
+                Regex::Automata::StateID.new(i)
+              end
+        !dfa.accelerator(sid).empty?
+      end
+
+      found_accelerated.should be_true
+    end
+
+    it "keeps accelerated states in a contiguous dense range" do
+      dfa = Regex::Automata::DFA::Builder.new.build("a[^x]*x")
+      accel_ids = dfa.states.each_index.compact_map do |i|
+        sid = if tt = dfa.tt
+                tt.to_state_id(i)
+              else
+                Regex::Automata::StateID.new(i)
+              end
+        sid if dfa.is_accel_state?(sid)
+      end.to_a
+
+      accel_ids.should_not be_empty
+      tt = dfa.tt.not_nil!
+      accel_ids.map { |sid| tt.to_index(sid) }.should eq((tt.to_index(accel_ids.first)..tt.to_index(accel_ids.last)).to_a)
+    end
+
+    it "preserves reverse search results when acceleration is enabled" do
+      dfa = Regex::Automata::DFA::Builder.new
+        .thompson { |config| config.reverse(true) }
+        .build("ab?")
+      dfa_no_accel = Regex::Automata::DFA::Builder.new
+        .configure { |config| config.accelerate(false) }
+        .thompson { |config| config.reverse(true) }
+        .build("ab?")
+
+      found_accelerated = dfa.states.each_index.any? do |i|
+        sid = if tt = dfa.tt
+                tt.to_state_id(i)
+              else
+                Regex::Automata::StateID.new(i)
+              end
+        !dfa.accelerator(sid).empty?
+      end
+
+      found_accelerated.should be_true
+      dfa.try_search_rev("ab".to_slice).should eq(dfa_no_accel.try_search_rev("ab".to_slice))
+    end
+
+    it "reports overlapping matches without suffix duplicates" do
+      dfa = Regex::Automata::DFA::Builder.new.build("abc")
+
+      dfa.try_search_overlapping_fwd("zabcabc".to_slice).should eq([
+        {4, [Regex::Automata::PatternID.new(0)]},
+        {7, [Regex::Automata::PatternID.new(0)]},
+      ])
+    end
+
+    it "reports overlapping multi-pattern matches at the same end position" do
+      dfa = Regex::Automata::DFA::DFA.new_many(["a", "a"])
+
+      dfa.try_search_overlapping_fwd("a".to_slice).should eq([
+        {1, [Regex::Automata::PatternID.new(0), Regex::Automata::PatternID.new(1)]},
+      ])
     end
   end
 
@@ -234,6 +455,55 @@ describe "DFA API" do
 
       result2 = dfa2.try_search_fwd("def".to_slice)
       result2.should_not be_a(Regex::Automata::MatchError)
+    end
+
+    it "preserves contextual start states across serialization" do
+      dfa = Regex::Automata::DFA::Builder.new
+        .configure { |config| config.start_kind(Regex::Automata::StartKind::Anchored) }
+        .build("\\babc")
+
+      serialized = dfa.to_bytes_little_endian
+      bytes = serialized[0]
+      deserialized = Regex::Automata::DFA::DFA.from_bytes(bytes)
+      dfa2 = deserialized[0]
+
+      text_start = dfa2.start_state(Regex::Automata::StartConfig.new(nil, Regex::Automata::Anchored::Yes)).as(Regex::Automata::StateID)
+      word_start = dfa2.start_state(Regex::Automata::StartConfig.new('q'.ord.to_u8, Regex::Automata::Anchored::Yes)).as(Regex::Automata::StateID)
+
+      text_start.should_not eq(word_start)
+      dfa2.is_always_start_anchored?.should be_true
+      dfa2.universal_start_state(Regex::Automata::Anchored::Yes).should be_nil
+    end
+
+    it "preserves always-start-anchored metadata across serialization" do
+      dfa = Regex::Automata::DFA::Builder.new.build("^abc")
+      bytes = dfa.to_bytes_little_endian[0]
+      dfa2 = Regex::Automata::DFA::DFA.from_bytes(bytes)[0]
+
+      dfa2.is_always_start_anchored?.should be_true
+      dfa2.start_state(Regex::Automata::StartConfig.new(nil, Regex::Automata::Anchored::No))
+        .should be_a(Regex::Automata::StateID)
+    end
+
+    it "preserves pattern-specific anchored starts across serialization" do
+      dfa = Regex::Automata::DFA::Builder.new
+        .configure { |config| config.starts_for_each_pattern(true) }
+        .build("foo[0-9]+")
+      dfa2 = Regex::Automata::DFA::DFA.from_bytes(dfa.to_bytes_little_endian[0])[0]
+
+      start = dfa2.start_state(
+        Regex::Automata::StartConfig.new(' '.ord.to_u8, Regex::Automata::Anchored::Pattern, Regex::Automata::PatternID.new(0))
+      )
+      start.should be_a(Regex::Automata::StateID)
+    end
+  end
+
+  describe "automaton helpers" do
+    it "returns the earliest match instead of the longest match" do
+      dfa = Regex::Automata::DFA::Builder.new.build("foo[0-9]+")
+
+      dfa.try_search_fwd("foo12345".to_slice).should eq({8, [Regex::Automata::PatternID.new(0)]})
+      dfa.find_earliest_match("foo12345".to_slice).should eq({4, [Regex::Automata::PatternID.new(0)]})
     end
   end
 end
