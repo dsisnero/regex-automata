@@ -37,6 +37,7 @@ module Regex::Automata
     def compile(hir : Regex::Syntax::Hir::Hir, pattern_id : PatternID = PatternID.new(0)) : NFA::NFA
       @pattern_id = pattern_id
       ref = compile_node(hir.node)
+      @builder.add_pattern_start(ref.start)
       @builder.set_start_unanchored(ref.start)
       @builder.set_start_anchored(ref.start)
       @builder.build

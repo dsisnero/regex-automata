@@ -8,6 +8,8 @@ require "./regex/automata/errors"
 require "./regex/automata/search"
 require "./regex/automata/accel"
 require "./regex/automata/special"
+require "./regex/automata/match_states"
+require "./regex/automata/start_table"
 
 module Regex::Automata
   VERSION = "0.1.0"

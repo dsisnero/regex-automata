@@ -10,9 +10,11 @@ module Regex::Automata
 
     # Whether the search is anchored.
     getter anchored : Anchored
+    # The pattern to anchor to when `Anchored::Pattern` is used.
+    getter pattern : PatternID?
 
     # Create a new start configuration.
-    def initialize(@look_behind : UInt8? = nil, @anchored : Anchored = Anchored::No)
+    def initialize(@look_behind : UInt8? = nil, @anchored : Anchored = Anchored::No, @pattern : PatternID? = nil)
     end
 
     # Create a start configuration from an input for a forward search.
@@ -22,7 +24,7 @@ module Regex::Automata
                     else
                       nil
                     end
-      StartConfig.new(look_behind, input.anchored)
+      StartConfig.new(look_behind, input.anchored, input.pattern)
     end
 
     # Create a start configuration from an input for a reverse search.
@@ -32,17 +34,17 @@ module Regex::Automata
                     else
                       nil
                     end
-      StartConfig.new(look_behind, input.anchored)
+      StartConfig.new(look_behind, input.anchored, input.pattern)
     end
 
     # Set the look-behind byte.
     def look_behind(byte : UInt8?) : StartConfig
-      StartConfig.new(byte, @anchored)
+      StartConfig.new(byte, @anchored, @pattern)
     end
 
     # Set the anchored mode.
-    def anchored(mode : Anchored) : StartConfig
-      StartConfig.new(@look_behind, mode)
+    def anchored(mode : Anchored, pattern : PatternID? = nil) : StartConfig
+      StartConfig.new(@look_behind, mode, pattern)
     end
   end
 end

@@ -108,6 +108,29 @@ module Regex::Automata
       @start_kind || StartKind::Both
     end
 
+    # Enable or disable start state specialization
+    #
+    # When enabled (the default), DFA construction will attempt to shuffle
+    # start states to the beginning of the DFA such that they are part of
+    # a contiguous region of "special" states. This makes it very fast to
+    # determine whether a state is a start state or not by a single
+    # comparison.
+    #
+    # The only time one might want to disable this is when there is no
+    # prefilter. In that case, there's no benefit to specializing start
+    # states. But when a prefilter is active, specializing start states
+    # enables the prefilter to be used at search time. Specifically, a
+    # prefilter can only run when in a start state.
+    def specialize_start_states(yes : Bool) : Config
+      @specialize_start_states = yes
+      self
+    end
+
+    # Get whether start states are specialized
+    def specialize_start_states? : Bool
+      @specialize_start_states.nil? ? false : @specialize_start_states.not_nil!
+    end
+
     # Enable or disable start states for each pattern
     def starts_for_each_pattern(yes : Bool) : Config
       @starts_for_each_pattern = yes

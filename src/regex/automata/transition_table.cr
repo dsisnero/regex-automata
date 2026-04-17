@@ -21,7 +21,7 @@ module Regex::Automata
     # Create a transition table with given capacity (number of states)
     def initialize(@classes : ByteClasses, @stride2 : Int32, capacity : Int32)
       stride = 1 << @stride2
-      @table = Array.new(capacity * stride, StateID.new(-1))
+      @table = Array.new(capacity * stride, Regex::Automata::DFA::DEAD_STATE_ID)
     end
 
     # Get the stride (number of entries per state)
@@ -106,7 +106,7 @@ module Regex::Automata
       # Add stride entries for the new state
       stride = self.stride
       new_len = @table.size + stride
-      @table.concat(Array.new(stride, StateID.new(-1)))
+      @table.concat(Array.new(stride, Regex::Automata::DFA::DEAD_STATE_ID))
 
       # Return premultiplied state ID
       to_state_id(len - 1)
@@ -116,7 +116,7 @@ module Regex::Automata
     def state_slice(state_id : StateID) : Slice(StateID)
       idx = to_index(state_id)
       start = idx * stride
-      @table.to_unsafe.slice(start, stride)
+      Slice.new(@table.to_unsafe + start, stride)
     end
 
     # Copy transitions from one state to another

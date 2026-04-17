@@ -58,6 +58,7 @@ module Regex::Automata
     getter span_start : Int32
     getter span_end : Int32
     getter anchored : Anchored
+    getter pattern : PatternID?
     getter earliest : Bool
 
     # Create a new search configuration for the given haystack
@@ -66,17 +67,18 @@ module Regex::Automata
       @span_start = 0
       @span_end = haystack.size
       @anchored = Anchored::No
+      @pattern = nil
       @earliest = false
     end
 
     # Create a new search configuration for the given string
-    def self.new(haystack : String) : Input
-      new(haystack.to_slice)
-    end
-
-    # Create a new search configuration for the given bytes
-    def self.new(haystack : Bytes) : Input
-      new(haystack)
+    def initialize(haystack : String)
+      @haystack = haystack.to_slice
+      @span_start = 0
+      @span_end = @haystack.size
+      @anchored = Anchored::No
+      @pattern = nil
+      @earliest = false
     end
 
     # Set the span for this search
@@ -87,7 +89,15 @@ module Regex::Automata
     end
 
     # Set whether this search is anchored
-    def anchored(@anchored : Anchored) : Input
+    def anchored(mode : Anchored, pattern : PatternID? = nil) : Input
+      @anchored = mode
+      @pattern = pattern
+      self
+    end
+
+    def anchored_pattern(pattern : PatternID) : Input
+      @anchored = Anchored::Pattern
+      @pattern = pattern
       self
     end
 
