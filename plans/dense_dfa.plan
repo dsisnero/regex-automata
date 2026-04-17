@@ -1,0 +1,123 @@
+# DenseDFA Implementation Plan
+
+## Goal
+Implement Rust's `DenseDFA` optimization in Crystal, matching the exact structure and behavior of Rust's `regex-automata` crate.
+
+## Current State
+- Basic DFA implementation with flat transition table optimization works
+- All 25 tests pass
+- Current implementation uses hybrid approach: `states` array + flat transition table
+
+## Issues with Current Implementation
+1. **Performance overhead**: Need to convert premultiplied state IDs → indices for `states` array access
+2. **Memory inefficiency**: Storing both `states` array and flat table
+3. **Not matching Rust's structure**: Rust's `DenseDFA` uses pure flat table without `states` array
+
+## Rust's DenseDFA Structure (from `vendor/regex/regex-automata/src/dfa/dense.rs`)
+
+### Key Components:
+1. **`TransitionTable<T>`** - Flat array of state IDs
+2. **`StartTable<T>`** - Start states for different configurations
+3. **`MatchStates<T>`** - Match states and pattern IDs (flattened representation)
+4. **`Special`** - Tracks special state ranges (dead, quit, match, start, accelerated)
+5. **`Accels<T>`** - Accelerators for fast skipping
+
+### Critical Differences from Our Attempt:
+
+1. **No `states` array**: Rust stores match information separately in `MatchStates` and `Special`
+2. **Premultiplied state IDs**: State IDs are indices into flat table (offset = state_id + byte_class)
+3. **EOI transitions**: Stored at offset = state_id + alphabet_len (where alphabet_len = byte_classes + 1)
+4. **MatchStates optimization**: For single-pattern DFAs: `if self.ms.pattern_len == 1 { return PatternID::ZERO; }`
+5. **Direct construction**: Built by determinizer, not converted from regular DFA
+
+## What We Tried and Failed
+
+### Failed Approach: `DenseConverter`
+- Attempted to convert existing DFA (with `states` array) to `DenseDFA`
+- Issues:
+  - Incorrect state ID mapping (premultiplied vs non-premultiplied)
+  - Match states incorrectly identified
+  - Start state marked as match state
+  - Tests failed (returning position 0 instead of correct matches)
+
+### Root Cause
+Conversion is fundamentally flawed because:
+1. Original DFA's state IDs might already be premultiplied
+2. New `DenseDFA` has different `stride2` value → different premultiplication
+3. Match information distributed between `states` array and transition table
+
+## Correct Implementation Strategy
+
+### Phase 1: Update DFA Builder
+Modify `DFA::Builder` to create `DenseDFA` directly instead of regular DFA:
+
+1. **Build flat transition table during determinization**
+   - Allocate table with correct stride (power of 2 ≥ alphabet_len)
+   - Fill transitions as states are created
+   - Use premultiplied state IDs from the start
+
+2. **Track match states separately**
+   - Build `MatchStates` during determinization
+   - Use flattened representation: `slices` array + `pattern_ids` array
+
+3. **Build `Special` struct**
+   - Track ranges for match, start, accelerated states
+   - Update as states are added
+
+### Phase 2: Implement DenseDFA Class
+Match Rust's structure exactly:
+
+```crystal
+class DenseDFA < Regex::Automata::Automaton
+  getter tt : TransitionTable
+  getter st : StartTable
+  getter ms : MatchStates
+  getter special : Special
+  getter accels : Accels
+  getter byte_classes : ByteClasses
+  getter prefilter : Prefilter?
+  getter quitset : ByteSet
+  getter flags : DFAFlags
+end
+```
+
+### Phase 3: Update Existing DFA Class
+Keep for compatibility but make it a thin wrapper over `DenseDFA`:
+- Constructor creates `DenseDFA` internally
+- Methods delegate to `DenseDFA`
+- `states` array kept only for serialization/deserialization
+
+## Key Rust Files to Reference
+
+1. **`vendor/regex/regex-automata/src/dfa/dense.rs`** - Main DenseDFA implementation
+2. **`vendor/regex/regex-automata/src/dfa/determinize.rs`** - Determinizer that builds DFA directly
+3. **`vendor/regex/regex-automata/src/dfa/special.rs`** - Special state tracking
+4. **`vendor/regex/regex-automata/src/dfa/start.rs`** - Start table implementation
+
+## Testing Strategy
+
+1. **Preserve all existing tests** (25 passing tests)
+2. **Add benchmarks** to measure performance improvement
+3. **Test edge cases**: EOI transitions, quit bytes, accelerators
+4. **Compare with Rust**: Ensure identical behavior for same inputs
+
+## Success Criteria
+
+1. All 25 existing tests pass
+2. Performance improvement measurable (10-20% faster matching)
+3. Memory usage reduced (no `states` array for active DFA)
+4. Behavior identical to Rust's `DenseDFA` for same regex patterns
+
+## Risks
+
+1. **Complexity**: Determinizer modification is non-trivial
+2. **Serialization**: Need to maintain compatibility with existing serialized DFAs
+3. **Edge cases**: EOI, quit bytes, accelerators, Unicode word boundaries
+
+## Next Steps
+
+1. Study Rust's determinizer (`determinize.rs`) in detail
+2. Create inventory of what needs to change in `DFA::Builder`
+3. Implement `MatchStates` with flattened representation
+4. Modify determinizer to build `DenseDFA` directly
+5. Test incrementally with simple regex patterns first
