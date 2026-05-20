@@ -814,56 +814,56 @@ src/util/primitives.rs::struct::StateID	struct	missing	-	auto-generated
 src/util/search.rs::enum::Anchored	enum	ported	src/regex/automata/search.cr:Anchored	ported from Rust
 src/util/search.rs::enum::MatchErrorKind	enum	ported	src/regex/automata/errors.cr:MatchError::Kind	ported from Rust
 src/util/search.rs::enum::MatchKind	enum	missing	-	auto-generated
-src/util/search.rs::func::anchored	func	missing	-	auto-generated
+src/util/search.rs::func::anchored	func	ported	src/regex/automata/search.cr:Input#anchored	ported for Input; covered by spec/search_input_spec.cr
 src/util/search.rs::func::capacity	func	missing	-	auto-generated
 src/util/search.rs::func::clear	func	missing	-	auto-generated
 src/util/search.rs::func::contains	func	missing	-	auto-generated
-src/util/search.rs::func::earliest	func	missing	-	auto-generated
-src/util/search.rs::func::end	func	missing	-	auto-generated
+src/util/search.rs::func::earliest	func	ported	src/regex/automata/search.cr:Input#earliest	ported for Input; covered by spec/search_input_spec.cr
+src/util/search.rs::func::end	func	ported	src/regex/automata/search.cr:Input#end	ported for Input; covered by spec/search_input_spec.cr
 src/util/search.rs::func::gave_up	func	missing	-	auto-generated
-src/util/search.rs::func::get_anchored	func	missing	-	auto-generated
-src/util/search.rs::func::get_earliest	func	missing	-	auto-generated
-src/util/search.rs::func::get_range	func	missing	-	auto-generated
-src/util/search.rs::func::get_span	func	missing	-	auto-generated
-src/util/search.rs::func::haystack	func	missing	-	auto-generated
+src/util/search.rs::func::get_anchored	func	ported	src/regex/automata/search.cr:Input#get_anchored	ported for Input; covered by spec/search_input_spec.cr
+src/util/search.rs::func::get_earliest	func	ported	src/regex/automata/search.cr:Input#get_earliest	ported for Input; covered by spec/search_input_spec.cr
+src/util/search.rs::func::get_range	func	ported	src/regex/automata/search.cr:Input#get_range	ported for Input; covered by spec/search_input_spec.cr
+src/util/search.rs::func::get_span	func	ported	src/regex/automata/search.cr:Input#get_span	ported for Input; covered by spec/search_input_spec.cr
+src/util/search.rs::func::haystack	func	ported	src/regex/automata/search.cr:Input#haystack	ported for Input; covered by spec/search_input_spec.cr
 src/util/search.rs::func::haystack_too_long	func	missing	-	auto-generated
 src/util/search.rs::func::insert	func	missing	-	auto-generated
 src/util/search.rs::func::is_anchored	func	missing	-	auto-generated
-src/util/search.rs::func::is_char_boundary	func	missing	-	auto-generated
-src/util/search.rs::func::is_done	func	missing	-	auto-generated
+src/util/search.rs::func::is_char_boundary	func	ported	src/regex/automata/search.cr:Input#is_char_boundary	ported for Input; covered by spec/search_input_spec.cr
+src/util/search.rs::func::is_done	func	ported	src/regex/automata/search.cr:Input#is_done	ported for Input; covered by spec/search_input_spec.cr
 src/util/search.rs::func::is_empty	func	missing	-	auto-generated
 src/util/search.rs::func::is_full	func	missing	-	auto-generated
 src/util/search.rs::func::iter	func	missing	-	auto-generated
 src/util/search.rs::func::kind	func	missing	-	auto-generated
 src/util/search.rs::func::len	func	missing	-	auto-generated
 src/util/search.rs::func::must	func	missing	-	auto-generated
-src/util/search.rs::func::new	func	missing	-	auto-generated
+src/util/search.rs::func::new	func	ported	src/regex/automata/search.cr:Input.new	ported for Input; covered by spec/search_input_spec.cr
 src/util/search.rs::func::offset	func	missing	-	auto-generated
 src/util/search.rs::func::pattern	func	missing	-	auto-generated
 src/util/search.rs::func::quit	func	missing	-	auto-generated
-src/util/search.rs::func::range	func	missing	-	auto-generated
+src/util/search.rs::func::range	func	ported	src/regex/automata/search.cr:Input#range	ported for Input; covered by spec/search_input_spec.cr
 src/util/search.rs::func::remove	func	missing	-	auto-generated
-src/util/search.rs::func::set_anchored	func	missing	-	auto-generated
-src/util/search.rs::func::set_earliest	func	missing	-	auto-generated
-src/util/search.rs::func::set_end	func	missing	-	auto-generated
-src/util/search.rs::func::set_start	func	missing	-	auto-generated
-src/util/search.rs::func::span	func	missing	-	auto-generated
-src/util/search.rs::func::start	func	missing	-	auto-generated
+src/util/search.rs::func::set_anchored	func	ported	src/regex/automata/search.cr:Input#set_anchored	ported for Input; covered by spec/search_input_spec.cr
+src/util/search.rs::func::set_earliest	func	ported	src/regex/automata/search.cr:Input#set_earliest	ported for Input; covered by spec/search_input_spec.cr
+src/util/search.rs::func::set_end	func	ported	src/regex/automata/search.cr:Input#set_end	ported for Input; covered by spec/search_input_spec.cr
+src/util/search.rs::func::set_start	func	ported	src/regex/automata/search.cr:Input#set_start	ported for Input; covered by spec/search_input_spec.cr
+src/util/search.rs::func::span	func	ported	src/regex/automata/search.cr:Input#span	ported for Input; covered by spec/search_input_spec.cr
+src/util/search.rs::func::start	func	ported	src/regex/automata/search.cr:Input#start	ported for Input; covered by spec/search_input_spec.cr
 src/util/search.rs::func::try_insert	func	missing	-	auto-generated
 src/util/search.rs::func::unsupported_anchored	func	missing	-	auto-generated
 src/util/search.rs::method::Anchored.is_anchored	method	missing	-	auto-generated
 src/util/search.rs::method::HalfMatch.new	method	ported	src/regex/automata/search.cr:HalfMatch.initialize	ported from Rust
 src/util/search.rs::method::MatchError.new	method	ported	src/regex/automata/errors.cr:MatchError.initialize	ported from Rust
 src/util/search.rs::method::PatternSet.new	method	missing	-	auto-generated
-src/util/search.rs::method::Span.range	method	missing	-	auto-generated
+src/util/search.rs::method::Span.range	method	ported	src/regex/automata/search.cr:Span#range	ported for Span; covered by spec/search_input_spec.cr
 src/util/search.rs::struct::HalfMatch	struct	ported	src/regex/automata/search.cr:HalfMatch	ported from Rust
-src/util/search.rs::struct::Input	struct	partial	src/regex/automata/search.cr:Input	partial port from Rust (simplified)
+src/util/search.rs::struct::Input	struct	ported	src/regex/automata/search.cr:Input	ported Input configuration API; covered by spec/search_input_spec.cr
 src/util/search.rs::struct::Match	struct	missing	-	auto-generated
 src/util/search.rs::struct::MatchError	struct	ported	src/regex/automata/errors.cr:MatchError	ported from Rust
 src/util/search.rs::struct::PatternSet	struct	missing	-	auto-generated
 src/util/search.rs::struct::PatternSetInsertError	struct	missing	-	auto-generated
 src/util/search.rs::struct::PatternSetIter	struct	missing	-	auto-generated
-src/util/search.rs::struct::Span	struct	missing	-	auto-generated
+src/util/search.rs::struct::Span	struct	ported	src/regex/automata/search.cr:Span	ported as support type for Input; covered by spec/search_input_spec.cr
 src/util/search.rs::test::incorrect_asref_guard	test	missing	-	auto-generated
 src/util/search.rs::test::match_error_kind_size	test	missing	-	auto-generated
 src/util/search.rs::test::match_error_size	test	missing	-	auto-generated
