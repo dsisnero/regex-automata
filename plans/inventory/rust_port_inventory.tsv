@@ -161,16 +161,16 @@ src/dfa/regex.rs::func::pattern_len	func	ported	src/regex/automata/dfa_regex.cr:
 src/dfa/regex.rs::func::reverse	func	ported	src/regex/automata/dfa_regex.cr::Regex#reverse;spec/dfa_regex_spec.cr	-
 src/dfa/regex.rs::func::syntax	func	missing	-	auto-generated
 src/dfa/regex.rs::func::thompson	func	ported	src/regex/automata/dfa_regex.cr::RegexBuilder#thompson	renamed builder surface to RegexBuilder to avoid collision with DFA::Builder
-src/dfa/regex.rs::func::try_search	func	ported	src/regex/automata/dfa_regex.cr::Regex#try_search;spec/dfa_regex_spec.cr	-
+src/dfa/regex.rs::func::try_search	func	partial	src/regex/automata/dfa_regex.cr::Regex#try_search;spec/dfa_regex_spec.cr	core wrapper logic is present, but iterator and look-around parity are still incomplete
 src/dfa/regex.rs::method::Builder.new	method	ported	src/regex/automata/dfa_regex.cr::RegexBuilder#initialize	renamed Builder to RegexBuilder to avoid collision with DFA::Builder
 src/dfa/regex.rs::method::Regex.builder	method	ported	src/regex/automata/dfa_regex.cr::Regex.builder;spec/dfa_regex_spec.cr	-
 src/dfa/regex.rs::method::Regex.forward	method	ported	src/regex/automata/dfa_regex.cr::Regex#forward;spec/dfa_regex_spec.cr	-
 src/dfa/regex.rs::method::Regex.new	method	ported	src/regex/automata/dfa_regex.cr::Regex.new;spec/dfa_regex_spec.cr	-
 src/dfa/regex.rs::method::Regex.new_sparse	method	missing	-	auto-generated
-src/dfa/regex.rs::method::Regex.try_search	method	ported	src/regex/automata/dfa_regex.cr::Regex#try_search;spec/dfa_regex_spec.cr	-
+src/dfa/regex.rs::method::Regex.try_search	method	partial	src/regex/automata/dfa_regex.cr::Regex#try_search;spec/dfa_regex_spec.cr	core wrapper logic is present, but iterator and look-around parity are still incomplete
 src/dfa/regex.rs::struct::Builder	struct	ported	src/regex/automata/dfa_regex.cr::RegexBuilder	renamed Builder to RegexBuilder to avoid collision with DFA::Builder
-src/dfa/regex.rs::struct::FindMatches	struct	ported	src/regex/automata/dfa_regex.cr::Regex::FindMatches;spec/dfa_regex_spec.cr	-
-src/dfa/regex.rs::struct::Regex	struct	ported	src/regex/automata/dfa_regex.cr::Regex;spec/dfa_regex_spec.cr	-
+src/dfa/regex.rs::struct::FindMatches	struct	partial	src/regex/automata/dfa_regex.cr::Regex::FindMatches;spec/dfa_regex_spec.cr	custom searcher does not yet match util::iter::Searcher empty-match and UTF-8 iteration semantics
+src/dfa/regex.rs::struct::Regex	struct	partial	src/regex/automata/dfa_regex.cr::Regex;spec/dfa_regex_spec.cr	wrapper exists, but Rust-equivalent iterator and full look-around semantics are not finished
 src/dfa/sparse.rs::func::always_match	func	missing	-	auto-generated
 src/dfa/sparse.rs::func::byte_classes	func	missing	-	auto-generated
 src/dfa/sparse.rs::func::from_bytes	func	missing	-	auto-generated

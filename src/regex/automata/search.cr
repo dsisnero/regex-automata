@@ -276,6 +276,83 @@ module Regex::Automata
     end
   end
 
+  # Shared iterator/search helper for non-overlapping match iteration.
+  class Searcher
+    getter input : Input
+
+    @last_match_end : Int32?
+
+    def initialize(@input : Input)
+      @last_match_end = nil
+    end
+
+    def advance_half(&finder : Input -> HalfMatch? | MatchError) : HalfMatch?
+      result = try_advance_half { |input| yield input }
+      if result.is_a?(MatchError)
+        raise "unexpected regex half find error: #{result}\n to handle find errors, use 'try' or 'search' methods"
+      end
+      result.as?(HalfMatch)
+    end
+
+    def advance(&finder : Input -> Match? | MatchError) : Match?
+      result = try_advance { |input| yield input }
+      if result.is_a?(MatchError)
+        raise "unexpected regex find error: #{result}\n to handle find errors, use 'try' or 'search' methods"
+      end
+      result.as?(Match)
+    end
+
+    def try_advance_half(&finder : Input -> HalfMatch? | MatchError) : HalfMatch? | MatchError
+      result = yield @input
+      return result if result.is_a?(MatchError) || result.nil?
+
+      match = result.as(HalfMatch)
+      if @last_match_end == match.offset
+        overlap = handle_overlapping_empty_half_match { |input| yield input }
+        return overlap if overlap.is_a?(MatchError) || overlap.nil?
+        match = overlap.as(HalfMatch)
+      end
+
+      @input.set_start(match.offset)
+      @last_match_end = match.offset
+      match
+    end
+
+    def try_advance(&finder : Input -> Match? | MatchError) : Match? | MatchError
+      result = yield @input
+      return result if result.is_a?(MatchError) || result.nil?
+
+      match = result.as(Match)
+      if match.empty? && @last_match_end == match.end
+        overlap = handle_overlapping_empty_match(match) { |input| yield input }
+        return overlap if overlap.is_a?(MatchError) || overlap.nil?
+        match = overlap.as(Match)
+      end
+
+      @input.set_start(match.end)
+      @last_match_end = match.end
+      match
+    end
+
+    private def handle_overlapping_empty_half_match(&finder : Input -> HalfMatch? | MatchError) : HalfMatch? | MatchError
+      @input.set_start(checked_add_one(@input.start))
+      yield @input
+    end
+
+    private def handle_overlapping_empty_match(match : Match, &finder : Input -> Match? | MatchError) : Match? | MatchError
+      raise "expected empty match" unless match.empty?
+
+      @input.set_start(checked_add_one(@input.start))
+      yield @input
+    end
+
+    private def checked_add_one(value : Int32) : Int32
+      raise "search offset #{value} overflows Int32" if value == Int32::MAX
+
+      value + 1
+    end
+  end
+
   # State for overlapping searches
   class OverlappingState
     getter id : StateID

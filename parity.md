@@ -16,6 +16,13 @@
   - Green: `src/regex/automata/dfa.cr`, `src/regex/automata/automaton.cr`, `src/regex/automata/dfa_regex.cr`
   - Done when: dense DFA search semantics match upstream on the ported parity suite
 
+- [ ] Dense DFA — regex convenience wrapper parity
+  - Upstream scope: `src/dfa/regex.rs`, plus iterator behavior from `src/util/iter.rs`
+  - Inventory ids: `src/dfa/regex.rs::*`
+  - Red: port empty-match iteration, UTF-8 iteration, always-anchored, and builder-validation parity specs before adding more surface area
+  - Green: `src/regex/automata/dfa_regex.cr`, `src/regex/automata/dfa.cr`, `src/regex/automata/hir_compiler.cr`, `src/regex/automata/nfa.cr`
+  - Done when: the wrapper stops relying on a custom simplified searcher, richer look-around behavior matches Rust, and the covered rows are `ported`
+
 - [ ] Dense DFA — determinize, minimize, and wire format
   - Upstream scope: `src/dfa/determinize.rs`, `src/dfa/minimize.rs`, `src/dfa/remapper.rs`, serialization hooks in `src/dfa/dense.rs`
   - Inventory ids: `src/dfa/determinize.rs::*`, `src/dfa/minimize.rs::*`, `src/dfa/remapper.rs::*`, serialization-related rows under `src/dfa/dense.rs::*`
@@ -142,8 +149,3 @@
 - [x] Search errors and start/build errors
   - Inventory ids: `src/util/search.rs::struct::MatchError`, `src/util/search.rs::enum::MatchErrorKind`, `src/dfa/automaton.rs::enum::StartError`, `src/dfa/dense.rs::struct::BuildError`
   - Crystal: `src/regex/automata/errors.cr`, `src/regex/automata/automaton.cr`
-
-- [x] Dense DFA — regex convenience wrapper
-  - Inventory ids: `src/dfa/regex.rs::struct::Regex`, `src/dfa/regex.rs::struct::FindMatches`, `src/dfa/regex.rs::struct::Builder`, `src/dfa/regex.rs::func::build`, `src/dfa/regex.rs::func::builder`, `src/dfa/regex.rs::func::forward`, `src/dfa/regex.rs::func::new`, `src/dfa/regex.rs::func::pattern_len`, `src/dfa/regex.rs::func::reverse`, `src/dfa/regex.rs::func::thompson`, `src/dfa/regex.rs::func::try_search`, `src/dfa/regex.rs::method::Builder.new`, `src/dfa/regex.rs::method::Regex.builder`, `src/dfa/regex.rs::method::Regex.forward`, `src/dfa/regex.rs::method::Regex.new`, `src/dfa/regex.rs::method::Regex.try_search`
-  - Specs: `spec/dfa_regex_spec.cr`
-  - Crystal: `src/regex/automata/dfa_regex.cr`, `src/regex/automata/dfa.cr`, `src/regex/automata/hir_compiler.cr`, `src/regex/automata/hybrid.cr`, `src/regex-automata.cr`

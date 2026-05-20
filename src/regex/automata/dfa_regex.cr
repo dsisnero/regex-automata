@@ -211,7 +211,7 @@ module Regex::Automata::DFA
     # assert matches[2].end == 17 # "foo123"
     # ```
     def find_iter(haystack : String | Bytes) : FindMatches
-      it = Searcher.new(Input.new(haystack))
+      it = ::Regex::Automata::Searcher.new(Input.new(haystack))
       FindMatches.new(self, it)
     end
 
@@ -366,74 +366,24 @@ module Regex::Automata::DFA
     # TODO: Implement FindMatches iterator
     class FindMatches
       @re : Regex
-      @it : Searcher
+      @it : ::Regex::Automata::Searcher
 
-      def initialize(@re : Regex, @it : Searcher)
+      def initialize(@re : Regex, @it : ::Regex::Automata::Searcher)
       end
 
       def each(&block : Match ->)
-        while @it.has_next?
-          input = @it.next_input
-          result = @re.try_search(input)
-          if result.is_a?(MatchError)
-            raise "search error: #{result}"
-          end
-
-          match = result.as?(Match)
-          if match
-            yield match
-            @it = @it.advance(match)
-          else
-            break
-          end
+        while match = @it.advance { |input| @re.try_search(input) }
+          yield match
         end
       end
 
       include Iterator(Match)
 
       def next
-        while @it.has_next?
-          input = @it.next_input
-          result = @re.try_search(input)
-          if result.is_a?(MatchError)
-            raise "search error: #{result}"
-          end
-
-          match = result.as?(Match)
-          if match
-            @it = @it.advance(match)
-            return match
-          else
-            break
-          end
+        if match = @it.advance { |input| @re.try_search(input) }
+          return match
         end
         stop
-      end
-    end
-
-    # TODO: Implement Searcher for iteration
-    class Searcher
-      def initialize(input : Input)
-        @input = input
-      end
-
-      def has_next? : Bool
-        @input.start < @input.end
-      end
-
-      def next_input : Input
-        @input
-      end
-
-      def advance(match : Match) : Searcher
-        # Advance to just after the match
-        new_start = match.end
-        # But if the match is empty, we need to advance by at least 1 byte
-        # to avoid infinite loops
-        if match.empty?
-          new_start += 1
-        end
-        Searcher.new(@input.span(new_start...@input.end))
       end
     end
   end
