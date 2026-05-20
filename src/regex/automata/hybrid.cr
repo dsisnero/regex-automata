@@ -131,7 +131,7 @@ module Regex::Automata::Hybrid
       end
 
       if @nfa_has_word
-        if state.is_from_word? != Regex::Automata.is_word_byte(byte)
+        if state.is_from_word? != ::Regex::Automata.is_word_byte(byte)
           current_look_have = current_look_have.insert(Regex::Automata::Look::WordAscii).remove(Regex::Automata::Look::WordAsciiNegate)
         else
           current_look_have = current_look_have.remove(Regex::Automata::Look::WordAscii).insert(Regex::Automata::Look::WordAsciiNegate)
@@ -147,7 +147,7 @@ module Regex::Automata::Hybrid
       end
       next_look_have = next_look_have.remove(Regex::Automata::Look::WordAscii).remove(Regex::Automata::Look::WordAsciiNegate)
 
-      next_is_from_word = @nfa_has_word && Regex::Automata.is_word_byte(byte)
+      next_is_from_word = @nfa_has_word && ::Regex::Automata.is_word_byte(byte)
       next_is_half_crlf = @nfa_has_crlf && byte == '\r'.ord.to_u8
 
       effective_set = state.nfa_set

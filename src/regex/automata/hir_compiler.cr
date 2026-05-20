@@ -108,7 +108,17 @@ module Regex::Automata
     end
 
     private def compile_literal(node : Regex::Syntax::Hir::Literal) : NFA::ThompsonRef
-      @builder.build_literal(node.bytes, @pattern_id)
+      bytes = if @config.reverse
+                reversed = Bytes.new(node.bytes.size)
+                last = node.bytes.size - 1
+                node.bytes.each_with_index do |byte, index|
+                  reversed[last - index] = byte
+                end
+                reversed
+              else
+                node.bytes
+              end
+      @builder.build_literal(bytes, @pattern_id)
     end
 
     private def compile_char_class(node : Regex::Syntax::Hir::CharClass) : NFA::ThompsonRef
@@ -124,21 +134,34 @@ module Regex::Automata
     end
 
     private def compile_look(node : Regex::Syntax::Hir::Look) : NFA::ThompsonRef
-      # Convert Hir::Look::Kind to NFA::Look::Kind
+      # Collapse the richer regex-syntax look space onto the smaller internal
+      # NFA look representation currently implemented by this port.
       kind = case node.kind
-             when Regex::Syntax::Hir::Look::Kind::Start
+             when Regex::Syntax::Hir::Look::Kind::StartLF,
+                  Regex::Syntax::Hir::Look::Kind::StartCRLF
                NFA::Look::Kind::Start
-             when Regex::Syntax::Hir::Look::Kind::End
+             when Regex::Syntax::Hir::Look::Kind::EndLF,
+                  Regex::Syntax::Hir::Look::Kind::EndCRLF
                NFA::Look::Kind::End
-             when Regex::Syntax::Hir::Look::Kind::WordBoundary
+             when Regex::Syntax::Hir::Look::Kind::WordAscii,
+                  Regex::Syntax::Hir::Look::Kind::WordUnicode,
+                  Regex::Syntax::Hir::Look::Kind::WordStartAscii,
+                  Regex::Syntax::Hir::Look::Kind::WordEndAscii,
+                  Regex::Syntax::Hir::Look::Kind::WordStartUnicode,
+                  Regex::Syntax::Hir::Look::Kind::WordEndUnicode,
+                  Regex::Syntax::Hir::Look::Kind::WordStartHalfAscii,
+                  Regex::Syntax::Hir::Look::Kind::WordEndHalfAscii,
+                  Regex::Syntax::Hir::Look::Kind::WordStartHalfUnicode,
+                  Regex::Syntax::Hir::Look::Kind::WordEndHalfUnicode
                NFA::Look::Kind::WordBoundary
-             when Regex::Syntax::Hir::Look::Kind::NonWordBoundary
+             when Regex::Syntax::Hir::Look::Kind::WordAsciiNegate,
+                  Regex::Syntax::Hir::Look::Kind::WordUnicodeNegate
                NFA::Look::Kind::NonWordBoundary
              when Regex::Syntax::Hir::Look::Kind::StartText
                NFA::Look::Kind::StartText
              when Regex::Syntax::Hir::Look::Kind::EndText
                NFA::Look::Kind::EndText
-             when Regex::Syntax::Hir::Look::Kind::EndTextWithNewline
+             when Regex::Syntax::Hir::Look::Kind::EndTextOptionalLF
                NFA::Look::Kind::EndTextWithNewline
              else
                raise "Unsupported look kind: #{node.kind}"
@@ -178,7 +201,9 @@ module Regex::Automata
 
     private def compile_repetition(node : Regex::Syntax::Hir::Repetition) : NFA::ThompsonRef
       child_ref = compile_node(node.sub)
-      @builder.build_repetition(child_ref, node.min, node.max, node.greedy?, @pattern_id)
+      min = checked_u32_to_i32(node.min, "repetition min")
+      max = node.max.try { |value| checked_u32_to_i32(value, "repetition max") }
+      @builder.build_repetition(child_ref, min, max, node.greedy?, @pattern_id)
     end
 
     private def compile_capture(node : Regex::Syntax::Hir::Capture) : NFA::ThompsonRef
@@ -202,6 +227,12 @@ module Regex::Automata
       NFA::ThompsonRef.new(capture_start, capture_match_end)
     end
 
+    private def checked_u32_to_i32(value : UInt32, label : String) : Int32
+      raise "#{label} exceeds Int32: #{value}" if value > Int32::MAX.to_u32
+
+      value.to_i32
+    end
+
     private def compile_concat(node : Regex::Syntax::Hir::Concat) : NFA::ThompsonRef
       # Build concatenation of children
       refs = node.children.map { |child| compile_node(child) }
@@ -213,7 +244,7 @@ module Regex::Automata
           # In reverse mode, concatenations are built in reverse order
           result = refs.last
           refs[0...-1].reverse_each do |prev_ref|
-            result = @builder.build_concatenation(prev_ref, result)
+            result = @builder.build_concatenation(result, prev_ref)
           end
           result
         else

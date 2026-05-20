@@ -798,7 +798,8 @@ module Regex::Automata::DFA
     # Find the longest match in a byte slice
     def find_longest_match(slice : Bytes) : Tuple(Int32, Array(PatternID))?
       last_match : Tuple(Int32, Array(PatternID))? = nil
-      current_state_id = @start_unanchored
+      start_state_id = search_start_state
+      current_state_id = start_state_id
 
       idx = 0
       size = slice.size
@@ -823,11 +824,11 @@ module Regex::Automata::DFA
         if is_match_state?(eoi_state)
           last_match = {size, state_matches(eoi_state)}
         end
-      elsif last_match.nil? && is_match_state?(@start_unanchored)
+      elsif last_match.nil? && is_match_state?(start_state_id)
         # TODO: According to Rust, "all matches are delayed by one byte"
         # and "a start state can never be a match state". However, this
         # breaks zero-width assertions like \b. Need to investigate further.
-        last_match = {0, state_matches(@start_unanchored)}
+        last_match = {0, state_matches(start_state_id)}
       end
 
       last_match
@@ -836,7 +837,8 @@ module Regex::Automata::DFA
     # Try to search forward, returning either a match or a MatchError
     def try_search_fwd(slice : Bytes) : Tuple(Int32, Array(PatternID)) | Nil | MatchError
       last_match : Tuple(Int32, Array(PatternID))? = nil
-      current_state_id = @start_unanchored
+      start_state_id = search_start_state
+      current_state_id = start_state_id
 
       idx = 0
       size = slice.size
@@ -844,8 +846,8 @@ module Regex::Automata::DFA
       # TODO: According to Rust, "all matches are delayed by one byte"
       # and "a start state can never be a match state". However, this
       # breaks zero-width assertions like \b. Need to investigate further.
-      if is_match_state?(@start_unanchored)
-        return {0, state_matches(@start_unanchored)}
+      if is_match_state?(start_state_id)
+        return {0, state_matches(start_state_id)}
       end
 
       while idx < size
@@ -881,7 +883,8 @@ module Regex::Automata::DFA
     # Try to search in reverse, returning either a match or a MatchError
     def try_search_rev(slice : Bytes) : Tuple(Int32, Array(PatternID)) | Nil | MatchError
       last_match : Tuple(Int32, Array(PatternID))? = nil
-      current_state_id = @start_unanchored
+      start_state_id = search_start_state
+      current_state_id = start_state_id
 
       idx = slice.size - 1
 
@@ -914,14 +917,18 @@ module Regex::Automata::DFA
         elsif is_quit_state?(eoi_state)
           return MatchError.quit(0_u8, 0)
         end
-      elsif last_match.nil? && is_match_state?(@start_unanchored)
+      elsif last_match.nil? && is_match_state?(start_state_id)
         # TODO: According to Rust, "all matches are delayed by one byte"
         # and "a start state can never be a match state". However, this
         # breaks zero-width assertions like \b. Need to investigate further.
-        last_match = {slice.size, state_matches(@start_unanchored)}
+        last_match = {slice.size, state_matches(start_state_id)}
       end
 
       last_match
+    end
+
+    private def search_start_state : StateID
+      @flags.is_anchored ? @start_anchored : @start_unanchored
     end
 
     # Get next state ID for given byte
@@ -1370,20 +1377,22 @@ module Regex::Automata::DFA
     # Build DFA from a pattern string
     def build(pattern : String) : DFA
       # Parse pattern to HIR
-      hir = Regex::Syntax::Parser.new.parse(pattern)
+      hir = ::Regex::Syntax.parse(pattern)
 
       # Compile HIR to NFA
       nfa = @hir_compiler.compile(hir)
 
       # Build DFA from NFA
       Builder.from_nfa(nfa, @config).build
+    rescue ex : ::Regex::Syntax::AST::Error | ::Regex::Syntax::Hir::Error
+      raise BuildError.new(ex.message)
     end
 
     # Build a DFA from multiple pattern strings
     def build_many(patterns : Array(String)) : DFA
       # Parse patterns to HIRs
       hirs = patterns.map do |pattern|
-        Regex::Syntax::Parser.new.parse(pattern)
+        ::Regex::Syntax.parse(pattern)
       end
 
       # Compile HIRs to NFA
@@ -1391,6 +1400,8 @@ module Regex::Automata::DFA
 
       # Build DFA from NFA
       Builder.from_nfa(nfa, @config).build
+    rescue ex : ::Regex::Syntax::AST::Error | ::Regex::Syntax::Hir::Error
+      raise BuildError.new(ex.message)
     end
 
     # Compute accelerators for DFA states
@@ -1586,7 +1597,7 @@ module Regex::Automata::DFA
           end
 
           if @nfa_has_word
-            if is_from_word != Regex::Automata.is_word_byte(byte)
+            if is_from_word != ::Regex::Automata.is_word_byte(byte)
               current_look_have = current_look_have.insert(Look::WordAscii).remove(Look::WordAsciiNegate)
             else
               current_look_have = current_look_have.remove(Look::WordAscii).insert(Look::WordAsciiNegate)
@@ -1610,7 +1621,7 @@ module Regex::Automata::DFA
           next_look_have = next_look_have.remove(Look::WordAscii).remove(Look::WordAsciiNegate)
 
           # Determine next is_from_word flag (for word boundary detection)
-          next_is_from_word = @nfa_has_word && Regex::Automata.is_word_byte(byte)
+          next_is_from_word = @nfa_has_word && ::Regex::Automata.is_word_byte(byte)
           next_is_half_crlf = @nfa_has_crlf && byte == '\r'.ord.to_u8
 
           # Recompute epsilon closure if new look-ahead assertions are satisfied.

@@ -449,6 +449,10 @@ module Regex::Automata::NFA
         end
       end
 
+      if @reverse
+        return build_reverse_unicode_sequences(sequences, pattern_id)
+      end
+
       # Build alternation of all sequences
       if sequences.empty?
         # No sequences - empty match
@@ -469,10 +473,45 @@ module Regex::Automata::NFA
       end
     end
 
+    private def build_reverse_unicode_sequences(sequences : Array(::Regex::Automata::Utf8Sequence), pattern_id : PatternID) : ThompsonRef
+      if sequences.empty?
+        match_id = add_state(Match.new(pattern_id))
+        return ThompsonRef.new(match_id, match_id)
+      end
+
+      cache = {} of Tuple(Int32, UInt8, UInt8) => StateID
+      union_start = add_state(Union.new([] of StateID))
+      match_end = add_state(Match.new(pattern_id))
+
+      sequences.each do |seq|
+        state_id = match_end
+        seq.ranges.reverse_each do |range|
+          key = {state_id.to_i, range.start, range.end}
+          if cached = cache[key]?
+            state_id = cached
+            next
+          end
+
+          trans = Transition.new(range.start, range.end, state_id)
+          state_id = add_state(ByteRange.new(trans))
+          cache[key] = state_id
+        end
+        update_transition_target(union_start, state_id)
+      end
+
+      ThompsonRef.new(union_start, match_end)
+    end
+
     # Build a single UTF-8 sequence (concatenation of byte ranges)
     private def build_utf8_sequence(seq : ::Regex::Automata::Utf8Sequence, pattern_id : PatternID) : ThompsonRef
-      # Build concatenation of byte ranges in sequence
-      refs = seq.ranges.map do |range|
+      byte_ranges = if @reverse
+                      seq.ranges.reverse
+                    else
+                      seq.ranges
+                    end
+
+      # Build concatenation of byte ranges in sequence.
+      refs = byte_ranges.map do |range|
         build_class([range.start..range.end], false, pattern_id)
       end
 
