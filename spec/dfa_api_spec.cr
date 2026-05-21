@@ -407,6 +407,20 @@ describe "DFA API" do
         {1, [Regex::Automata::PatternID.new(0), Regex::Automata::PatternID.new(1)]},
       ])
     end
+
+    it "supports vendor-style stateful overlapping forward search" do
+      dfa = Regex::Automata::DFA::Builder.new
+        .configure { |config| config.match_kind(Regex::Automata::MatchKind::All) }
+        .build_many(["a", "a"])
+      input = Regex::Automata::Input.new("a")
+      state = Regex::Automata::OverlappingState.start
+
+      dfa.try_search_overlapping_fwd(input, state).should be_nil
+      state.get_match.should eq(Regex::Automata::HalfMatch.must(0, 1))
+
+      dfa.try_search_overlapping_fwd(input, state).should be_nil
+      state.get_match.should eq(Regex::Automata::HalfMatch.must(1, 1))
+    end
   end
 
   describe "serialization" do

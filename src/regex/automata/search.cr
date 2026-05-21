@@ -471,16 +471,22 @@ module Regex::Automata
 
   # State for overlapping searches
   class OverlappingState
-    getter id : StateID
-    getter match_index : Int32
-    getter? next_state_index : Int32
+    property mat : HalfMatch?
+    property id : StateID?
+    property at : Int32
+    property next_match_index : Int32?
+    property rev_eoi : Bool
 
-    def initialize(@id : StateID = StateID.new(-1), @match_index : Int32 = 0, @next_state_index : Int32 = 0)
+    def initialize(@mat : HalfMatch? = nil, @id : StateID? = nil, @at : Int32 = 0, @next_match_index : Int32? = nil, @rev_eoi : Bool = false)
     end
 
     # Create a new overlapping state at the start
     def self.start : OverlappingState
       new
+    end
+
+    def get_match : HalfMatch?
+      @mat
     end
   end
 end

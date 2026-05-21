@@ -285,6 +285,67 @@ module Regex::Automata
     # This is used when searching for overlapping matches.
     abstract def try_search_overlapping_fwd(slice : Bytes) : Array(Tuple(Int32, Array(PatternID))) | MatchError
 
+    # Executes an overlapping forward search using explicit search state.
+    #
+    # On success, the given state is updated. Callers should inspect
+    # `state.get_match` to retrieve the most recent match, if any.
+    def try_search_overlapping_fwd(input : Input, state : OverlappingState) : Nil | MatchError
+      state.mat = nil
+      return nil if input.is_done
+
+      pre = input.get_anchored == Anchored::No ? get_prefilter : nil
+      universal_start = !universal_start_state(Anchored::No).nil?
+
+      current_state = if sid = state.id
+                        if next_match_index = state.next_match_index
+                          if next_match_index < match_len(sid)
+                            state.next_match_index = next_match_index + 1
+                            state.mat = HalfMatch.new(match_pattern(sid, next_match_index), state.at)
+                            return skip_empty_utf8_splits_overlapping_fwd(input, state)
+                          end
+                        end
+                        state.at += 1
+                        return nil if state.at > input.end
+                        sid
+                      else
+                        state.at = input.start
+                        sid = start_state_forward(input)
+                        return sid if sid.is_a?(MatchError)
+                        sid.as(StateID)
+                      end
+
+      while state.at < input.end
+        current_state = next_state(current_state, input.haystack[state.at])
+        state.id = current_state
+        if is_special_state?(current_state)
+          if is_start_state?(current_state)
+            if pre
+              # Prefilters are not implemented yet in this port.
+            elsif is_accel_state?(current_state)
+              needles = accelerator(current_state)
+              state.at = Regex::Automata.find_fwd(needles, input.haystack, state.at + 1) || input.end
+              next
+            end
+          elsif is_match_state?(current_state)
+            state.next_match_index = 1
+            state.mat = HalfMatch.new(match_pattern(current_state, 0), state.at)
+            return skip_empty_utf8_splits_overlapping_fwd(input, state)
+          elsif is_accel_state?(current_state)
+            needles = accelerator(current_state)
+            state.at = Regex::Automata.find_fwd(needles, input.haystack, state.at + 1) || input.end
+            next
+          elsif is_dead_state?(current_state)
+            return nil
+          else
+            return MatchError.quit(input.haystack[state.at], state.at)
+          end
+        end
+        state.at += 1
+      end
+
+      overlap_eoi_fwd(input, state, current_state)
+    end
+
     # A convenience method that returns the start state for a forward search
     # with the given anchored mode.
     def start_state(anchored : Anchored) : StateID
@@ -336,6 +397,42 @@ module Regex::Automata
       else
         [] of PatternID
       end
+    end
+
+    private def overlap_eoi_fwd(input : Input, state : OverlappingState, current_state : StateID) : Nil | MatchError
+      next_state_id = if trailing = input.haystack[input.end]?
+                        next_state(current_state, trailing)
+                      else
+                        next_eoi_state(current_state)
+                      end
+      state.id = next_state_id
+      if is_match_state?(next_state_id)
+        state.mat = HalfMatch.new(match_pattern(next_state_id, 0), input.end < input.haystack.size ? input.end : input.haystack.size)
+        state.next_match_index = 1
+      elsif input.end < input.haystack.size && is_quit_state?(next_state_id)
+        return MatchError.quit(input.haystack[input.end], input.end)
+      end
+      skip_empty_utf8_splits_overlapping_fwd(input, state)
+    end
+
+    private def skip_empty_utf8_splits_overlapping_fwd(input : Input, state : OverlappingState) : Nil | MatchError
+      return nil unless has_empty? && is_utf8?
+
+      half_match = state.get_match
+      return nil unless half_match
+
+      if input.get_anchored != Anchored::No
+        state.mat = nil unless input.is_char_boundary(half_match.offset)
+        return nil
+      end
+
+      while half_match && !input.is_char_boundary(half_match.offset)
+        state.mat = nil
+        result = try_search_overlapping_fwd(input, state)
+        return result if result.is_a?(MatchError)
+        half_match = state.get_match
+      end
+      nil
     end
 
     # A convenience method that checks if a match exists at the given position.

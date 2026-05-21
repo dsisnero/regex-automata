@@ -14,7 +14,7 @@
   - Inventory ids: `src/dfa/dense.rs::*`, `src/dfa/automaton.rs::*`
   - Red: port forward, reverse, earliest, and overlapping-search DFA specs
   - Green: `src/regex/automata/dfa.cr`, `src/regex/automata/automaton.cr`, `src/regex/automata/dfa_regex.cr`
-  - Progress: full-`Input` ranged forward context and delayed-match state construction now follow the vendor search model for current-search-start empty alternatives; broader overlapping and remaining helper parity still need direct coverage
+  - Progress: full-`Input` ranged forward context, delayed-match state construction, and forward stateful overlap now follow the vendor search model for bounded cases; reverse overlap and richer `MatchKind::All` ordering cases still need direct coverage
   - Done when: dense DFA search semantics match upstream on the ported parity suite
 
 - [ ] Dense DFA — regex convenience wrapper parity

@@ -1028,40 +1028,24 @@ module Regex::Automata::DFA
       size = slice.size
 
       (0..size).each do |start|
-        look_behind = start > 0 ? slice[start - 1]? : nil
-        start_result = start_state(StartConfig.new(look_behind, Anchored::Yes))
-        case start_result
-        when StartError
-          return MatchError.quit(start_result.byte, start - 1) if start_result.is_a?(QuitStartError)
-          next
-        when StateID
-          current_state_id = start_result
-          idx = start
+        input = Input.new(slice).span(start...size).anchored(Anchored::Yes)
+        state = OverlappingState.start
 
-          while idx < size
-            byte = slice[idx]
-            next_state_id = transition(byte, current_state_id)
-            if is_quit_state?(next_state_id)
-              return MatchError.quit(byte, idx)
-            end
-            break if is_dead_state?(next_state_id)
+        loop do
+          result = try_search_overlapping_fwd(input, state)
+          return result if result.is_a?(MatchError)
 
-            current_state_id = next_state_id
-            if is_match_state?(current_state_id)
-              matches << {idx, state_matches(current_state_id)}
-              break
-            end
-            idx += 1
-          end
+          half_match = state.get_match
+          break unless half_match
 
-          if idx == size
-            eoi_state = next_eoi_state(current_state_id)
-            if is_match_state?(eoi_state)
-              matches << {size, state_matches(eoi_state)}
-            elsif is_quit_state?(eoi_state)
-              return MatchError.quit(0_u8, size)
-            end
-          end
+          sid = state.id
+          patterns = if sid
+                       Array.new(match_len(sid)) { |index| match_pattern(sid, index) }
+                     else
+                       [half_match.pattern]
+                     end
+          matches << {half_match.offset, patterns}
+          break
         end
       end
       matches

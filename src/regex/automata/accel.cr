@@ -22,11 +22,10 @@ module Regex::Automata
     bs = needles
     case needles.size
     when 1
-      if idx = haystack[at..]?.index(bs[0])
-        at + idx
-      else
-        nil
-      end
+      tail = haystack[at..]?
+      return nil unless tail
+      idx = tail.index(bs[0])
+      idx ? at + idx : nil
     when 2
       # Simple linear search for 2 bytes
       (at...haystack.size).each do |i|

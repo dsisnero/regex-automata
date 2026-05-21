@@ -17,10 +17,10 @@ src/dfa/accel.rs::method::Accel.new	method	missing	-	auto-generated
 src/dfa/accel.rs::method::Accels.empty	method	missing	-	auto-generated
 src/dfa/accel.rs::method::Accels.from_bytes_unchecked	method	missing	-	auto-generated
 src/dfa/automaton.rs::enum::StartError	enum	ported	src/regex/automata/automaton.cr:244	Ported as enum with UnsupportedAnchored and Invalid variants
-src/dfa/automaton.rs::func::get_match	func	missing	-	auto-generated
-src/dfa/automaton.rs::func::start	func	missing	-	auto-generated
-src/dfa/automaton.rs::method::OverlappingState.start	method	missing	-	auto-generated
-src/dfa/automaton.rs::struct::OverlappingState	struct	missing	-	auto-generated
+src/dfa/automaton.rs::func::get_match	func	ported	src/regex/automata/search.cr::OverlappingState#get_match;spec/dfa_api_spec.cr	ported overlapping-state match accessor for forward overlap searches
+src/dfa/automaton.rs::func::start	func	ported	src/regex/automata/search.cr::OverlappingState.start;spec/dfa_api_spec.cr	ported overlapping-state constructor
+src/dfa/automaton.rs::method::OverlappingState.start	method	ported	src/regex/automata/search.cr::OverlappingState.start;spec/dfa_api_spec.cr	ported overlapping-state constructor
+src/dfa/automaton.rs::struct::OverlappingState	struct	partial	src/regex/automata/search.cr::OverlappingState;src/regex/automata/automaton.cr;spec/dfa_api_spec.cr	forward stateful overlap is ported, but reverse overlap and richer multi-pattern ordering parity are still incomplete
 src/dfa/automaton.rs::test::object_safe	test	missing	-	auto-generated
 src/dfa/dense.rs::func::accelerate	func	ported	src/regex/automata/config.cr:Config.accelerate	auto-generated
 src/dfa/dense.rs::func::alphabet_len	func	missing	-	auto-generated
