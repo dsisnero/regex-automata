@@ -677,17 +677,17 @@ src/util/interpolate.rs::func::string	func	missing	-	auto-generated
 src/util/interpolate.rs::test::interpolate_string	test	missing	-	auto-generated
 src/util/iter.rs::func::infallible	func	missing	-	auto-generated
 src/util/iter.rs::func::new	func	missing	-	auto-generated
-src/util/iter.rs::method::Searcher.new	method	missing	-	auto-generated
+src/util/iter.rs::method::Searcher.new	method	ported	src/regex/automata/search.cr::Searcher#initialize;spec/searcher_spec.cr	Searcher now owns a cloned Input like upstream and preserves caller input state
 src/util/iter.rs::method::TryCapturesIter.infallible	method	missing	-	auto-generated
-src/util/iter.rs::method::TryHalfMatchesIter.infallible	method	missing	-	auto-generated
-src/util/iter.rs::method::TryMatchesIter.infallible	method	missing	-	auto-generated
+src/util/iter.rs::method::TryHalfMatchesIter.infallible	method	ported	src/regex/automata/search.cr::TryHalfMatchesIter#infallible;spec/searcher_spec.cr	ported infallible half-match iterator wrapper
+src/util/iter.rs::method::TryMatchesIter.infallible	method	ported	src/regex/automata/search.cr::TryMatchesIter#infallible;spec/searcher_spec.cr	ported infallible match iterator wrapper
 src/util/iter.rs::struct::CapturesIter	struct	missing	-	auto-generated
-src/util/iter.rs::struct::HalfMatchesIter	struct	missing	-	auto-generated
-src/util/iter.rs::struct::MatchesIter	struct	missing	-	auto-generated
-src/util/iter.rs::struct::Searcher	struct	missing	-	auto-generated
+src/util/iter.rs::struct::HalfMatchesIter	struct	ported	src/regex/automata/search.cr::HalfMatchesIter;spec/searcher_spec.cr	ported infallible half-match iterator
+src/util/iter.rs::struct::MatchesIter	struct	ported	src/regex/automata/search.cr::MatchesIter;spec/searcher_spec.cr	ported infallible match iterator
+src/util/iter.rs::struct::Searcher	struct	partial	src/regex/automata/search.cr::Searcher;spec/searcher_spec.cr	half/match iterator behavior is ported, but captures iteration support is still missing
 src/util/iter.rs::struct::TryCapturesIter	struct	missing	-	auto-generated
-src/util/iter.rs::struct::TryHalfMatchesIter	struct	missing	-	auto-generated
-src/util/iter.rs::struct::TryMatchesIter	struct	missing	-	auto-generated
+src/util/iter.rs::struct::TryHalfMatchesIter	struct	ported	src/regex/automata/search.cr::TryHalfMatchesIter;spec/searcher_spec.cr	ported fallible half-match iterator wrapper
+src/util/iter.rs::struct::TryMatchesIter	struct	ported	src/regex/automata/search.cr::TryMatchesIter;spec/searcher_spec.cr	ported fallible match iterator wrapper
 src/util/lazy.rs::func::get	func	missing	-	auto-generated
 src/util/lazy.rs::method::T.get	method	missing	-	auto-generated
 src/util/lazy.rs::struct::Lazy	struct	missing	-	auto-generated

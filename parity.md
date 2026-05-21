@@ -14,6 +14,7 @@
   - Inventory ids: `src/dfa/dense.rs::*`, `src/dfa/automaton.rs::*`
   - Red: port forward, reverse, earliest, and overlapping-search DFA specs
   - Green: `src/regex/automata/dfa.cr`, `src/regex/automata/automaton.cr`, `src/regex/automata/dfa_regex.cr`
+  - Progress: full-`Input` ranged forward context is ported, but the real DFA still skips the empty match at offset `2` in the vendor `a|` / `abba` iteration example
   - Done when: dense DFA search semantics match upstream on the ported parity suite
 
 - [ ] Dense DFA — regex convenience wrapper parity
@@ -86,6 +87,14 @@
   - Red: port primitive-value semantics specs
   - Green: `src/regex/automata/search.cr`
   - Done when: the result primitive API is fully ported and inventory-backed
+
+- [ ] Utilities — Search iteration helpers
+  - Upstream scope: `src/util/iter.rs`
+  - Inventory ids: `src/util/iter.rs::*`
+  - Red: port `Searcher` ownership, half-match advancement, and infallible iterator-constructor specs before broadening into captures iteration
+  - Green: `src/regex/automata/search.cr`, `spec/searcher_spec.cr`
+  - Progress: `Searcher` now clones `Input` on construction and exposes the half/match iterator wrappers; captures-oriented iterator parity is still missing
+  - Done when: `Searcher`, `TryHalfMatchesIter`, `TryMatchesIter`, `HalfMatchesIter`, `MatchesIter`, and captures iteration behavior all match upstream
 
 - [ ] Utilities — Captures and slot management
   - Upstream scope: `src/util/captures.rs`

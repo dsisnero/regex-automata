@@ -262,6 +262,13 @@ module Regex::Automata
       byte < 0x80 || byte >= 0xC0
     end
 
+    def clone : Input
+      Input.new(@haystack)
+        .span(@span_start...@span_end)
+        .anchored(@anchored, @pattern)
+        .earliest(@earliest)
+    end
+
     private def validate_span(span : Span) : Nil
       haystack_size = @haystack.size
       return if span.end <= haystack_size && span.start <= span.end + 1
@@ -282,7 +289,8 @@ module Regex::Automata
 
     @last_match_end : Int32?
 
-    def initialize(@input : Input)
+    def initialize(input : Input)
+      @input = input.clone
       @last_match_end = nil
     end
 
@@ -334,6 +342,14 @@ module Regex::Automata
       match
     end
 
+    def into_half_matches_iter(&finder : Input -> HalfMatch? | MatchError) : TryHalfMatchesIter
+      TryHalfMatchesIter.new(self, finder)
+    end
+
+    def into_matches_iter(&finder : Input -> Match? | MatchError) : TryMatchesIter
+      TryMatchesIter.new(self, finder)
+    end
+
     private def handle_overlapping_empty_half_match(&finder : Input -> HalfMatch? | MatchError) : HalfMatch? | MatchError
       @input.set_start(checked_add_one(@input.start))
       yield @input
@@ -350,6 +366,106 @@ module Regex::Automata
       raise "search offset #{value} overflows Int32" if value == Int32::MAX
 
       value + 1
+    end
+  end
+
+  class TryHalfMatchesIter
+    @it : Searcher
+    @finder : Proc(Input, HalfMatch? | MatchError)
+
+    def initialize(@it : Searcher, @finder : Proc(Input, HalfMatch? | MatchError))
+    end
+
+    def infallible : HalfMatchesIter
+      HalfMatchesIter.new(self)
+    end
+
+    def input : Input
+      @it.input
+    end
+
+    def next
+      result = @it.try_advance_half { |input| @finder.call(input) }
+      result
+    end
+  end
+
+  class HalfMatchesIter
+    @it : TryHalfMatchesIter
+
+    def initialize(@it : TryHalfMatchesIter)
+    end
+
+    def input : Input
+      @it.input
+    end
+
+    include Enumerable(HalfMatch)
+
+    def next
+      result = @it.next
+      return nil if result.nil?
+      if result.is_a?(MatchError)
+        raise "unexpected regex half find error: #{result}\n to handle find errors, use 'try' or 'search' methods"
+      end
+
+      result.as(HalfMatch)
+    end
+
+    def each(&block : HalfMatch ->)
+      while match = self.next
+        yield match
+      end
+    end
+  end
+
+  class TryMatchesIter
+    @it : Searcher
+    @finder : Proc(Input, Match? | MatchError)
+
+    def initialize(@it : Searcher, @finder : Proc(Input, Match? | MatchError))
+    end
+
+    def infallible : MatchesIter
+      MatchesIter.new(self)
+    end
+
+    def input : Input
+      @it.input
+    end
+
+    def next
+      result = @it.try_advance { |input| @finder.call(input) }
+      result
+    end
+  end
+
+  class MatchesIter
+    @it : TryMatchesIter
+
+    def initialize(@it : TryMatchesIter)
+    end
+
+    def input : Input
+      @it.input
+    end
+
+    include Enumerable(Match)
+
+    def next
+      result = @it.next
+      return nil if result.nil?
+      if result.is_a?(MatchError)
+        raise "unexpected regex find error: #{result}\n to handle find errors, use 'try' or 'search' methods"
+      end
+
+      result.as(Match)
+    end
+
+    def each(&block : Match ->)
+      while match = self.next
+        yield match
+      end
     end
   end
 
