@@ -153,10 +153,38 @@ module Regex::Automata::DFA
       Builder.new.build_many(patterns)
     end
 
+    # Return a default dense DFA builder.
+    def self.builder : Builder
+      Builder.new
+    end
+
+    # Return a default dense DFA configuration.
+    def self.config : Config
+      Config.new
+    end
+
+    # Create a DFA that matches at every position, including empty haystacks.
+    def self.always_match : DFA
+      Builder.new.build("")
+    end
+
+    # Create a DFA that never matches any input.
+    def self.never_match : DFA
+      nfa = NFA::NFA.new(
+        [NFA::Fail.new] of NFA::State,
+        StateID.new(0),
+        StateID.new(0),
+        [] of StateID,
+        true,
+        false
+      )
+      Builder.from_nfa(nfa).build
+    end
+
     # Deserialize a DFA from bytes
     # Returns a tuple of (DFA, bytes_read) or raises DeserializeError
     def self.from_bytes(slice : Bytes) : Tuple(DFA, Int32)
-      from_bytes_with_endianness(slice, :little)
+      from_bytes_with_endianness(slice, detect_serialized_endianness(slice))
     end
 
     def self.build_transition_table(states : Array(State), byte_classifier : ByteClasses) : TransitionTable
@@ -437,6 +465,29 @@ module Regex::Automata::DFA
       to_bytes_with_endianness(:native)
     end
 
+    # Serialize this DFA into the given buffer in little-endian format.
+    # Returns the number of bytes written or raises when the buffer is too small.
+    def write_to_little_endian(dst : Bytes) : Int32
+      write_to_with_endianness(dst, :little)
+    end
+
+    # Serialize this DFA into the given buffer in big-endian format.
+    # Returns the number of bytes written or raises when the buffer is too small.
+    def write_to_big_endian(dst : Bytes) : Int32
+      write_to_with_endianness(dst, :big)
+    end
+
+    # Serialize this DFA into the given buffer in native-endian format.
+    # Returns the number of bytes written or raises when the buffer is too small.
+    def write_to_native_endian(dst : Bytes) : Int32
+      write_to_with_endianness(dst, :native)
+    end
+
+    # Return the number of bytes required to serialize this DFA.
+    def write_to_len : Int32
+      to_bytes_native_endian[1]
+    end
+
     private def to_bytes_with_endianness(endianness : Symbol) : Tuple(Bytes, Int32)
       # Calculate total size needed
       total_size = 0
@@ -594,6 +645,15 @@ module Regex::Automata::DFA
       {buffer, offset}
     end
 
+    private def write_to_with_endianness(dst : Bytes, endianness : Symbol) : Int32
+      bytes, written = to_bytes_with_endianness(endianness)
+      if dst.size < written
+        raise SerializeError.new("buffer too small: need #{written} bytes, got #{dst.size}")
+      end
+      dst[0, written].copy_from(bytes[0, written])
+      written
+    end
+
     private def write_u32(value : UInt32, buffer : Bytes, offset : Int32, endianness : Symbol)
       case endianness
       when :little
@@ -655,6 +715,24 @@ module Regex::Automata::DFA
         has_prefilter: (value & (1_u32 << 6)) != 0,
         is_always_start_anchored: (value & (1_u32 << 7)) != 0
       )
+    end
+
+    private def self.detect_serialized_endianness(slice : Bytes) : Symbol
+      if slice.size < 12
+        raise DeserializeError.new("serialized DFA too short")
+      end
+
+      little = read_u32(slice, 8, :little)
+      return :little if supported_serialized_version?(little)
+
+      big = read_u32(slice, 8, :big)
+      return :big if supported_serialized_version?(big)
+
+      raise DeserializeError.new("Unsupported version: #{little}")
+    end
+
+    private def self.supported_serialized_version?(version : UInt32) : Bool
+      version == 1 || version == 2 || version == 3 || version == 4
     end
 
     def self.compute_universal_start(states : Array(State), start_states : Hash(Start, StateID)) : StateID?
@@ -992,6 +1070,32 @@ module Regex::Automata::DFA
       @ms.pattern_len
     end
 
+    # Returns the total number of transition entries available to each state.
+    #
+    # This includes the synthetic end-of-input transition in addition to the
+    # byte-class transitions.
+    def alphabet_len : Int32
+      @tt.not_nil!.alphabet_len
+    end
+
+    # Returns the log2 stride used for premultiplied state IDs.
+    def stride2 : Int32
+      @tt.not_nil!.stride2
+    end
+
+    # Returns the total stride used by each row in the transition table.
+    def stride : Int32
+      1 << stride2
+    end
+
+    # Returns the serialized byte size of this DFA.
+    #
+    # This matches the current port's on-wire representation and gives a
+    # concrete, implementation-backed notion of memory footprint.
+    def memory_usage : Int32
+      to_bytes_native_endian[0].size
+    end
+
     # Returns the number of matches in the given state
     def match_len(id : StateID) : Int32
       @ms.match_len(id)
@@ -1024,31 +1128,40 @@ module Regex::Automata::DFA
 
     # Try to search for overlapping matches forward
     def try_search_overlapping_fwd(slice : Bytes) : Array(Tuple(Int32, Array(PatternID))) | MatchError
-      matches = [] of Tuple(Int32, Array(PatternID))
+      matches_by_offset = {} of Int32 => Array(PatternID)
       size = slice.size
 
       (0..size).each do |start|
         input = Input.new(slice).span(start...size).anchored(Anchored::Yes)
         state = OverlappingState.start
+        current_offset = nil.as(Int32?)
+        current_patterns = [] of PatternID
 
         loop do
           result = try_search_overlapping_fwd(input, state)
           return result if result.is_a?(MatchError)
 
           half_match = state.get_match
-          break unless half_match
+          unless half_match
+            if offset = current_offset
+              merge_overlapping_patterns(matches_by_offset, offset, current_patterns)
+            end
+            break
+          end
 
-          sid = state.id
-          patterns = if sid
-                       Array.new(match_len(sid)) { |index| match_pattern(sid, index) }
-                     else
-                       [half_match.pattern]
-                     end
-          matches << {half_match.offset, patterns}
-          break
+          if current_offset == half_match.offset
+            current_patterns << half_match.pattern unless current_patterns.includes?(half_match.pattern)
+          else
+            if offset = current_offset
+              merge_overlapping_patterns(matches_by_offset, offset, current_patterns)
+            end
+            current_offset = half_match.offset
+            current_patterns = [half_match.pattern]
+          end
         end
       end
-      matches
+
+      matches_by_offset.keys.sort.map { |offset| {offset, matches_by_offset[offset]} }
     end
 
     # Get universal start state for given anchored mode
@@ -1064,6 +1177,31 @@ module Regex::Automata::DFA
     # Returns the prefilter for this DFA, if one exists
     def get_prefilter : Prefilter?
       @prefilter
+    end
+
+    # Attach or clear the prefilter for this DFA.
+    def set_prefilter(prefilter : Prefilter?) : Nil
+      @prefilter = prefilter
+      @flags = DFAFlags.new(
+        premultiplied: @flags.premultiplied,
+        has_empty: @flags.has_empty,
+        has_byte_classes: @flags.has_byte_classes,
+        is_anchored: @flags.is_anchored,
+        is_leftmost: @flags.is_leftmost,
+        is_utf8: @flags.is_utf8,
+        is_always_start_anchored: @flags.is_always_start_anchored,
+        has_prefilter: !prefilter.nil?
+      )
+    end
+
+    # Return a borrowed view of this DFA.
+    def as_ref : DFA
+      self
+    end
+
+    # Return an owned view of this DFA.
+    def to_owned : DFA
+      self
     end
 
     # Returns the start state for the given configuration
@@ -1121,6 +1259,17 @@ module Regex::Automata::DFA
     private def state_matches(id : StateID) : Array(PatternID)
       count = match_len(id)
       Array.new(count) { |index| match_pattern(id, index) }
+    end
+
+    private def merge_overlapping_patterns(matches_by_offset : Hash(Int32, Array(PatternID)), offset : Int32, patterns : Array(PatternID)) : Nil
+      merged = matches_by_offset[offset]? || [] of PatternID
+      patterns.each do |pattern|
+        next if merged.includes?(pattern)
+
+        index = merged.bsearch_index { |existing| existing >= pattern } || merged.size
+        merged.insert(index, pattern)
+      end
+      matches_by_offset[offset] = merged
     end
 
     private def accelerate_forward(slice : Bytes, idx : Int32, state_id : StateID, last_match : Pointer(Tuple(Int32, Array(PatternID))?)?) : Int32
@@ -1240,10 +1389,12 @@ module Regex::Automata::DFA
     @byte_classes : ByteClasses
     @transition_table : TransitionTable
     @nfa_has_word : Bool
+    @nfa_has_unicode_word : Bool
     @nfa_has_crlf : Bool
     @config : Config
     @quitset : ByteSet
     @hir_compiler : HirCompiler
+    @syntax_config : ::Regex::Syntax::ParserBuilder?
     @start_unanchored : StateID?
     @start_anchored : StateID?
 
@@ -1259,13 +1410,13 @@ module Regex::Automata::DFA
 
     # Configure the builder with a new configuration
     def configure(config : Config) : Builder
-      Builder.new(config, nfa: @nfa, hir_compiler: @hir_compiler)
+      Builder.new(config, nfa: @nfa, hir_compiler: @hir_compiler, syntax_config: @syntax_config)
     end
 
     # Configure the builder using a block
     def configure(&block : Config -> Config) : Builder
       config = block.call(@config.dup)
-      Builder.new(config, nfa: @nfa, hir_compiler: @hir_compiler)
+      Builder.new(config, nfa: @nfa, hir_compiler: @hir_compiler, syntax_config: @syntax_config)
     end
 
     # Configure the Thompson NFA compiler
@@ -1274,14 +1425,43 @@ module Regex::Automata::DFA
       hir_compiler_config = HirCompilerConfig.new
       hir_compiler_config = block.call(hir_compiler_config)
       hir_compiler = HirCompiler.new(hir_compiler_config)
-      Builder.new(config, nfa: @nfa, hir_compiler: hir_compiler)
+      Builder.new(config, nfa: @nfa, hir_compiler: hir_compiler, syntax_config: @syntax_config)
     end
 
-    def initialize(config : Config = Config.new, nfa : NFA::NFA? = nil, hir_compiler : HirCompiler? = nil, byte_classes : ByteClasses | Int32 = 256)
+    # Configure the syntax parser used before HIR compilation.
+    def syntax(&block : ::Regex::Syntax::ParserBuilder -> ::Regex::Syntax::ParserBuilder) : Builder
+      syntax_config = block.call((@syntax_config || ::Regex::Syntax::ParserBuilder.new))
+      Builder.new(@config, nfa: @nfa, hir_compiler: @hir_compiler, syntax_config: syntax_config)
+    end
+
+    def initialize(config : Config = Config.new, nfa : NFA::NFA? = nil, hir_compiler : HirCompiler? = nil, byte_classes : ByteClasses | Int32 = 256, syntax_config : ::Regex::Syntax::ParserBuilder? = nil)
       @config = config
       @quitset = config.quitset
       @nfa = nfa
       @hir_compiler = hir_compiler || HirCompiler.new
+      @syntax_config = syntax_config
+
+      # Precompute whether NFA contains word boundary or CRLF assertions.
+      @nfa_has_word = false
+      @nfa_has_unicode_word = false
+      @nfa_has_crlf = false
+      if current_nfa = @nfa
+        current_nfa.states.each do |state|
+          next unless state.is_a?(NFA::Look)
+
+          case state.kind
+          when NFA::Look::Kind::WordBoundaryAscii, NFA::Look::Kind::NonWordBoundaryAscii
+            @nfa_has_word = true
+          when NFA::Look::Kind::WordBoundaryUnicode, NFA::Look::Kind::NonWordBoundaryUnicode
+            @nfa_has_word = true
+            @nfa_has_unicode_word = true
+          when NFA::Look::Kind::Start, NFA::Look::Kind::End
+            @nfa_has_crlf = true
+          when NFA::Look::Kind::StartText, NFA::Look::Kind::EndText, NFA::Look::Kind::EndTextWithNewline
+            # Text anchors do not require extra CRLF bookkeeping here.
+          end
+        end
+      end
 
       # Implicitly enable Unicode word boundaries if all non-ASCII bytes are quit bytes
       if !config.unicode_word_boundary? && all_non_ascii_bytes_are_quit?(@quitset)
@@ -1290,6 +1470,13 @@ module Regex::Automata::DFA
         if ENV["LOGOS_DEBUG_DFA_BUILD"]?
           puts "Implicitly enabled Unicode word boundaries because all non-ASCII bytes are quit bytes"
         end
+      end
+
+      if @nfa_has_unicode_word
+        unless @config.unicode_word_boundary?
+          raise BuildError.new("cannot build DFAs for regexes with Unicode word boundaries; switch to ASCII word boundaries, or heuristically enable Unicode word boundaries or use a different regex engine")
+        end
+        @quitset = add_non_ascii_quit_bytes(@quitset)
       end
 
       # Create byte classes with quit bytes in separate classes
@@ -1317,34 +1504,13 @@ module Regex::Automata::DFA
       @state_map = {} of Tuple(Set(StateID), LookSet, Bool, Bool, Array(PatternID)) => StateID
       @start_unanchored = nil
       @start_anchored = nil
-
-      # Precompute whether NFA contains word boundary or CRLF assertions
-      @nfa_has_word = false
-      @nfa_has_crlf = false
-      if nfa = @nfa
-        nfa.states.each do |state|
-          if state.is_a?(NFA::Look)
-            case state.kind
-            when NFA::Look::Kind::WordBoundary, NFA::Look::Kind::NonWordBoundary
-              @nfa_has_word = true
-            when NFA::Look::Kind::Start, NFA::Look::Kind::End
-              @nfa_has_crlf = true
-            when NFA::Look::Kind::StartText, NFA::Look::Kind::EndText, NFA::Look::Kind::EndTextWithNewline
-              # These are start/end text anchors, not CRLF line anchors
-              # CRLF anchors are not represented in NFA::Look::Kind (only Start/End)
-              # We'll treat them as CRLF? Actually Start and End are line anchors (^, $) which can be CRLF-aware
-              # but our NFA doesn't distinguish. We'll need to handle later.
-            end
-          end
-        end
-      end
     end
 
     # Build DFA from NFA using subset construction
     # Build DFA from a pattern string
     def build(pattern : String) : DFA
       # Parse pattern to HIR
-      hir = ::Regex::Syntax.parse(pattern)
+      hir = syntax_parser.parse(pattern)
 
       # Compile HIR to NFA
       nfa = @hir_compiler.compile(hir)
@@ -1359,7 +1525,7 @@ module Regex::Automata::DFA
     def build_many(patterns : Array(String)) : DFA
       # Parse patterns to HIRs
       hirs = patterns.map do |pattern|
-        ::Regex::Syntax.parse(pattern)
+        syntax_parser.parse(pattern)
       end
 
       # Compile HIRs to NFA
@@ -1566,8 +1732,14 @@ module Regex::Automata::DFA
           if @nfa_has_word
             if is_from_word != ::Regex::Automata.is_word_byte(byte)
               current_look_have = current_look_have.insert(Look::WordAscii).remove(Look::WordAsciiNegate)
+              if @nfa_has_unicode_word
+                current_look_have = current_look_have.insert(Look::WordUnicode).remove(Look::WordUnicodeNegate)
+              end
             else
               current_look_have = current_look_have.remove(Look::WordAscii).insert(Look::WordAsciiNegate)
+              if @nfa_has_unicode_word
+                current_look_have = current_look_have.remove(Look::WordUnicode).insert(Look::WordUnicodeNegate)
+              end
             end
           end
 
@@ -1586,6 +1758,9 @@ module Regex::Automata::DFA
 
           # Word boundary assertions are computed per transition.
           next_look_have = next_look_have.remove(Look::WordAscii).remove(Look::WordAsciiNegate)
+          if @nfa_has_unicode_word
+            next_look_have = next_look_have.remove(Look::WordUnicode).remove(Look::WordUnicodeNegate)
+          end
 
           # Determine next is_from_word flag (for word boundary detection)
           next_is_from_word = @nfa_has_word && ::Regex::Automata.is_word_byte(byte)
@@ -1660,8 +1835,14 @@ module Regex::Automata::DFA
         if @nfa_has_word
           if is_from_word
             eoi_look_have = eoi_look_have.insert(Look::WordAscii).remove(Look::WordAsciiNegate)
+            if @nfa_has_unicode_word
+              eoi_look_have = eoi_look_have.insert(Look::WordUnicode).remove(Look::WordUnicodeNegate)
+            end
           else
             eoi_look_have = eoi_look_have.remove(Look::WordAscii).insert(Look::WordAsciiNegate)
+            if @nfa_has_unicode_word
+              eoi_look_have = eoi_look_have.remove(Look::WordUnicode).insert(Look::WordUnicodeNegate)
+            end
           end
         end
 
@@ -1731,7 +1912,21 @@ module Regex::Automata::DFA
         dfa.@special.set_no_special_start_states
       end
 
+      if prefilter = @config.prefilter
+        dfa.set_prefilter(prefilter)
+      end
+
+      if limit = @config.get_dfa_size_limit
+        if dfa.memory_usage > limit
+          raise BuildError.new("DFA exceeded size limit of #{limit} bytes", size_limit_exceeded: true)
+        end
+      end
+
       dfa
+    end
+
+    private def syntax_parser : ::Regex::Syntax::Parser
+      (@syntax_config || ::Regex::Syntax::ParserBuilder.new).build
     end
 
     private def valid_nfa_start(start : StateID, fallback : StateID? = nil) : StateID
@@ -1814,8 +2009,10 @@ module Regex::Automata::DFA
       when Start::WordByte
         is_from_word = true
         look_have = look_have.insert(Look::WordAscii)
+        look_have = look_have.insert(Look::WordUnicode) if @nfa_has_unicode_word
       when Start::NonWordByte, Start::CustomLineTerminator
         look_have = look_have.insert(Look::WordAsciiNegate)
+        look_have = look_have.insert(Look::WordUnicodeNegate) if @nfa_has_unicode_word
       end
       {look_have, is_from_word}
     end
@@ -1900,18 +2097,14 @@ module Regex::Automata::DFA
         LookSet.from_look(Look::StartLF).insert(Look::StartCRLF)
       when NFA::Look::Kind::End
         LookSet.from_look(Look::EndLF).insert(Look::EndCRLF)
-      when NFA::Look::Kind::WordBoundary
-        if @config.unicode_word_boundary?
-          LookSet.from_look(Look::WordUnicode)
-        else
-          LookSet.from_look(Look::WordAscii)
-        end
-      when NFA::Look::Kind::NonWordBoundary
-        if @config.unicode_word_boundary?
-          LookSet.from_look(Look::WordUnicodeNegate)
-        else
-          LookSet.from_look(Look::WordAsciiNegate)
-        end
+      when NFA::Look::Kind::WordBoundaryAscii
+        LookSet.from_look(Look::WordAscii)
+      when NFA::Look::Kind::NonWordBoundaryAscii
+        LookSet.from_look(Look::WordAsciiNegate)
+      when NFA::Look::Kind::WordBoundaryUnicode
+        LookSet.from_look(Look::WordUnicode)
+      when NFA::Look::Kind::NonWordBoundaryUnicode
+        LookSet.from_look(Look::WordUnicodeNegate)
       when NFA::Look::Kind::StartText
         LookSet.from_look(Look::Start)
       when NFA::Look::Kind::EndText, NFA::Look::Kind::EndTextWithNewline
@@ -1919,6 +2112,14 @@ module Regex::Automata::DFA
       else
         raise "Unreachable look kind: #{kind}"
       end
+    end
+
+    private def add_non_ascii_quit_bytes(quitset : ByteSet) : ByteSet
+      expanded = quitset
+      (0x80..0xFF).each do |byte|
+        expanded = expanded.add(byte.to_u8)
+      end
+      expanded
     end
 
     private def all_non_ascii_bytes_are_quit?(quitset : ByteSet) : Bool

@@ -1,10 +1,10 @@
 # source_test_id	status	crystal_refs	notes
 src/dfa/automaton.rs::test::object_safe	missing	-	baseline
-src/dfa/dense.rs::test::errors_with_unicode_word_boundary	missing	-	baseline
-src/dfa/dense.rs::test::heuristic_unicode_reverse	missing	-	baseline
+src/dfa/dense.rs::test::errors_with_unicode_word_boundary	ported	spec/dfa_dense_spec.cr	preserved ASCII-vs-Unicode word-boundary distinction and reject Unicode boundaries unless heuristic DFA support is enabled
+src/dfa/dense.rs::test::heuristic_unicode_reverse	ported	spec/dfa_dense_spec.cr	heuristic Unicode reverse searches now auto-quit on non-ASCII bytes while preserving reverse boundary semantics on ASCII spans
 src/dfa/dense.rs::test::regression_validation_order	missing	-	baseline
-src/dfa/dense.rs::test::roundtrip_always_match	missing	-	baseline
-src/dfa/dense.rs::test::roundtrip_never_match	missing	-	baseline
+src/dfa/dense.rs::test::roundtrip_always_match	ported	spec/dfa_dense_spec.cr	ported dense always-match serialization roundtrip parity spec
+src/dfa/dense.rs::test::roundtrip_never_match	ported	spec/dfa_dense_spec.cr	ported dense never-match serialization roundtrip parity spec
 src/dfa/onepass.rs::test::assertions	missing	-	baseline
 src/dfa/onepass.rs::test::fail_conflicting_transition	missing	-	baseline
 src/dfa/onepass.rs::test::fail_multiple_epsilon	missing	-	baseline

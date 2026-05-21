@@ -1,95 +1,95 @@
 # source_id	kind	status	crystal_refs	notes
-src/dfa/accel.rs::func::add	func	missing	-	auto-generated
-src/dfa/accel.rs::func::as_bytes	func	missing	-	auto-generated
-src/dfa/accel.rs::func::as_ref	func	missing	-	auto-generated
-src/dfa/accel.rs::func::empty	func	missing	-	auto-generated
-src/dfa/accel.rs::func::from_bytes_unchecked	func	missing	-	auto-generated
-src/dfa/accel.rs::func::from_slice	func	missing	-	auto-generated
-src/dfa/accel.rs::func::is_empty	func	missing	-	auto-generated
-src/dfa/accel.rs::func::len	func	missing	-	auto-generated
-src/dfa/accel.rs::func::memory_usage	func	missing	-	auto-generated
-src/dfa/accel.rs::func::needles	func	missing	-	auto-generated
-src/dfa/accel.rs::func::new	func	missing	-	auto-generated
-src/dfa/accel.rs::func::to_owned	func	missing	-	auto-generated
-src/dfa/accel.rs::func::validate	func	missing	-	auto-generated
-src/dfa/accel.rs::func::write_to_len	func	missing	-	auto-generated
-src/dfa/accel.rs::method::Accel.new	method	missing	-	auto-generated
-src/dfa/accel.rs::method::Accels.empty	method	missing	-	auto-generated
-src/dfa/accel.rs::method::Accels.from_bytes_unchecked	method	missing	-	auto-generated
+src/dfa/accel.rs::func::add	func	ported	src/regex/automata/accel.cr:Accel#add;src/regex/automata/accel.cr:Accels#add;spec/accel_spec.cr	ported accelerator byte insertion and accelerator collection appends with roundtrip coverage
+src/dfa/accel.rs::func::as_bytes	func	ported	src/regex/automata/accel.cr:Accels#as_bytes;spec/accel_spec.cr	ported accelerator collection byte view and serialized-length parity coverage
+src/dfa/accel.rs::func::as_ref	func	ported	src/regex/automata/accel.cr:Accels#as_ref;spec/accel_spec.cr	ported borrowed accelerator view compatibility helper
+src/dfa/accel.rs::func::empty	func	ported	src/regex/automata/accel.cr:Accel.empty;src/regex/automata/accel.cr:Accels.empty;spec/accel_spec.cr	ported empty accelerator constructors for individual and collection forms
+src/dfa/accel.rs::func::from_bytes_unchecked	func	ported	src/regex/automata/accel.cr:Accels.from_bytes_unchecked;spec/accel_spec.cr	ported accelerator collection byte deserializer for the port's native on-wire layout
+src/dfa/accel.rs::func::from_slice	func	ported	src/regex/automata/accel.cr:Accel.from_slice;spec/accel_spec.cr	ported accelerator decoding from raw four-byte slices with invalid-length rejection
+src/dfa/accel.rs::func::is_empty	func	ported	src/regex/automata/accel.cr:Accel#empty?;spec/accel_spec.cr	ported empty accelerator predicate
+src/dfa/accel.rs::func::len	func	ported	src/regex/automata/accel.cr:Accel#len;src/regex/automata/accel.cr:Accels#len;spec/accel_spec.cr	ported accelerator length accessors for single accelerators and collections
+src/dfa/accel.rs::func::memory_usage	func	ported	src/regex/automata/accel.cr:Accels#memory_usage;spec/accel_spec.cr	ported accelerator collection memory-usage accessor
+src/dfa/accel.rs::func::needles	func	ported	src/regex/automata/accel.cr:Accel#needles;src/regex/automata/accel.cr:Accels#needles;spec/accel_spec.cr	ported accelerator needle accessors and forward/reverse search proof
+src/dfa/accel.rs::func::new	func	ported	src/regex/automata/accel.cr:Accel.empty;spec/accel_spec.cr	ported empty accelerator constructor equivalent to upstream build-time `Accel::new`
+src/dfa/accel.rs::func::to_owned	func	ported	src/regex/automata/accel.cr:Accels#to_owned;spec/accel_spec.cr	ported owned accelerator collection clone helper
+src/dfa/accel.rs::func::validate	func	ported	src/regex/automata/accel.cr:Accels#validate;spec/accel_spec.cr	ported accelerator collection validation over serialized accelerator chunks
+src/dfa/accel.rs::func::write_to_len	func	ported	src/regex/automata/accel.cr:Accels#write_to_len;spec/accel_spec.cr	ported accelerator serialized-length helper
+src/dfa/accel.rs::method::Accel.new	method	ported	src/regex/automata/accel.cr:Accel.empty;spec/accel_spec.cr	ported empty accelerator constructor compatibility surface
+src/dfa/accel.rs::method::Accels.empty	method	ported	src/regex/automata/accel.cr:Accels.empty;spec/accel_spec.cr	ported empty accelerator collection constructor
+src/dfa/accel.rs::method::Accels.from_bytes_unchecked	method	ported	src/regex/automata/accel.cr:Accels.from_bytes_unchecked;spec/accel_spec.cr	ported accelerator collection byte deserializer
 src/dfa/automaton.rs::enum::StartError	enum	ported	src/regex/automata/automaton.cr:244	Ported as enum with UnsupportedAnchored and Invalid variants
 src/dfa/automaton.rs::func::get_match	func	ported	src/regex/automata/search.cr::OverlappingState#get_match;spec/dfa_api_spec.cr	ported overlapping-state match accessor for forward overlap searches
 src/dfa/automaton.rs::func::start	func	ported	src/regex/automata/search.cr::OverlappingState.start;spec/dfa_api_spec.cr	ported overlapping-state constructor
 src/dfa/automaton.rs::method::OverlappingState.start	method	ported	src/regex/automata/search.cr::OverlappingState.start;spec/dfa_api_spec.cr	ported overlapping-state constructor
-src/dfa/automaton.rs::struct::OverlappingState	struct	partial	src/regex/automata/search.cr::OverlappingState;src/regex/automata/automaton.cr;spec/dfa_api_spec.cr	forward stateful overlap is ported, but reverse overlap and richer multi-pattern ordering parity are still incomplete
-src/dfa/automaton.rs::test::object_safe	test	missing	-	auto-generated
+src/dfa/automaton.rs::struct::OverlappingState	struct	ported	src/regex/automata/search.cr::OverlappingState;src/regex/automata/automaton.cr;src/regex/automata/dfa.cr;spec/dfa_api_spec.cr	ported forward and reverse stateful overlap along with vendor-style multi-pattern MatchKind::All aggregation helpers
+src/dfa/automaton.rs::test::object_safe	test	intentional_divergence	src/regex/automata/automaton.cr	Crystal does not have Rust trait-object safety constraints, so this Rust-only object-safety test has no direct counterpart
 src/dfa/dense.rs::func::accelerate	func	ported	src/regex/automata/config.cr:Config.accelerate	auto-generated
-src/dfa/dense.rs::func::alphabet_len	func	missing	-	auto-generated
-src/dfa/dense.rs::func::always_match	func	missing	-	auto-generated
-src/dfa/dense.rs::func::as_ref	func	missing	-	auto-generated
-src/dfa/dense.rs::func::build	func	missing	-	auto-generated
-src/dfa/dense.rs::func::build_from_nfa	func	missing	-	auto-generated
-src/dfa/dense.rs::func::builder	func	missing	-	auto-generated
-src/dfa/dense.rs::func::byte_classes	func	missing	-	auto-generated
-src/dfa/dense.rs::func::config	func	missing	-	auto-generated
-src/dfa/dense.rs::func::configure	func	missing	-	auto-generated
-src/dfa/dense.rs::func::determinize_size_limit	func	missing	-	auto-generated
-src/dfa/dense.rs::func::dfa_size_limit	func	missing	-	auto-generated
-src/dfa/dense.rs::func::from_bytes	func	missing	-	auto-generated
-src/dfa/dense.rs::func::get_accelerate	func	missing	-	auto-generated
-src/dfa/dense.rs::func::get_byte_classes	func	missing	-	auto-generated
-src/dfa/dense.rs::func::get_determinize_size_limit	func	missing	-	auto-generated
-src/dfa/dense.rs::func::get_dfa_size_limit	func	missing	-	auto-generated
-src/dfa/dense.rs::func::get_match_kind	func	missing	-	auto-generated
-src/dfa/dense.rs::func::get_minimize	func	missing	-	auto-generated
+src/dfa/dense.rs::func::alphabet_len	func	ported	src/regex/automata/dfa.cr:DFA.alphabet_len;spec/dfa_dense_spec.cr	ported dense alphabet-length metadata accessor over the transition table
+src/dfa/dense.rs::func::always_match	func	ported	src/regex/automata/dfa.cr:DFA.always_match;spec/dfa_dense_spec.cr	ported dense always-match constructor and roundtrip parity spec
+src/dfa/dense.rs::func::as_ref	func	ported	src/regex/automata/dfa.cr:DFA#as_ref;spec/dfa_dense_spec.cr	ported dense borrowed-view alias on the port's single concrete DFA type
+src/dfa/dense.rs::func::build	func	ported	src/regex/automata/dfa.cr:Builder.build;spec/dfa_dense_spec.cr	ported dense builder compile-from-pattern workflow and exercised it through convenience constructor coverage
+src/dfa/dense.rs::func::build_from_nfa	func	ported	src/regex/automata/dfa.cr:Builder.from_nfa;src/regex/automata/dfa.cr:Builder.build;spec/dfa_dense_spec.cr	ported dense builder compile-from-prebuilt-NFA workflow
+src/dfa/dense.rs::func::builder	func	ported	src/regex/automata/dfa.cr:DFA.builder;spec/dfa_dense_spec.cr	ported dense builder convenience alias and exercised it in the anchored-start convenience spec
+src/dfa/dense.rs::func::byte_classes	func	ported	src/regex/automata/config.cr:Config.byte_classes;spec/dfa_dense_spec.cr	ported dense config byte-class setter and exercised default/override parity through compatibility getters
+src/dfa/dense.rs::func::config	func	ported	src/regex/automata/dfa.cr:DFA.config	ported dense config convenience alias
+src/dfa/dense.rs::func::configure	func	ported	src/regex/automata/dfa.cr:Builder.configure;spec/dfa_dense_spec.cr	ported dense builder configuration cloning workflow and exercised anchored-builder isolation
+src/dfa/dense.rs::func::determinize_size_limit	func	ported	src/regex/automata/config.cr:Config.determinize_size_limit;spec/dfa_dense_spec.cr	ported dense config determinize size-limit setter and exercised override parity through compatibility getters
+src/dfa/dense.rs::func::dfa_size_limit	func	ported	src/regex/automata/config.cr:Config.dfa_size_limit;spec/dfa_dense_spec.cr	ported dense config DFA size-limit setter and exercised override parity through compatibility getters
+src/dfa/dense.rs::func::from_bytes	func	ported	src/regex/automata/dfa.cr:DFA.from_bytes;spec/dfa_dense_spec.cr	ported dense deserialization with endianness detection for little, big, and native wire payloads
+src/dfa/dense.rs::func::get_accelerate	func	ported	src/regex/automata/config.cr:Config.get_accelerate;spec/dfa_dense_spec.cr	ported dense config compatibility getter for acceleration defaults and overrides
+src/dfa/dense.rs::func::get_byte_classes	func	ported	src/regex/automata/config.cr:Config.get_byte_classes;spec/dfa_dense_spec.cr	ported dense config compatibility getter for byte-class compression defaults and overrides
+src/dfa/dense.rs::func::get_determinize_size_limit	func	ported	src/regex/automata/config.cr:Config.get_determinize_size_limit;spec/dfa_dense_spec.cr	ported dense config compatibility getter for determinize size-limit overrides
+src/dfa/dense.rs::func::get_dfa_size_limit	func	ported	src/regex/automata/config.cr:Config.get_dfa_size_limit;spec/dfa_dense_spec.cr	ported dense config compatibility getter for DFA size-limit overrides
+src/dfa/dense.rs::func::get_match_kind	func	ported	src/regex/automata/config.cr:Config.get_match_kind;spec/dfa_dense_spec.cr	ported dense config compatibility getter for match-kind defaults and overrides
+src/dfa/dense.rs::func::get_minimize	func	ported	src/regex/automata/config.cr:Config.get_minimize;spec/dfa_dense_spec.cr	ported dense config compatibility getter for minimization defaults and overrides
 src/dfa/dense.rs::func::get_prefilter	func	ported	src/regex/automata/dfa.cr:DFA.get_prefilter	auto-generated
-src/dfa/dense.rs::func::get_quit	func	missing	-	auto-generated
-src/dfa/dense.rs::func::get_specialize_start_states	func	missing	-	auto-generated
-src/dfa/dense.rs::func::get_starts	func	missing	-	auto-generated
-src/dfa/dense.rs::func::get_starts_for_each_pattern	func	missing	-	auto-generated
-src/dfa/dense.rs::func::get_unicode_word_boundary	func	missing	-	auto-generated
-src/dfa/dense.rs::func::is_size_limit_exceeded	func	missing	-	auto-generated
-src/dfa/dense.rs::func::match_kind	func	missing	-	auto-generated
-src/dfa/dense.rs::func::memory_usage	func	missing	-	auto-generated
-src/dfa/dense.rs::func::minimize	func	missing	-	auto-generated
-src/dfa/dense.rs::func::never_match	func	missing	-	auto-generated
-src/dfa/dense.rs::func::new	func	missing	-	auto-generated
-src/dfa/dense.rs::func::prefilter	func	missing	-	auto-generated
+src/dfa/dense.rs::func::get_quit	func	ported	src/regex/automata/config.cr:Config.get_quit;spec/dfa_dense_spec.cr	ported dense config compatibility getter for quit-byte membership
+src/dfa/dense.rs::func::get_specialize_start_states	func	ported	src/regex/automata/config.cr:Config.get_specialize_start_states;spec/dfa_dense_spec.cr	ported dense config compatibility getter for start-state specialization defaults and overrides
+src/dfa/dense.rs::func::get_starts	func	ported	src/regex/automata/config.cr:Config.get_starts;spec/dfa_dense_spec.cr	ported dense config compatibility getter for start-kind defaults and overrides
+src/dfa/dense.rs::func::get_starts_for_each_pattern	func	ported	src/regex/automata/config.cr:Config.get_starts_for_each_pattern;spec/dfa_dense_spec.cr	ported dense config compatibility getter for per-pattern starts defaults and overrides
+src/dfa/dense.rs::func::get_unicode_word_boundary	func	ported	src/regex/automata/config.cr:Config.get_unicode_word_boundary;spec/dfa_dense_spec.cr	ported dense config compatibility getter for Unicode word-boundary heuristics
+src/dfa/dense.rs::func::is_size_limit_exceeded	func	ported	src/regex/automata/errors.cr:BuildError#is_size_limit_exceeded;spec/dfa_dense_spec.cr	ported dense size-limit failure predicate through BuildError
+src/dfa/dense.rs::func::match_kind	func	ported	src/regex/automata/config.cr:Config.match_kind;spec/dfa_dense_spec.cr	ported dense config match-kind setter and exercised default/override parity through compatibility getters
+src/dfa/dense.rs::func::memory_usage	func	ported	src/regex/automata/dfa.cr:DFA.memory_usage;spec/dfa_dense_spec.cr	ported dense memory-usage metadata accessor using the current serialized representation size
+src/dfa/dense.rs::func::minimize	func	ported	src/regex/automata/config.cr:Config.minimize;spec/dfa_dense_spec.cr	ported dense config minimization setter and exercised default/override parity through compatibility getters
+src/dfa/dense.rs::func::never_match	func	ported	src/regex/automata/dfa.cr:DFA.never_match;spec/dfa_dense_spec.cr	ported dense never-match constructor and roundtrip parity spec
+src/dfa/dense.rs::func::new	func	ported	src/regex/automata/dfa.cr:DFA.new;src/regex/automata/dfa.cr:DFA.new_many;spec/dfa_dense_spec.cr	ported dense convenience constructors for single and multi-pattern builds
+src/dfa/dense.rs::func::prefilter	func	ported	src/regex/automata/config.cr:Config#prefilter;src/regex/automata/config.cr:Config#get_prefilter;spec/dfa_dense_spec.cr	ported dense prefilter attachment surface using the port's placeholder prefilter type
 src/dfa/dense.rs::func::quit	func	ported	src/regex/automata/config.cr:Config.quit	auto-generated
-src/dfa/dense.rs::func::set_prefilter	func	missing	-	auto-generated
-src/dfa/dense.rs::func::specialize_start_states	func	missing	-	auto-generated
-src/dfa/dense.rs::func::start_kind	func	missing	-	auto-generated
-src/dfa/dense.rs::func::starts_for_each_pattern	func	missing	-	auto-generated
-src/dfa/dense.rs::func::stride	func	missing	-	auto-generated
-src/dfa/dense.rs::func::stride2	func	missing	-	auto-generated
-src/dfa/dense.rs::func::syntax	func	missing	-	auto-generated
-src/dfa/dense.rs::func::thompson	func	missing	-	auto-generated
-src/dfa/dense.rs::func::to_bytes_big_endian	func	missing	-	auto-generated
-src/dfa/dense.rs::func::to_bytes_little_endian	func	missing	-	auto-generated
-src/dfa/dense.rs::func::to_bytes_native_endian	func	missing	-	auto-generated
-src/dfa/dense.rs::func::to_owned	func	missing	-	auto-generated
+src/dfa/dense.rs::func::set_prefilter	func	ported	src/regex/automata/dfa.cr:DFA#set_prefilter;spec/dfa_dense_spec.cr	ported dense prefilter mutator and flag tracking
+src/dfa/dense.rs::func::specialize_start_states	func	ported	src/regex/automata/config.cr:Config.specialize_start_states;spec/dfa_dense_spec.cr	ported dense config start-state specialization setter and exercised default/override parity through compatibility getters
+src/dfa/dense.rs::func::start_kind	func	ported	src/regex/automata/config.cr:Config.start_kind;spec/dfa_dense_spec.cr	ported dense config start-kind setter and exercised default/override parity through compatibility getters
+src/dfa/dense.rs::func::starts_for_each_pattern	func	ported	src/regex/automata/config.cr:Config.starts_for_each_pattern;spec/dfa_dense_spec.cr	ported dense config per-pattern start-state setter and exercised default/override parity through compatibility getters
+src/dfa/dense.rs::func::stride	func	ported	src/regex/automata/dfa.cr:DFA.stride;spec/dfa_dense_spec.cr	ported dense stride metadata accessor derived from the transition table stride exponent
+src/dfa/dense.rs::func::stride2	func	ported	src/regex/automata/dfa.cr:DFA.stride2;spec/dfa_dense_spec.cr	ported dense stride exponent metadata accessor over premultiplied state IDs
+src/dfa/dense.rs::func::syntax	func	ported	src/regex/automata/dfa.cr:Builder#syntax;spec/dfa_dense_spec.cr	ported dense builder syntax-configuration hook using regex-syntax parser builder settings
+src/dfa/dense.rs::func::thompson	func	ported	src/regex/automata/dfa.cr:Builder.thompson;spec/dfa_dense_spec.cr	ported dense builder Thompson-compiler configuration workflow and exercised reverse-search construction
+src/dfa/dense.rs::func::to_bytes_big_endian	func	ported	src/regex/automata/dfa.cr:DFA.to_bytes_big_endian;spec/dfa_dense_spec.cr	ported dense big-endian serialization roundtrip coverage
+src/dfa/dense.rs::func::to_bytes_little_endian	func	ported	src/regex/automata/dfa.cr:DFA.to_bytes_little_endian;spec/dfa_dense_spec.cr	ported dense little-endian serialization roundtrip coverage
+src/dfa/dense.rs::func::to_bytes_native_endian	func	ported	src/regex/automata/dfa.cr:DFA.to_bytes_native_endian;spec/dfa_dense_spec.cr	ported dense native-endian serialization roundtrip coverage
+src/dfa/dense.rs::func::to_owned	func	ported	src/regex/automata/dfa.cr:DFA#to_owned;spec/dfa_dense_spec.cr	ported dense owned-view alias on the port's single concrete DFA type
 src/dfa/dense.rs::func::to_sparse	func	missing	-	auto-generated
 src/dfa/dense.rs::func::unicode_word_boundary	func	ported	src/regex/automata/config.cr:Config.unicode_word_boundary	auto-generated
-src/dfa/dense.rs::func::write_to_big_endian	func	missing	-	auto-generated
-src/dfa/dense.rs::func::write_to_len	func	missing	-	auto-generated
-src/dfa/dense.rs::func::write_to_little_endian	func	missing	-	auto-generated
-src/dfa/dense.rs::func::write_to_native_endian	func	missing	-	auto-generated
-src/dfa/dense.rs::method::BuildError.is_size_limit_exceeded	method	missing	-	auto-generated
-src/dfa/dense.rs::method::Builder.new	method	missing	-	auto-generated
-src/dfa/dense.rs::method::Config.new	method	missing	-	auto-generated
-src/dfa/dense.rs::method::DFA.config	method	missing	-	auto-generated
-src/dfa/dense.rs::method::DFA.from_bytes	method	missing	-	auto-generated
-src/dfa/dense.rs::method::DFA.set_prefilter	method	missing	-	auto-generated
-src/dfa/dense.rs::method::OwnedDFA.always_match	method	missing	-	auto-generated
-src/dfa/dense.rs::method::OwnedDFA.new	method	missing	-	auto-generated
+src/dfa/dense.rs::func::write_to_big_endian	func	ported	src/regex/automata/dfa.cr:DFA.write_to_big_endian;spec/dfa_dense_spec.cr	ported dense big-endian buffer serialization helper with exact-byte parity coverage
+src/dfa/dense.rs::func::write_to_len	func	ported	src/regex/automata/dfa.cr:DFA.write_to_len;spec/dfa_dense_spec.cr	ported dense serialized-length helper and verified it against native-endian output size
+src/dfa/dense.rs::func::write_to_little_endian	func	ported	src/regex/automata/dfa.cr:DFA.write_to_little_endian;spec/dfa_dense_spec.cr	ported dense little-endian buffer serialization helper with exact-byte parity coverage
+src/dfa/dense.rs::func::write_to_native_endian	func	ported	src/regex/automata/dfa.cr:DFA.write_to_native_endian;spec/dfa_dense_spec.cr	ported dense native-endian buffer serialization helper with exact-byte parity coverage and undersized-buffer error coverage
+src/dfa/dense.rs::method::BuildError.is_size_limit_exceeded	method	ported	src/regex/automata/errors.cr:BuildError#is_size_limit_exceeded;spec/dfa_dense_spec.cr	ported dense build-error size-limit predicate
+src/dfa/dense.rs::method::Builder.new	method	ported	src/regex/automata/dfa.cr:Builder.new;spec/dfa_dense_spec.cr	ported dense builder constructor
+src/dfa/dense.rs::method::Config.new	method	ported	src/regex/automata/config.cr:Config.new;spec/dfa_dense_spec.cr	ported dense config constructor defaults
+src/dfa/dense.rs::method::DFA.config	method	ported	src/regex/automata/dfa.cr:DFA.config;spec/dfa_dense_spec.cr	ported dense config convenience constructor
+src/dfa/dense.rs::method::DFA.from_bytes	method	ported	src/regex/automata/dfa.cr:DFA.from_bytes;spec/dfa_dense_spec.cr	ported dense class deserializer with automatic endianness detection
+src/dfa/dense.rs::method::DFA.set_prefilter	method	ported	src/regex/automata/dfa.cr:DFA#set_prefilter;spec/dfa_dense_spec.cr	ported dense prefilter mutator
+src/dfa/dense.rs::method::OwnedDFA.always_match	method	intentional_divergence	src/regex/automata/dfa.cr:DFA.always_match;spec/dfa_dense_spec.cr	this port exposes a single concrete DFA type instead of Rust's borrowed/owned split, so the owned-only constructor maps to DFA.always_match
+src/dfa/dense.rs::method::OwnedDFA.new	method	intentional_divergence	src/regex/automata/dfa.cr:DFA.new;spec/dfa_dense_spec.cr	this port exposes a single concrete DFA type instead of Rust's borrowed/owned split, so the owned-only constructor maps to DFA.new
 src/dfa/dense.rs::struct::BuildError	struct	ported	src/regex/automata/errors.cr:BuildError	ported from Rust
-src/dfa/dense.rs::struct::Builder	struct	missing	-	auto-generated
-src/dfa/dense.rs::struct::Config	struct	missing	-	auto-generated
-src/dfa/dense.rs::struct::DFA	struct	missing	-	auto-generated
-src/dfa/dense.rs::test::errors_with_unicode_word_boundary	test	missing	-	auto-generated
-src/dfa/dense.rs::test::heuristic_unicode_reverse	test	missing	-	auto-generated
+src/dfa/dense.rs::struct::Builder	struct	partial	src/regex/automata/dfa.cr:Builder;spec/dfa_dense_spec.cr	dense builder construction/configuration/thompson workflows, syntax configuration, prefilter attachment, and size-limit signaling are ported, but sparse conversion and wire-validation parity are still incomplete
+src/dfa/dense.rs::struct::Config	struct	partial	src/regex/automata/config.cr:Config;spec/dfa_dense_spec.cr	core dense config setters/getters plus prefilter attachment are ported, but full parity still depends on remaining compile-pipeline behavior
+src/dfa/dense.rs::struct::DFA	struct	partial	src/regex/automata/dfa.cr:DFA;spec/dfa_dense_spec.cr;spec/dfa_api_spec.cr	core dense construction, metadata, serialization helpers, overlap APIs, overlapping-pattern aggregation, and prefilter aliases are ported, but sparse conversion and wire-validation behavior are still incomplete
+src/dfa/dense.rs::test::errors_with_unicode_word_boundary	test	ported	src/regex/automata/hir_compiler.cr;src/regex/automata/nfa.cr;src/regex/automata/dfa.cr;spec/dfa_dense_spec.cr	preserved ASCII-vs-Unicode word-boundary distinction and reject Unicode boundaries unless heuristic DFA support is enabled
+src/dfa/dense.rs::test::heuristic_unicode_reverse	test	ported	src/regex/automata/hir_compiler.cr;src/regex/automata/nfa.cr;src/regex/automata/dfa.cr;spec/dfa_dense_spec.cr	heuristic Unicode reverse searches now auto-quit on non-ASCII bytes while preserving reverse boundary semantics on ASCII spans
 src/dfa/dense.rs::test::regression_validation_order	test	missing	-	auto-generated
-src/dfa/dense.rs::test::roundtrip_always_match	test	missing	-	auto-generated
-src/dfa/dense.rs::test::roundtrip_never_match	test	missing	-	auto-generated
+src/dfa/dense.rs::test::roundtrip_always_match	test	ported	spec/dfa_dense_spec.cr	ported dense always-match serialization roundtrip parity spec
+src/dfa/dense.rs::test::roundtrip_never_match	test	ported	spec/dfa_dense_spec.cr	ported dense never-match serialization roundtrip parity spec
 src/dfa/determinize.rs::func::determinize_size_limit	func	missing	-	auto-generated
 src/dfa/determinize.rs::func::dfa_size_limit	func	missing	-	auto-generated
 src/dfa/determinize.rs::func::match_kind	func	missing	-	auto-generated
@@ -195,7 +195,7 @@ src/dfa/sparse.rs::method::DFA.set_prefilter	method	missing	-	auto-generated
 src/dfa/sparse.rs::struct::DFA	struct	missing	-	auto-generated
 src/dfa/sparse.rs::test::heuristic_unicode_forward	test	missing	-	auto-generated
 src/dfa/sparse.rs::test::heuristic_unicode_reverse	test	missing	-	auto-generated
-src/dfa/start.rs::enum::StartKind	enum	missing	-	auto-generated
+src/dfa/start.rs::enum::StartKind	enum	ported	src/regex/automata/search.cr::StartKind;spec/dfa_dense_spec.cr;spec/dfa_api_spec.cr	ported dense start-kind enum with anchored, unanchored, and both modes exercised through builder and start-state specs
 src/hybrid/dfa.rs::func::always_match	func	missing	-	auto-generated
 src/hybrid/dfa.rs::func::build	func	missing	-	auto-generated
 src/hybrid/dfa.rs::func::build_from_nfa	func	missing	-	auto-generated

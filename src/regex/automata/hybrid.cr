@@ -210,10 +210,14 @@ module Regex::Automata::Hybrid
         Regex::Automata::LookSet.from_look(Regex::Automata::Look::StartLF).insert(Regex::Automata::Look::StartCRLF)
       when Regex::Automata::NFA::Look::Kind::End
         Regex::Automata::LookSet.from_look(Regex::Automata::Look::EndLF).insert(Regex::Automata::Look::EndCRLF)
-      when Regex::Automata::NFA::Look::Kind::WordBoundary
+      when Regex::Automata::NFA::Look::Kind::WordBoundaryAscii
         Regex::Automata::LookSet.from_look(Regex::Automata::Look::WordAscii)
-      when Regex::Automata::NFA::Look::Kind::NonWordBoundary
+      when Regex::Automata::NFA::Look::Kind::NonWordBoundaryAscii
         Regex::Automata::LookSet.from_look(Regex::Automata::Look::WordAsciiNegate)
+      when Regex::Automata::NFA::Look::Kind::WordBoundaryUnicode
+        Regex::Automata::LookSet.from_look(Regex::Automata::Look::WordUnicode)
+      when Regex::Automata::NFA::Look::Kind::NonWordBoundaryUnicode
+        Regex::Automata::LookSet.from_look(Regex::Automata::Look::WordUnicodeNegate)
       when Regex::Automata::NFA::Look::Kind::StartText
         Regex::Automata::LookSet.from_look(Regex::Automata::Look::Start)
       when Regex::Automata::NFA::Look::Kind::EndText, Regex::Automata::NFA::Look::Kind::EndTextWithNewline
@@ -227,7 +231,10 @@ module Regex::Automata::Hybrid
       @nfa.states.each do |state|
         next unless state.is_a?(Regex::Automata::NFA::Look)
         case state.kind
-        when Regex::Automata::NFA::Look::Kind::WordBoundary, Regex::Automata::NFA::Look::Kind::NonWordBoundary
+        when Regex::Automata::NFA::Look::Kind::WordBoundaryAscii,
+             Regex::Automata::NFA::Look::Kind::NonWordBoundaryAscii,
+             Regex::Automata::NFA::Look::Kind::WordBoundaryUnicode,
+             Regex::Automata::NFA::Look::Kind::NonWordBoundaryUnicode
           @nfa_has_word = true
         when Regex::Automata::NFA::Look::Kind::Start, Regex::Automata::NFA::Look::Kind::End
           @nfa_has_crlf = true

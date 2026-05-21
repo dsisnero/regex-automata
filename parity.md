@@ -1,40 +1,46 @@
 # Parity Plan
 
+## Execution Policy
+
+- Each top-level checkbox is a commit-sized git feature, not a convenient small method patch.
+- Work should continue until the active top-level feature has its intended red-to-green spec set, the corresponding inventory rows are updated, quality gates pass, and the branch is ready for a commit.
+- Avoid stopping after isolated accessors, aliases, or bookkeeping changes when they are only one fragment of a larger feature workflow already in flight.
+- After a top-level feature reaches parity for its declared scope, commit immediately before moving to the next feature.
+- Use inventory rows to track completeness inside a feature, but use this plan to decide when a branch-sized unit is actually done.
+
 ## Current Focus
 
-- [ ] Dense DFA — build and configuration
-  - Upstream scope: `src/dfa/dense.rs`, `src/dfa/accel.rs`, `src/dfa/start.rs`, `src/dfa/special.rs`
-  - Inventory ids: `src/dfa/dense.rs::*`, `src/dfa/accel.rs::*`, `src/dfa/start.rs::*`, `src/dfa/special.rs::*`
-  - Red: port config/build/start-state specs before broadening search behavior
-  - Green: `src/regex/automata/dfa.cr`, `src/regex/automata/accel.cr`, `src/regex/automata/special.cr`, `src/regex/automata/start_config.cr`, `src/regex/automata/start_table.cr`
-  - Done when: dense DFA builder/config/start-state parity specs are green and the covered rows are `ported`
+- [x] Dense DFA core engine parity
+  - Upstream scope: `src/dfa/dense.rs`, `src/dfa/automaton.rs`, `src/dfa/accel.rs`, `src/dfa/start.rs`, `src/dfa/special.rs`
+  - Inventory ids: `src/dfa/dense.rs::*`, `src/dfa/automaton.rs::*`, `src/dfa/accel.rs::*`, `src/dfa/start.rs::*`, `src/dfa/special.rs::*`
+  - Workflow: finish builder/config/start-state/search behavior as one coherent engine feature instead of landing isolated helpers
+  - Red: port the remaining builder, anchored/unanchored start-state, reverse-search, overlapping-search, and `MatchKind::All` parity specs needed to prove the engine surface
+  - Green: `src/regex/automata/dfa.cr`, `src/regex/automata/automaton.cr`, `src/regex/automata/accel.cr`, `src/regex/automata/special.cr`, `src/regex/automata/start_config.cr`, `src/regex/automata/start_table.cr`
+  - Progress: config aliases, Unicode boundary handling, metadata accessors, dense roundtrip helpers, reverse overlap, vendor-style `MatchKind::All` aggregation, accelerator APIs, syntax configuration, prefilter attachment, and size-limit signaling are now ported and covered
+  - Done when: dense DFA engine semantics match upstream on the intended builder/search/start-state parity suite and the covered rows are ready for one commit-sized checkpoint
 
-- [ ] Dense DFA — search and overlapping search
-  - Upstream scope: search paths in `src/dfa/dense.rs` and `src/dfa/automaton.rs`
-  - Inventory ids: `src/dfa/dense.rs::*`, `src/dfa/automaton.rs::*`
-  - Red: port forward, reverse, earliest, and overlapping-search DFA specs
-  - Green: `src/regex/automata/dfa.cr`, `src/regex/automata/automaton.cr`, `src/regex/automata/dfa_regex.cr`
-  - Progress: full-`Input` ranged forward context, delayed-match state construction, and forward stateful overlap now follow the vendor search model for bounded cases; reverse overlap and richer `MatchKind::All` ordering cases still need direct coverage
-  - Done when: dense DFA search semantics match upstream on the ported parity suite
-
-- [ ] Dense DFA — regex convenience wrapper parity
+- [ ] Dense DFA regex wrapper parity
   - Upstream scope: `src/dfa/regex.rs`, plus iterator behavior from `src/util/iter.rs`
   - Inventory ids: `src/dfa/regex.rs::*`
-  - Red: port empty-match iteration, UTF-8 iteration, always-anchored, and builder-validation parity specs before adding more surface area
+  - Workflow: close the wrapper as a user-facing feature, including the iterator/search contracts it exposes, before moving on
+  - Red: port empty-match iteration, UTF-8 iteration, always-anchored, reverse-wrapper, and builder-validation parity specs before adding more surface area
   - Green: `src/regex/automata/dfa_regex.cr`, `src/regex/automata/dfa.cr`, `src/regex/automata/hir_compiler.cr`, `src/regex/automata/nfa.cr`
   - Progress: forward `Input` span context now follows the vendor `dfa/search.rs` boundary behavior for ranged searches; reverse wrapper and iterator parity still need direct ports
-  - Done when: the wrapper stops relying on a custom simplified searcher, richer look-around behavior matches Rust, and the covered rows are `ported`
+  - Done when: the wrapper stops relying on a custom simplified searcher, richer look-around behavior matches Rust, and the covered rows are strong enough for a dedicated commit
 
-- [ ] Dense DFA — determinize, minimize, and wire format
+- [ ] Dense DFA compile pipeline and wire format parity
   - Upstream scope: `src/dfa/determinize.rs`, `src/dfa/minimize.rs`, `src/dfa/remapper.rs`, serialization hooks in `src/dfa/dense.rs`
   - Inventory ids: `src/dfa/determinize.rs::*`, `src/dfa/minimize.rs::*`, `src/dfa/remapper.rs::*`, serialization-related rows under `src/dfa/dense.rs::*`
-  - Red: port determinization/minimization/serialization specs
+  - Workflow: treat determinization, minimization, remapping, and validation-order behavior as one compiler/wire-format feature instead of dripping out serializer nits
+  - Red: port determinization/minimization/serialization specs, including validation-order and size-limit behavior, before calling this feature done
   - Green: `src/regex/automata/dfa.cr`, `src/regex/automata/dfa_util.cr`, `src/regex/automata/transition_table.cr`, `src/regex/automata/wire.cr`
-  - Done when: dense DFA transformation and wire-format parity specs are green
+  - Progress: constructor aliases, always/never round trips, endianness-aware round trips, and buffer-write helpers are already covered; validation-order, explicit size-limit failures, and upstream transformation routines still need to land together
+  - Done when: dense DFA transformation and wire-format parity specs are green and the remaining compiler/validation rows can be committed as one feature
 
 - [ ] Sparse DFA
   - Upstream scope: `src/dfa/sparse.rs`
   - Inventory ids: `src/dfa/sparse.rs::*`
+  - Workflow: deliver sparse build/search/serialization as a complete engine feature, not as piecemeal type stubs
   - Red: port sparse DFA API and serialization specs
   - Green: new sparse DFA implementation files under `src/regex/automata/`
   - Done when: sparse DFA build, query, and serialization parity is demonstrated
@@ -42,6 +48,7 @@
 - [ ] One-pass DFA
   - Upstream scope: `src/dfa/onepass.rs`
   - Inventory ids: `src/dfa/onepass.rs::*`
+  - Workflow: land one-pass build/search/serialization as one branch-sized feature
   - Red: port one-pass DFA specs
   - Green: new one-pass DFA implementation files under `src/regex/automata/`
   - Done when: one-pass DFA build, search, and serialization parity is demonstrated
@@ -49,6 +56,7 @@
 - [ ] Thompson NFA — compiler and representation
   - Upstream scope: `src/nfa/thompson/compiler.rs`, `src/nfa/thompson/nfa.rs`, `src/nfa/thompson/builder.rs`, `src/nfa/thompson/literal_trie.rs`, `src/nfa/thompson/range_trie.rs`, `src/nfa/thompson/map.rs`
   - Inventory ids: `src/nfa/thompson/compiler.rs::*`, `src/nfa/thompson/nfa.rs::*`, `src/nfa/thompson/builder.rs::*`, `src/nfa/thompson/literal_trie.rs::*`, `src/nfa/thompson/range_trie.rs::*`, `src/nfa/thompson/map.rs::*`
+  - Workflow: finish one compiler/representation checkpoint that includes builder behavior and core graph representation together
   - Red: port compiler/builder parity specs
   - Green: `src/regex/automata/nfa.cr`, `src/regex/automata/hir_compiler.cr`
   - Done when: compiler, builder, and representation rows for this slice are `ported`
@@ -56,6 +64,7 @@
 - [ ] PikeVM search engine
   - Upstream scope: `src/nfa/thompson/pikevm.rs`
   - Inventory ids: `src/nfa/thompson/pikevm.rs::*`
+  - Workflow: land PikeVM search and capture behavior as one runnable engine milestone
   - Red: port PikeVM search and capture specs
   - Green: new PikeVM implementation files under `src/regex/automata/`
   - Done when: PikeVM search, cache, and capture parity specs are green
@@ -63,6 +72,7 @@
 - [ ] Backtracking search engine
   - Upstream scope: `src/nfa/thompson/backtrack.rs`
   - Inventory ids: `src/nfa/thompson/backtrack.rs::*`
+  - Workflow: land backtracking search and heuristic behavior as one engine feature
   - Red: port backtracking search and capture specs
   - Green: new backtracking implementation files under `src/regex/automata/`
   - Done when: backtracking search and heuristic parity is demonstrated
@@ -70,6 +80,7 @@
 - [ ] Lazy (Hybrid) DFA
   - Upstream scope: `src/hybrid/dfa.rs`, `src/hybrid/search.rs`, `src/hybrid/regex.rs`, `src/hybrid/id.rs`, `src/hybrid/error.rs`
   - Inventory ids: `src/hybrid/*::*`
+  - Workflow: close one coherent lazy-DFA feature including build/search/cache, not isolated helper deltas
   - Red: port hybrid DFA build/search/cache specs
   - Green: `src/regex/automata/hybrid.cr`
   - Done when: lazy DFA parity specs are green
@@ -77,6 +88,7 @@
 - [ ] Meta regex engine
   - Upstream scope: `src/meta/regex.rs`, `src/meta/strategy.rs`, `src/meta/wrappers.rs`, `src/meta/reverse_inner.rs`, `src/meta/stopat.rs`, `src/meta/limited.rs`, `src/meta/literal.rs`
   - Inventory ids: `src/meta/*::*`
+  - Workflow: land meta-engine construction, strategy selection, and wrapper behavior as a complete feature family
   - Red: port meta engine specs
   - Green: new meta engine implementation files under `src/regex/automata/`
   - Done when: meta engine build/search/strategy parity is demonstrated
@@ -91,6 +103,7 @@
 - [ ] Utilities — Search iteration helpers
   - Upstream scope: `src/util/iter.rs`
   - Inventory ids: `src/util/iter.rs::*`
+  - Workflow: finish the full iterator workflow, including captures-related advancement rules, before treating this as done
   - Red: port `Searcher` ownership, half-match advancement, and infallible iterator-constructor specs before broadening into captures iteration
   - Green: `src/regex/automata/search.cr`, `spec/searcher_spec.cr`
   - Progress: `Searcher` now clones `Input` on construction and exposes the half/match iterator wrappers; captures-oriented iterator parity is still missing
@@ -141,6 +154,7 @@
 - [ ] Utilities — Shared infrastructure helpers
   - Upstream scope: `src/util/pool.rs`, `src/util/lazy.rs`, `src/util/iter.rs`, `src/util/primitives.rs`, `src/util/sparse_set.rs`, `src/util/start.rs`, `src/util/syntax.rs`, `src/util/interpolate.rs`, `src/util/int.rs`, `src/util/empty.rs`, `src/util/memchr.rs`
   - Inventory ids: `src/util/pool.rs::*`, `src/util/lazy.rs::*`, `src/util/iter.rs::*`, `src/util/primitives.rs::*`, `src/util/sparse_set.rs::*`, `src/util/start.rs::*`, `src/util/syntax.rs::*`, `src/util/interpolate.rs::*`, `src/util/int.rs::*`, `src/util/empty.rs::*`, `src/util/memchr.rs::*`
+  - Workflow: still port helper specs module by module, but each module family should finish at a commit boundary instead of stopping on isolated utility methods
   - Red: port helper specs module by module, not as one lump
   - Green: supporting files under `src/regex/automata/`
   - Done when: each helper family has its own proven parity slice in the ledger

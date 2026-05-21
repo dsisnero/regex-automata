@@ -45,13 +45,15 @@ module Regex::Automata::NFA
   # Look-around assertion (word boundary, ^, $, etc.)
   struct Look
     enum Kind
-      Start              # ^
-      End                # $
-      WordBoundary       # \b
-      NonWordBoundary    # \B
-      StartText          # \A
-      EndText            # \z
-      EndTextWithNewline # \Z
+      Start                  # ^
+      End                    # $
+      WordBoundaryAscii      # (?-u:\b)
+      NonWordBoundaryAscii   # (?-u:\B)
+      WordBoundaryUnicode    # \b
+      NonWordBoundaryUnicode # \B
+      StartText              # \A
+      EndText                # \z
+      EndTextWithNewline     # \Z
     end
 
     getter kind : Kind
@@ -916,10 +918,14 @@ module Regex::Automata::NFA
                                   look_have.includes?(Regex::Automata::Look::StartLF) || look_have.includes?(Regex::Automata::Look::StartCRLF)
                                 when Look::Kind::End
                                   look_have.includes?(Regex::Automata::Look::EndLF) || look_have.includes?(Regex::Automata::Look::EndCRLF)
-                                when Look::Kind::WordBoundary
+                                when Look::Kind::WordBoundaryAscii
                                   look_have.includes?(Regex::Automata::Look::WordAscii)
-                                when Look::Kind::NonWordBoundary
+                                when Look::Kind::NonWordBoundaryAscii
                                   look_have.includes?(Regex::Automata::Look::WordAsciiNegate)
+                                when Look::Kind::WordBoundaryUnicode
+                                  look_have.includes?(Regex::Automata::Look::WordUnicode)
+                                when Look::Kind::NonWordBoundaryUnicode
+                                  look_have.includes?(Regex::Automata::Look::WordUnicodeNegate)
                                 when Look::Kind::StartText
                                   look_have.includes?(Regex::Automata::Look::Start)
                                 when Look::Kind::EndText, Look::Kind::EndTextWithNewline

@@ -134,8 +134,9 @@ module Regex::Automata
     end
 
     private def compile_look(node : Regex::Syntax::Hir::Look) : NFA::ThompsonRef
-      # Collapse the richer regex-syntax look space onto the smaller internal
-      # NFA look representation currently implemented by this port.
+      # Collapse regex-syntax's richer look space into the subset currently
+      # modeled by this port while preserving ASCII-vs-Unicode boundary
+      # semantics for DFA construction.
       kind = case node.kind
              when Regex::Syntax::Hir::Look::Kind::StartLF,
                   Regex::Syntax::Hir::Look::Kind::StartCRLF
@@ -144,19 +145,21 @@ module Regex::Automata
                   Regex::Syntax::Hir::Look::Kind::EndCRLF
                NFA::Look::Kind::End
              when Regex::Syntax::Hir::Look::Kind::WordAscii,
-                  Regex::Syntax::Hir::Look::Kind::WordUnicode,
                   Regex::Syntax::Hir::Look::Kind::WordStartAscii,
                   Regex::Syntax::Hir::Look::Kind::WordEndAscii,
+                  Regex::Syntax::Hir::Look::Kind::WordStartHalfAscii,
+                  Regex::Syntax::Hir::Look::Kind::WordEndHalfAscii
+               NFA::Look::Kind::WordBoundaryAscii
+             when Regex::Syntax::Hir::Look::Kind::WordUnicode,
                   Regex::Syntax::Hir::Look::Kind::WordStartUnicode,
                   Regex::Syntax::Hir::Look::Kind::WordEndUnicode,
-                  Regex::Syntax::Hir::Look::Kind::WordStartHalfAscii,
-                  Regex::Syntax::Hir::Look::Kind::WordEndHalfAscii,
                   Regex::Syntax::Hir::Look::Kind::WordStartHalfUnicode,
                   Regex::Syntax::Hir::Look::Kind::WordEndHalfUnicode
-               NFA::Look::Kind::WordBoundary
-             when Regex::Syntax::Hir::Look::Kind::WordAsciiNegate,
-                  Regex::Syntax::Hir::Look::Kind::WordUnicodeNegate
-               NFA::Look::Kind::NonWordBoundary
+               NFA::Look::Kind::WordBoundaryUnicode
+             when Regex::Syntax::Hir::Look::Kind::WordAsciiNegate
+               NFA::Look::Kind::NonWordBoundaryAscii
+             when Regex::Syntax::Hir::Look::Kind::WordUnicodeNegate
+               NFA::Look::Kind::NonWordBoundaryUnicode
              when Regex::Syntax::Hir::Look::Kind::StartText
                NFA::Look::Kind::StartText
              when Regex::Syntax::Hir::Look::Kind::EndText
@@ -194,7 +197,7 @@ module Regex::Automata
       when NFA::Look::Kind::EndTextWithNewline
         NFA::Look::Kind::StartText
       else
-        # WordBoundary, NonWordBoundary don't change
+        # Word boundary assertions don't change in reverse mode.
         kind
       end
     end

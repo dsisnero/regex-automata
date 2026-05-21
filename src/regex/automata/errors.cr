@@ -5,10 +5,23 @@ module Regex::Automata
 
   # Error returned when building a DFA/NFA fails
   class BuildError < Error
+    getter? size_limit_exceeded : Bool
+
+    def initialize(message : String? = nil, @size_limit_exceeded : Bool = false)
+      super(message)
+    end
+
+    def is_size_limit_exceeded : Bool
+      @size_limit_exceeded
+    end
   end
 
   # Error returned when deserialization fails
   class DeserializeError < Error
+  end
+
+  # Error returned when serialization fails
+  class SerializeError < Error
   end
 
   # Match error returned when a search fails

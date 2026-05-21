@@ -346,6 +346,74 @@ module Regex::Automata
       overlap_eoi_fwd(input, state, current_state)
     end
 
+    # Executes an overlapping reverse search using explicit search state.
+    #
+    # On success, the given state is updated. Callers should inspect
+    # `state.get_match` to retrieve the most recent match, if any.
+    def try_search_overlapping_rev(input : Input, state : OverlappingState) : Nil | MatchError
+      state.mat = nil
+      return nil if input.is_done
+
+      current_state = if sid = state.id
+                        if next_match_index = state.next_match_index
+                          if next_match_index < match_len(sid)
+                            state.next_match_index = next_match_index + 1
+                            state.mat = HalfMatch.new(match_pattern(sid, next_match_index), state.at)
+                            return skip_empty_utf8_splits_overlapping_rev(input, state)
+                          end
+                        end
+
+                        if state.rev_eoi
+                          return nil
+                        elsif state.at == input.start
+                          state.rev_eoi = true
+                        else
+                          state.at -= 1
+                        end
+                        sid
+                      else
+                        sid = start_state_reverse(input)
+                        return sid if sid.is_a?(MatchError)
+
+                        state.id = sid.as(StateID)
+                        if input.start == input.end
+                          state.rev_eoi = true
+                        else
+                          state.at = input.end - 1
+                        end
+                        sid.as(StateID)
+                      end
+
+      until state.rev_eoi
+        current_state = next_state(current_state, input.haystack[state.at])
+        state.id = current_state
+        if is_special_state?(current_state)
+          if is_start_state?(current_state)
+            if is_accel_state?(current_state)
+              needles = accelerator(current_state)
+              state.at = Regex::Automata.find_rev(needles, input.haystack, state.at).try(&.+(1)) || input.start
+            end
+          elsif is_match_state?(current_state)
+            state.next_match_index = 1
+            state.mat = HalfMatch.new(match_pattern(current_state, 0), state.at + 1)
+            return skip_empty_utf8_splits_overlapping_rev(input, state)
+          elsif is_accel_state?(current_state)
+            needles = accelerator(current_state)
+            state.at = Regex::Automata.find_rev(needles, input.haystack, state.at).try(&.+(1)) || input.start
+          elsif is_dead_state?(current_state)
+            return nil
+          else
+            return MatchError.quit(input.haystack[state.at], state.at)
+          end
+        end
+
+        break if state.at == input.start
+        state.at -= 1
+      end
+
+      overlap_eoi_rev(input, state, current_state)
+    end
+
     # A convenience method that returns the start state for a forward search
     # with the given anchored mode.
     def start_state(anchored : Anchored) : StateID
@@ -389,14 +457,12 @@ module Regex::Automata
     # patterns matched.
     def try_which_overlapping_matches(slice : Bytes) : Array(PatternID) | MatchError
       result = try_search_overlapping_fwd(slice)
-      case result
-      when MatchError
-        result
-      when Array(Tuple(Int32, Array(PatternID)))
-        result.flat_map { |(_, patterns)| patterns }.uniq
-      else
-        [] of PatternID
-      end
+      return result if result.is_a?(MatchError)
+
+      result
+        .as(Array(Tuple(Int32, Array(PatternID))))
+        .flat_map { |(_, patterns)| patterns }
+        .uniq
     end
 
     private def overlap_eoi_fwd(input : Input, state : OverlappingState, current_state : StateID) : Nil | MatchError
@@ -429,6 +495,43 @@ module Regex::Automata
       while half_match && !input.is_char_boundary(half_match.offset)
         state.mat = nil
         result = try_search_overlapping_fwd(input, state)
+        return result if result.is_a?(MatchError)
+        half_match = state.get_match
+      end
+      nil
+    end
+
+    private def overlap_eoi_rev(input : Input, state : OverlappingState, current_state : StateID) : Nil | MatchError
+      next_state_id = if input.start > 0
+                        next_state(current_state, input.haystack[input.start - 1])
+                      else
+                        next_eoi_state(current_state)
+                      end
+      state.rev_eoi = true
+      state.id = next_state_id
+      if is_match_state?(next_state_id)
+        state.mat = HalfMatch.new(match_pattern(next_state_id, 0), input.start)
+        state.next_match_index = 1
+      elsif input.start > 0 && is_quit_state?(next_state_id)
+        return MatchError.quit(input.haystack[input.start - 1], input.start - 1)
+      end
+      skip_empty_utf8_splits_overlapping_rev(input, state)
+    end
+
+    private def skip_empty_utf8_splits_overlapping_rev(input : Input, state : OverlappingState) : Nil | MatchError
+      return nil unless has_empty? && is_utf8?
+
+      half_match = state.get_match
+      return nil unless half_match
+
+      if input.get_anchored != Anchored::No
+        state.mat = nil unless input.is_char_boundary(half_match.offset)
+        return nil
+      end
+
+      while half_match && !input.is_char_boundary(half_match.offset)
+        state.mat = nil
+        result = try_search_overlapping_rev(input, state)
         return result if result.is_a?(MatchError)
         half_match = state.get_match
       end
