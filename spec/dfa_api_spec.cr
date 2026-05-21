@@ -215,6 +215,23 @@ describe "DFA API" do
       result.should eq({1, [Regex::Automata::PatternID.new(0)]})
     end
 
+    it "reports empty alternatives at the current search start" do
+      dfa = Regex::Automata::DFA::Builder.new.build("a|")
+
+      dfa.try_search_fwd(Regex::Automata::Input.new("abba").span(1...4)).should eq(
+        Regex::Automata::HalfMatch.must(0, 1)
+      )
+      dfa.try_search_fwd(Regex::Automata::Input.new("abba").span(2...4)).should eq(
+        Regex::Automata::HalfMatch.must(0, 2)
+      )
+      dfa.try_search_fwd(Regex::Automata::Input.new("abba").span(3...4)).should eq(
+        Regex::Automata::HalfMatch.must(0, 4)
+      )
+      dfa.try_search_fwd(Regex::Automata::Input.new("abba").span(4...4)).should eq(
+        Regex::Automata::HalfMatch.must(0, 4)
+      )
+    end
+
     it "reports anchored configuration via flags" do
       dfa = Regex::Automata::DFA::Builder.new
         .configure { |config| config.start_kind(Regex::Automata::StartKind::Anchored) }

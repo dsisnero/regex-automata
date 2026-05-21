@@ -198,7 +198,7 @@ module Regex::Automata
 
         current_state = next_state
         if is_match_state?(current_state)
-          last_match = HalfMatch.new(match_pattern(current_state, 0), at + 1)
+          last_match = HalfMatch.new(match_pattern(current_state, 0), at)
           return last_match if input.get_earliest
         end
         at += 1
@@ -363,10 +363,6 @@ module Regex::Automata
         return MatchError.quit(current_state.byte, 0) if current_state.is_a?(QuitStartError)
         return MatchError.unsupported_anchored(current_state.mode)
       when StateID
-        if is_match_state?(current_state)
-          return {0, Array.new(match_len(current_state)) { |i| match_pattern(current_state, i) }}
-        end
-
         idx = 0
         while idx < slice.size
           next_state = next_state(current_state, slice[idx])
@@ -375,7 +371,7 @@ module Regex::Automata
 
           current_state = next_state
           if is_match_state?(current_state)
-            return {idx + 1, Array.new(match_len(current_state)) { |i| match_pattern(current_state, i) }}
+            return {idx, Array.new(match_len(current_state)) { |i| match_pattern(current_state, i) }}
           end
           idx += 1
         end
