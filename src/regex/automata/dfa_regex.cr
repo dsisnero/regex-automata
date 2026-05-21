@@ -127,7 +127,7 @@ module Regex::Automata::DFA
       input = Input.new(haystack).earliest(true)
       # Not only can we do an "earliest" search, but we can avoid doing a
       # reverse scan too.
-      result = @forward.try_search_fwd(input.haystack[input.start...input.end])
+      result = @forward.try_search_fwd(input)
       if result.is_a?(MatchError)
         raise "search error: #{result}"
       end
@@ -245,16 +245,14 @@ module Regex::Automata::DFA
       rev = @reverse
 
       # Forward search
-      end_match = fwd.try_search_fwd(input.haystack[input.start...input.end])
+      end_match = fwd.try_search_fwd(input)
       return end_match if end_match.is_a?(MatchError)
 
-      end_half = end_match.as?(Tuple(Int32, Array(PatternID)))
+      end_half = end_match.as?(HalfMatch)
       return nil unless end_half
 
-      end_pos, pattern_ids = end_half
-      # Adjust end_pos to be absolute position in haystack
-      end_pos += input.start
-      pattern = pattern_ids.first? || PatternID.new(0)
+      end_pos = end_half.offset
+      pattern = end_half.pattern
 
       # This special cases an empty match at the beginning of the search. If
       # our end matches our start, then since a reverse DFA can't match past
@@ -296,14 +294,14 @@ module Regex::Automata::DFA
       start_match = rev.try_search_rev(revsearch.haystack[revsearch.start...revsearch.end])
       return start_match if start_match.is_a?(MatchError)
 
-      start_half = start_match.as?(Tuple(Int32, Array(PatternID)))
-      # Reverse search must match if forward search does
-      return nil unless start_half
+      start_tuple = start_match.as?(Tuple(Int32, Array(PatternID)))
+      return nil unless start_tuple
 
-      start_pos, start_pattern_ids = start_half
-      # Adjust start_pos to be absolute position in haystack
+      start_pos, start_patterns = start_tuple
       start_pos += revsearch.start
-      start_pattern = start_pattern_ids.first? || PatternID.new(0)
+      start_pattern = start_patterns.first?
+      # Reverse search must match if forward search does
+      return nil unless start_pattern
 
       # Forward and reverse search must match same pattern
       if start_pattern != pattern

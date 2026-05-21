@@ -21,6 +21,7 @@
   - Inventory ids: `src/dfa/regex.rs::*`
   - Red: port empty-match iteration, UTF-8 iteration, always-anchored, and builder-validation parity specs before adding more surface area
   - Green: `src/regex/automata/dfa_regex.cr`, `src/regex/automata/dfa.cr`, `src/regex/automata/hir_compiler.cr`, `src/regex/automata/nfa.cr`
+  - Progress: forward `Input` span context now follows the vendor `dfa/search.rs` boundary behavior for ranged searches; reverse wrapper and iterator parity still need direct ports
   - Done when: the wrapper stops relying on a custom simplified searcher, richer look-around behavior matches Rust, and the covered rows are `ported`
 
 - [ ] Dense DFA — determinize, minimize, and wire format

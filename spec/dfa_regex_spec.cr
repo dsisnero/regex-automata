@@ -134,6 +134,13 @@ describe "DFA::Regex" do
     re.is_match("foo123").should be_true
   end
 
+  it "uses full haystack context for ranged searches" do
+    re = Regex::Automata::DFA::Regex.new("(?-u:\\b).+(?-u:\\b)")
+
+    re.find("foo".to_slice[1...2]).should eq(Regex::Automata::Match.must(0, 0...1))
+    re.try_search(Regex::Automata::Input.new("foo").range(1...2)).should be_nil
+  end
+
   describe "error handling" do
     it "returns BuildError for invalid patterns" do
       expect_raises(Regex::Automata::BuildError) do

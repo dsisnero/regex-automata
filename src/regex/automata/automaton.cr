@@ -177,12 +177,108 @@ module Regex::Automata
     # or a MatchError if an error occurred.
     abstract def try_search_fwd(slice : Bytes) : Tuple(Int32, Array(PatternID)) | Nil | MatchError
 
+    # Executes a forward search using the full input configuration.
+    #
+    # This honors the search span within the context of the complete haystack,
+    # which matters for look-around at the boundaries of the span.
+    def try_search_fwd(input : Input) : HalfMatch? | MatchError
+      return nil if input.is_done
+
+      start_state = start_state_forward(input)
+      return start_state if start_state.is_a?(MatchError)
+
+      current_state = start_state.as(StateID)
+      last_match : HalfMatch? = nil
+      at = input.start
+
+      while at < input.end
+        next_state = next_state(current_state, input.haystack[at])
+        return MatchError.quit(input.haystack[at], at) if is_quit_state?(next_state)
+        break if is_dead_state?(next_state)
+
+        current_state = next_state
+        if is_match_state?(current_state)
+          last_match = HalfMatch.new(match_pattern(current_state, 0), at + 1)
+          return last_match if input.get_earliest
+        end
+        at += 1
+      end
+
+      if at == input.end
+        current_state = if trailing = input.haystack[input.end]?
+                          next_state(current_state, trailing)
+                        else
+                          next_eoi_state(current_state)
+                        end
+        return MatchError.quit(input.haystack[input.end], input.end) if input.end < input.haystack.size && is_quit_state?(current_state)
+        if is_match_state?(current_state)
+          offset = input.end < input.haystack.size ? input.end : input.haystack.size
+          last_match = HalfMatch.new(match_pattern(current_state, 0), offset)
+        end
+      end
+
+      last_match
+    end
+
     # Executes a reverse search and returns a match if one is found.
     #
     # This is the core search routine for reverse searches.
     # Returns either a Tuple(match_position, pattern_ids) or nil if no match,
     # or a MatchError if an error occurred.
     abstract def try_search_rev(slice : Bytes) : Tuple(Int32, Array(PatternID)) | Nil | MatchError
+
+    # Executes a reverse search using the full input configuration.
+    #
+    # This honors the search span within the context of the complete haystack,
+    # which matters for look-around at the boundaries of the span.
+    def try_search_rev(input : Input) : HalfMatch? | MatchError
+      return nil if input.is_done
+
+      start_state = start_state_reverse(input)
+      return start_state if start_state.is_a?(MatchError)
+
+      current_state = start_state.as(StateID)
+      last_match : HalfMatch? = nil
+
+      if input.start == input.end
+        current_state = if input.start > 0
+                          next_state(current_state, input.haystack[input.start - 1])
+                        else
+                          next_eoi_state(current_state)
+                        end
+        return MatchError.quit(input.haystack[input.start - 1], input.start - 1) if input.start > 0 && is_quit_state?(current_state)
+        return HalfMatch.new(match_pattern(current_state, 0), input.start) if is_match_state?(current_state)
+        return nil
+      end
+
+      at = input.end - 1
+      loop do
+        next_state = next_state(current_state, input.haystack[at])
+        return MatchError.quit(input.haystack[at], at) if is_quit_state?(next_state)
+        break if is_dead_state?(next_state)
+
+        current_state = next_state
+        if is_match_state?(current_state)
+          last_match = HalfMatch.new(match_pattern(current_state, 0), at + 1)
+          return last_match if input.get_earliest
+        end
+
+        break if at == input.start
+        at -= 1
+      end
+
+      if at == input.start
+        current_state = if input.start > 0
+                          next_state(current_state, input.haystack[input.start - 1])
+                        else
+                          next_eoi_state(current_state)
+                        end
+        return MatchError.quit(input.haystack[input.start - 1], input.start - 1) if input.start > 0 && is_quit_state?(current_state)
+        last_match = HalfMatch.new(match_pattern(current_state, 0), input.start) if is_match_state?(current_state)
+      end
+
+      last_match
+    end
 
     # Executes a forward overlapping search.
     #
