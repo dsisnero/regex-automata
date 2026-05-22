@@ -94,7 +94,7 @@ module ParityInventory
     test_items = []
 
     entries.each do |path, rel|
-      content = File.read(path)
+      content = File.read(path, encoding: 'UTF-8', invalid: :replace, undef: :replace)
       src, test = case language
                   when "go" then extract_go(rel, content)
                   when "rust" then extract_rust(rel, content)
@@ -112,7 +112,7 @@ module ParityInventory
 
   def files_for_language(base, language)
     files = Dir.glob("**/*", File::FNM_DOTMATCH, base: base.to_s)
-               .reject { |f| f.start_with?(".") || f.include?("/.git/") || f.end_with?("/.git") }
+               .reject { |f| f.start_with?(".") || f.include?("/.git/") || f.end_with?("/.git") || File.basename(f).start_with?("._") }
 
     selected = files.select do |rel|
       full = base + rel
@@ -420,7 +420,7 @@ module ParityInventory
     return {} unless path && File.file?(path)
 
     overrides = {}
-    File.readlines(path, chomp: true).each_with_index do |line, idx|
+    File.readlines(path, chomp: true, encoding: 'UTF-8', invalid: :replace, undef: :replace).each_with_index do |line, idx|
       next if line.start_with?("#") || line.strip.empty?
 
       cols = line.split("\t", -1)
@@ -439,7 +439,7 @@ module ParityInventory
 
   def load_manifest_rows(path, min_cols:)
     rows = []
-    File.readlines(path, chomp: true).each_with_index do |line, idx|
+    File.readlines(path, chomp: true, encoding: 'UTF-8', invalid: :replace, undef: :replace).each_with_index do |line, idx|
       next if line.start_with?("#") || line.strip.empty?
 
       cols = line.split("\t", -1)
