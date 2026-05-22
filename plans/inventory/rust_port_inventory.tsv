@@ -151,26 +151,26 @@ src/dfa/onepass.rs::test::is_not_one_pass_bigger	test	missing	-	auto-generated
 src/dfa/onepass.rs::test::is_one_pass	test	missing	-	auto-generated
 src/dfa/onepass.rs::test::max_slots	test	missing	-	auto-generated
 src/dfa/regex.rs::func::build	func	ported	src/regex/automata/dfa_regex.cr::RegexBuilder#build;spec/dfa_regex_spec.cr	-
-src/dfa/regex.rs::func::build_sparse	func	missing	-	auto-generated
+src/dfa/regex.rs::func::build_sparse	func	skipped	-	deferred to the Sparse DFA feature because this repo does not yet have a sparse DFA implementation to wrap
 src/dfa/regex.rs::func::builder	func	ported	src/regex/automata/dfa_regex.cr::Regex.builder;spec/dfa_regex_spec.cr	-
-src/dfa/regex.rs::func::dense	func	missing	-	auto-generated
+src/dfa/regex.rs::func::dense	func	ported	src/regex/automata/dfa_regex.cr::RegexBuilder#dense;spec/dfa_regex_spec.cr	ported dense-builder configuration alias for the DFA regex wrapper
 src/dfa/regex.rs::func::forward	func	ported	src/regex/automata/dfa_regex.cr::Regex#forward;spec/dfa_regex_spec.cr	-
 src/dfa/regex.rs::func::new	func	ported	src/regex/automata/dfa_regex.cr::Regex.new;spec/dfa_regex_spec.cr	-
-src/dfa/regex.rs::func::new_sparse	func	missing	-	auto-generated
+src/dfa/regex.rs::func::new_sparse	func	skipped	-	deferred to the Sparse DFA feature because this repo does not yet have a sparse DFA implementation to wrap
 src/dfa/regex.rs::func::pattern_len	func	ported	src/regex/automata/dfa_regex.cr::Regex#pattern_len;spec/dfa_regex_spec.cr	-
 src/dfa/regex.rs::func::reverse	func	ported	src/regex/automata/dfa_regex.cr::Regex#reverse;spec/dfa_regex_spec.cr	-
-src/dfa/regex.rs::func::syntax	func	missing	-	auto-generated
+src/dfa/regex.rs::func::syntax	func	ported	src/regex/automata/dfa_regex.cr::RegexBuilder#syntax;spec/dfa_regex_spec.cr	ported syntax-configuration alias for the DFA regex wrapper
 src/dfa/regex.rs::func::thompson	func	ported	src/regex/automata/dfa_regex.cr::RegexBuilder#thompson	renamed builder surface to RegexBuilder to avoid collision with DFA::Builder
-src/dfa/regex.rs::func::try_search	func	partial	src/regex/automata/dfa_regex.cr::Regex#try_search;spec/dfa_regex_spec.cr	full-input forward span context now matches vendor boundary behavior for ranged searches, but reverse wrapper and iterator parity are still incomplete
+src/dfa/regex.rs::func::try_search	func	ported	src/regex/automata/dfa_regex.cr::Regex#try_search;spec/dfa_regex_spec.cr	ported dense wrapper search with reverse-start recovery, ranged input support, and UTF-8-safe empty-match iteration behavior
 src/dfa/regex.rs::method::Builder.new	method	ported	src/regex/automata/dfa_regex.cr::RegexBuilder#initialize	renamed Builder to RegexBuilder to avoid collision with DFA::Builder
 src/dfa/regex.rs::method::Regex.builder	method	ported	src/regex/automata/dfa_regex.cr::Regex.builder;spec/dfa_regex_spec.cr	-
 src/dfa/regex.rs::method::Regex.forward	method	ported	src/regex/automata/dfa_regex.cr::Regex#forward;spec/dfa_regex_spec.cr	-
 src/dfa/regex.rs::method::Regex.new	method	ported	src/regex/automata/dfa_regex.cr::Regex.new;spec/dfa_regex_spec.cr	-
-src/dfa/regex.rs::method::Regex.new_sparse	method	missing	-	auto-generated
-src/dfa/regex.rs::method::Regex.try_search	method	partial	src/regex/automata/dfa_regex.cr::Regex#try_search;spec/dfa_regex_spec.cr	full-input forward span context now matches vendor boundary behavior for ranged searches, but reverse wrapper and iterator parity are still incomplete
+src/dfa/regex.rs::method::Regex.new_sparse	method	skipped	-	deferred to the Sparse DFA feature because this repo does not yet have a sparse DFA implementation to wrap
+src/dfa/regex.rs::method::Regex.try_search	method	ported	src/regex/automata/dfa_regex.cr::Regex#try_search;spec/dfa_regex_spec.cr	ported dense wrapper search with reverse-start recovery, ranged input support, and UTF-8-safe empty-match iteration behavior
 src/dfa/regex.rs::struct::Builder	struct	ported	src/regex/automata/dfa_regex.cr::RegexBuilder	renamed Builder to RegexBuilder to avoid collision with DFA::Builder
-src/dfa/regex.rs::struct::FindMatches	struct	partial	src/regex/automata/dfa_regex.cr::Regex::FindMatches;spec/dfa_regex_spec.cr	custom searcher does not yet match util::iter::Searcher empty-match and UTF-8 iteration semantics
-src/dfa/regex.rs::struct::Regex	struct	partial	src/regex/automata/dfa_regex.cr::Regex;spec/dfa_regex_spec.cr	wrapper exists, but Rust-equivalent iterator and full look-around semantics are not finished
+src/dfa/regex.rs::struct::FindMatches	struct	ported	src/regex/automata/dfa_regex.cr::Regex::FindMatches;spec/dfa_regex_spec.cr	ported non-overlapping match iterator over the shared Searcher with UTF-8-safe empty-match behavior
+src/dfa/regex.rs::struct::Regex	struct	ported	src/regex/automata/dfa_regex.cr::Regex;spec/dfa_regex_spec.cr	dense DFA regex wrapper search and iterator behavior are ported; sparse-specific wrapper constructors are deferred to the Sparse DFA feature
 src/dfa/sparse.rs::func::always_match	func	missing	-	auto-generated
 src/dfa/sparse.rs::func::byte_classes	func	missing	-	auto-generated
 src/dfa/sparse.rs::func::from_bytes	func	missing	-	auto-generated
@@ -684,7 +684,7 @@ src/util/iter.rs::method::TryMatchesIter.infallible	method	ported	src/regex/auto
 src/util/iter.rs::struct::CapturesIter	struct	missing	-	auto-generated
 src/util/iter.rs::struct::HalfMatchesIter	struct	ported	src/regex/automata/search.cr::HalfMatchesIter;spec/searcher_spec.cr	ported infallible half-match iterator
 src/util/iter.rs::struct::MatchesIter	struct	ported	src/regex/automata/search.cr::MatchesIter;spec/searcher_spec.cr	ported infallible match iterator
-src/util/iter.rs::struct::Searcher	struct	partial	src/regex/automata/search.cr::Searcher;spec/searcher_spec.cr	half/match iterator behavior is ported, but captures iteration support is still missing
+src/util/iter.rs::struct::Searcher	struct	partial	src/regex/automata/search.cr::Searcher;spec/searcher_spec.cr	half/match iterator behavior including wrapper-visible empty-match advancement is ported, but captures iteration support is still missing
 src/util/iter.rs::struct::TryCapturesIter	struct	missing	-	auto-generated
 src/util/iter.rs::struct::TryHalfMatchesIter	struct	ported	src/regex/automata/search.cr::TryHalfMatchesIter;spec/searcher_spec.cr	ported fallible half-match iterator wrapper
 src/util/iter.rs::struct::TryMatchesIter	struct	ported	src/regex/automata/search.cr::TryMatchesIter;spec/searcher_spec.cr	ported fallible match iterator wrapper

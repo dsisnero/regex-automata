@@ -241,77 +241,48 @@ module Regex::Automata::DFA
     # When a search returns an error, callers cannot know whether a match
     # exists or not.
     def try_search(input : Input) : Match? | MatchError
-      fwd = @forward
-      rev = @reverse
+      search = input.clone
 
-      # Forward search
-      end_match = fwd.try_search_fwd(input)
-      return end_match if end_match.is_a?(MatchError)
+      loop do
+        end_match = @forward.try_search_fwd(search)
+        return end_match if end_match.is_a?(MatchError)
 
-      end_half = end_match.as?(HalfMatch)
-      return nil unless end_half
+        end_half = end_match.as?(HalfMatch)
+        return nil unless end_half
 
-      end_pos = end_half.offset
-      pattern = end_half.pattern
+        end_pos = end_half.offset
+        pattern = end_half.pattern
 
-      # This special cases an empty match at the beginning of the search. If
-      # our end matches our start, then since a reverse DFA can't match past
-      # the start, it must follow that our starting position is also our end
-      # position. So short circuit and skip the reverse search.
-      if input.start == end_pos
-        return Match.new(pattern, end_pos, end_pos)
+        match = if search.start == end_pos
+                  Match.new(pattern, end_pos, end_pos)
+                elsif is_anchored(search)
+                  Match.new(pattern, search.start, end_pos)
+                else
+                  revsearch = search.clone
+                    .span(search.start...end_pos)
+                    .anchored(Anchored::Yes)
+                    .earliest(false)
+
+                  start_match = @reverse.try_search_rev(revsearch)
+                  return start_match if start_match.is_a?(MatchError)
+
+                  start_half = start_match.as?(HalfMatch)
+                  return nil unless start_half
+
+                  if start_half.pattern != pattern
+                    raise "forward and reverse search must match same pattern"
+                  end
+
+                  raise "start > end in match" if start_half.offset > end_pos
+                  Match.new(pattern, start_half.offset, end_pos)
+                end
+
+        return match unless should_skip_empty_utf8_match?(search, match)
+        return nil if search.get_anchored != Anchored::No
+
+        search.set_start(search.start + 1)
+        return nil if search.is_done
       end
-
-      # We can also skip the reverse search if we know our search was
-      # anchored. This occurs either when the input config is anchored or
-      # when we know the regex itself is anchored. In this case, we know the
-      # start of the match, if one is found, must be the start of the
-      # search.
-      if is_anchored(input)
-        return Match.new(pattern, input.start, end_pos)
-      end
-
-      # N.B. I have tentatively convinced myself that it isn't necessary
-      # to specify the specific pattern for the reverse search since the
-      # reverse search will always find the same pattern to match as the
-      # forward search. But I lack a rigorous proof. Why not just provide
-      # the pattern anyway? Well, if it is needed, then leaving it out
-      # gives us a chance to find a witness. (Also, if we don't need to
-      # specify the pattern, then we don't need to build the reverse DFA
-      # with 'starts_for_each_pattern' enabled.)
-      #
-      # We also need to be careful to disable 'earliest' for the reverse
-      # search, since it could be enabled for the forward search. In the
-      # reverse case, to satisfy "leftmost" criteria, we need to match
-      # as much as we can. We also need to be careful to make the search
-      # anchored. We don't want the reverse search to report any matches
-      # other than the one beginning at the end of our forward search.
-      revsearch = Input.new(input.haystack)
-        .span(input.start...end_pos)
-        .anchored(Anchored::Yes)
-        .earliest(false)
-
-      start_match = rev.try_search_rev(revsearch.haystack[revsearch.start...revsearch.end])
-      return start_match if start_match.is_a?(MatchError)
-
-      start_tuple = start_match.as?(Tuple(Int32, Array(PatternID)))
-      return nil unless start_tuple
-
-      start_pos, start_patterns = start_tuple
-      start_pos += revsearch.start
-      start_pattern = start_patterns.first?
-      # Reverse search must match if forward search does
-      return nil unless start_pattern
-
-      # Forward and reverse search must match same pattern
-      if start_pattern != pattern
-        # This should never happen with a properly constructed regex
-        raise "forward and reverse search must match same pattern"
-      end
-
-      raise "start > end in match" if start_pos > end_pos
-
-      Match.new(pattern, start_pos, end_pos)
     end
 
     # Returns true if either the given input specifies an anchored search
@@ -319,13 +290,16 @@ module Regex::Automata::DFA
     private def is_anchored(input : Input) : Bool
       case input.anchored
       when Anchored::No
-        # TODO: Implement is_always_start_anchored for DFA
         false
       when Anchored::Yes, Anchored::Pattern
         true
       else
         false
       end
+    end
+
+    private def should_skip_empty_utf8_match?(input : Input, match : Match) : Bool
+      match.empty? && @forward.is_utf8? && !input.is_char_boundary(match.start)
     end
 
     # Return the underlying DFA responsible for forward matching.
@@ -471,6 +445,16 @@ module Regex::Automata::DFA
     # the NFA in reverse, whether to shrink the NFA and more.
     def thompson(&block : HirCompilerConfig -> HirCompilerConfig) : RegexBuilder
       RegexBuilder.new(@dfa_builder.thompson(&block))
+    end
+
+    # Configure syntax parsing before HIR compilation.
+    def syntax(&block : ::Regex::Syntax::ParserBuilder -> ::Regex::Syntax::ParserBuilder) : RegexBuilder
+      RegexBuilder.new(@dfa_builder.syntax(&block))
+    end
+
+    # Configure dense DFA construction directly.
+    def dense(config : Config) : RegexBuilder
+      RegexBuilder.new(@dfa_builder.configure(config))
     end
   end
 end

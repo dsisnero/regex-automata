@@ -19,13 +19,13 @@
   - Progress: config aliases, Unicode boundary handling, metadata accessors, dense roundtrip helpers, reverse overlap, vendor-style `MatchKind::All` aggregation, accelerator APIs, syntax configuration, prefilter attachment, and size-limit signaling are now ported and covered
   - Done when: dense DFA engine semantics match upstream on the intended builder/search/start-state parity suite and the covered rows are ready for one commit-sized checkpoint
 
-- [ ] Dense DFA regex wrapper parity
+- [x] Dense DFA regex wrapper parity
   - Upstream scope: `src/dfa/regex.rs`, plus iterator behavior from `src/util/iter.rs`
   - Inventory ids: `src/dfa/regex.rs::*`
   - Workflow: close the wrapper as a user-facing feature, including the iterator/search contracts it exposes, before moving on
   - Red: port empty-match iteration, UTF-8 iteration, always-anchored, reverse-wrapper, and builder-validation parity specs before adding more surface area
   - Green: `src/regex/automata/dfa_regex.cr`, `src/regex/automata/dfa.cr`, `src/regex/automata/hir_compiler.cr`, `src/regex/automata/nfa.cr`
-  - Progress: forward `Input` span context now follows the vendor `dfa/search.rs` boundary behavior for ranged searches; reverse wrapper and iterator parity still need direct ports
+  - Progress: ranged `try_search`, reverse-start recovery, empty-match iteration, UTF-8-safe iterator behavior, and dense/syntax builder aliases are now covered; sparse-specific wrapper constructors are deferred to the Sparse DFA feature
   - Done when: the wrapper stops relying on a custom simplified searcher, richer look-around behavior matches Rust, and the covered rows are strong enough for a dedicated commit
 
 - [ ] Dense DFA compile pipeline and wire format parity

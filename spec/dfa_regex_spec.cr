@@ -108,6 +108,25 @@ describe "DFA::Regex" do
     # We'll need to implement try_search to test this properly
   end
 
+  it "supports dense builder aliases" do
+    re = Regex::Automata::DFA::Regex.builder
+      .dense(Regex::Automata::DFA::DFA.config.quit('x'.ord.to_u8, true))
+      .build("abcd")
+
+    result = re.try_search(Regex::Automata::Input.new("abcx"))
+    result.should be_a(Regex::Automata::MatchError)
+    result.as(Regex::Automata::MatchError).quit?.should be_true
+  end
+
+  it "supports syntax builder aliases" do
+    re = Regex::Automata::DFA::Regex.builder
+      .syntax { |config| config.unicode(false).utf8(false) }
+      .thompson { |config| config.utf8(false) }
+      .build("(?-u:[\\xFF])")
+
+    re.find(Bytes[0xFF_u8]).should eq(Regex::Automata::Match.must(0, 0...1))
+  end
+
   it "handles empty patterns" do
     re = Regex::Automata::DFA::Regex.new("")
     re.should_not be_nil
@@ -139,6 +158,30 @@ describe "DFA::Regex" do
 
     re.find("foo".to_slice[1...2]).should eq(Regex::Automata::Match.must(0, 0...1))
     re.try_search(Regex::Automata::Input.new("foo").range(1...2)).should be_nil
+  end
+
+  it "uses reverse search to recover match starts for ranged searches" do
+    re = Regex::Automata::DFA::Regex.new("foo[0-9]+")
+
+    re.try_search(Regex::Automata::Input.new("zzfoo123xx").range(0...8)).should eq(
+      Regex::Automata::Match.must(0, 2...8)
+    )
+  end
+
+  it "iterates empty matches without splitting UTF-8 codepoints" do
+    re = Regex::Automata::DFA::Regex.new("")
+
+    re.find_iter("abc").to_a.should eq([
+      Regex::Automata::Match.must(0, 0...0),
+      Regex::Automata::Match.must(0, 1...1),
+      Regex::Automata::Match.must(0, 2...2),
+      Regex::Automata::Match.must(0, 3...3),
+    ])
+
+    re.find_iter("☃").to_a.should eq([
+      Regex::Automata::Match.must(0, 0...0),
+      Regex::Automata::Match.must(0, 3...3),
+    ])
   end
 
   describe "error handling" do
