@@ -215,6 +215,12 @@ module Regex::Automata
       @pid = nil.as(PatternID?)
     end
 
+    def clone : Captures
+      duplicated = Captures.new(@group_info, @slots.dup)
+      duplicated.set_pattern(@pid)
+      duplicated
+    end
+
     def is_match : Bool
       !@pid.nil?
     end

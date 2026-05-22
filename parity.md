@@ -101,13 +101,13 @@
   - Green: `src/regex/automata/search.cr`
   - Done when: the result primitive API is fully ported and inventory-backed
 
-- [ ] Utilities — Search iteration helpers
+- [x] Utilities — Search iteration helpers
   - Upstream scope: `src/util/iter.rs`
   - Inventory ids: `src/util/iter.rs::*`
   - Workflow: finish the full iterator workflow, including captures-related advancement rules, before treating this as done
   - Red: port `Searcher` ownership, half-match advancement, and infallible iterator-constructor specs before broadening into captures iteration
   - Green: `src/regex/automata/search.cr`, `spec/searcher_spec.cr`
-  - Progress: `Searcher` now clones `Input` on construction and exposes the half/match iterator wrappers; captures-oriented iterator parity is still missing
+  - Progress: `Searcher` now clones `Input` on construction and exposes half, match, and captures iterators, including empty-match advancement and cloned captures snapshots
   - Done when: `Searcher`, `TryHalfMatchesIter`, `TryMatchesIter`, `HalfMatchesIter`, `MatchesIter`, and captures iteration behavior all match upstream
 
 - [x] Utilities — Captures and slot management

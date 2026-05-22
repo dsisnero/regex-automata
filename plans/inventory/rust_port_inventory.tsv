@@ -675,17 +675,17 @@ src/util/escape.rs::struct::DebugHaystack	struct	missing	-	auto-generated
 src/util/interpolate.rs::func::bytes	func	missing	-	auto-generated
 src/util/interpolate.rs::func::string	func	missing	-	auto-generated
 src/util/interpolate.rs::test::interpolate_string	test	missing	-	auto-generated
-src/util/iter.rs::func::infallible	func	missing	-	auto-generated
-src/util/iter.rs::func::new	func	missing	-	auto-generated
+src/util/iter.rs::func::infallible	func	ported	src/regex/automata/search.cr;spec/searcher_spec.cr	infallible iterator adapters are present for half, match, and captures iteration
+src/util/iter.rs::func::new	func	ported	src/regex/automata/search.cr::Searcher#initialize;spec/searcher_spec.cr	searcher construction semantics are covered
 src/util/iter.rs::method::Searcher.new	method	ported	src/regex/automata/search.cr::Searcher#initialize;spec/searcher_spec.cr	Searcher now owns a cloned Input like upstream and preserves caller input state
-src/util/iter.rs::method::TryCapturesIter.infallible	method	missing	-	auto-generated
+src/util/iter.rs::method::TryCapturesIter.infallible	method	ported	src/regex/automata/search.cr::TryCapturesIter#infallible;spec/searcher_spec.cr	ported infallible captures iterator wrapper
 src/util/iter.rs::method::TryHalfMatchesIter.infallible	method	ported	src/regex/automata/search.cr::TryHalfMatchesIter#infallible;spec/searcher_spec.cr	ported infallible half-match iterator wrapper
 src/util/iter.rs::method::TryMatchesIter.infallible	method	ported	src/regex/automata/search.cr::TryMatchesIter#infallible;spec/searcher_spec.cr	ported infallible match iterator wrapper
-src/util/iter.rs::struct::CapturesIter	struct	missing	-	auto-generated
+src/util/iter.rs::struct::CapturesIter	struct	ported	src/regex/automata/search.cr::CapturesIter;spec/searcher_spec.cr	ported infallible captures iterator with cloned snapshots
 src/util/iter.rs::struct::HalfMatchesIter	struct	ported	src/regex/automata/search.cr::HalfMatchesIter;spec/searcher_spec.cr	ported infallible half-match iterator
 src/util/iter.rs::struct::MatchesIter	struct	ported	src/regex/automata/search.cr::MatchesIter;spec/searcher_spec.cr	ported infallible match iterator
-src/util/iter.rs::struct::Searcher	struct	partial	src/regex/automata/search.cr::Searcher;spec/searcher_spec.cr	half/match iterator behavior including wrapper-visible empty-match advancement is ported, but captures iteration support is still missing
-src/util/iter.rs::struct::TryCapturesIter	struct	missing	-	auto-generated
+src/util/iter.rs::struct::Searcher	struct	ported	src/regex/automata/search.cr::Searcher;spec/searcher_spec.cr	half, match, and captures iteration semantics including empty-match advancement now match the shared searcher contract
+src/util/iter.rs::struct::TryCapturesIter	struct	ported	src/regex/automata/search.cr::TryCapturesIter;spec/searcher_spec.cr	ported fallible captures iterator wrapper
 src/util/iter.rs::struct::TryHalfMatchesIter	struct	ported	src/regex/automata/search.cr::TryHalfMatchesIter;spec/searcher_spec.cr	ported fallible half-match iterator wrapper
 src/util/iter.rs::struct::TryMatchesIter	struct	ported	src/regex/automata/search.cr::TryMatchesIter;spec/searcher_spec.cr	ported fallible match iterator wrapper
 src/util/lazy.rs::func::get	func	missing	-	auto-generated

@@ -1,4 +1,7 @@
 module Regex::Automata
+  class Captures
+  end
+
   # Anchor mode for searches
   enum Anchored
     # The search is not anchored
@@ -350,6 +353,10 @@ module Regex::Automata
       TryMatchesIter.new(self, finder)
     end
 
+    def into_captures_iter(caps : Captures, &finder : Input, Captures -> Nil | MatchError) : TryCapturesIter
+      TryCapturesIter.new(self, caps, finder)
+    end
+
     private def handle_overlapping_empty_half_match(&finder : Input -> HalfMatch? | MatchError) : HalfMatch? | MatchError
       @input.set_start(checked_add_one(@input.start))
       yield @input
@@ -465,6 +472,58 @@ module Regex::Automata
     def each(&block : Match ->)
       while match = self.next
         yield match
+      end
+    end
+  end
+
+  class TryCapturesIter
+    @it : Searcher
+    @caps : Captures
+    @finder : Proc(Input, Captures, Nil | MatchError)
+
+    def initialize(@it : Searcher, @caps : Captures, @finder : Proc(Input, Captures, Nil | MatchError))
+    end
+
+    def infallible : CapturesIter
+      CapturesIter.new(self)
+    end
+
+    def next
+      result = @it.try_advance do |input|
+        finder_result = @finder.call(input, @caps)
+        if finder_result.is_a?(MatchError)
+          finder_result
+        else
+          @caps.get_match
+        end
+      end
+      return nil if result.nil?
+      return result if result.is_a?(MatchError)
+      @caps.clone
+    end
+  end
+
+  class CapturesIter
+    @it : TryCapturesIter
+
+    def initialize(@it : TryCapturesIter)
+    end
+
+    include Enumerable(Captures)
+
+    def next
+      result = @it.next
+      return nil if result.nil?
+      if result.is_a?(MatchError)
+        raise "unexpected regex captures error: #{result}\n to handle find errors, use 'try' or 'search' methods"
+      end
+
+      result.as(Captures)
+    end
+
+    def each(&block : Captures ->)
+      while captures = self.next
+        yield captures
       end
     end
   end
