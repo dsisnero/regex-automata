@@ -1,5 +1,6 @@
 require "./utf8_sequences"
 require "./look"
+require "./captures"
 require "./types"
 
 module Regex::Automata::NFA
@@ -652,8 +653,8 @@ module Regex::Automata::NFA
     end
 
     # Build the final NFA
-    def build : NFA
-      NFA.new(@states, @start_anchored, @start_unanchored, @start_pattern, @utf8, @reverse)
+    def build(group_info : Regex::Automata::GroupInfo = Regex::Automata::GroupInfo.empty) : NFA
+      NFA.new(@states, @start_anchored, @start_unanchored, @start_pattern, @utf8, @reverse, group_info)
     end
 
     # Update the target of a state's transition
@@ -809,12 +810,14 @@ module Regex::Automata::NFA
     getter start_anchored : StateID
     getter start_unanchored : StateID
     getter start_pattern : Array(StateID)
+    getter group_info : Regex::Automata::GroupInfo
     getter? utf8 : Bool
     getter? reverse : Bool
 
     def initialize(@states : Array(State), @start_anchored : StateID,
                    @start_unanchored : StateID, @start_pattern : Array(StateID),
-                   @utf8 : Bool, @reverse : Bool = false)
+                   @utf8 : Bool, @reverse : Bool = false,
+                   @group_info : Regex::Automata::GroupInfo = Regex::Automata::GroupInfo.empty)
     end
 
     # Get number of states

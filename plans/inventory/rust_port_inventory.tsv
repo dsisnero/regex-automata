@@ -519,7 +519,7 @@ src/nfa/thompson/nfa.rs::func::always_match	func	missing	-	auto-generated
 src/nfa/thompson/nfa.rs::func::byte_classes	func	missing	-	auto-generated
 src/nfa/thompson/nfa.rs::func::compiler	func	missing	-	auto-generated
 src/nfa/thompson/nfa.rs::func::config	func	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::func::group_info	func	missing	-	auto-generated
+src/nfa/thompson/nfa.rs::func::group_info	func	ported	spec/captures_spec.cr	multi-pattern capture slots flow through NFA group_info
 src/nfa/thompson/nfa.rs::func::has_capture	func	missing	-	auto-generated
 src/nfa/thompson/nfa.rs::func::has_empty	func	missing	-	auto-generated
 src/nfa/thompson/nfa.rs::func::is_always_start_anchored	func	missing	-	auto-generated
@@ -632,44 +632,44 @@ src/util/alphabet.rs::test::elements_singletons	test	missing	-	auto-generated
 src/util/alphabet.rs::test::elements_typical	test	missing	-	auto-generated
 src/util/alphabet.rs::test::full_byte_classes	test	missing	-	auto-generated
 src/util/alphabet.rs::test::representatives	test	missing	-	auto-generated
-src/util/captures.rs::func::all	func	missing	-	auto-generated
-src/util/captures.rs::func::all_group_len	func	missing	-	auto-generated
-src/util/captures.rs::func::all_names	func	missing	-	auto-generated
-src/util/captures.rs::func::clear	func	missing	-	auto-generated
-src/util/captures.rs::func::empty	func	missing	-	auto-generated
-src/util/captures.rs::func::explicit_slot_len	func	missing	-	auto-generated
-src/util/captures.rs::func::get_group	func	missing	-	auto-generated
-src/util/captures.rs::func::get_group_by_name	func	missing	-	auto-generated
-src/util/captures.rs::func::get_match	func	missing	-	auto-generated
-src/util/captures.rs::func::group_info	func	missing	-	auto-generated
-src/util/captures.rs::func::group_len	func	missing	-	auto-generated
-src/util/captures.rs::func::implicit_slot_len	func	missing	-	auto-generated
-src/util/captures.rs::func::interpolate_bytes	func	missing	-	auto-generated
-src/util/captures.rs::func::interpolate_bytes_into	func	missing	-	auto-generated
-src/util/captures.rs::func::interpolate_string	func	missing	-	auto-generated
-src/util/captures.rs::func::interpolate_string_into	func	missing	-	auto-generated
-src/util/captures.rs::func::is_match	func	missing	-	auto-generated
-src/util/captures.rs::func::iter	func	missing	-	auto-generated
-src/util/captures.rs::func::matches	func	missing	-	auto-generated
-src/util/captures.rs::func::memory_usage	func	missing	-	auto-generated
-src/util/captures.rs::func::pattern	func	missing	-	auto-generated
-src/util/captures.rs::func::pattern_len	func	missing	-	auto-generated
-src/util/captures.rs::func::pattern_names	func	missing	-	auto-generated
-src/util/captures.rs::func::set_pattern	func	missing	-	auto-generated
-src/util/captures.rs::func::slot	func	missing	-	auto-generated
-src/util/captures.rs::func::slot_len	func	missing	-	auto-generated
-src/util/captures.rs::func::slots	func	missing	-	auto-generated
-src/util/captures.rs::func::slots_mut	func	missing	-	auto-generated
-src/util/captures.rs::func::to_index	func	missing	-	auto-generated
-src/util/captures.rs::func::to_name	func	missing	-	auto-generated
-src/util/captures.rs::method::Captures.all	method	missing	-	auto-generated
-src/util/captures.rs::method::Captures.clear	method	missing	-	auto-generated
-src/util/captures.rs::struct::Captures	struct	missing	-	auto-generated
-src/util/captures.rs::struct::CapturesPatternIter	struct	missing	-	auto-generated
-src/util/captures.rs::struct::GroupInfo	struct	missing	-	auto-generated
-src/util/captures.rs::struct::GroupInfoAllNames	struct	missing	-	auto-generated
-src/util/captures.rs::struct::GroupInfoError	struct	missing	-	auto-generated
-src/util/captures.rs::struct::GroupInfoPatternNames	struct	missing	-	auto-generated
+src/util/captures.rs::func::all	func	ported	spec/captures_spec.cr	Captures constructors and slot accounting are covered
+src/util/captures.rs::func::all_group_len	func	ported	spec/captures_spec.cr	GroupInfo aggregate sizing covered
+src/util/captures.rs::func::all_names	func	ported	spec/captures_spec.cr	GroupInfo iterators covered
+src/util/captures.rs::func::clear	func	ported	spec/captures_spec.cr	Captures reset behavior covered
+src/util/captures.rs::func::empty	func	ported	spec/captures_spec.cr	empty captures constructor covered
+src/util/captures.rs::func::explicit_slot_len	func	ported	spec/captures_spec.cr	explicit slot accounting covered
+src/util/captures.rs::func::get_group	func	ported	spec/captures_spec.cr	group lookup by index covered
+src/util/captures.rs::func::get_group_by_name	func	ported	spec/captures_spec.cr	group lookup by name covered
+src/util/captures.rs::func::get_match	func	ported	spec/captures_spec.cr	full-match lookup covered
+src/util/captures.rs::func::group_info	func	ported	spec/captures_spec.cr	Captures exposes underlying GroupInfo
+src/util/captures.rs::func::group_len	func	ported	spec/captures_spec.cr	group counting covered
+src/util/captures.rs::func::implicit_slot_len	func	ported	spec/captures_spec.cr	implicit slot accounting covered
+src/util/captures.rs::func::interpolate_bytes	func	ported	spec/captures_spec.cr	byte interpolation covered
+src/util/captures.rs::func::interpolate_bytes_into	func	ported	spec/captures_spec.cr	byte interpolation append path covered
+src/util/captures.rs::func::interpolate_string	func	ported	spec/captures_spec.cr	string interpolation covered
+src/util/captures.rs::func::interpolate_string_into	func	ported	spec/captures_spec.cr	string interpolation append path covered
+src/util/captures.rs::func::is_match	func	ported	spec/captures_spec.cr	match presence covered
+src/util/captures.rs::func::iter	func	ported	spec/captures_spec.cr	capture iteration covered
+src/util/captures.rs::func::matches	func	ported	spec/captures_spec.cr	matches-only captures constructor covered
+src/util/captures.rs::func::memory_usage	func	ported	src/regex/automata/captures.cr	memory usage compatibility helper present
+src/util/captures.rs::func::pattern	func	ported	spec/captures_spec.cr	pattern lookup covered
+src/util/captures.rs::func::pattern_len	func	ported	spec/captures_spec.cr	pattern counting covered
+src/util/captures.rs::func::pattern_names	func	ported	spec/captures_spec.cr	pattern-local group names covered
+src/util/captures.rs::func::set_pattern	func	ported	spec/captures_spec.cr	pattern assignment covered
+src/util/captures.rs::func::slot	func	ported	spec/captures_spec.cr	slot mapping covered
+src/util/captures.rs::func::slot_len	func	ported	spec/captures_spec.cr	slot counting covered
+src/util/captures.rs::func::slots	func	ported	spec/captures_spec.cr	slot pair mapping covered
+src/util/captures.rs::func::slots_mut	func	ported	spec/captures_spec.cr	mutable slot storage covered
+src/util/captures.rs::func::to_index	func	ported	spec/captures_spec.cr	name-to-index mapping covered
+src/util/captures.rs::func::to_name	func	ported	spec/captures_spec.cr	index-to-name mapping covered
+src/util/captures.rs::method::Captures.all	method	ported	spec/captures_spec.cr	constructor parity covered
+src/util/captures.rs::method::Captures.clear	method	ported	spec/captures_spec.cr	reset parity covered
+src/util/captures.rs::struct::Captures	struct	ported	spec/captures_spec.cr	capture storage type implemented
+src/util/captures.rs::struct::CapturesPatternIter	struct	ported	spec/captures_spec.cr	capture iterator implemented
+src/util/captures.rs::struct::GroupInfo	struct	ported	spec/captures_spec.cr	group metadata implemented
+src/util/captures.rs::struct::GroupInfoAllNames	struct	ported	spec/captures_spec.cr	all-names iterator implemented
+src/util/captures.rs::struct::GroupInfoError	struct	ported	spec/captures_spec.cr	group info validation errors implemented
+src/util/captures.rs::struct::GroupInfoPatternNames	struct	ported	spec/captures_spec.cr	pattern-names iterator implemented
 src/util/escape.rs::struct::DebugByte	struct	missing	-	auto-generated
 src/util/escape.rs::struct::DebugHaystack	struct	missing	-	auto-generated
 src/util/interpolate.rs::func::bytes	func	missing	-	auto-generated

@@ -26,29 +26,36 @@ module Regex::Automata
     @builder : NFA::Builder
     @pattern_id : PatternID
     @config : HirCompilerConfig
+    @group_info : GroupInfo
 
     def initialize(config : HirCompilerConfig = HirCompilerConfig.new)
       @config = config
       @builder = NFA::Builder.new(utf8: config.utf8, reverse: config.reverse)
       @pattern_id = PatternID.new(0)
+      @group_info = GroupInfo.empty
     end
 
     # Compile a Hir::Hir to NFA
     def compile(hir : Regex::Syntax::Hir::Hir, pattern_id : PatternID = PatternID.new(0)) : NFA::NFA
+      reset_builder
       @pattern_id = pattern_id
+      @group_info = build_group_info([{pattern_id, hir}] of Tuple(PatternID, Regex::Syntax::Hir::Hir))
       ref = compile_node(hir.node)
       @builder.add_pattern_start(ref.start)
       @builder.set_start_unanchored(ref.start)
       @builder.set_start_anchored(ref.start)
-      @builder.build
+      @builder.build(@group_info)
     end
 
     # Compile multiple patterns into a single NFA
     def compile_multi(hirs : Array(Regex::Syntax::Hir::Hir)) : NFA::NFA
+      reset_builder
       pattern_starts = [] of StateID
+      pattern_hirs = hirs.map_with_index { |hir, i| {PatternID.new(i.to_i32), hir} }
+      @group_info = build_group_info(pattern_hirs)
 
       hirs.each_with_index do |hir, i|
-        @pattern_id = PatternID.new(i)
+        @pattern_id = PatternID.new(i.to_i32)
         ref = compile_node(hir.node)
         @builder.add_pattern_start(ref.start)
         pattern_starts << ref.start
@@ -71,7 +78,7 @@ module Regex::Automata
         @builder.set_start_anchored(union_start)
       end
 
-      @builder.build
+      @builder.build(@group_info)
     end
 
     private def compile_node(node : Regex::Syntax::Hir::Node) : NFA::ThompsonRef
@@ -213,9 +220,10 @@ module Regex::Automata
       child_ref = compile_node(node.sub)
 
       # Wrap child with capture start/end epsilon states.
-      # Slot layout follows regex-automata convention:
-      # start slot = 2 * group_index, end slot = 2 * group_index + 1.
-      start_slot = node.index * 2
+      # Slot layout follows GroupInfo, which keeps implicit slots for every
+      # pattern before explicit capture slots.
+      start_slot = @group_info.slot(@pattern_id, node.index) ||
+                   raise "missing capture slot for pattern #{@pattern_id.to_i}, group #{node.index}"
       end_slot = start_slot + 1
 
       capture_start = @builder.add_state(
@@ -228,6 +236,40 @@ module Regex::Automata
       @builder.update_transition_target(child_ref.end, capture_end)
 
       NFA::ThompsonRef.new(capture_start, capture_match_end)
+    end
+
+    private def reset_builder : Nil
+      @builder = NFA::Builder.new(utf8: @config.utf8, reverse: @config.reverse)
+    end
+
+    private def build_group_info(entries : Array(Tuple(PatternID, Regex::Syntax::Hir::Hir))) : GroupInfo
+      if entries.empty?
+        return GroupInfo.new([[nil] of String?])
+      end
+
+      names_by_pattern = Array.new(entries.max_of { |pid, _| pid.to_i } + 1) { [nil] of String? }
+      entries.each do |pid, hir|
+        names_by_pattern[pid.to_i] = capture_names(hir.node)
+      end
+      GroupInfo.new(names_by_pattern)
+    end
+
+    private def capture_names(node : Regex::Syntax::Hir::Node) : Array(String?)
+      names = [nil] of String?
+      collect_capture_names(node, names)
+      names
+    end
+
+    private def collect_capture_names(node : Regex::Syntax::Hir::Node, names : Array(String?)) : Nil
+      if node.is_a?(Regex::Syntax::Hir::Capture)
+        while names.size <= node.index
+          names << nil
+        end
+        names[node.index] = node.name
+      end
+      node.subs.each do |child|
+        collect_capture_names(child, names)
+      end
     end
 
     private def checked_u32_to_i32(value : UInt32, label : String) : Int32

@@ -110,7 +110,7 @@
   - Progress: `Searcher` now clones `Input` on construction and exposes the half/match iterator wrappers; captures-oriented iterator parity is still missing
   - Done when: `Searcher`, `TryHalfMatchesIter`, `TryMatchesIter`, `HalfMatchesIter`, `MatchesIter`, and captures iteration behavior all match upstream
 
-- [ ] Utilities — Captures and slot management
+- [x] Utilities — Captures and slot management
   - Upstream scope: `src/util/captures.rs`
   - Inventory ids: `src/util/captures.rs::*`
   - Red: port captures specs
