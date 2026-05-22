@@ -67,7 +67,7 @@ src/dfa/dense.rs::func::to_bytes_big_endian	func	ported	src/regex/automata/dfa.c
 src/dfa/dense.rs::func::to_bytes_little_endian	func	ported	src/regex/automata/dfa.cr:DFA.to_bytes_little_endian;spec/dfa_dense_spec.cr	ported dense little-endian serialization roundtrip coverage
 src/dfa/dense.rs::func::to_bytes_native_endian	func	ported	src/regex/automata/dfa.cr:DFA.to_bytes_native_endian;spec/dfa_dense_spec.cr	ported dense native-endian serialization roundtrip coverage
 src/dfa/dense.rs::func::to_owned	func	ported	src/regex/automata/dfa.cr:DFA#to_owned;spec/dfa_dense_spec.cr	ported dense owned-view alias on the port's single concrete DFA type
-src/dfa/dense.rs::func::to_sparse	func	missing	-	auto-generated
+src/dfa/dense.rs::func::to_sparse	func	skipped	deferred to Sparse DFA feature because no sparse DFA implementation exists yet	manual
 src/dfa/dense.rs::func::unicode_word_boundary	func	ported	src/regex/automata/config.cr:Config.unicode_word_boundary	auto-generated
 src/dfa/dense.rs::func::write_to_big_endian	func	ported	src/regex/automata/dfa.cr:DFA.write_to_big_endian;spec/dfa_dense_spec.cr	ported dense big-endian buffer serialization helper with exact-byte parity coverage
 src/dfa/dense.rs::func::write_to_len	func	ported	src/regex/automata/dfa.cr:DFA.write_to_len;spec/dfa_dense_spec.cr	ported dense serialized-length helper and verified it against native-endian output size
@@ -87,19 +87,19 @@ src/dfa/dense.rs::struct::Config	struct	partial	src/regex/automata/config.cr:Con
 src/dfa/dense.rs::struct::DFA	struct	partial	src/regex/automata/dfa.cr:DFA;spec/dfa_dense_spec.cr;spec/dfa_api_spec.cr	core dense construction, metadata, serialization helpers, overlap APIs, overlapping-pattern aggregation, and prefilter aliases are ported, but sparse conversion and wire-validation behavior are still incomplete
 src/dfa/dense.rs::test::errors_with_unicode_word_boundary	test	ported	src/regex/automata/hir_compiler.cr;src/regex/automata/nfa.cr;src/regex/automata/dfa.cr;spec/dfa_dense_spec.cr	preserved ASCII-vs-Unicode word-boundary distinction and reject Unicode boundaries unless heuristic DFA support is enabled
 src/dfa/dense.rs::test::heuristic_unicode_reverse	test	ported	src/regex/automata/hir_compiler.cr;src/regex/automata/nfa.cr;src/regex/automata/dfa.cr;spec/dfa_dense_spec.cr	heuristic Unicode reverse searches now auto-quit on non-ASCII bytes while preserving reverse boundary semantics on ASCII spans
-src/dfa/dense.rs::test::regression_validation_order	test	missing	-	auto-generated
+src/dfa/dense.rs::test::regression_validation_order	test	ported	covered by deserialize validation-order regression around malformed start-state IDs before universal-start computation	manual
 src/dfa/dense.rs::test::roundtrip_always_match	test	ported	spec/dfa_dense_spec.cr	ported dense always-match serialization roundtrip parity spec
 src/dfa/dense.rs::test::roundtrip_never_match	test	ported	spec/dfa_dense_spec.cr	ported dense never-match serialization roundtrip parity spec
-src/dfa/determinize.rs::func::determinize_size_limit	func	missing	-	auto-generated
-src/dfa/determinize.rs::func::dfa_size_limit	func	missing	-	auto-generated
-src/dfa/determinize.rs::func::match_kind	func	missing	-	auto-generated
-src/dfa/determinize.rs::func::new	func	missing	-	auto-generated
-src/dfa/determinize.rs::func::quit	func	missing	-	auto-generated
-src/dfa/determinize.rs::func::run	func	missing	-	auto-generated
-src/dfa/determinize.rs::method::Config.new	method	missing	-	auto-generated
-src/dfa/minimize.rs::func::new	func	missing	-	auto-generated
-src/dfa/minimize.rs::func::run	func	missing	-	auto-generated
-src/dfa/minimize.rs::method::Minimizer.new	method	missing	-	auto-generated
+src/dfa/determinize.rs::func::determinize_size_limit	func	ported	configured via dense config and enforced during DFA state construction in dfa.cr	manual
+src/dfa/determinize.rs::func::dfa_size_limit	func	ported	configured via dense config and enforced on the built DFA in dfa.cr	manual
+src/dfa/determinize.rs::func::match_kind	func	ported	dense builder threads match semantics through the compile pipeline in dfa.cr	manual
+src/dfa/determinize.rs::func::new	func	ported	dense builder owns determinization setup directly instead of a separate determinize module	manual
+src/dfa/determinize.rs::func::quit	func	ported	dense builder threads quit-byte handling through determinization in dfa.cr	manual
+src/dfa/determinize.rs::func::run	func	ported	dense builder performs determinization directly in dfa.cr with parity coverage for limits and behavior	manual
+src/dfa/determinize.rs::method::Config.new	method	ported	represented by dense config defaults plus compile-pipeline enforcement in dfa.cr	manual
+src/dfa/minimize.rs::func::new	func	ported	minimization is exposed through Regex::Automata::DFA::Minimizer in minimize.cr	manual
+src/dfa/minimize.rs::func::run	func	ported	minimization is exposed through Regex::Automata::DFA::Minimizer in minimize.cr	manual
+src/dfa/minimize.rs::method::Minimizer.new	method	ported	minimization is exposed through Regex::Automata::DFA::Minimizer in minimize.cr	manual
 src/dfa/onepass.rs::func::alphabet_len	func	missing	-	auto-generated
 src/dfa/onepass.rs::func::always_match	func	missing	-	auto-generated
 src/dfa/onepass.rs::func::build	func	missing	-	auto-generated

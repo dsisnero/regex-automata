@@ -28,13 +28,13 @@
   - Progress: ranged `try_search`, reverse-start recovery, empty-match iteration, UTF-8-safe iterator behavior, and dense/syntax builder aliases are now covered; sparse-specific wrapper constructors are deferred to the Sparse DFA feature
   - Done when: the wrapper stops relying on a custom simplified searcher, richer look-around behavior matches Rust, and the covered rows are strong enough for a dedicated commit
 
-- [ ] Dense DFA compile pipeline and wire format parity
+- [x] Dense DFA compile pipeline and wire format parity
   - Upstream scope: `src/dfa/determinize.rs`, `src/dfa/minimize.rs`, `src/dfa/remapper.rs`, serialization hooks in `src/dfa/dense.rs`
   - Inventory ids: `src/dfa/determinize.rs::*`, `src/dfa/minimize.rs::*`, `src/dfa/remapper.rs::*`, serialization-related rows under `src/dfa/dense.rs::*`
   - Workflow: treat determinization, minimization, remapping, and validation-order behavior as one compiler/wire-format feature instead of dripping out serializer nits
   - Red: port determinization/minimization/serialization specs, including validation-order and size-limit behavior, before calling this feature done
   - Green: `src/regex/automata/dfa.cr`, `src/regex/automata/dfa_util.cr`, `src/regex/automata/transition_table.cr`, `src/regex/automata/wire.cr`
-  - Progress: constructor aliases, always/never round trips, endianness-aware round trips, and buffer-write helpers are already covered; validation-order, explicit size-limit failures, and upstream transformation routines still need to land together
+  - Progress: constructor aliases, always/never round trips, endianness-aware round trips, buffer-write helpers, determinization scratch-limit failures, dense minimization, and deserialize validation-order hardening are now covered; `to_sparse` is deferred to the Sparse DFA feature because there is still no sparse engine implementation
   - Done when: dense DFA transformation and wire-format parity specs are green and the remaining compiler/validation rows can be committed as one feature
 
 - [ ] Sparse DFA

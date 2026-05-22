@@ -1,5 +1,12 @@
 require "./spec_helper"
 
+private def write_u32_le(bytes : Bytes, offset : Int32, value : UInt32) : Nil
+  bytes[offset] = (value & 0xFF).to_u8
+  bytes[offset + 1] = ((value >> 8) & 0xFF).to_u8
+  bytes[offset + 2] = ((value >> 16) & 0xFF).to_u8
+  bytes[offset + 3] = ((value >> 24) & 0xFF).to_u8
+end
+
 describe "DFA::Dense" do
   it "exposes dense config defaults and upstream-style getters" do
     config = Regex::Automata::DFA::DFA.config
@@ -133,6 +140,32 @@ describe "DFA::Dense" do
     error.is_size_limit_exceeded.should be_true
   end
 
+  it "reports determinization scratch-limit failures through BuildError" do
+    error = expect_raises(Regex::Automata::BuildError) do
+      Regex::Automata::DFA::Builder.new
+        .configure(Regex::Automata::DFA::DFA.config.determinize_size_limit(1_i64))
+        .build("abc")
+    end
+
+    error.is_size_limit_exceeded.should be_true
+  end
+
+  it "minimizes dense DFAs when requested" do
+    unminimized = Regex::Automata::DFA::Builder.new
+      .build("(foo|boo|zoo)")
+    minimized = Regex::Automata::DFA::Builder.new
+      .configure(Regex::Automata::DFA::DFA.config.minimize(true))
+      .build("(foo|boo|zoo)")
+
+    minimized.size.should be < unminimized.size
+    minimized.try_search_fwd(Regex::Automata::Input.new("boo")).should eq(
+      Regex::Automata::HalfMatch.must(0, 3)
+    )
+    minimized.try_search_fwd(Regex::Automata::Input.new("zoo")).should eq(
+      Regex::Automata::HalfMatch.must(0, 3)
+    )
+  end
+
   it "rejects unicode word boundaries unless heuristic support is enabled" do
     expect_raises(Regex::Automata::BuildError) do
       Regex::Automata::DFA::DFA.builder.build("\\bxyz\\b")
@@ -234,6 +267,18 @@ describe "DFA::Dense" do
     too_small = Bytes.new(native_written - 1)
     expect_raises(Regex::Automata::SerializeError) do
       dfa.write_to_native_endian(too_small)
+    end
+  end
+
+  it "validates serialized start states before computing universal starts" do
+    dfa = Regex::Automata::DFA::DFA.new("abc")
+    bytes = dfa.to_bytes_little_endian[0].dup
+    invalid_start = ((dfa.size + 10) << dfa.stride2).to_u32
+
+    write_u32_le(bytes, 28, invalid_start)
+
+    expect_raises(Regex::Automata::DeserializeError) do
+      Regex::Automata::DFA::DFA.from_bytes(bytes)
     end
   end
 end

@@ -7,6 +7,7 @@ require "./automaton"
 require "./hir_compiler"
 require "./transition_table"
 require "./match_states"
+require "./minimize"
 require "./start_table"
 require "set"
 require "regex-syntax"
@@ -216,6 +217,8 @@ module Regex::Automata::DFA
     private def self.from_bytes_with_endianness(slice : Bytes, endianness : Symbol) : Tuple(DFA, Int32)
       offset = 0
 
+      ensure_bytes_available(slice, offset, 8, "magic bytes")
+
       # Check magic
       magic = slice[offset, 8]
       unless magic == "CRDFA001".to_slice
@@ -224,6 +227,7 @@ module Regex::Automata::DFA
       offset += 8
 
       # Read version
+      ensure_bytes_available(slice, offset, 4, "version")
       version = read_u32(slice, offset, endianness)
       unless version == 1 || version == 2 || version == 3 || version == 4
         raise DeserializeError.new("Unsupported version: #{version}")
@@ -231,14 +235,17 @@ module Regex::Automata::DFA
       offset += 4
 
       # Read flags
+      ensure_bytes_available(slice, offset, 4, "flags")
       flags = flags_from_u32(read_u32(slice, offset, endianness))
       offset += 4
 
       # Read state count
+      ensure_bytes_available(slice, offset, 4, "state count")
       state_count = read_u32(slice, offset, endianness).to_i32
       offset += 4
 
       # Read start states
+      ensure_bytes_available(slice, offset, 8, "start states")
       start_unanchored_unsigned = read_u32(slice, offset, endianness)
       start_unanchored = StateID.new(unsigned_to_signed(start_unanchored_unsigned))
       offset += 4
@@ -251,24 +258,29 @@ module Regex::Automata::DFA
         unanchored_states = {} of Start => StateID
         anchored_states = {} of Start => StateID
         Start.each do |start_kind|
+          ensure_bytes_available(slice, offset, 4, "unanchored start state")
           start_id = StateID.new(unsigned_to_signed(read_u32(slice, offset, endianness)))
           offset += 4
           unanchored_states[start_kind] = start_id
         end
         Start.each do |start_kind|
+          ensure_bytes_available(slice, offset, 4, "anchored start state")
           start_id = StateID.new(unsigned_to_signed(read_u32(slice, offset, endianness)))
           offset += 4
           anchored_states[start_kind] = start_id
         end
         pattern_states = {} of PatternID => Hash(Start, StateID)
         if version >= 4
+          ensure_bytes_available(slice, offset, 4, "pattern start state count")
           pattern_state_count = read_u32(slice, offset, endianness).to_i32
           offset += 4
           pattern_state_count.times do
+            ensure_bytes_available(slice, offset, 4, "pattern start pattern id")
             pattern_id = PatternID.new(read_u32(slice, offset, endianness).to_i32)
             offset += 4
             states = {} of Start => StateID
             Start.each do |start_kind|
+              ensure_bytes_available(slice, offset, 4, "pattern start state")
               start_id = StateID.new(unsigned_to_signed(read_u32(slice, offset, endianness)))
               offset += 4
               states[start_kind] = start_id
@@ -287,10 +299,12 @@ module Regex::Automata::DFA
       end
 
       # Read byte classes count
+      ensure_bytes_available(slice, offset, 4, "byte class count")
       byte_classes_count = read_u32(slice, offset, endianness).to_i32
       offset += 4
 
       # Read byte class mapping
+      ensure_bytes_available(slice, offset, 256, "byte class map")
       class_mapping = Array.new(256) do
         byte_class = slice[offset].to_i32
         offset += 1
@@ -309,40 +323,58 @@ module Regex::Automata::DFA
 
       if start_unanchored.to_i >= 0
         start_unanchored = StateID.new(start_unanchored.to_i >> stride2)
+        validate_serialized_state_id!(start_unanchored, state_count, "unanchored start state")
       end
       if start_anchored.to_i >= 0
         start_anchored = StateID.new(start_anchored.to_i >> stride2)
+        validate_serialized_state_id!(start_anchored, state_count, "anchored start state")
       end
       if start_table
-        start_table = start_table.remap { |id| StateID.new(id.to_i >> stride2) }
+        start_table = start_table.remap do |id|
+          remapped = StateID.new(id.to_i >> stride2)
+          validate_serialized_state_id!(remapped, state_count, "start table state")
+          remapped
+        end
       end
 
       # Read states
       states = Array(State).new(state_count)
-      state_count.times do
+      state_count.times do |state_index|
         # Read state ID
+        ensure_bytes_available(slice, offset, 4, "state id")
         id_unsigned = read_u32(slice, offset, endianness)
         id = StateID.new(unsigned_to_signed(id_unsigned))
         offset += 4
+        validate_serialized_state_id!(id, state_count, "state id")
 
         # Read transitions
+        ensure_bytes_available(slice, offset, 4, "transition count")
         trans_count = read_u32(slice, offset, endianness).to_i32
         offset += 4
+        unless trans_count == byte_classes_count
+          raise DeserializeError.new("invalid transition count #{trans_count} for state #{state_index}")
+        end
+        ensure_bytes_available(slice, offset, trans_count * 4, "state transitions")
         next_states = Array.new(trans_count) do
           next_id_unsigned = read_u32(slice, offset, endianness)
           offset += 4
-          StateID.new(unsigned_to_signed(next_id_unsigned))
+          next_id = StateID.new(unsigned_to_signed(next_id_unsigned))
+          validate_serialized_state_id!(next_id, state_count, "transition state")
+          next_id
         end
 
         # Read match patterns
+        ensure_bytes_available(slice, offset, 4, "match count")
         match_count = read_u32(slice, offset, endianness).to_i32
         offset += 4
+        ensure_bytes_available(slice, offset, match_count * 4, "match pattern ids")
         match_patterns = Array.new(match_count) do
           PatternID.new(read_u32(slice, offset, endianness).to_i32)
         end
         offset += match_count * 4
 
         # Read look sets and flags
+        ensure_bytes_available(slice, offset, 14, "state metadata")
         look_need = LookSet.new(read_u32(slice, offset, endianness))
         offset += 4
         look_have = LookSet.new(read_u32(slice, offset, endianness))
@@ -354,6 +386,7 @@ module Regex::Automata::DFA
         eoi_next_unsigned = read_u32(slice, offset, endianness)
         eoi_next = StateID.new(unsigned_to_signed(eoi_next_unsigned))
         offset += 4
+        validate_serialized_state_id!(eoi_next, state_count, "EOI transition state")
 
         # Create state
         state = State.new(id, trans_count, look_need, look_have, is_from_word, is_half_crlf)
@@ -377,17 +410,24 @@ module Regex::Automata::DFA
       end
 
       # Read accelerators
+      ensure_bytes_available(slice, offset, 4, "accelerator count")
       accel_count = read_u32(slice, offset, endianness).to_i32
       offset += 4
+      unless accel_count == state_count
+        raise DeserializeError.new("invalid accelerator count #{accel_count}, expected #{state_count}")
+      end
       accelerators = Array.new(accel_count) do
+        ensure_bytes_available(slice, offset, 4, "accelerator length")
         accel_size = read_u32(slice, offset, endianness).to_i32
         offset += 4
+        ensure_bytes_available(slice, offset, accel_size, "accelerator bytes")
         accel = slice[offset, accel_size]
         offset += accel_size
         accel
       end
 
       # Read quit set
+      ensure_bytes_available(slice, offset, 32, "quit byte set")
       quit_bytes = slice[offset, 32]
       offset += 32
       quitset = ByteSet.from_bytes(quit_bytes)
@@ -733,6 +773,18 @@ module Regex::Automata::DFA
 
     private def self.supported_serialized_version?(version : UInt32) : Bool
       version == 1 || version == 2 || version == 3 || version == 4
+    end
+
+    private def self.ensure_bytes_available(slice : Bytes, offset : Int32, len : Int32, what : String) : Nil
+      if len < 0 || offset < 0 || offset + len > slice.size
+        raise DeserializeError.new("serialized DFA too short while reading #{what}")
+      end
+    end
+
+    private def self.validate_serialized_state_id!(id : StateID, state_count : Int32, what : String) : Nil
+      unless 0 <= id.to_i < state_count
+        raise DeserializeError.new("invalid #{what}: #{id.to_i}")
+      end
     end
 
     def self.compute_universal_start(states : Array(State), start_states : Hash(Start, StateID)) : StateID?
@@ -1916,6 +1968,8 @@ module Regex::Automata::DFA
         dfa.set_prefilter(prefilter)
       end
 
+      dfa = Minimizer.new(dfa).run if @config.get_minimize
+
       if limit = @config.get_dfa_size_limit
         if dfa.memory_usage > limit
           raise BuildError.new("DFA exceeded size limit of #{limit} bytes", size_limit_exceeded: true)
@@ -1990,6 +2044,7 @@ module Regex::Automata::DFA
       @transition_table.add_state
       @transition_table.copy_state(@transition_table.to_state_id(source_id.to_i), @transition_table.to_state_id(new_id.to_i))
       @dfa_state_count += 1
+      check_determinize_size_limit!
       new_id
     end
 
@@ -2059,6 +2114,7 @@ module Regex::Automata::DFA
       @transition_table.add_state
       @dfa_state_count += 1
       @state_map[key] = dfa_id
+      check_determinize_size_limit!
       dfa_id
     end
 
@@ -2127,6 +2183,22 @@ module Regex::Automata::DFA
       (0x80..0xFF).all? do |b|
         quitset.includes?(b.to_u8)
       end
+    end
+
+    private def check_determinize_size_limit! : Nil
+      return unless limit = @config.get_determinize_size_limit
+      if determinize_memory_usage > limit
+        raise BuildError.new("determinization exceeded size limit of #{limit} bytes", size_limit_exceeded: true)
+      end
+    end
+
+    private def determinize_memory_usage : Int64
+      usage = (@dfa_state_metas.size * 64 + @state_map.size * 32).to_i64
+      @dfa_state_metas.each do |meta|
+        usage += (meta.nfa_set.size * 8).to_i64
+        usage += (meta.matches.size * 4).to_i64
+      end
+      usage
     end
 
     private def reorder_special_states(state_count : Int32, metas : Array(StateMeta), tt : TransitionTable, unanchored_start_id : StateID, anchored_start_id : StateID, unanchored_start_states : Hash(Start, StateID), anchored_start_states : Hash(Start, StateID), pattern_start_states : Hash(PatternID, Hash(Start, StateID))) : Tuple(Array(StateMeta), TransitionTable, StateID, StateID, Hash(Start, StateID), Hash(Start, StateID), Hash(PatternID, Hash(Start, StateID)))
