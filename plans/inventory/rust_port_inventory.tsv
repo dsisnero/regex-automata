@@ -67,7 +67,7 @@ src/dfa/dense.rs::func::to_bytes_big_endian	func	ported	src/regex/automata/dfa.c
 src/dfa/dense.rs::func::to_bytes_little_endian	func	ported	src/regex/automata/dfa.cr:DFA.to_bytes_little_endian;spec/dfa_dense_spec.cr	ported dense little-endian serialization roundtrip coverage
 src/dfa/dense.rs::func::to_bytes_native_endian	func	ported	src/regex/automata/dfa.cr:DFA.to_bytes_native_endian;spec/dfa_dense_spec.cr	ported dense native-endian serialization roundtrip coverage
 src/dfa/dense.rs::func::to_owned	func	ported	src/regex/automata/dfa.cr:DFA#to_owned;spec/dfa_dense_spec.cr	ported dense owned-view alias on the port's single concrete DFA type
-src/dfa/dense.rs::func::to_sparse	func	skipped	deferred to Sparse DFA feature because no sparse DFA implementation exists yet	manual
+src/dfa/dense.rs::func::to_sparse	func	ported	src/regex/automata/sparse.cr:DFA::DFA#to_sparse;spec/dfa_sparse_spec.cr	ported dense-to-sparse conversion through the sparse wrapper surface
 src/dfa/dense.rs::func::unicode_word_boundary	func	ported	src/regex/automata/config.cr:Config.unicode_word_boundary	auto-generated
 src/dfa/dense.rs::func::write_to_big_endian	func	ported	src/regex/automata/dfa.cr:DFA.write_to_big_endian;spec/dfa_dense_spec.cr	ported dense big-endian buffer serialization helper with exact-byte parity coverage
 src/dfa/dense.rs::func::write_to_len	func	ported	src/regex/automata/dfa.cr:DFA.write_to_len;spec/dfa_dense_spec.cr	ported dense serialized-length helper and verified it against native-endian output size
@@ -82,9 +82,9 @@ src/dfa/dense.rs::method::DFA.set_prefilter	method	ported	src/regex/automata/dfa
 src/dfa/dense.rs::method::OwnedDFA.always_match	method	intentional_divergence	src/regex/automata/dfa.cr:DFA.always_match;spec/dfa_dense_spec.cr	this port exposes a single concrete DFA type instead of Rust's borrowed/owned split, so the owned-only constructor maps to DFA.always_match
 src/dfa/dense.rs::method::OwnedDFA.new	method	intentional_divergence	src/regex/automata/dfa.cr:DFA.new;spec/dfa_dense_spec.cr	this port exposes a single concrete DFA type instead of Rust's borrowed/owned split, so the owned-only constructor maps to DFA.new
 src/dfa/dense.rs::struct::BuildError	struct	ported	src/regex/automata/errors.cr:BuildError	ported from Rust
-src/dfa/dense.rs::struct::Builder	struct	partial	src/regex/automata/dfa.cr:Builder;spec/dfa_dense_spec.cr	dense builder construction/configuration/thompson workflows, syntax configuration, prefilter attachment, and size-limit signaling are ported, but sparse conversion and wire-validation parity are still incomplete
-src/dfa/dense.rs::struct::Config	struct	partial	src/regex/automata/config.cr:Config;spec/dfa_dense_spec.cr	core dense config setters/getters plus prefilter attachment are ported, but full parity still depends on remaining compile-pipeline behavior
-src/dfa/dense.rs::struct::DFA	struct	partial	src/regex/automata/dfa.cr:DFA;spec/dfa_dense_spec.cr;spec/dfa_api_spec.cr	core dense construction, metadata, serialization helpers, overlap APIs, overlapping-pattern aggregation, and prefilter aliases are ported, but sparse conversion and wire-validation behavior are still incomplete
+src/dfa/dense.rs::struct::Builder	struct	ported	src/regex/automata/dfa.cr:Builder;spec/dfa_dense_spec.cr	dense builder construction/configuration/thompson workflows, syntax configuration, prefilter attachment, size-limit signaling, minimization, and sparse conversion are ported
+src/dfa/dense.rs::struct::Config	struct	ported	src/regex/automata/config.cr:Config;spec/dfa_dense_spec.cr	core dense config setters/getters, prefilter attachment, and compile-pipeline controls are ported
+src/dfa/dense.rs::struct::DFA	struct	ported	src/regex/automata/dfa.cr:DFA;spec/dfa_dense_spec.cr;spec/dfa_api_spec.cr;spec/dfa_sparse_spec.cr	core dense construction, metadata, serialization helpers, overlap APIs, prefilter aliases, minimization, wire validation, and sparse conversion are ported
 src/dfa/dense.rs::test::errors_with_unicode_word_boundary	test	ported	src/regex/automata/hir_compiler.cr;src/regex/automata/nfa.cr;src/regex/automata/dfa.cr;spec/dfa_dense_spec.cr	preserved ASCII-vs-Unicode word-boundary distinction and reject Unicode boundaries unless heuristic DFA support is enabled
 src/dfa/dense.rs::test::heuristic_unicode_reverse	test	ported	src/regex/automata/hir_compiler.cr;src/regex/automata/nfa.cr;src/regex/automata/dfa.cr;spec/dfa_dense_spec.cr	heuristic Unicode reverse searches now auto-quit on non-ASCII bytes while preserving reverse boundary semantics on ASCII spans
 src/dfa/dense.rs::test::regression_validation_order	test	ported	covered by deserialize validation-order regression around malformed start-state IDs before universal-start computation	manual
@@ -151,12 +151,12 @@ src/dfa/onepass.rs::test::is_not_one_pass_bigger	test	missing	-	auto-generated
 src/dfa/onepass.rs::test::is_one_pass	test	missing	-	auto-generated
 src/dfa/onepass.rs::test::max_slots	test	missing	-	auto-generated
 src/dfa/regex.rs::func::build	func	ported	src/regex/automata/dfa_regex.cr::RegexBuilder#build;spec/dfa_regex_spec.cr	-
-src/dfa/regex.rs::func::build_sparse	func	skipped	-	deferred to the Sparse DFA feature because this repo does not yet have a sparse DFA implementation to wrap
+src/dfa/regex.rs::func::build_sparse	func	ported	src/regex/automata/dfa_regex.cr::RegexBuilder#build_sparse;spec/dfa_regex_spec.cr	ported sparse-regex builder convenience by converting the dense forward and reverse DFAs
 src/dfa/regex.rs::func::builder	func	ported	src/regex/automata/dfa_regex.cr::Regex.builder;spec/dfa_regex_spec.cr	-
 src/dfa/regex.rs::func::dense	func	ported	src/regex/automata/dfa_regex.cr::RegexBuilder#dense;spec/dfa_regex_spec.cr	ported dense-builder configuration alias for the DFA regex wrapper
 src/dfa/regex.rs::func::forward	func	ported	src/regex/automata/dfa_regex.cr::Regex#forward;spec/dfa_regex_spec.cr	-
 src/dfa/regex.rs::func::new	func	ported	src/regex/automata/dfa_regex.cr::Regex.new;spec/dfa_regex_spec.cr	-
-src/dfa/regex.rs::func::new_sparse	func	skipped	-	deferred to the Sparse DFA feature because this repo does not yet have a sparse DFA implementation to wrap
+src/dfa/regex.rs::func::new_sparse	func	ported	src/regex/automata/dfa_regex.cr::Regex.new_sparse;spec/dfa_regex_spec.cr	ported sparse-regex convenience constructor
 src/dfa/regex.rs::func::pattern_len	func	ported	src/regex/automata/dfa_regex.cr::Regex#pattern_len;spec/dfa_regex_spec.cr	-
 src/dfa/regex.rs::func::reverse	func	ported	src/regex/automata/dfa_regex.cr::Regex#reverse;spec/dfa_regex_spec.cr	-
 src/dfa/regex.rs::func::syntax	func	ported	src/regex/automata/dfa_regex.cr::RegexBuilder#syntax;spec/dfa_regex_spec.cr	ported syntax-configuration alias for the DFA regex wrapper
@@ -166,35 +166,35 @@ src/dfa/regex.rs::method::Builder.new	method	ported	src/regex/automata/dfa_regex
 src/dfa/regex.rs::method::Regex.builder	method	ported	src/regex/automata/dfa_regex.cr::Regex.builder;spec/dfa_regex_spec.cr	-
 src/dfa/regex.rs::method::Regex.forward	method	ported	src/regex/automata/dfa_regex.cr::Regex#forward;spec/dfa_regex_spec.cr	-
 src/dfa/regex.rs::method::Regex.new	method	ported	src/regex/automata/dfa_regex.cr::Regex.new;spec/dfa_regex_spec.cr	-
-src/dfa/regex.rs::method::Regex.new_sparse	method	skipped	-	deferred to the Sparse DFA feature because this repo does not yet have a sparse DFA implementation to wrap
+src/dfa/regex.rs::method::Regex.new_sparse	method	ported	src/regex/automata/dfa_regex.cr::Regex.new_sparse;spec/dfa_regex_spec.cr	ported sparse-regex class constructor
 src/dfa/regex.rs::method::Regex.try_search	method	ported	src/regex/automata/dfa_regex.cr::Regex#try_search;spec/dfa_regex_spec.cr	ported dense wrapper search with reverse-start recovery, ranged input support, and UTF-8-safe empty-match iteration behavior
 src/dfa/regex.rs::struct::Builder	struct	ported	src/regex/automata/dfa_regex.cr::RegexBuilder	renamed Builder to RegexBuilder to avoid collision with DFA::Builder
 src/dfa/regex.rs::struct::FindMatches	struct	ported	src/regex/automata/dfa_regex.cr::Regex::FindMatches;spec/dfa_regex_spec.cr	ported non-overlapping match iterator over the shared Searcher with UTF-8-safe empty-match behavior
-src/dfa/regex.rs::struct::Regex	struct	ported	src/regex/automata/dfa_regex.cr::Regex;spec/dfa_regex_spec.cr	dense DFA regex wrapper search and iterator behavior are ported; sparse-specific wrapper constructors are deferred to the Sparse DFA feature
-src/dfa/sparse.rs::func::always_match	func	missing	-	auto-generated
-src/dfa/sparse.rs::func::byte_classes	func	missing	-	auto-generated
-src/dfa/sparse.rs::func::from_bytes	func	missing	-	auto-generated
-src/dfa/sparse.rs::func::memory_usage	func	missing	-	auto-generated
-src/dfa/sparse.rs::func::never_match	func	missing	-	auto-generated
-src/dfa/sparse.rs::func::new	func	missing	-	auto-generated
-src/dfa/sparse.rs::func::set_prefilter	func	missing	-	auto-generated
-src/dfa/sparse.rs::func::start_kind	func	missing	-	auto-generated
-src/dfa/sparse.rs::func::starts_for_each_pattern	func	missing	-	auto-generated
-src/dfa/sparse.rs::func::to_bytes_big_endian	func	missing	-	auto-generated
-src/dfa/sparse.rs::func::to_bytes_little_endian	func	missing	-	auto-generated
-src/dfa/sparse.rs::func::to_bytes_native_endian	func	missing	-	auto-generated
-src/dfa/sparse.rs::func::to_owned	func	missing	-	auto-generated
-src/dfa/sparse.rs::func::write_to_big_endian	func	missing	-	auto-generated
-src/dfa/sparse.rs::func::write_to_len	func	missing	-	auto-generated
-src/dfa/sparse.rs::func::write_to_little_endian	func	missing	-	auto-generated
-src/dfa/sparse.rs::func::write_to_native_endian	func	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA.always_match	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA.from_bytes	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA.new	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA.set_prefilter	method	missing	-	auto-generated
-src/dfa/sparse.rs::struct::DFA	struct	missing	-	auto-generated
-src/dfa/sparse.rs::test::heuristic_unicode_forward	test	missing	-	auto-generated
-src/dfa/sparse.rs::test::heuristic_unicode_reverse	test	missing	-	auto-generated
+src/dfa/regex.rs::struct::Regex	struct	ported	src/regex/automata/dfa_regex.cr::Regex;spec/dfa_regex_spec.cr	DFA regex wrapper search and iterator behavior are ported for both dense and sparse constructor workflows
+src/dfa/sparse.rs::func::always_match	func	ported	src/regex/automata/sparse.cr:Sparse::DFA.always_match;spec/dfa_sparse_spec.cr	ported sparse always-match constructor over dense-to-sparse conversion
+src/dfa/sparse.rs::func::byte_classes	func	ported	src/regex/automata/sparse.cr:Sparse::DFA#byte_classes;spec/dfa_sparse_spec.cr	ported sparse byte-class metadata accessor
+src/dfa/sparse.rs::func::from_bytes	func	ported	src/regex/automata/sparse.cr:Sparse::DFA.from_bytes;spec/dfa_sparse_spec.cr	ported sparse wire-format deserializer using a sparse wrapper header around dense bytes
+src/dfa/sparse.rs::func::memory_usage	func	ported	src/regex/automata/sparse.cr:Sparse::DFA#memory_usage;spec/dfa_sparse_spec.cr	ported sparse memory-usage accessor based on serialized size
+src/dfa/sparse.rs::func::never_match	func	ported	src/regex/automata/sparse.cr:Sparse::DFA.never_match;spec/dfa_sparse_spec.cr	ported sparse never-match constructor over dense-to-sparse conversion
+src/dfa/sparse.rs::func::new	func	ported	src/regex/automata/sparse.cr:Sparse::DFA.new;spec/dfa_sparse_spec.cr	ported sparse convenience constructor via dense compilation then sparse conversion
+src/dfa/sparse.rs::func::set_prefilter	func	ported	src/regex/automata/sparse.cr:Sparse::DFA#set_prefilter;spec/dfa_sparse_spec.cr	ported sparse prefilter mutator
+src/dfa/sparse.rs::func::start_kind	func	ported	src/regex/automata/sparse.cr:Sparse::DFA#start_kind;spec/dfa_sparse_spec.cr	ported sparse start-kind metadata accessor
+src/dfa/sparse.rs::func::starts_for_each_pattern	func	ported	src/regex/automata/sparse.cr:Sparse::DFA#starts_for_each_pattern;spec/dfa_sparse_spec.cr	ported sparse per-pattern-start metadata accessor
+src/dfa/sparse.rs::func::to_bytes_big_endian	func	ported	src/regex/automata/sparse.cr:Sparse::DFA#to_bytes_big_endian;spec/dfa_sparse_spec.cr	ported sparse big-endian serialization helper
+src/dfa/sparse.rs::func::to_bytes_little_endian	func	ported	src/regex/automata/sparse.cr:Sparse::DFA#to_bytes_little_endian;spec/dfa_sparse_spec.cr	ported sparse little-endian serialization helper
+src/dfa/sparse.rs::func::to_bytes_native_endian	func	ported	src/regex/automata/sparse.cr:Sparse::DFA#to_bytes_native_endian;spec/dfa_sparse_spec.cr	ported sparse native-endian serialization helper
+src/dfa/sparse.rs::func::to_owned	func	ported	src/regex/automata/sparse.cr:Sparse::DFA#to_owned;spec/dfa_sparse_spec.cr	ported sparse owned-view clone helper via serialization roundtrip
+src/dfa/sparse.rs::func::write_to_big_endian	func	ported	src/regex/automata/sparse.cr:Sparse::DFA#write_to_big_endian;spec/dfa_sparse_spec.cr	ported sparse big-endian buffer serialization helper
+src/dfa/sparse.rs::func::write_to_len	func	ported	src/regex/automata/sparse.cr:Sparse::DFA#write_to_len;spec/dfa_sparse_spec.cr	ported sparse serialized-length helper
+src/dfa/sparse.rs::func::write_to_little_endian	func	ported	src/regex/automata/sparse.cr:Sparse::DFA#write_to_little_endian;spec/dfa_sparse_spec.cr	ported sparse little-endian buffer serialization helper
+src/dfa/sparse.rs::func::write_to_native_endian	func	ported	src/regex/automata/sparse.cr:Sparse::DFA#write_to_native_endian;spec/dfa_sparse_spec.cr	ported sparse native-endian buffer serialization helper with undersized-buffer error coverage
+src/dfa/sparse.rs::method::DFA.always_match	method	ported	src/regex/automata/sparse.cr:Sparse::DFA.always_match;spec/dfa_sparse_spec.cr	ported sparse class constructor
+src/dfa/sparse.rs::method::DFA.from_bytes	method	ported	src/regex/automata/sparse.cr:Sparse::DFA.from_bytes;spec/dfa_sparse_spec.cr	ported sparse class deserializer
+src/dfa/sparse.rs::method::DFA.new	method	ported	src/regex/automata/sparse.cr:Sparse::DFA.new;spec/dfa_sparse_spec.cr	ported sparse class constructor
+src/dfa/sparse.rs::method::DFA.set_prefilter	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#set_prefilter;spec/dfa_sparse_spec.cr	ported sparse prefilter mutator
+src/dfa/sparse.rs::struct::DFA	struct	ported	src/regex/automata/sparse.cr:Sparse::DFA;spec/dfa_sparse_spec.cr	ported sparse DFA compatibility engine with build/search/serialization coverage over dense-backed conversion
+src/dfa/sparse.rs::test::heuristic_unicode_forward	test	ported	spec/dfa_sparse_spec.cr	ported sparse forward heuristic Unicode quit-byte behavior through dense-to-sparse conversion
+src/dfa/sparse.rs::test::heuristic_unicode_reverse	test	ported	spec/dfa_sparse_spec.cr	ported sparse reverse heuristic Unicode quit-byte behavior through dense-to-sparse conversion
 src/dfa/start.rs::enum::StartKind	enum	ported	src/regex/automata/search.cr::StartKind;spec/dfa_dense_spec.cr;spec/dfa_api_spec.cr	ported dense start-kind enum with anchored, unanchored, and both modes exercised through builder and start-state specs
 src/hybrid/dfa.rs::func::always_match	func	missing	-	auto-generated
 src/hybrid/dfa.rs::func::build	func	missing	-	auto-generated

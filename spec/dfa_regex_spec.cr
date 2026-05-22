@@ -127,6 +127,24 @@ describe "DFA::Regex" do
     re.find(Bytes[0xFF_u8]).should eq(Regex::Automata::Match.must(0, 0...1))
   end
 
+  it "supports sparse regex convenience constructors" do
+    re = Regex::Automata::DFA::Regex.new_sparse("foo[0-9]+")
+    re.find("foo123").should eq(Regex::Automata::Match.must(0, 0...6))
+
+    many = Regex::Automata::DFA::Regex.new_many_sparse(["[a-z]+", "[0-9]+"])
+    many.find("123").should eq(Regex::Automata::Match.must(1, 0...3))
+  end
+
+  it "supports sparse regex builders" do
+    re = Regex::Automata::DFA::Regex.builder
+      .dense(Regex::Automata::DFA::DFA.config.start_kind(Regex::Automata::StartKind::Anchored))
+      .build_sparse("foo[0-9]+")
+
+    re.try_search(Regex::Automata::Input.new("foo123").anchored(Regex::Automata::Anchored::Yes)).should eq(
+      Regex::Automata::Match.must(0, 0...6)
+    )
+  end
+
   it "handles empty patterns" do
     re = Regex::Automata::DFA::Regex.new("")
     re.should_not be_nil

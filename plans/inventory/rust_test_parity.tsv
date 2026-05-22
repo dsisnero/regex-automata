@@ -13,8 +13,8 @@ src/dfa/onepass.rs::test::is_not_one_pass	missing	-	baseline
 src/dfa/onepass.rs::test::is_not_one_pass_bigger	missing	-	baseline
 src/dfa/onepass.rs::test::is_one_pass	missing	-	baseline
 src/dfa/onepass.rs::test::max_slots	missing	-	baseline
-src/dfa/sparse.rs::test::heuristic_unicode_forward	missing	-	baseline
-src/dfa/sparse.rs::test::heuristic_unicode_reverse	missing	-	baseline
+src/dfa/sparse.rs::test::heuristic_unicode_forward	ported	spec/dfa_sparse_spec.cr	ported sparse forward heuristic Unicode quit-byte parity
+src/dfa/sparse.rs::test::heuristic_unicode_reverse	ported	spec/dfa_sparse_spec.cr	ported sparse reverse heuristic Unicode quit-byte parity
 src/hybrid/dfa.rs::test::heuristic_unicode_reverse	missing	-	baseline
 src/meta/regex.rs::test::regression_suffix_literal_count	missing	-	baseline
 src/nfa/thompson/backtrack.rs::test::max_haystack_len_overflow	missing	-	baseline

@@ -20,8 +20,10 @@ module Regex::Automata::DFA
   # to what a DFA can provide. Therefore, APIs involving capturing groups,
   # for example, are not provided.
   class Regex
-    @forward : DFA
-    @reverse : DFA
+    alias AnyDFA = ::Regex::Automata::DFA::DFA | ::Regex::Automata::DFA::Sparse::DFA
+
+    @forward : AnyDFA
+    @reverse : AnyDFA
 
     # Create a new regex from the given pattern using the default configuration.
     #
@@ -57,6 +59,16 @@ module Regex::Automata::DFA
       RegexBuilder.new.build_many(patterns)
     end
 
+    # Create a new regex from the given pattern using sparse DFAs.
+    def self.new_sparse(pattern : String) : Regex
+      RegexBuilder.new.build_sparse(pattern)
+    end
+
+    # Like `new_sparse`, but parses multiple patterns into a sparse regex set.
+    def self.new_many_sparse(patterns : Enumerable(String)) : Regex
+      RegexBuilder.new.build_many_sparse(patterns)
+    end
+
     # Return a builder for configuring the construction of a `Regex`.
     #
     # This is a convenience routine to avoid needing to import the
@@ -89,7 +101,7 @@ module Regex::Automata::DFA
     #
     # If these conditions aren't satisfied, then the behavior of searches is
     # unspecified.
-    def initialize(@forward : DFA, @reverse : DFA)
+    def initialize(@forward : AnyDFA, @reverse : AnyDFA)
     end
 
     # Returns true if and only if this regex matches the given haystack.
@@ -307,7 +319,7 @@ module Regex::Automata::DFA
     # This is useful for accessing the underlying DFA and converting it to
     # some other format or size. See the `Builder#build_from_dfas` docs
     # for an example of where this might be useful.
-    def forward : DFA
+    def forward : AnyDFA
       @forward
     end
 
@@ -316,7 +328,7 @@ module Regex::Automata::DFA
     # This is useful for accessing the underlying DFA and converting it to
     # some other format or size. See the `Builder#build_from_dfas` docs
     # for an example of where this might be useful.
-    def reverse : DFA
+    def reverse : AnyDFA
       @reverse
     end
 
@@ -385,6 +397,11 @@ module Regex::Automata::DFA
       build_many([pattern])
     end
 
+    # Build a regex from the given pattern using sparse DFAs.
+    def build_sparse(pattern : String) : Regex
+      build_many_sparse([pattern])
+    end
+
     # Build a regex from the given patterns.
     #
     # When matches are returned, the pattern ID corresponds to the index of
@@ -410,6 +427,12 @@ module Regex::Automata::DFA
       Regex.new(forward, reverse)
     end
 
+    # Build a sparse regex from the given patterns.
+    def build_many_sparse(patterns : Enumerable(String)) : Regex
+      dense = build_many(patterns)
+      build_from_dfas(dense.forward.to_sparse, dense.reverse.to_sparse)
+    end
+
     # Build a regex from its component forward and reverse DFAs.
     #
     # This is useful when deserializing a regex from some arbitrary
@@ -427,7 +450,7 @@ module Regex::Automata::DFA
     #
     # If these conditions aren't satisfied, then the behavior of searches is
     # unspecified.
-    def build_from_dfas(forward : DFA, reverse : DFA) : Regex
+    def build_from_dfas(forward : Regex::AnyDFA, reverse : Regex::AnyDFA) : Regex
       Regex.new(forward, reverse)
     end
 

@@ -25,7 +25,7 @@
   - Workflow: close the wrapper as a user-facing feature, including the iterator/search contracts it exposes, before moving on
   - Red: port empty-match iteration, UTF-8 iteration, always-anchored, reverse-wrapper, and builder-validation parity specs before adding more surface area
   - Green: `src/regex/automata/dfa_regex.cr`, `src/regex/automata/dfa.cr`, `src/regex/automata/hir_compiler.cr`, `src/regex/automata/nfa.cr`
-  - Progress: ranged `try_search`, reverse-start recovery, empty-match iteration, UTF-8-safe iterator behavior, and dense/syntax builder aliases are now covered; sparse-specific wrapper constructors are deferred to the Sparse DFA feature
+  - Progress: ranged `try_search`, reverse-start recovery, empty-match iteration, UTF-8-safe iterator behavior, dense/syntax builder aliases, and sparse wrapper constructors are now covered
   - Done when: the wrapper stops relying on a custom simplified searcher, richer look-around behavior matches Rust, and the covered rows are strong enough for a dedicated commit
 
 - [x] Dense DFA compile pipeline and wire format parity
@@ -37,12 +37,13 @@
   - Progress: constructor aliases, always/never round trips, endianness-aware round trips, buffer-write helpers, determinization scratch-limit failures, dense minimization, and deserialize validation-order hardening are now covered; `to_sparse` is deferred to the Sparse DFA feature because there is still no sparse engine implementation
   - Done when: dense DFA transformation and wire-format parity specs are green and the remaining compiler/validation rows can be committed as one feature
 
-- [ ] Sparse DFA
+- [x] Sparse DFA
   - Upstream scope: `src/dfa/sparse.rs`
   - Inventory ids: `src/dfa/sparse.rs::*`
   - Workflow: deliver sparse build/search/serialization as a complete engine feature, not as piecemeal type stubs
   - Red: port sparse DFA API and serialization specs
   - Green: new sparse DFA implementation files under `src/regex/automata/`
+  - Progress: sparse constructors, dense-to-sparse conversion, metadata accessors, prefilter attachment, wrapper serialization helpers, heuristic Unicode quit behavior, and sparse regex convenience builders are now covered
   - Done when: sparse DFA build, query, and serialization parity is demonstrated
 
 - [ ] One-pass DFA
