@@ -10,6 +10,10 @@ module Regex::Automata
     Yes
     # The search is anchored to a specific pattern
     Pattern
+
+    def is_anchored : Bool
+      self != No
+    end
   end
 
   # The match semantics to use for a regex

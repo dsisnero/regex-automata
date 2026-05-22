@@ -813,7 +813,7 @@ src/util/primitives.rs::struct::SmallIndexError	struct	missing	-	auto-generated
 src/util/primitives.rs::struct::StateID	struct	missing	-	auto-generated
 src/util/search.rs::enum::Anchored	enum	ported	src/regex/automata/search.cr:Anchored	ported from Rust
 src/util/search.rs::enum::MatchErrorKind	enum	ported	src/regex/automata/errors.cr:MatchError::Kind	ported from Rust
-src/util/search.rs::enum::MatchKind	enum	missing	-	auto-generated
+src/util/search.rs::enum::MatchKind	enum	ported	src/regex/automata/search.cr:MatchKind;spec/search_primitives_spec.cr	ported match-kind enum and primitive semantics coverage
 src/util/search.rs::func::anchored	func	ported	src/regex/automata/search.cr:Input#anchored	ported for Input; covered by spec/search_input_spec.cr
 src/util/search.rs::func::capacity	func	missing	-	auto-generated
 src/util/search.rs::func::clear	func	missing	-	auto-generated
@@ -828,18 +828,18 @@ src/util/search.rs::func::get_span	func	ported	src/regex/automata/search.cr:Inpu
 src/util/search.rs::func::haystack	func	ported	src/regex/automata/search.cr:Input#haystack	ported for Input; covered by spec/search_input_spec.cr
 src/util/search.rs::func::haystack_too_long	func	missing	-	auto-generated
 src/util/search.rs::func::insert	func	missing	-	auto-generated
-src/util/search.rs::func::is_anchored	func	missing	-	auto-generated
+src/util/search.rs::func::is_anchored	func	ported	src/regex/automata/search.cr:Anchored#is_anchored;spec/search_primitives_spec.cr	ported anchored-mode predicate
 src/util/search.rs::func::is_char_boundary	func	ported	src/regex/automata/search.cr:Input#is_char_boundary	ported for Input; covered by spec/search_input_spec.cr
 src/util/search.rs::func::is_done	func	ported	src/regex/automata/search.cr:Input#is_done	ported for Input; covered by spec/search_input_spec.cr
-src/util/search.rs::func::is_empty	func	missing	-	auto-generated
+src/util/search.rs::func::is_empty	func	ported	src/regex/automata/search.cr:Span#empty?;Match#empty?;spec/search_primitives_spec.cr	ported empty-span and empty-match predicates
 src/util/search.rs::func::is_full	func	missing	-	auto-generated
 src/util/search.rs::func::iter	func	missing	-	auto-generated
 src/util/search.rs::func::kind	func	missing	-	auto-generated
-src/util/search.rs::func::len	func	missing	-	auto-generated
-src/util/search.rs::func::must	func	missing	-	auto-generated
+src/util/search.rs::func::len	func	ported	src/regex/automata/search.cr:Span#length;Match#length;spec/search_primitives_spec.cr	ported primitive length helpers
+src/util/search.rs::func::must	func	ported	src/regex/automata/search.cr:HalfMatch.must;Match.must;spec/search_primitives_spec.cr	ported convenience constructors
 src/util/search.rs::func::new	func	ported	src/regex/automata/search.cr:Input.new	ported for Input; covered by spec/search_input_spec.cr
-src/util/search.rs::func::offset	func	missing	-	auto-generated
-src/util/search.rs::func::pattern	func	missing	-	auto-generated
+src/util/search.rs::func::offset	func	ported	src/regex/automata/search.cr:HalfMatch#offset;Span#offset;spec/search_primitives_spec.cr	ported offset accessors/helpers
+src/util/search.rs::func::pattern	func	ported	src/regex/automata/search.cr:HalfMatch#pattern;Match#pattern;spec/search_primitives_spec.cr	ported pattern accessors
 src/util/search.rs::func::quit	func	missing	-	auto-generated
 src/util/search.rs::func::range	func	ported	src/regex/automata/search.cr:Input#range	ported for Input; covered by spec/search_input_spec.cr
 src/util/search.rs::func::remove	func	missing	-	auto-generated
@@ -851,14 +851,14 @@ src/util/search.rs::func::span	func	ported	src/regex/automata/search.cr:Input#sp
 src/util/search.rs::func::start	func	ported	src/regex/automata/search.cr:Input#start	ported for Input; covered by spec/search_input_spec.cr
 src/util/search.rs::func::try_insert	func	missing	-	auto-generated
 src/util/search.rs::func::unsupported_anchored	func	missing	-	auto-generated
-src/util/search.rs::method::Anchored.is_anchored	method	missing	-	auto-generated
+src/util/search.rs::method::Anchored.is_anchored	method	ported	src/regex/automata/search.cr:Anchored#is_anchored;spec/search_primitives_spec.cr	ported anchored-mode predicate
 src/util/search.rs::method::HalfMatch.new	method	ported	src/regex/automata/search.cr:HalfMatch.initialize	ported from Rust
 src/util/search.rs::method::MatchError.new	method	ported	src/regex/automata/errors.cr:MatchError.initialize	ported from Rust
 src/util/search.rs::method::PatternSet.new	method	missing	-	auto-generated
 src/util/search.rs::method::Span.range	method	ported	src/regex/automata/search.cr:Span#range	ported for Span; covered by spec/search_input_spec.cr
 src/util/search.rs::struct::HalfMatch	struct	ported	src/regex/automata/search.cr:HalfMatch	ported from Rust
 src/util/search.rs::struct::Input	struct	ported	src/regex/automata/search.cr:Input	ported Input configuration API; covered by spec/search_input_spec.cr
-src/util/search.rs::struct::Match	struct	missing	-	auto-generated
+src/util/search.rs::struct::Match	struct	ported	src/regex/automata/search.cr:Match;spec/search_primitives_spec.cr	ported full-match primitive
 src/util/search.rs::struct::MatchError	struct	ported	src/regex/automata/errors.cr:MatchError	ported from Rust
 src/util/search.rs::struct::PatternSet	struct	missing	-	auto-generated
 src/util/search.rs::struct::PatternSetInsertError	struct	missing	-	auto-generated
