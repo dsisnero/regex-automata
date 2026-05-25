@@ -54,25 +54,25 @@ src/util/alphabet.rs::test::representatives	missing	-	baseline
 src/util/interpolate.rs::test::interpolate_string	missing	-	baseline
 src/util/lazy.rs::test::oibits	missing	-	baseline
 src/util/lazy.rs::test::sync_not_send	missing	-	baseline
-src/util/look.rs::test::look_matches_end_line	missing	-	baseline
-src/util/look.rs::test::look_matches_end_text	missing	-	baseline
-src/util/look.rs::test::look_matches_start_line	missing	-	baseline
-src/util/look.rs::test::look_matches_start_text	missing	-	baseline
-src/util/look.rs::test::look_matches_word_ascii	missing	-	baseline
-src/util/look.rs::test::look_matches_word_ascii_negate	missing	-	baseline
-src/util/look.rs::test::look_matches_word_end_ascii	missing	-	baseline
-src/util/look.rs::test::look_matches_word_end_half_ascii	missing	-	baseline
-src/util/look.rs::test::look_matches_word_end_half_unicode	missing	-	baseline
-src/util/look.rs::test::look_matches_word_end_unicode	missing	-	baseline
-src/util/look.rs::test::look_matches_word_start_ascii	missing	-	baseline
-src/util/look.rs::test::look_matches_word_start_half_ascii	missing	-	baseline
-src/util/look.rs::test::look_matches_word_start_half_unicode	missing	-	baseline
-src/util/look.rs::test::look_matches_word_start_unicode	missing	-	baseline
-src/util/look.rs::test::look_matches_word_unicode	missing	-	baseline
-src/util/look.rs::test::look_matches_word_unicode_negate	missing	-	baseline
-src/util/look.rs::test::look_set	missing	-	baseline
-src/util/look.rs::test::look_set_debug	missing	-	baseline
-src/util/look.rs::test::look_set_iter	missing	-	baseline
+src/util/look.rs::test::look_matches_end_line	ported	spec/look_spec.cr	ported upstream end-line look matcher parity
+src/util/look.rs::test::look_matches_end_text	ported	spec/look_spec.cr	ported upstream end-text look matcher parity
+src/util/look.rs::test::look_matches_start_line	ported	spec/look_spec.cr	ported upstream start-line look matcher parity
+src/util/look.rs::test::look_matches_start_text	ported	spec/look_spec.cr	ported upstream start-text look matcher parity
+src/util/look.rs::test::look_matches_word_ascii	ported	spec/look_spec.cr	ported upstream ASCII word-boundary parity
+src/util/look.rs::test::look_matches_word_ascii_negate	ported	spec/look_spec.cr	ported upstream ASCII non-word-boundary parity
+src/util/look.rs::test::look_matches_word_end_ascii	ported	spec/look_spec.cr	ported upstream ASCII word-end parity
+src/util/look.rs::test::look_matches_word_end_half_ascii	ported	spec/look_spec.cr	ported upstream ASCII word-end-half parity
+src/util/look.rs::test::look_matches_word_end_half_unicode	ported	spec/look_spec.cr	ported upstream Unicode word-end-half parity
+src/util/look.rs::test::look_matches_word_end_unicode	ported	spec/look_spec.cr	ported upstream Unicode word-end parity
+src/util/look.rs::test::look_matches_word_start_ascii	ported	spec/look_spec.cr	ported upstream ASCII word-start parity
+src/util/look.rs::test::look_matches_word_start_half_ascii	ported	spec/look_spec.cr	ported upstream ASCII word-start-half parity
+src/util/look.rs::test::look_matches_word_start_half_unicode	ported	spec/look_spec.cr	ported upstream Unicode word-start-half parity
+src/util/look.rs::test::look_matches_word_start_unicode	ported	spec/look_spec.cr	ported upstream Unicode word-start parity
+src/util/look.rs::test::look_matches_word_unicode	ported	spec/look_spec.cr	ported upstream Unicode word-boundary parity
+src/util/look.rs::test::look_matches_word_unicode_negate	ported	spec/look_spec.cr	ported upstream Unicode non-word-boundary parity
+src/util/look.rs::test::look_set	ported	spec/look_spec.cr	ported upstream look-set parity
+src/util/look.rs::test::look_set_debug	ported	spec/look_spec.cr	ported upstream look-set debug parity
+src/util/look.rs::test::look_set_iter	ported	spec/look_spec.cr	ported upstream look-set iterator parity
 src/util/pool.rs::test::oibits	missing	-	baseline
 src/util/pool.rs::test::thread_owner_distinct	missing	-	baseline
 src/util/pool.rs::test::thread_owner_optimization	missing	-	baseline

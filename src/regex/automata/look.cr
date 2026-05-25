@@ -1,3 +1,5 @@
+require "./errors"
+
 module Regex::Automata
   # Look-around assertion.
   #
@@ -5,118 +7,26 @@ module Regex::Automata
   # Namely, it does not actually "consume" any input as most parts of a regular
   # expression do. Assertions are a way of stating that some property must be
   # true at a particular point during matching.
-  #
-  # For example, `(?m)^[a-z]+$` is a pattern that:
-  #
-  # * Scans the haystack for a position at which `(?m:^)` is satisfied. That
-  # occurs at either the beginning of the haystack, or immediately following
-  # a `\n` character.
-  # * Looks for one or more occurrences of `[a-z]`.
-  # * Once `[a-z]+` has matched as much as it can, an overall match is only
-  # reported when `[a-z]+` stops just before a `\n`.
-  #
-  # So in this case, `abc` and `\nabc\n` match, but `\nabc1\n` does not.
-  #
-  # Assertions are also called "look-around," "look-behind" and "look-ahead."
-  # Specifically, some assertions are look-behind (like `^`), other assertions
-  # are look-ahead (like `$`) and yet other assertions are both look-ahead and
-  # look-behind (like `\b`).
   enum Look : UInt32
-    # Match the beginning of text. Specifically, this matches at the starting
-    # position of the input.
-    Start = 1 << 0
-
-    # Match the end of text. Specifically, this matches at the ending
-    # position of the input.
-    End = 1 << 1
-
-    # Match the beginning of a line or the beginning of text. Specifically,
-    # this matches at the starting position of the input, or at the position
-    # immediately following a `\n` character.
-    StartLF = 1 << 2
-
-    # Match the end of a line or the end of text. Specifically, this matches
-    # at the end position of the input, or at the position immediately
-    # preceding a `\n` character.
-    EndLF = 1 << 3
-
-    # Match the beginning of a line or the beginning of text. Specifically,
-    # this matches at the starting position of the input, or at the position
-    # immediately following either a `\r` or `\n` character, but never after
-    # a `\r` when a `\n` follows.
-    StartCRLF = 1 << 4
-
-    # Match the end of a line or the end of text. Specifically, this matches
-    # at the end position of the input, or at the position immediately
-    # preceding a `\r` or `\n` character, but never before a `\n` when a `\r`
-    # precedes it.
-    EndCRLF = 1 << 5
-
-    # Match an ASCII-only word boundary. That is, this matches a position
-    # where the left adjacent character and right adjacent character
-    # correspond to a word and non-word or a non-word and word character.
-    WordAscii = 1 << 6
-
-    # Match an ASCII-only negation of a word boundary.
-    WordAsciiNegate = 1 << 7
-
-    # Match a Unicode-aware word boundary. That is, this matches a position
-    # where the left adjacent character and right adjacent character
-    # correspond to a word and non-word or a non-word and word character.
-    WordUnicode = 1 << 8
-
-    # Match a Unicode-aware negation of a word boundary.
-    WordUnicodeNegate = 1 << 9
-
-    # Match the start of an ASCII-only word boundary. That is, this matches a
-    # position at either the beginning of the haystack or where the previous
-    # character is not a word character and the following character is a word
-    # character.
-    WordStartAscii = 1 << 10
-
-    # Match the end of an ASCII-only word boundary. That is, this matches a
-    # position at either the end of the haystack or where the previous
-    # character is a word character and the following character is not a word
-    # character.
-    WordEndAscii = 1 << 11
-
-    # Match the start of a Unicode word boundary. That is, this matches a
-    # position at either the beginning of the haystack or where the previous
-    # character is not a word character and the following character is a word
-    # character.
-    WordStartUnicode = 1 << 12
-
-    # Match the end of a Unicode word boundary. That is, this matches a
-    # position at either the end of the haystack or where the previous
-    # character is a word character and the following character is not a word
-    # character.
-    WordEndUnicode = 1 << 13
-
-    # Match the start half of an ASCII-only word boundary. That is, this
-    # matches a position at either the beginning of the haystack or where the
-    # previous character is not a word character.
-    WordStartHalfAscii = 1 << 14
-
-    # Match the end half of an ASCII-only word boundary. That is, this matches
-    # a position at either the end of the haystack or where the following
-    # character is not a word character.
-    WordEndHalfAscii = 1 << 15
-
-    # Match the start half of a Unicode word boundary. That is, this matches
-    # a position at either the beginning of the haystack or where the
-    # previous character is not a word character.
+    Start                = 1 << 0
+    End                  = 1 << 1
+    StartLF              = 1 << 2
+    EndLF                = 1 << 3
+    StartCRLF            = 1 << 4
+    EndCRLF              = 1 << 5
+    WordAscii            = 1 << 6
+    WordAsciiNegate      = 1 << 7
+    WordUnicode          = 1 << 8
+    WordUnicodeNegate    = 1 << 9
+    WordStartAscii       = 1 << 10
+    WordEndAscii         = 1 << 11
+    WordStartUnicode     = 1 << 12
+    WordEndUnicode       = 1 << 13
+    WordStartHalfAscii   = 1 << 14
+    WordEndHalfAscii     = 1 << 15
     WordStartHalfUnicode = 1 << 16
+    WordEndHalfUnicode   = 1 << 17
 
-    # Match the end half of a Unicode word boundary. That is, this matches
-    # a position at either the end of the haystack or where the following
-    # character is not a word character.
-    WordEndHalfUnicode = 1 << 17
-
-    # Flip the look-around assertion to its equivalent for reverse searches.
-    # For example, `StartLF` gets translated to `EndLF`.
-    #
-    # Some assertions, such as `WordUnicode`, remain the same since they
-    # match the same positions regardless of the direction of the search.
     def reversed : Look
       case self
       when Start                then End
@@ -142,232 +52,647 @@ module Regex::Automata
       end
     end
 
-    # Return the underlying representation of this look-around enumeration
-    # as an integer.
     def as_repr : UInt32
-      self.value
+      value
     end
 
-    # Given the underlying representation of a `Look` value, return the
-    # corresponding `Look` value if the representation is valid.
     def self.from_repr(repr : UInt32) : Look?
       case repr
-      when 0b00_0000_0000_0000_0001 then Start
-      when 0b00_0000_0000_0000_0010 then End
-      when 0b00_0000_0000_0000_0100 then StartLF
-      when 0b00_0000_0000_0000_1000 then EndLF
-      when 0b00_0000_0000_0001_0000 then StartCRLF
-      when 0b00_0000_0000_0010_0000 then EndCRLF
-      when 0b00_0000_0000_0100_0000 then WordAscii
-      when 0b00_0000_0000_1000_0000 then WordAsciiNegate
-      when 0b00_0000_0001_0000_0000 then WordUnicode
-      when 0b00_0000_0010_0000_0000 then WordUnicodeNegate
-      when 0b00_0000_0100_0000_0000 then WordStartAscii
-      when 0b00_0000_1000_0000_0000 then WordEndAscii
-      when 0b00_0001_0000_0000_0000 then WordStartUnicode
-      when 0b00_0010_0000_0000_0000 then WordEndUnicode
-      when 0b00_0100_0000_0000_0000 then WordStartHalfAscii
-      when 0b00_1000_0000_0000_0000 then WordEndHalfAscii
-      when 0b01_0000_0000_0000_0000 then WordStartHalfUnicode
-      when 0b10_0000_0000_0000_0000 then WordEndHalfUnicode
+      when 0b00_0000_0000_0000_0001_u32 then Start
+      when 0b00_0000_0000_0000_0010_u32 then End
+      when 0b00_0000_0000_0000_0100_u32 then StartLF
+      when 0b00_0000_0000_0000_1000_u32 then EndLF
+      when 0b00_0000_0000_0001_0000_u32 then StartCRLF
+      when 0b00_0000_0000_0010_0000_u32 then EndCRLF
+      when 0b00_0000_0000_0100_0000_u32 then WordAscii
+      when 0b00_0000_0000_1000_0000_u32 then WordAsciiNegate
+      when 0b00_0000_0001_0000_0000_u32 then WordUnicode
+      when 0b00_0000_0010_0000_0000_u32 then WordUnicodeNegate
+      when 0b00_0000_0100_0000_0000_u32 then WordStartAscii
+      when 0b00_0000_1000_0000_0000_u32 then WordEndAscii
+      when 0b00_0001_0000_0000_0000_u32 then WordStartUnicode
+      when 0b00_0010_0000_0000_0000_u32 then WordEndUnicode
+      when 0b00_0100_0000_0000_0000_u32 then WordStartHalfAscii
+      when 0b00_1000_0000_0000_0000_u32 then WordEndHalfAscii
+      when 0b01_0000_0000_0000_0000_u32 then WordStartHalfUnicode
+      when 0b10_0000_0000_0000_0000_u32 then WordEndHalfUnicode
       else
         nil
       end
     end
+
+    def as_char : Char
+      case self
+      when Start                then 'A'
+      when End                  then 'z'
+      when StartLF              then '^'
+      when EndLF                then '$'
+      when StartCRLF            then 'r'
+      when EndCRLF              then 'R'
+      when WordAscii            then 'b'
+      when WordAsciiNegate      then 'B'
+      when WordUnicode          then '𝛃'
+      when WordUnicodeNegate    then '𝚩'
+      when WordStartAscii       then '<'
+      when WordEndAscii         then '>'
+      when WordStartUnicode     then '〈'
+      when WordEndUnicode       then '〉'
+      when WordStartHalfAscii   then '◁'
+      when WordEndHalfAscii     then '▷'
+      when WordStartHalfUnicode then '◀'
+      when WordEndHalfUnicode   then '▶'
+      else
+        raise "unreachable look assertion: #{self}"
+      end
+    end
   end
 
-  # A set of look-around assertions.
-  #
-  # This set is represented as a bitmask where each bit corresponds to a
-  # particular `Look` assertion. Bit i is set if and only if the corresponding
-  # `Look` assertion is in the set.
   struct LookSet
     include Enumerable(Look)
 
-    @mask : UInt32
+    getter bits : UInt32
 
-    def initialize(@mask : UInt32 = 0)
+    def initialize(@bits : UInt32 = 0_u32)
     end
 
-    # Create a LookSet from a single Look value.
+    def self.empty : LookSet
+      new(0_u32)
+    end
+
+    def self.full : LookSet
+      new(UInt32::MAX)
+    end
+
+    def self.singleton(look : Look) : LookSet
+      empty.insert(look)
+    end
+
     def self.from_look(look : Look) : LookSet
-      new(look.as_repr)
+      singleton(look)
     end
 
-    # Returns true if and only if this set is empty.
-    def empty? : Bool
-      @mask == 0
+    def len : Int32
+      @bits.popcount.to_i32
     end
 
-    # Returns the number of assertions in this set.
     def size : Int32
-      @mask.popcount.to_i32
+      len
     end
 
-    # Returns an iterator over the assertions in this set.
+    def is_empty : Bool
+      @bits == 0_u32
+    end
+
+    def empty? : Bool
+      is_empty
+    end
+
+    def contains(look : Look) : Bool
+      (@bits & look.as_repr) != 0_u32
+    end
+
+    def includes?(look : Look) : Bool
+      contains(look)
+    end
+
+    def contains_anchor : Bool
+      contains_anchor_haystack || contains_anchor_line
+    end
+
+    def contains_anchor? : Bool
+      contains_anchor
+    end
+
+    def contains_anchor_haystack : Bool
+      contains(Look::Start) || contains(Look::End)
+    end
+
+    def contains_anchor_line : Bool
+      contains(Look::StartLF) ||
+        contains(Look::EndLF) ||
+        contains(Look::StartCRLF) ||
+        contains(Look::EndCRLF)
+    end
+
+    def contains_anchor_line? : Bool
+      contains_anchor_line
+    end
+
+    def contains_anchor_lf : Bool
+      contains(Look::StartLF) || contains(Look::EndLF)
+    end
+
+    def contains_anchor_crlf : Bool
+      contains(Look::StartCRLF) || contains(Look::EndCRLF)
+    end
+
+    def contains_anchor_crlf? : Bool
+      contains_anchor_crlf
+    end
+
+    def contains_word : Bool
+      contains_word_unicode || contains_word_ascii
+    end
+
+    def contains_word? : Bool
+      contains_word
+    end
+
+    def contains_word_unicode : Bool
+      contains(Look::WordUnicode) ||
+        contains(Look::WordUnicodeNegate) ||
+        contains(Look::WordStartUnicode) ||
+        contains(Look::WordEndUnicode) ||
+        contains(Look::WordStartHalfUnicode) ||
+        contains(Look::WordEndHalfUnicode)
+    end
+
+    def contains_word_unicode? : Bool
+      contains_word_unicode
+    end
+
+    def contains_word_ascii : Bool
+      contains(Look::WordAscii) ||
+        contains(Look::WordAsciiNegate) ||
+        contains(Look::WordStartAscii) ||
+        contains(Look::WordEndAscii) ||
+        contains(Look::WordStartHalfAscii) ||
+        contains(Look::WordEndHalfAscii)
+    end
+
+    def contains_word_ascii? : Bool
+      contains_word_ascii
+    end
+
+    def iter : LookSetIter
+      LookSetIter.new(self)
+    end
+
     def each(& : Look ->) : Nil
-      mask = @mask
-      bit = 0
-      while mask != 0
-        if (mask & 1) != 0
-          if look = Look.from_repr(1_u32 << bit)
-            yield look
-          end
-        end
-        mask >>= 1
-        bit += 1
+      iterator = iter
+      iterator.each do |look|
+        yield look
       end
     end
 
-    # Returns true if and only if this set contains the given assertion.
-    def includes?(look : Look) : Bool
-      (@mask & look.as_repr) != 0
-    end
-
-    # Returns a new set with the given assertion added.
     def insert(look : Look) : LookSet
-      LookSet.new(@mask | look.as_repr)
+      LookSet.new(@bits | look.as_repr)
     end
 
-    # Returns a new set with the given assertion removed.
+    def set_insert(look : Look) : Nil
+      @bits |= look.as_repr
+    end
+
     def remove(look : Look) : LookSet
-      LookSet.new(@mask & ~look.as_repr)
+      LookSet.new(@bits & ~look.as_repr)
     end
 
-    # Returns the union of this set and the other set.
-    def union(other : LookSet) : LookSet
-      LookSet.new(@mask | other.@mask)
+    def set_remove(look : Look) : Nil
+      @bits &= ~look.as_repr
     end
 
-    # Returns the intersection of this set and the other set.
-    def intersection(other : LookSet) : LookSet
-      LookSet.new(@mask & other.@mask)
+    def subtract(other : LookSet) : LookSet
+      LookSet.new(@bits & ~other.bits)
     end
 
-    # Returns the difference of this set and the other set.
     def difference(other : LookSet) : LookSet
-      LookSet.new(@mask & ~other.@mask)
+      subtract(other)
     end
 
-    # Returns the symmetric difference of this set and the other set.
+    def set_subtract(other : LookSet) : Nil
+      @bits &= ~other.bits
+    end
+
+    def union(other : LookSet) : LookSet
+      LookSet.new(@bits | other.bits)
+    end
+
+    def set_union(other : LookSet) : Nil
+      @bits |= other.bits
+    end
+
+    def intersect(other : LookSet) : LookSet
+      LookSet.new(@bits & other.bits)
+    end
+
+    def intersection(other : LookSet) : LookSet
+      intersect(other)
+    end
+
+    def set_intersect(other : LookSet) : Nil
+      @bits &= other.bits
+    end
+
     def symmetric_difference(other : LookSet) : LookSet
-      LookSet.new(@mask ^ other.@mask)
+      LookSet.new(@bits ^ other.bits)
     end
 
-    # Returns true if this set is a subset of the other set.
     def subset?(other : LookSet) : Bool
-      (@mask & ~other.@mask) == 0
+      (@bits & ~other.bits) == 0_u32
     end
 
-    # Returns true if this set is a superset of the other set.
     def superset?(other : LookSet) : Bool
       other.subset?(self)
     end
 
-    # Alias for `union`.
     def |(other : LookSet) : LookSet
       union(other)
     end
 
-    # Alias for `intersection`.
     def &(other : LookSet) : LookSet
-      intersection(other)
+      intersect(other)
     end
 
-    # Alias for `difference`.
     def -(other : LookSet) : LookSet
-      difference(other)
+      subtract(other)
     end
 
-    # Alias for `symmetric_difference`.
     def ^(other : LookSet) : LookSet
       symmetric_difference(other)
     end
 
-    # Convert to a bitmask representation.
     def to_u32 : UInt32
-      @mask
+      @bits
     end
 
     def to_u64 : UInt64
-      @mask.to_u64
+      @bits.to_u64
     end
 
-    # Create from a bitmask representation.
-    def self.from_u32(mask : UInt32) : LookSet
-      new(mask)
+    def self.from_u32(bits : UInt32) : LookSet
+      new(bits)
     end
 
-    # Create from a UInt64 (for serialization)
-    def self.new(mask : UInt64)
-      new(mask.to_u32)
+    def self.new(bits : UInt64)
+      new(bits.to_u32)
     end
 
-    # Helper methods for checking specific assertion categories
+    def self.read_repr(slice : Bytes) : LookSet
+      raise IndexError.new if slice.size < 4
 
-    # Returns true if this set contains any anchor assertions (^, $, \A, \z, etc.)
-    def contains_anchor? : Bool
-      (@mask & 0b0000_0000_0000_0011_u32) != 0 # Start or End
+      LookSet.new(IO::ByteFormat::SystemEndian.decode(UInt32, slice[0, 4]))
     end
 
-    # Returns true if this set contains any line anchor assertions (^ or $ in multiline mode)
-    def contains_anchor_line? : Bool
-      (@mask & 0b0000_0000_0000_1100_u32) != 0 # StartLF or EndLF
+    def write_repr(slice : Bytes) : Nil
+      raise IndexError.new if slice.size < 4
+
+      IO::ByteFormat::SystemEndian.encode(@bits, slice[0, 4])
     end
 
-    # Returns true if this set contains any CRLF-aware line anchor assertions
-    def contains_anchor_crlf? : Bool
-      (@mask & 0b0000_0000_0011_0000_u32) != 0 # StartCRLF or EndCRLF
-    end
-
-    # Returns true if this set contains any word boundary assertions
-    def contains_word? : Bool
-      (@mask & 0b1111_1111_1100_0000_u32) != 0 # Any word assertion (bits 6-17)
-    end
-
-    # Returns true if this set contains any ASCII word boundary assertions
-    def contains_word_ascii? : Bool
-      (@mask & 0b0000_1111_1100_0000_u32) != 0 # ASCII word assertions (bits 6-11, 14-15)
-    end
-
-    # Returns true if this set contains any Unicode word boundary assertions
-    def contains_word_unicode? : Bool
-      (@mask & 0b1111_0000_0000_0000_u32) != 0 # Unicode word assertions (bits 8-9, 12-13, 16-17)
-    end
-
-    # Debug string representation
-    def to_s(io : IO) : Nil
-      io << "LookSet["
-      first = true
-      each do |look|
-        io << ", " unless first
-        first = false
-        io << look
-      end
-      io << "]"
+    def available : Nil
+      UnicodeWordBoundaryError.check if contains_word_unicode
     end
 
     def inspect(io : IO) : Nil
-      to_s(io)
+      if is_empty
+        io << "∅"
+        return
+      end
+
+      each do |look|
+        io << look.as_char
+      end
+    end
+
+    def to_s(io : IO) : Nil
+      inspect(io)
     end
   end
 
-  # Lookup table for ASCII word bytes (letters, digits, underscore)
+  class LookSetIter
+    include Iterator(Look)
+
+    def initialize(@set : LookSet)
+    end
+
+    def next
+      return stop if @set.is_empty
+
+      mask = @set.bits
+      bit = 0
+      while (mask & 1_u32) == 0_u32
+        mask >>= 1
+        bit += 1
+      end
+      look = Look.from_repr(1_u32 << bit)
+      return stop if look.nil?
+
+      @set = @set.remove(look)
+      look
+    end
+  end
+
+  struct LookMatcher
+    @line_terminator : UInt8
+
+    def initialize(@line_terminator : UInt8 = '\n'.ord.to_u8)
+    end
+
+    def set_line_terminator(byte : UInt8) : self
+      @line_terminator = byte
+      self
+    end
+
+    def get_line_terminator : UInt8
+      @line_terminator
+    end
+
+    def matches(look : Look, haystack : Bytes, at : Int32) : Bool
+      case look
+      when Look::Start                then is_start(haystack, at)
+      when Look::End                  then is_end(haystack, at)
+      when Look::StartLF              then is_start_lf(haystack, at)
+      when Look::EndLF                then is_end_lf(haystack, at)
+      when Look::StartCRLF            then is_start_crlf(haystack, at)
+      when Look::EndCRLF              then is_end_crlf(haystack, at)
+      when Look::WordAscii            then is_word_ascii(haystack, at)
+      when Look::WordAsciiNegate      then is_word_ascii_negate(haystack, at)
+      when Look::WordUnicode          then is_word_unicode(haystack, at)
+      when Look::WordUnicodeNegate    then is_word_unicode_negate(haystack, at)
+      when Look::WordStartAscii       then is_word_start_ascii(haystack, at)
+      when Look::WordEndAscii         then is_word_end_ascii(haystack, at)
+      when Look::WordStartUnicode     then is_word_start_unicode(haystack, at)
+      when Look::WordEndUnicode       then is_word_end_unicode(haystack, at)
+      when Look::WordStartHalfAscii   then is_word_start_half_ascii(haystack, at)
+      when Look::WordEndHalfAscii     then is_word_end_half_ascii(haystack, at)
+      when Look::WordStartHalfUnicode then is_word_start_half_unicode(haystack, at)
+      when Look::WordEndHalfUnicode   then is_word_end_half_unicode(haystack, at)
+      else
+        raise "unreachable look assertion: #{look}"
+      end
+    end
+
+    def matches_set(set : LookSet, haystack : Bytes, at : Int32) : Bool
+      if set.contains(Look::Start) && !is_start(haystack, at)
+        return false
+      end
+      if set.contains(Look::End) && !is_end(haystack, at)
+        return false
+      end
+      if set.contains(Look::StartLF) && !is_start_lf(haystack, at)
+        return false
+      end
+      if set.contains(Look::EndLF) && !is_end_lf(haystack, at)
+        return false
+      end
+      if set.contains(Look::StartCRLF) && !is_start_crlf(haystack, at)
+        return false
+      end
+      if set.contains(Look::EndCRLF) && !is_end_crlf(haystack, at)
+        return false
+      end
+      if set.contains(Look::WordAscii) && !is_word_ascii(haystack, at)
+        return false
+      end
+      if set.contains(Look::WordAsciiNegate) && !is_word_ascii_negate(haystack, at)
+        return false
+      end
+      if set.contains(Look::WordUnicode) && !is_word_unicode(haystack, at)
+        return false
+      end
+      if set.contains(Look::WordUnicodeNegate) && !is_word_unicode_negate(haystack, at)
+        return false
+      end
+      if set.contains(Look::WordStartAscii) && !is_word_start_ascii(haystack, at)
+        return false
+      end
+      if set.contains(Look::WordEndAscii) && !is_word_end_ascii(haystack, at)
+        return false
+      end
+      if set.contains(Look::WordStartUnicode) && !is_word_start_unicode(haystack, at)
+        return false
+      end
+      if set.contains(Look::WordEndUnicode) && !is_word_end_unicode(haystack, at)
+        return false
+      end
+      if set.contains(Look::WordStartHalfAscii) && !is_word_start_half_ascii(haystack, at)
+        return false
+      end
+      if set.contains(Look::WordEndHalfAscii) && !is_word_end_half_ascii(haystack, at)
+        return false
+      end
+      if set.contains(Look::WordStartHalfUnicode) && !is_word_start_half_unicode(haystack, at)
+        return false
+      end
+      if set.contains(Look::WordEndHalfUnicode) && !is_word_end_half_unicode(haystack, at)
+        return false
+      end
+      true
+    end
+
+    def is_start(_haystack : Bytes, at : Int32) : Bool
+      at == 0
+    end
+
+    def is_end(haystack : Bytes, at : Int32) : Bool
+      ensure_valid_offset!(haystack, at)
+      at == haystack.size
+    end
+
+    def is_start_lf(haystack : Bytes, at : Int32) : Bool
+      ensure_valid_offset!(haystack, at)
+      is_start(haystack, at) || haystack[at - 1] == @line_terminator
+    end
+
+    def is_end_lf(haystack : Bytes, at : Int32) : Bool
+      ensure_valid_offset!(haystack, at)
+      is_end(haystack, at) || haystack[at] == @line_terminator
+    end
+
+    def is_start_crlf(haystack : Bytes, at : Int32) : Bool
+      ensure_valid_offset!(haystack, at)
+      is_start(haystack, at) ||
+        haystack[at - 1] == '\n'.ord.to_u8 ||
+        (haystack[at - 1] == '\r'.ord.to_u8 && (at >= haystack.size || haystack[at] != '\n'.ord.to_u8))
+    end
+
+    def is_end_crlf(haystack : Bytes, at : Int32) : Bool
+      ensure_valid_offset!(haystack, at)
+      is_end(haystack, at) ||
+        haystack[at] == '\r'.ord.to_u8 ||
+        (haystack[at] == '\n'.ord.to_u8 && (at == 0 || haystack[at - 1] != '\r'.ord.to_u8))
+    end
+
+    def is_word_ascii(haystack : Bytes, at : Int32) : Bool
+      ensure_valid_offset!(haystack, at)
+      word_before = at > 0 && Regex::Automata.is_word_byte(haystack[at - 1])
+      word_after = at < haystack.size && Regex::Automata.is_word_byte(haystack[at])
+      word_before != word_after
+    end
+
+    def is_word_ascii_negate(haystack : Bytes, at : Int32) : Bool
+      !is_word_ascii(haystack, at)
+    end
+
+    def is_word_unicode(haystack : Bytes, at : Int32) : Bool
+      ensure_valid_offset!(haystack, at)
+      word_before = IsWordChar.rev(haystack, at)
+      word_after = IsWordChar.fwd(haystack, at)
+      word_before != word_after
+    end
+
+    def is_word_unicode_negate(haystack : Bytes, at : Int32) : Bool
+      ensure_valid_offset!(haystack, at)
+
+      word_before = if at > 0
+                      return false unless Utf8.decode_last(haystack[0, at])
+                      IsWordChar.rev(haystack, at)
+                    else
+                      false
+                    end
+      word_after = if at < haystack.size
+                     return false unless Utf8.decode(haystack[at, haystack.size - at])
+                     IsWordChar.fwd(haystack, at)
+                   else
+                     false
+                   end
+      word_before == word_after
+    end
+
+    def is_word_start_ascii(haystack : Bytes, at : Int32) : Bool
+      ensure_valid_offset!(haystack, at)
+      word_before = at > 0 && Regex::Automata.is_word_byte(haystack[at - 1])
+      word_after = at < haystack.size && Regex::Automata.is_word_byte(haystack[at])
+      !word_before && word_after
+    end
+
+    def is_word_end_ascii(haystack : Bytes, at : Int32) : Bool
+      ensure_valid_offset!(haystack, at)
+      word_before = at > 0 && Regex::Automata.is_word_byte(haystack[at - 1])
+      word_after = at < haystack.size && Regex::Automata.is_word_byte(haystack[at])
+      word_before && !word_after
+    end
+
+    def is_word_start_unicode(haystack : Bytes, at : Int32) : Bool
+      ensure_valid_offset!(haystack, at)
+      word_before = IsWordChar.rev(haystack, at)
+      word_after = IsWordChar.fwd(haystack, at)
+      !word_before && word_after
+    end
+
+    def is_word_end_unicode(haystack : Bytes, at : Int32) : Bool
+      ensure_valid_offset!(haystack, at)
+      word_before = IsWordChar.rev(haystack, at)
+      word_after = IsWordChar.fwd(haystack, at)
+      word_before && !word_after
+    end
+
+    def is_word_start_half_ascii(haystack : Bytes, at : Int32) : Bool
+      ensure_valid_offset!(haystack, at)
+      word_before = at > 0 && Regex::Automata.is_word_byte(haystack[at - 1])
+      !word_before
+    end
+
+    def is_word_end_half_ascii(haystack : Bytes, at : Int32) : Bool
+      ensure_valid_offset!(haystack, at)
+      word_after = at < haystack.size && Regex::Automata.is_word_byte(haystack[at])
+      !word_after
+    end
+
+    def is_word_start_half_unicode(haystack : Bytes, at : Int32) : Bool
+      ensure_valid_offset!(haystack, at)
+      word_before = if at > 0
+                      return false unless Utf8.decode_last(haystack[0, at])
+                      IsWordChar.rev(haystack, at)
+                    else
+                      false
+                    end
+      !word_before
+    end
+
+    def is_word_end_half_unicode(haystack : Bytes, at : Int32) : Bool
+      ensure_valid_offset!(haystack, at)
+      word_after = if at < haystack.size
+                     return false unless Utf8.decode(haystack[at, haystack.size - at])
+                     IsWordChar.fwd(haystack, at)
+                   else
+                     false
+                   end
+      !word_after
+    end
+
+    private def ensure_valid_offset!(haystack : Bytes, at : Int32) : Nil
+      raise IndexError.new if at < 0 || at > haystack.size
+    end
+  end
+
+  class UnicodeWordBoundaryError < Error
+    MESSAGE = "Unicode-aware \\b and \\B are unavailable because the requisite data tables are missing, please enable the unicode-word-boundary feature"
+
+    def initialize
+      super(MESSAGE)
+    end
+
+    def self.check : Nil
+    end
+  end
+
+  private module IsWordChar
+    def self.fwd(haystack : Bytes, at : Int32) : Bool
+      char = Utf8.decode(haystack[at, haystack.size - at])
+      return false if char.nil?
+
+      Regex::Syntax.try_is_word_character(char)
+    end
+
+    def self.rev(haystack : Bytes, at : Int32) : Bool
+      char = Utf8.decode_last(haystack[0, at])
+      return false if char.nil?
+
+      Regex::Syntax.try_is_word_character(char)
+    end
+  end
+
+  private module Utf8
+    def self.decode(bytes : Bytes) : Char?
+      return nil if bytes.empty?
+
+      len = codepoint_len(bytes[0])
+      return nil if len.nil? || len > bytes.size
+
+      string = String.new(bytes[0, len])
+      return nil unless string.valid_encoding?
+
+      string.each_char.first?
+    end
+
+    def self.decode_last(bytes : Bytes) : Char?
+      return nil if bytes.empty?
+
+      start = bytes.size - 1
+      limit = bytes.size > 4 ? bytes.size - 4 : 0
+      while start > limit && !leading_or_invalid_byte?(bytes[start])
+        start -= 1
+      end
+      decode(bytes[start, bytes.size - start])
+    end
+
+    private def self.codepoint_len(byte : UInt8) : Int32?
+      case byte
+      when 0b0000_0000_u8..0b0111_1111_u8 then 1
+      when 0b1000_0000_u8..0b1011_1111_u8 then nil
+      when 0b1100_0000_u8..0b1101_1111_u8 then 2
+      when 0b1110_0000_u8..0b1110_1111_u8 then 3
+      when 0b1111_0000_u8..0b1111_0111_u8 then 4
+      else
+        nil
+      end
+    end
+
+    private def self.leading_or_invalid_byte?(byte : UInt8) : Bool
+      (byte & 0b1100_0000_u8) != 0b1000_0000_u8
+    end
+  end
+
   private WORD_BYTE_TABLE = begin
     table = StaticArray(Bool, 256).new(false)
-    # underscore
     table['_'.ord.to_u8] = true
-    # digits 0-9
     ('0'.ord..'9'.ord).each { |ord| table[ord.to_u8] = true }
-    # uppercase A-Z
     ('A'.ord..'Z'.ord).each { |ord| table[ord.to_u8] = true }
-    # lowercase a-z
     ('a'.ord..'z'.ord).each { |ord| table[ord.to_u8] = true }
     table
   end
 
-  # Returns true if the given byte is an ASCII word character.
-  # Word characters are ASCII letters (A-Z, a-z), digits (0-9), and underscore (_).
   def self.is_word_byte(byte : UInt8) : Bool
     WORD_BYTE_TABLE[byte]
   end

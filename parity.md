@@ -117,11 +117,12 @@
   - Green: new captures implementation files under `src/regex/automata/`
   - Done when: capture extraction and slot management parity is demonstrated
 
-- [ ] Utilities — Look-around assertions
+- [x] Utilities — Look-around assertions
   - Upstream scope: `src/util/look.rs`
   - Inventory ids: `src/util/look.rs::*`
   - Red: port look-around specs
   - Green: `src/regex/automata/look.cr`
+  - Progress: look assertion enums, look-set algebra and repr I/O, configurable look matching, UTF-8-aware Unicode word-boundary handling, and the upstream look matcher/set parity specs are now covered
   - Done when: look-around construction and UTF-8 boundary logic parity is demonstrated
 
 - [ ] Utilities — Byte classes and UTF-8 automata

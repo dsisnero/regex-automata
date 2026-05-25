@@ -638,65 +638,65 @@ src/util/iter.rs::struct::TryMatchesIter	missing	-	baseline
 src/util/lazy.rs::func::get	missing	-	baseline
 src/util/lazy.rs::method::T.get	missing	-	baseline
 src/util/lazy.rs::struct::Lazy	missing	-	baseline
-src/util/look.rs::enum::Look	missing	-	baseline
-src/util/look.rs::func::available	missing	-	baseline
-src/util/look.rs::func::check	missing	-	baseline
-src/util/look.rs::func::contains	missing	-	baseline
-src/util/look.rs::func::contains_anchor	missing	-	baseline
-src/util/look.rs::func::contains_anchor_crlf	missing	-	baseline
-src/util/look.rs::func::contains_anchor_haystack	missing	-	baseline
-src/util/look.rs::func::contains_anchor_lf	missing	-	baseline
-src/util/look.rs::func::contains_anchor_line	missing	-	baseline
-src/util/look.rs::func::contains_word	missing	-	baseline
-src/util/look.rs::func::contains_word_ascii	missing	-	baseline
-src/util/look.rs::func::contains_word_unicode	missing	-	baseline
-src/util/look.rs::func::empty	missing	-	baseline
-src/util/look.rs::func::full	missing	-	baseline
-src/util/look.rs::func::get_line_terminator	missing	-	baseline
-src/util/look.rs::func::insert	missing	-	baseline
-src/util/look.rs::func::intersect	missing	-	baseline
-src/util/look.rs::func::is_empty	missing	-	baseline
-src/util/look.rs::func::is_end	missing	-	baseline
-src/util/look.rs::func::is_end_crlf	missing	-	baseline
-src/util/look.rs::func::is_end_lf	missing	-	baseline
-src/util/look.rs::func::is_start	missing	-	baseline
-src/util/look.rs::func::is_start_crlf	missing	-	baseline
-src/util/look.rs::func::is_start_lf	missing	-	baseline
-src/util/look.rs::func::is_word_ascii	missing	-	baseline
-src/util/look.rs::func::is_word_ascii_negate	missing	-	baseline
-src/util/look.rs::func::is_word_end_ascii	missing	-	baseline
-src/util/look.rs::func::is_word_end_half_ascii	missing	-	baseline
-src/util/look.rs::func::is_word_end_half_unicode	missing	-	baseline
-src/util/look.rs::func::is_word_end_unicode	missing	-	baseline
-src/util/look.rs::func::is_word_start_ascii	missing	-	baseline
-src/util/look.rs::func::is_word_start_half_ascii	missing	-	baseline
-src/util/look.rs::func::is_word_start_half_unicode	missing	-	baseline
-src/util/look.rs::func::is_word_start_unicode	missing	-	baseline
-src/util/look.rs::func::is_word_unicode	missing	-	baseline
-src/util/look.rs::func::is_word_unicode_negate	missing	-	baseline
-src/util/look.rs::func::iter	missing	-	baseline
-src/util/look.rs::func::len	missing	-	baseline
-src/util/look.rs::func::matches	missing	-	baseline
-src/util/look.rs::func::matches_set	missing	-	baseline
-src/util/look.rs::func::new	missing	-	baseline
-src/util/look.rs::func::read_repr	missing	-	baseline
-src/util/look.rs::func::remove	missing	-	baseline
-src/util/look.rs::func::set_insert	missing	-	baseline
-src/util/look.rs::func::set_intersect	missing	-	baseline
-src/util/look.rs::func::set_line_terminator	missing	-	baseline
-src/util/look.rs::func::set_remove	missing	-	baseline
-src/util/look.rs::func::set_subtract	missing	-	baseline
-src/util/look.rs::func::set_union	missing	-	baseline
-src/util/look.rs::func::singleton	missing	-	baseline
-src/util/look.rs::func::subtract	missing	-	baseline
-src/util/look.rs::func::union	missing	-	baseline
-src/util/look.rs::func::write_repr	missing	-	baseline
-src/util/look.rs::method::LookMatcher.new	missing	-	baseline
-src/util/look.rs::method::LookSet.empty	missing	-	baseline
-src/util/look.rs::struct::LookMatcher	missing	-	baseline
-src/util/look.rs::struct::LookSet	missing	-	baseline
-src/util/look.rs::struct::LookSetIter	missing	-	baseline
-src/util/look.rs::struct::UnicodeWordBoundaryError	missing	-	baseline
+src/util/look.rs::enum::Look	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported the full look-around assertion enum, reverse mapping, repr conversion, and display-char surface
+src/util/look.rs::func::available	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported availability checks; Crystal always ships the Unicode word tables required by this surface
+src/util/look.rs::func::check	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported Unicode word-boundary availability API; the Rust feature-disabled error branch is not applicable here
+src/util/look.rs::func::contains	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported look-set membership checks
+src/util/look.rs::func::contains_anchor	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported look-set anchor category checks
+src/util/look.rs::func::contains_anchor_crlf	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported look-set CRLF anchor category checks
+src/util/look.rs::func::contains_anchor_haystack	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported look-set haystack-anchor category checks
+src/util/look.rs::func::contains_anchor_lf	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported look-set LF-anchor category checks
+src/util/look.rs::func::contains_anchor_line	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported look-set line-anchor category checks
+src/util/look.rs::func::contains_word	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported look-set word-boundary category checks
+src/util/look.rs::func::contains_word_ascii	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported ASCII word-boundary category checks
+src/util/look.rs::func::contains_word_unicode	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported Unicode word-boundary category checks
+src/util/look.rs::func::empty	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported empty look-set constructor
+src/util/look.rs::func::full	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported full look-set constructor and iteration behavior
+src/util/look.rs::func::get_line_terminator	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported configurable look-matcher line terminator getter
+src/util/look.rs::func::insert	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported persistent look-set insertion
+src/util/look.rs::func::intersect	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported persistent look-set intersection
+src/util/look.rs::func::is_empty	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported look-set emptiness checks
+src/util/look.rs::func::is_end	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported end-of-haystack assertion matching
+src/util/look.rs::func::is_end_crlf	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported CRLF-aware end-of-line assertion matching
+src/util/look.rs::func::is_end_lf	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported LF-aware end-of-line assertion matching
+src/util/look.rs::func::is_start	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported start-of-haystack assertion matching
+src/util/look.rs::func::is_start_crlf	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported CRLF-aware start-of-line assertion matching
+src/util/look.rs::func::is_start_lf	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported LF-aware start-of-line assertion matching
+src/util/look.rs::func::is_word_ascii	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported ASCII word-boundary matching
+src/util/look.rs::func::is_word_ascii_negate	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported ASCII non-word-boundary matching
+src/util/look.rs::func::is_word_end_ascii	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported ASCII word-end matching
+src/util/look.rs::func::is_word_end_half_ascii	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported ASCII word-end-half matching
+src/util/look.rs::func::is_word_end_half_unicode	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported Unicode word-end-half matching with UTF-8 boundary filtering
+src/util/look.rs::func::is_word_end_unicode	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported Unicode word-end matching
+src/util/look.rs::func::is_word_start_ascii	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported ASCII word-start matching
+src/util/look.rs::func::is_word_start_half_ascii	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported ASCII word-start-half matching
+src/util/look.rs::func::is_word_start_half_unicode	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported Unicode word-start-half matching with UTF-8 boundary filtering
+src/util/look.rs::func::is_word_start_unicode	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported Unicode word-start matching
+src/util/look.rs::func::is_word_unicode	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported Unicode word-boundary matching via UTF-8 decoding and regex-syntax tables
+src/util/look.rs::func::is_word_unicode_negate	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported Unicode non-word-boundary matching with split-codepoint suppression
+src/util/look.rs::func::iter	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported look-set iterator surface
+src/util/look.rs::func::len	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported look-set length surface
+src/util/look.rs::func::matches	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported per-assertion look matcher
+src/util/look.rs::func::matches_set	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported combined look-set matcher
+src/util/look.rs::func::new	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported default constructors for look-set and look-matcher
+src/util/look.rs::func::read_repr	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported native-endian look-set deserialization
+src/util/look.rs::func::remove	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported persistent look-set removal
+src/util/look.rs::func::set_insert	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported in-place look-set insertion
+src/util/look.rs::func::set_intersect	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported in-place look-set intersection
+src/util/look.rs::func::set_line_terminator	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported configurable look-matcher line terminator setter
+src/util/look.rs::func::set_remove	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported in-place look-set removal
+src/util/look.rs::func::set_subtract	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported in-place look-set subtraction
+src/util/look.rs::func::set_union	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported in-place look-set union
+src/util/look.rs::func::singleton	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported singleton look-set constructor
+src/util/look.rs::func::subtract	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported persistent look-set subtraction
+src/util/look.rs::func::union	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported persistent look-set union
+src/util/look.rs::func::write_repr	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported native-endian look-set serialization
+src/util/look.rs::method::LookMatcher.new	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported default look-matcher constructor
+src/util/look.rs::method::LookSet.empty	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported empty look-set constructor
+src/util/look.rs::struct::LookMatcher	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported configurable look matcher
+src/util/look.rs::struct::LookSet	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported look-set storage, repr I/O, and set operations
+src/util/look.rs::struct::LookSetIter	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported look-set iterator
+src/util/look.rs::struct::UnicodeWordBoundaryError	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported the availability-error surface; only Rust's disabled-feature branch is not applicable in Crystal
 src/util/pool.rs::func::get	missing	-	baseline
 src/util/pool.rs::func::new	missing	-	baseline
 src/util/pool.rs::func::put	missing	-	baseline
