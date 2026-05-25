@@ -20,10 +20,13 @@ make test       # Run specs
 
 ## Porting Workflow
 
-1. **Inventory-first**: Use `cross-language-crystal-parity` skill to track parity inventory
-2. **Behavior-faithful**: Preserve upstream semantics exactly
-3. **Test-driven**: Port upstream tests as Crystal specs
-4. **Continuous verification**: Run quality gates frequently
+1. **Rust-first source of truth**: Read the relevant Rust code and Rust tests before editing Crystal for a feature
+2. **Inventory-first**: Use `cross-language-crystal-parity` skill to track parity inventory
+3. **Behavior-faithful**: Preserve upstream semantics exactly
+4. **Feature-level TDD**: Work each top-level feature through many small red-green-fix cycles driven by upstream behavior
+5. **Focused then broad verification**: Run focused checks during each TDD step, then full parity/gate checks before closing the feature
+6. **No helper-sized stopping points**: Do not stop or report progress while a top-level feature is still materially incomplete
+7. **Commit inside the feature loop**: Small green commits are allowed, but the feature checkbox stays open until the whole feature is done
 
 ## Crystal Conventions
 
