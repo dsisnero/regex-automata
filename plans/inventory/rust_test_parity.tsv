@@ -28,12 +28,12 @@ src/nfa/thompson/compiler.rs::test::compile_class_unicode	missing	-	baseline
 src/nfa/thompson/compiler.rs::test::compile_empty	missing	-	baseline
 src/nfa/thompson/compiler.rs::test::compile_group	missing	-	baseline
 src/nfa/thompson/compiler.rs::test::compile_literal	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_many_start_pattern	missing	-	baseline
+src/nfa/thompson/compiler.rs::test::compile_many_start_pattern	ported	spec/nfa_thompson_spec.cr	ported exact multi-pattern start-state parity for the public Thompson compiler surface
 src/nfa/thompson/compiler.rs::test::compile_no_reverse_unanchored_prefix_with_end_anchor	missing	-	baseline
 src/nfa/thompson/compiler.rs::test::compile_no_unanchored_prefix_with_start_anchor	missing	-	baseline
 src/nfa/thompson/compiler.rs::test::compile_non_binary_union	missing	-	baseline
 src/nfa/thompson/compiler.rs::test::compile_repetition	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_unanchored_prefix	missing	-	baseline
+src/nfa/thompson/compiler.rs::test::compile_unanchored_prefix	ported	spec/nfa_thompson_spec.cr	ported exact unanchored-prefix state-shape parity for the public Thompson compiler surface
 src/nfa/thompson/compiler.rs::test::compile_yes_reverse_unanchored_prefix_with_start_anchor	missing	-	baseline
 src/nfa/thompson/compiler.rs::test::compile_yes_unanchored_prefix_with_end_anchor	missing	-	baseline
 src/nfa/thompson/compiler.rs::test::empty_class_bytes	missing	-	baseline

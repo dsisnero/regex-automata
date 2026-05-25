@@ -80,13 +80,21 @@ For every unchecked top-level item:
   - Green: new one-pass DFA implementation files under `src/regex/automata/`
   - Done when: one-pass DFA build, search, and serialization parity is demonstrated
 
-- [ ] Thompson NFA — compiler and representation
-  - Upstream scope: `src/nfa/thompson/compiler.rs`, `src/nfa/thompson/nfa.rs`, `src/nfa/thompson/builder.rs`, `src/nfa/thompson/literal_trie.rs`, `src/nfa/thompson/range_trie.rs`, `src/nfa/thompson/map.rs`
-  - Inventory ids: `src/nfa/thompson/compiler.rs::*`, `src/nfa/thompson/nfa.rs::*`, `src/nfa/thompson/builder.rs::*`, `src/nfa/thompson/literal_trie.rs::*`, `src/nfa/thompson/range_trie.rs::*`, `src/nfa/thompson/map.rs::*`
-  - Workflow: finish one compiler/representation checkpoint that includes builder behavior and core graph representation together
-  - Red: port compiler/builder parity specs
+- [x] Thompson NFA public construction and capture configuration
+  - Upstream scope: public/compiler-facing surface in `src/nfa/thompson/nfa.rs` and `src/nfa/thompson/compiler.rs`
+  - Inventory ids: public constructor/config/compiler rows under `src/nfa/thompson/nfa.rs::*` and `src/nfa/thompson/compiler.rs::*`, especially `new`, `new_many`, `always_match`, `never_match`, `config`, `compiler`, `patterns`, `pattern_len`, `start_*`, `state`, `states`, `has_capture`, `has_empty`, `is_utf8`, `is_reverse`, `look_set_*`, `Compiler`, `Config`, `WhichCaptures`, `build`, `build_many`, `configure`, `syntax`, and config getters/setters
+  - Workflow: close the user-facing Thompson NFA construction API first, including capture-policy and unanchored-prefix behavior proven by the nearest upstream compiler tests
+  - Green: `src/regex/automata/nfa.cr`, `src/regex/automata/hir_compiler.cr`, `spec/nfa_thompson_spec.cr`
+  - Progress: public Thompson constructors, compiler/config wrappers, capture-policy controls, look-set metadata, pattern/start iterators, `always_match`, `never_match`, and exact public unanchored-prefix and multi-start parity are now implemented and covered
+  - Done when: the public Thompson NFA/compiler API, capture-policy surface, and the covered upstream compiler semantics are green and inventory-backed; exact raw graph-layout cases that still belong to lower-level representation work stay with the next Thompson NFA feature
+
+- [ ] Thompson NFA graph representation and analytics
+  - Upstream scope: lower-level representation/build details in `src/nfa/thompson/nfa.rs`, `src/nfa/thompson/builder.rs`, `src/nfa/thompson/literal_trie.rs`, `src/nfa/thompson/range_trie.rs`, and `src/nfa/thompson/map.rs`
+  - Inventory ids: remaining representation/analysis rows under `src/nfa/thompson/nfa.rs::*`, plus `src/nfa/thompson/builder.rs::*`, `src/nfa/thompson/literal_trie.rs::*`, `src/nfa/thompson/range_trie.rs::*`, and `src/nfa/thompson/map.rs::*`
+  - Workflow: finish byte-class analysis, memory/reporting helpers, builder internals, and trie/map representation behavior as a second Thompson NFA milestone
+  - Red: port the remaining representation/builder parity specs after the public/compiler API is stable
   - Green: `src/regex/automata/nfa.cr`, `src/regex/automata/hir_compiler.cr`
-  - Done when: compiler, builder, and representation rows for this slice are `ported`
+  - Done when: the remaining Thompson NFA representation and builder rows for this family are `ported`, `skipped`, or documented as intentional divergences
 
 - [ ] PikeVM search engine
   - Upstream scope: `src/nfa/thompson/pikevm.rs`

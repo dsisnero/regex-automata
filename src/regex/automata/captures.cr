@@ -10,18 +10,19 @@ module Regex::Automata
     getter names_by_pattern : Array(Array(String?))
 
     @name_to_index_by_pattern : Array(Hash(String, Int32))
-    @explicit_slot_starts : Array(Int32)
+    @slot_starts_by_pattern : Array(Array(Int32?))
+    @allow_empty_patterns : Bool
 
     def self.empty : GroupInfo
-      new([] of Array(String?))
+      new([] of Array(String?), allow_empty_patterns: true)
     end
 
-    def initialize(@names_by_pattern : Array(Array(String?)))
+    def initialize(@names_by_pattern : Array(Array(String?)), @allow_empty_patterns : Bool = false)
       @name_to_index_by_pattern = [] of Hash(String, Int32)
-      @explicit_slot_starts = [] of Int32
+      @slot_starts_by_pattern = [] of Array(Int32?)
       validate!
       build_indexes!
-      build_slot_starts!
+      build_slot_table!
     end
 
     def to_index(pid : PatternID, name : String) : Int32?
@@ -50,12 +51,7 @@ module Regex::Automata
     def slot(pid : PatternID, group_index : Int32) : Int32?
       return nil if group_index < 0 || group_index >= group_len(pid)
 
-      pattern_index = pid.to_i
-      if group_index == 0
-        pattern_index * 2
-      else
-        @explicit_slot_starts[pattern_index] + ((group_index - 1) * 2)
-      end
+      @slot_starts_by_pattern[pid.to_i]?.try(&.[group_index]?)
     end
 
     def pattern_len : Int32
@@ -71,11 +67,11 @@ module Regex::Automata
     end
 
     def slot_len : Int32
-      all_group_len * 2
+      @slot_starts_by_pattern.sum(&.count(&.itself)) * 2
     end
 
     def implicit_slot_len : Int32
-      pattern_len * 2
+      @names_by_pattern.count { |names| !names.empty? }.to_i32 * 2
     end
 
     def explicit_slot_len : Int32
@@ -87,18 +83,21 @@ module Regex::Automata
         pattern.sum { |name| name.try(&.bytesize) || 0 }
       end
       hash_entries = @name_to_index_by_pattern.sum(&.size) * 12
-      (names_bytes + hash_entries + @explicit_slot_starts.size * 4).to_i32
+      slot_entries = @slot_starts_by_pattern.sum(&.size) * 4
+      (names_bytes + hash_entries + slot_entries).to_i32
     end
 
     private def validate! : Nil
       @names_by_pattern.each_with_index do |names, pattern_index|
         pid = PatternID.new(pattern_index.to_i32)
         if names.empty?
+          next if @allow_empty_patterns
           raise GroupInfoError.new(
             "no capturing groups found for pattern #{pid.to_i} " \
             "(either all patterns have zero groups or all patterns have at least one group)"
           )
         end
+
         if names[0]?
           raise GroupInfoError.new(
             "first capture group (at index 0) for pattern #{pid.to_i} has a name (it must be unnamed)"
@@ -132,12 +131,23 @@ module Regex::Automata
       end
     end
 
-    private def build_slot_starts! : Nil
-      start = implicit_slot_len
-      @explicit_slot_starts = Array(Int32).new(@names_by_pattern.size, 0)
+    private def build_slot_table! : Nil
+      @slot_starts_by_pattern = @names_by_pattern.map { |names| Array(Int32?).new(names.size, nil) }
+
+      next_implicit_slot = 0
       @names_by_pattern.each_with_index do |names, pattern_index|
-        @explicit_slot_starts[pattern_index] = start
-        start += ((names.size - 1) * 2).to_i32
+        next if names.empty?
+
+        @slot_starts_by_pattern[pattern_index][0] = next_implicit_slot
+        next_implicit_slot += 2
+      end
+
+      next_explicit_slot = next_implicit_slot
+      @names_by_pattern.each_with_index do |names, pattern_index|
+        (1...names.size).each do |group_index|
+          @slot_starts_by_pattern[pattern_index][group_index] = next_explicit_slot
+          next_explicit_slot += 2
+        end
       end
     end
   end
@@ -198,7 +208,7 @@ module Regex::Automata
     end
 
     def self.matches(group_info : GroupInfo) : Captures
-      new(group_info, Array(Int32?).new(group_info.pattern_len * 2, nil))
+      new(group_info, Array(Int32?).new(group_info.implicit_slot_len, nil))
     end
 
     def self.empty(group_info : GroupInfo) : Captures
@@ -239,11 +249,7 @@ module Regex::Automata
       pid = pattern
       return nil unless pid
 
-      slots = if @group_info.pattern_len == 1
-                {index * 2, (index * 2) + 1}
-              else
-                @group_info.slots(pid, index)
-              end
+      slots = @group_info.slots(pid, index)
       return nil unless slots
       slot_start, slot_end = slots
 

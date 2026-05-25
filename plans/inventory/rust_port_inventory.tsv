@@ -453,33 +453,33 @@ src/nfa/thompson/builder.rs::func::start_pattern	func	missing	-	auto-generated
 src/nfa/thompson/builder.rs::method::Builder.new	method	missing	-	auto-generated
 src/nfa/thompson/builder.rs::struct::Builder	struct	missing	-	auto-generated
 src/nfa/thompson/builder.rs::test::state_has_small_size	test	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::enum::WhichCaptures	enum	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::func::build	func	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::func::build_from_hir	func	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::func::captures	func	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::func::configure	func	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::func::get_captures	func	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::func::get_look_matcher	func	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::func::get_nfa_size_limit	func	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::func::get_reverse	func	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::func::get_shrink	func	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::func::get_utf8	func	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::func::get_which_captures	func	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::func::is_any	func	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::func::is_none	func	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::func::look_matcher	func	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::func::new	func	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::func::nfa_size_limit	func	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::func::reverse	func	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::func::shrink	func	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::func::syntax	func	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::func::utf8	func	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::func::which_captures	func	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::method::Compiler.new	method	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::method::Config.new	method	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::method::WhichCaptures.is_none	method	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::struct::Compiler	struct	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::struct::Config	struct	missing	-	auto-generated
+src/nfa/thompson/compiler.rs::enum::WhichCaptures	enum	ported	src/regex/automata/nfa.cr, src/regex/automata/hir_compiler.cr, spec/nfa_thompson_spec.cr	public Thompson capture-policy surface now lives in `NFA::WhichCaptures` and `HirCompilerConfig`
+src/nfa/thompson/compiler.rs::func::build	func	ported	src/regex/automata/hir_compiler.cr, spec/nfa_thompson_spec.cr	public Thompson compiler builds NFAs from pattern strings with config-aware syntax parsing
+src/nfa/thompson/compiler.rs::func::build_from_hir	func	ported	src/regex/automata/hir_compiler.cr, spec/nfa_thompson_spec.cr	public Thompson compiler now builds NFAs directly from HIR while preserving the configured public build semantics
+src/nfa/thompson/compiler.rs::func::captures	func	ported	src/regex/automata/hir_compiler.cr	deprecated capture toggle now aliases `which_captures`
+src/nfa/thompson/compiler.rs::func::configure	func	ported	src/regex/automata/hir_compiler.cr, spec/nfa_thompson_spec.cr	public Thompson compiler now exposes configuration chaining
+src/nfa/thompson/compiler.rs::func::get_captures	func	ported	src/regex/automata/hir_compiler.cr	deprecated capture getter now reflects `WhichCaptures`
+src/nfa/thompson/compiler.rs::func::get_look_matcher	func	ported	src/regex/automata/hir_compiler.cr, spec/nfa_thompson_spec.cr	config getter now exposes the configured look matcher
+src/nfa/thompson/compiler.rs::func::get_nfa_size_limit	func	ported	src/regex/automata/hir_compiler.cr, spec/nfa_thompson_spec.cr	config getter now reports the public NFA size limit
+src/nfa/thompson/compiler.rs::func::get_reverse	func	ported	src/regex/automata/hir_compiler.cr, spec/nfa_thompson_spec.cr	config getter now reports reverse-compilation mode
+src/nfa/thompson/compiler.rs::func::get_shrink	func	ported	src/regex/automata/hir_compiler.cr, spec/nfa_thompson_spec.cr	config getter now reports the shrink flag
+src/nfa/thompson/compiler.rs::func::get_utf8	func	ported	src/regex/automata/hir_compiler.cr, spec/nfa_thompson_spec.cr	config getter now reports UTF-8 mode
+src/nfa/thompson/compiler.rs::func::get_which_captures	func	ported	src/regex/automata/hir_compiler.cr, spec/nfa_thompson_spec.cr	config getter now reports the configured capture policy
+src/nfa/thompson/compiler.rs::func::is_any	func	ported	src/regex/automata/nfa.cr	capture-policy helper is now available on `NFA::WhichCaptures`
+src/nfa/thompson/compiler.rs::func::is_none	func	ported	src/regex/automata/nfa.cr	capture-policy helper is now available on `NFA::WhichCaptures`
+src/nfa/thompson/compiler.rs::func::look_matcher	func	ported	src/regex/automata/hir_compiler.cr, spec/nfa_thompson_spec.cr	public Thompson config now supports custom look matchers
+src/nfa/thompson/compiler.rs::func::new	func	ported	src/regex/automata/hir_compiler.cr, spec/nfa_thompson_spec.cr	public Thompson config/compiler constructors now exist
+src/nfa/thompson/compiler.rs::func::nfa_size_limit	func	ported	src/regex/automata/hir_compiler.cr, spec/nfa_thompson_spec.cr	public Thompson config now supports size-limit configuration
+src/nfa/thompson/compiler.rs::func::reverse	func	ported	src/regex/automata/hir_compiler.cr, spec/nfa_thompson_spec.cr	public Thompson config now supports reverse compilation
+src/nfa/thompson/compiler.rs::func::shrink	func	ported	src/regex/automata/hir_compiler.cr, spec/nfa_thompson_spec.cr	public Thompson config now exposes the shrink toggle
+src/nfa/thompson/compiler.rs::func::syntax	func	ported	src/regex/automata/hir_compiler.cr, spec/nfa_thompson_spec.cr	public Thompson compiler now accepts `Regex::Automata::Syntax::Config`
+src/nfa/thompson/compiler.rs::func::utf8	func	ported	src/regex/automata/hir_compiler.cr, spec/nfa_thompson_spec.cr	public Thompson config now supports UTF-8 mode control
+src/nfa/thompson/compiler.rs::func::which_captures	func	ported	src/regex/automata/hir_compiler.cr, spec/nfa_thompson_spec.cr	public Thompson config now supports `WhichCaptures`
+src/nfa/thompson/compiler.rs::method::Compiler.new	method	ported	src/regex/automata/hir_compiler.cr, spec/nfa_thompson_spec.cr	public Thompson compiler constructor now exists
+src/nfa/thompson/compiler.rs::method::Config.new	method	ported	src/regex/automata/hir_compiler.cr, spec/nfa_thompson_spec.cr	public Thompson config constructor now exists
+src/nfa/thompson/compiler.rs::method::WhichCaptures.is_none	method	ported	src/regex/automata/nfa.cr	capture-policy helper is now available on `NFA::WhichCaptures`
+src/nfa/thompson/compiler.rs::struct::Compiler	struct	ported	src/regex/automata/hir_compiler.cr, spec/nfa_thompson_spec.cr	public Thompson compiler surface is exposed through `HirCompiler`
+src/nfa/thompson/compiler.rs::struct::Config	struct	ported	src/regex/automata/hir_compiler.cr, spec/nfa_thompson_spec.cr	public Thompson config surface is exposed through `HirCompilerConfig`
 src/nfa/thompson/compiler.rs::test::compile_alternation	test	missing	-	auto-generated
 src/nfa/thompson/compiler.rs::test::compile_captures_all	test	missing	-	auto-generated
 src/nfa/thompson/compiler.rs::test::compile_captures_implicit	test	missing	-	auto-generated
@@ -515,42 +515,42 @@ src/nfa/thompson/map.rs::struct::Utf8BoundedMap	struct	missing	-	auto-generated
 src/nfa/thompson/map.rs::struct::Utf8SuffixKey	struct	missing	-	auto-generated
 src/nfa/thompson/map.rs::struct::Utf8SuffixMap	struct	missing	-	auto-generated
 src/nfa/thompson/nfa.rs::enum::State	enum	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::func::always_match	func	missing	-	auto-generated
+src/nfa/thompson/nfa.rs::func::always_match	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	public Thompson always-match constructor now exists with NFA-level parity coverage
 src/nfa/thompson/nfa.rs::func::byte_classes	func	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::func::compiler	func	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::func::config	func	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::func::group_info	func	ported	spec/captures_spec.cr	multi-pattern capture slots flow through NFA group_info
-src/nfa/thompson/nfa.rs::func::has_capture	func	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::func::has_empty	func	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::func::is_always_start_anchored	func	missing	-	auto-generated
+src/nfa/thompson/nfa.rs::func::compiler	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	public Thompson compiler convenience constructor now exists
+src/nfa/thompson/nfa.rs::func::config	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	public Thompson config convenience constructor now exists
+src/nfa/thompson/nfa.rs::func::group_info	func	ported	src/regex/automata/nfa.cr, spec/captures_spec.cr, spec/nfa_thompson_spec.cr	group metadata now flows through both raw HIR compilation and public Thompson construction
+src/nfa/thompson/nfa.rs::func::has_capture	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	NFA capture metadata is now exposed publicly
+src/nfa/thompson/nfa.rs::func::has_empty	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	NFA empty-match metadata is now exposed publicly
+src/nfa/thompson/nfa.rs::func::is_always_start_anchored	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	NFA anchored-start introspection now exists
 src/nfa/thompson/nfa.rs::func::is_epsilon	func	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::func::is_reverse	func	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::func::is_utf8	func	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::func::look_matcher	func	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::func::look_set_any	func	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::func::look_set_prefix_all	func	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::func::look_set_prefix_any	func	missing	-	auto-generated
+src/nfa/thompson/nfa.rs::func::is_reverse	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	NFA reverse-compilation metadata is now exposed publicly
+src/nfa/thompson/nfa.rs::func::is_utf8	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	NFA UTF-8 metadata is now exposed publicly
+src/nfa/thompson/nfa.rs::func::look_matcher	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	NFA look matcher is now stored and exposed publicly
+src/nfa/thompson/nfa.rs::func::look_set_any	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	NFA-wide look assertion introspection now exists
+src/nfa/thompson/nfa.rs::func::look_set_prefix_all	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	prefix look assertion intersection is now exposed on the public NFA surface
+src/nfa/thompson/nfa.rs::func::look_set_prefix_any	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	prefix look assertion union is now exposed on the public NFA surface
 src/nfa/thompson/nfa.rs::func::matches	func	missing	-	auto-generated
 src/nfa/thompson/nfa.rs::func::matches_byte	func	missing	-	auto-generated
 src/nfa/thompson/nfa.rs::func::matches_unit	func	missing	-	auto-generated
 src/nfa/thompson/nfa.rs::func::memory_usage	func	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::func::never_match	func	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::func::new	func	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::func::pattern_len	func	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::func::patterns	func	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::func::start_anchored	func	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::func::start_pattern	func	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::func::start_unanchored	func	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::func::state	func	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::func::states	func	missing	-	auto-generated
+src/nfa/thompson/nfa.rs::func::never_match	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	public Thompson never-match constructor now exists with NFA-level parity coverage
+src/nfa/thompson/nfa.rs::func::new	func	ported	src/regex/automata/nfa.cr, src/regex/automata/hir_compiler.cr, spec/nfa_thompson_spec.cr	public Thompson constructor now builds NFAs from pattern strings
+src/nfa/thompson/nfa.rs::func::pattern_len	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	public NFA pattern-length introspection now exists
+src/nfa/thompson/nfa.rs::func::patterns	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	public NFA pattern iteration now exists
+src/nfa/thompson/nfa.rs::func::start_anchored	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	public NFA anchored-start introspection now exists
+src/nfa/thompson/nfa.rs::func::start_pattern	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	public per-pattern anchored starts are now exposed
+src/nfa/thompson/nfa.rs::func::start_unanchored	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	public NFA unanchored-start introspection now exists
+src/nfa/thompson/nfa.rs::func::state	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	public state lookup by `StateID` now exists
+src/nfa/thompson/nfa.rs::func::states	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	public state-slice access is now covered through the Thompson NFA API
 src/nfa/thompson/nfa.rs::method::DenseTransitions.matches	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::NFA.new	method	missing	-	auto-generated
+src/nfa/thompson/nfa.rs::method::NFA.new	method	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	public Thompson NFA constructors now exist
 src/nfa/thompson/nfa.rs::method::SparseTransitions.matches	method	missing	-	auto-generated
 src/nfa/thompson/nfa.rs::method::State.is_epsilon	method	missing	-	auto-generated
 src/nfa/thompson/nfa.rs::method::Transition.matches	method	missing	-	auto-generated
 src/nfa/thompson/nfa.rs::struct::DenseTransitions	struct	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::struct::NFA	struct	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::struct::PatternIter	struct	missing	-	auto-generated
+src/nfa/thompson/nfa.rs::struct::NFA	struct	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	public Thompson NFA surface is now exposed
+src/nfa/thompson/nfa.rs::struct::PatternIter	struct	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	public Thompson pattern iterator now exists
 src/nfa/thompson/nfa.rs::struct::SparseTransitions	struct	missing	-	auto-generated
 src/nfa/thompson/nfa.rs::struct::Transition	struct	missing	-	auto-generated
 src/nfa/thompson/nfa.rs::test::always_match	test	missing	-	auto-generated
