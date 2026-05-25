@@ -736,9 +736,9 @@ src/util/search.rs::enum::Anchored	missing	-	baseline
 src/util/search.rs::enum::MatchErrorKind	missing	-	baseline
 src/util/search.rs::enum::MatchKind	missing	-	baseline
 src/util/search.rs::func::anchored	missing	-	baseline
-src/util/search.rs::func::capacity	missing	-	baseline
-src/util/search.rs::func::clear	missing	-	baseline
-src/util/search.rs::func::contains	missing	-	baseline
+src/util/search.rs::func::capacity	mapped	src/regex/automata/search.cr	mapped to PatternSet#capacity
+src/util/search.rs::func::clear	mapped	src/regex/automata/search.cr	mapped to PatternSet#clear
+src/util/search.rs::func::contains	mapped	src/regex/automata/search.cr	mapped to PatternSet#contains
 src/util/search.rs::func::earliest	missing	-	baseline
 src/util/search.rs::func::end	missing	-	baseline
 src/util/search.rs::func::gave_up	missing	-	baseline
@@ -748,42 +748,42 @@ src/util/search.rs::func::get_range	missing	-	baseline
 src/util/search.rs::func::get_span	missing	-	baseline
 src/util/search.rs::func::haystack	missing	-	baseline
 src/util/search.rs::func::haystack_too_long	missing	-	baseline
-src/util/search.rs::func::insert	missing	-	baseline
+src/util/search.rs::func::insert	mapped	src/regex/automata/search.cr	mapped to PatternSet#insert
 src/util/search.rs::func::is_anchored	missing	-	baseline
 src/util/search.rs::func::is_char_boundary	missing	-	baseline
 src/util/search.rs::func::is_done	missing	-	baseline
-src/util/search.rs::func::is_empty	missing	-	baseline
-src/util/search.rs::func::is_full	missing	-	baseline
-src/util/search.rs::func::iter	missing	-	baseline
+src/util/search.rs::func::is_empty	mapped	src/regex/automata/search.cr	mapped to primitive empty predicates and PatternSet#is_empty
+src/util/search.rs::func::is_full	mapped	src/regex/automata/search.cr	mapped to PatternSet#is_full
+src/util/search.rs::func::iter	mapped	src/regex/automata/search.cr	mapped to PatternSet#iter and PatternSetIter
 src/util/search.rs::func::kind	missing	-	baseline
-src/util/search.rs::func::len	missing	-	baseline
+src/util/search.rs::func::len	mapped	src/regex/automata/search.cr	mapped to primitive length helpers and PatternSet#len
 src/util/search.rs::func::must	missing	-	baseline
 src/util/search.rs::func::new	missing	-	baseline
 src/util/search.rs::func::offset	missing	-	baseline
 src/util/search.rs::func::pattern	missing	-	baseline
 src/util/search.rs::func::quit	missing	-	baseline
 src/util/search.rs::func::range	missing	-	baseline
-src/util/search.rs::func::remove	missing	-	baseline
+src/util/search.rs::func::remove	mapped	src/regex/automata/search.cr	mapped to PatternSet#remove
 src/util/search.rs::func::set_anchored	missing	-	baseline
 src/util/search.rs::func::set_earliest	missing	-	baseline
 src/util/search.rs::func::set_end	missing	-	baseline
 src/util/search.rs::func::set_start	missing	-	baseline
 src/util/search.rs::func::span	missing	-	baseline
 src/util/search.rs::func::start	missing	-	baseline
-src/util/search.rs::func::try_insert	missing	-	baseline
+src/util/search.rs::func::try_insert	mapped	src/regex/automata/search.cr	mapped to PatternSet#try_insert
 src/util/search.rs::func::unsupported_anchored	missing	-	baseline
 src/util/search.rs::method::Anchored.is_anchored	missing	-	baseline
 src/util/search.rs::method::HalfMatch.new	missing	-	baseline
 src/util/search.rs::method::MatchError.new	missing	-	baseline
-src/util/search.rs::method::PatternSet.new	missing	-	baseline
+src/util/search.rs::method::PatternSet.new	mapped	src/regex/automata/search.cr	mapped to PatternSet.initialize
 src/util/search.rs::method::Span.range	missing	-	baseline
 src/util/search.rs::struct::HalfMatch	missing	-	baseline
 src/util/search.rs::struct::Input	missing	-	baseline
 src/util/search.rs::struct::Match	missing	-	baseline
 src/util/search.rs::struct::MatchError	missing	-	baseline
-src/util/search.rs::struct::PatternSet	missing	-	baseline
-src/util/search.rs::struct::PatternSetInsertError	missing	-	baseline
-src/util/search.rs::struct::PatternSetIter	missing	-	baseline
+src/util/search.rs::struct::PatternSet	mapped	src/regex/automata/search.cr;spec/pattern_set_spec.cr	mapped to the Crystal PatternSet container
+src/util/search.rs::struct::PatternSetInsertError	mapped	src/regex/automata/search.cr;spec/pattern_set_spec.cr	mapped to the Crystal PatternSet insert failure type
+src/util/search.rs::struct::PatternSetIter	mapped	src/regex/automata/search.cr;spec/pattern_set_spec.cr	mapped to the Crystal PatternSet iterator
 src/util/search.rs::struct::Span	missing	-	baseline
 src/util/start.rs::func::anchored	missing	-	baseline
 src/util/start.rs::func::from_input_forward	missing	-	baseline

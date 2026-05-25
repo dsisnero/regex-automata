@@ -552,4 +552,127 @@ module Regex::Automata
       @mat
     end
   end
+
+  # A set of matching pattern identifiers.
+  class PatternSet
+    @len : Int32
+    @which : Array(Bool)
+
+    def initialize(capacity : Int)
+      if capacity < 0 || capacity > Int32::MAX
+        raise ArgumentError.new("pattern set capacity exceeds Int32 limit")
+      end
+      @len = 0
+      @which = Array(Bool).new(capacity, false)
+    end
+
+    def clear : Nil
+      @len = 0
+      @which.fill(false)
+    end
+
+    def contains(pid : PatternID) : Bool
+      index = pid.to_i
+      index >= 0 && index < capacity && @which[index]
+    end
+
+    def insert(pid : PatternID) : Bool
+      result = try_insert(pid)
+      raise result if result.is_a?(PatternSetInsertError)
+      result
+    end
+
+    def try_insert(pid : PatternID) : Bool | PatternSetInsertError
+      index = pid.to_i
+      if index < 0 || index >= capacity
+        return PatternSetInsertError.new(pid, capacity)
+      end
+      return false if @which[index]
+
+      @len += 1
+      @which[index] = true
+      true
+    end
+
+    def remove(pid : PatternID) : Bool
+      index = pid.to_i
+      raise ArgumentError.new("pattern set should have sufficient capacity") if index < 0 || index >= capacity
+      return false unless @which[index]
+
+      @len -= 1
+      @which[index] = false
+      true
+    end
+
+    def is_empty : Bool
+      @len == 0
+    end
+
+    def empty? : Bool
+      is_empty
+    end
+
+    def is_full : Bool
+      @len == capacity
+    end
+
+    def len : Int32
+      @len
+    end
+
+    def capacity : Int32
+      @which.size.to_i32
+    end
+
+    def iter : PatternSetIter
+      PatternSetIter.new(@which)
+    end
+  end
+
+  class PatternSetInsertError < Error
+    getter attempted : PatternID
+    getter capacity : Int32
+
+    def initialize(@attempted : PatternID, @capacity : Int32)
+      super("failed to insert pattern ID #{@attempted.to_i} into pattern set with insufficient capacity of #{@capacity}")
+    end
+  end
+
+  # An iterator over all pattern identifiers in a PatternSet.
+  class PatternSetIter
+    include Enumerable(PatternID)
+
+    @which : Array(Bool)
+    @front : Int32
+    @back : Int32
+
+    def initialize(@which : Array(Bool))
+      @front = 0
+      @back = @which.size.to_i32 - 1
+    end
+
+    def next : PatternID?
+      while @front <= @back
+        index = @front
+        @front += 1
+        return PatternID.new(index) if @which[index]
+      end
+      nil
+    end
+
+    def next_back : PatternID?
+      while @back >= @front
+        index = @back
+        @back -= 1
+        return PatternID.new(index) if @which[index]
+      end
+      nil
+    end
+
+    def each(&block : PatternID ->)
+      while pid = self.next
+        yield pid
+      end
+    end
+  end
 end

@@ -147,11 +147,11 @@
   - Green: `src/regex/automata/wire.cr`
   - Done when: serialization/deserialization parity is demonstrated
 
-- [ ] Utilities — PatternSet
+- [x] Utilities — PatternSet
   - Upstream scope: `src/util/search.rs::struct::PatternSet`, `src/util/search.rs::struct::PatternSetInsertError`, `src/util/search.rs::struct::PatternSetIter`
   - Inventory ids: `src/util/search.rs::struct::PatternSet`, `src/util/search.rs::struct::PatternSetInsertError`, `src/util/search.rs::struct::PatternSetIter`, `src/util/search.rs::func::capacity`, `src/util/search.rs::func::clear`, `src/util/search.rs::func::contains`, `src/util/search.rs::func::insert`, `src/util/search.rs::func::iter`, `src/util/search.rs::func::is_empty`, `src/util/search.rs::func::is_full`, `src/util/search.rs::func::len`, `src/util/search.rs::func::remove`, `src/util/search.rs::func::try_insert`, `src/util/search.rs::method::PatternSet.new`
-  - Red: port PatternSet specs
-  - Green: `src/regex/automata/search.cr` or a focused support file
+  - Green: `src/regex/automata/search.cr`, `spec/pattern_set_spec.cr`
+  - Progress: `PatternSet`, `PatternSetInsertError`, and `PatternSetIter` now live in `search.cr` with capacity-checked insertion, removal, forward and reverse iteration, and dedicated API coverage
   - Done when: PatternSet API parity is demonstrated
 
 - [ ] Utilities — Shared infrastructure helpers
