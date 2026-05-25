@@ -133,11 +133,11 @@
   - Progress: ByteClasses and Unit now follow upstream EOI-aware alphabet semantics, byte-class iterators and representative/element traversal are covered, and shared UTF-8 decode/boundary helpers now live in `utf8_sequences.cr` and back the look-around logic
   - Done when: byte-class partitioning and UTF-8 automaton parity is demonstrated
 
-- [ ] Utilities — Prefilters
+- [x] Utilities — Prefilters
   - Upstream scope: `src/util/prefilter/*`
   - Inventory ids: `src/util/prefilter/*::*`
-  - Red: port prefilter selection and matching specs
-  - Green: new prefilter implementation files under `src/regex/automata/`
+  - Green: `src/regex/automata/prefilter.cr`, `spec/prefilter_spec.cr`
+  - Progress: explicit-needle prefilters, HIR-prefix extraction, candidate finding, anchored-prefix checks, and fast/size metadata are now implemented and covered
   - Done when: literal-acceleration parity is demonstrated
 
 - [x] Utilities — Serialization and escaping

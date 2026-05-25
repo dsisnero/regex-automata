@@ -705,13 +705,13 @@ src/util/pool.rs::method::T.get	missing	-	baseline
 src/util/pool.rs::method::T.put	missing	-	baseline
 src/util/pool.rs::struct::Pool	missing	-	baseline
 src/util/pool.rs::struct::PoolGuard	missing	-	baseline
-src/util/prefilter/mod.rs::func::find	missing	-	baseline
-src/util/prefilter/mod.rs::func::from_hir_prefix	missing	-	baseline
-src/util/prefilter/mod.rs::func::is_fast	missing	-	baseline
-src/util/prefilter/mod.rs::func::max_needle_len	missing	-	baseline
-src/util/prefilter/mod.rs::func::memory_usage	missing	-	baseline
-src/util/prefilter/mod.rs::func::prefix	missing	-	baseline
-src/util/prefilter/mod.rs::struct::Prefilter	missing	-	baseline
+src/util/prefilter/mod.rs::func::find	mapped	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	mapped to literal prefilter candidate searching
+src/util/prefilter/mod.rs::func::from_hir_prefix	mapped	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	mapped to HIR prefix extraction using the Crystal regex-syntax literal extractor
+src/util/prefilter/mod.rs::func::is_fast	mapped	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	mapped to the Crystal prefilter speed heuristic
+src/util/prefilter/mod.rs::func::max_needle_len	mapped	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	mapped to longest-needle metadata
+src/util/prefilter/mod.rs::func::memory_usage	mapped	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	mapped to prefilter memory-usage reporting
+src/util/prefilter/mod.rs::func::prefix	mapped	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	mapped to anchored prefix matching
+src/util/prefilter/mod.rs::struct::Prefilter	mapped	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	mapped to a Crystal literal-prefilter wrapper
 src/util/primitives.rs::const::LIMIT	missing	-	baseline
 src/util/primitives.rs::const::MAX	missing	-	baseline
 src/util/primitives.rs::const::SIZE	missing	-	baseline

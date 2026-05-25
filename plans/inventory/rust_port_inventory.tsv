@@ -784,13 +784,13 @@ src/util/pool.rs::test::thread_owner_distinct	test	missing	-	auto-generated
 src/util/pool.rs::test::thread_owner_optimization	test	missing	-	auto-generated
 src/util/pool.rs::test::thread_owner_send_drop	test	missing	-	auto-generated
 src/util/pool.rs::test::thread_owner_sync	test	missing	-	auto-generated
-src/util/prefilter/mod.rs::func::find	func	missing	-	auto-generated
-src/util/prefilter/mod.rs::func::from_hir_prefix	func	missing	-	auto-generated
-src/util/prefilter/mod.rs::func::is_fast	func	missing	-	auto-generated
-src/util/prefilter/mod.rs::func::max_needle_len	func	missing	-	auto-generated
-src/util/prefilter/mod.rs::func::memory_usage	func	missing	-	auto-generated
-src/util/prefilter/mod.rs::func::prefix	func	missing	-	auto-generated
-src/util/prefilter/mod.rs::struct::Prefilter	struct	missing	-	auto-generated
+src/util/prefilter/mod.rs::func::find	func	ported	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	ported candidate span search for explicit needles and HIR prefixes
+src/util/prefilter/mod.rs::func::from_hir_prefix	func	ported	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	ported HIR prefix extraction via regex-syntax literal extraction
+src/util/prefilter/mod.rs::func::is_fast	func	ported	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	ported prefilter speed heuristic surface
+src/util/prefilter/mod.rs::func::max_needle_len	func	ported	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	ported longest-needle metadata
+src/util/prefilter/mod.rs::func::memory_usage	func	ported	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	ported prefilter memory accounting surface
+src/util/prefilter/mod.rs::func::prefix	func	ported	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	ported anchored prefix matching
+src/util/prefilter/mod.rs::struct::Prefilter	struct	ported	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	ported public prefilter wrapper for literal acceleration
 src/util/primitives.rs::const::LIMIT	const	missing	-	auto-generated
 src/util/primitives.rs::const::MAX	const	missing	-	auto-generated
 src/util/primitives.rs::const::SIZE	const	missing	-	auto-generated

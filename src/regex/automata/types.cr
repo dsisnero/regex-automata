@@ -51,12 +51,6 @@ module Regex::Automata
     end
   end
 
-  # Placeholder for prefilter functionality
-  # In Rust, this is a complex type that accelerates searches by finding
-  # literal prefixes quickly. For now, we use a simple placeholder.
-  class Prefilter
-  end
-
   # Flags describing DFA behavior and configuration
   struct DFAFlags
     # Whether the DFA is premultiplied (state IDs = index * alphabet_len)

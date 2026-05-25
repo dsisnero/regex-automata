@@ -115,7 +115,10 @@ describe "DFA::Dense" do
   end
 
   it "attaches prefilters through config and the DFA setter" do
-    prefilter = Regex::Automata::Prefilter.new
+    prefilter = Regex::Automata::Prefilter.new(
+      Regex::Automata::MatchKind::LeftmostFirst,
+      ["abc"]
+    ).not_nil!
     dfa = Regex::Automata::DFA::Builder.new
       .configure(Regex::Automata::DFA::DFA.config.prefilter(prefilter))
       .build("abc")

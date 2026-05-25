@@ -26,7 +26,10 @@ describe "DFA::Sparse" do
   end
 
   it "exposes sparse metadata and prefilter attachment" do
-    prefilter = Regex::Automata::Prefilter.new
+    prefilter = Regex::Automata::Prefilter.new(
+      Regex::Automata::MatchKind::LeftmostFirst,
+      ["abc"]
+    ).not_nil!
     sparse = Regex::Automata::DFA::Builder.new
       .configure(
         Regex::Automata::DFA::DFA.config
