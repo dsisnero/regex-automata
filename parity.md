@@ -2,11 +2,37 @@
 
 ## Execution Policy
 
-- Each top-level checkbox is a commit-sized git feature, not a convenient small method patch.
-- Work should continue until the active top-level feature has its intended red-to-green spec set, the corresponding inventory rows are updated, quality gates pass, and the branch is ready for a commit.
-- Avoid stopping after isolated accessors, aliases, or bookkeeping changes when they are only one fragment of a larger feature workflow already in flight.
-- After a top-level feature reaches parity for its declared scope, commit immediately before moving to the next feature.
+- Rust source and Rust tests are the source of truth for every feature. Before changing Crystal code, read the relevant upstream Rust module and the nearest upstream tests that prove the intended behavior.
+- Each top-level checkbox is a feature-sized workflow, not a convenient small method patch. A feature may require many small red-green-fix cycles, but those cycles stay inside the same feature until it is actually closed.
+- Work should continue until the active top-level feature has its intended red-to-green spec set, the corresponding inventory rows are updated, the parity scripts pass, the quality gates pass, and the branch is ready for a feature checkpoint commit.
+- Do not stop after isolated accessors, aliases, helpers, or bookkeeping changes when they are only one fragment of a larger feature workflow already in flight.
+- Make many small TDD steps inside a feature:
+  - port or write the next missing upstream parity spec
+  - implement the smallest behavior change that makes it pass
+  - run focused checks
+  - repeat until the full feature scope is green
+- Small commits during a feature are allowed when they preserve a green tree and clearly represent one red-green step, but they are not a stopping point. Continue looping until the top-level feature is complete.
+- After a top-level feature reaches parity for its declared scope, commit the completed feature immediately before moving to the next top-level item.
 - Use inventory rows to track completeness inside a feature, but use this plan to decide when a branch-sized unit is actually done.
+
+## Feature Loop
+
+For every unchecked top-level item:
+
+1. Read the upstream Rust code and upstream tests for that feature family.
+2. Choose the next missing behavior slice from the Rust tests, not from convenience in the Crystal codebase.
+3. Port the failing or missing parity spec first.
+4. Implement only enough Crystal code to make that specific spec pass.
+5. Run the narrowest relevant check set, then expand to feature-level checks.
+6. Repeat until the full top-level feature scope is covered.
+7. Update `parity.md` and the inventory manifests only after the behavior is proven.
+8. Commit when the whole top-level feature is done, not when one helper landed.
+
+## Stop Rule
+
+- Do not stop to report progress while a top-level feature is still open unless blocked by a real ambiguity, missing upstream behavior, or an external failure.
+- Do not present a helper-sized patch as meaningful progress if the surrounding feature is still materially incomplete.
+- If a feature needs multiple commits for safety, keep going after each green commit until the top-level checkbox can be marked complete.
 
 ## Current Focus
 
