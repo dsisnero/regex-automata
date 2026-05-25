@@ -125,11 +125,12 @@
   - Progress: look assertion enums, look-set algebra and repr I/O, configurable look matching, UTF-8-aware Unicode word-boundary handling, and the upstream look matcher/set parity specs are now covered
   - Done when: look-around construction and UTF-8 boundary logic parity is demonstrated
 
-- [ ] Utilities — Byte classes and UTF-8 automata
+- [x] Utilities — Byte classes and UTF-8 automata
   - Upstream scope: `src/util/alphabet.rs`, `src/util/utf8.rs`
   - Inventory ids: `src/util/alphabet.rs::*`, `src/util/utf8.rs::*`
   - Red: port byte-class and UTF-8 specs
   - Green: `src/regex/automata/byte_classes.cr`, `src/regex/automata/byte_set.cr`, `src/regex/automata/utf8_sequences.cr`
+  - Progress: ByteClasses and Unit now follow upstream EOI-aware alphabet semantics, byte-class iterators and representative/element traversal are covered, and shared UTF-8 decode/boundary helpers now live in `utf8_sequences.cr` and back the look-around logic
   - Done when: byte-class partitioning and UTF-8 automaton parity is demonstrated
 
 - [ ] Utilities — Prefilters

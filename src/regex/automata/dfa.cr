@@ -115,7 +115,7 @@ module Regex::Automata::DFA
                          else
                            raise "Unreachable"
                          end
-      @byte_classes = @byte_classifier.alphabet_len
+      @byte_classes = @byte_classifier.alphabet_len - 1
       @accelerators = accelerators || Array.new(@states.size) { Bytes.empty }
       @prefilter = prefilter
       @quitset = quitset
@@ -207,7 +207,7 @@ module Regex::Automata::DFA
       alphabet_len = byte_classifier.alphabet_len
       stride2 = 0
       stride = 1
-      while stride < alphabet_len + 1
+      while stride < alphabet_len
         stride <<= 1
         stride2 += 1
       end
@@ -312,11 +312,11 @@ module Regex::Automata::DFA
       end
 
       # Create ByteClasses object
-      byte_classes_obj = ByteClasses.new(class_mapping, byte_classes_count)
+      byte_classes_obj = ByteClasses.from_mapping(class_mapping, byte_classes_count)
 
       stride2 = 0
       stride = 1
-      while stride < byte_classes_obj.alphabet_len + 1
+      while stride < byte_classes_obj.alphabet_len
         stride <<= 1
         stride2 += 1
       end
@@ -1616,7 +1616,7 @@ module Regex::Automata::DFA
       accelerator_bytes = [] of UInt8
 
       # Check each byte class (transition)
-      (0...byte_classes.alphabet_len).each do |byte_class|
+      (0...(byte_classes.alphabet_len - 1)).each do |byte_class|
         next_state = StateID.new(tt.to_index(tt.next_state_by_class(tt.to_state_id(state_id.to_i), byte_class)))
 
         # Skip self-transitions (id == self.id())
@@ -1762,7 +1762,7 @@ module Regex::Automata::DFA
         is_half_crlf = meta.is_half_crlf
 
         # For each byte class, compute transition
-        @byte_classes.alphabet_len.times do |byte_class|
+        (@byte_classes.alphabet_len - 1).times do |byte_class|
           byte = @byte_classes.representative(byte_class)
           next_set = Set(StateID).new
           current_look_have = look_have
@@ -2237,7 +2237,7 @@ module Regex::Automata::DFA
 
         old_tt_id = tt.to_state_id(old_index)
         new_tt_id = reordered_tt.to_state_id(new_index)
-        tt.classes.alphabet_len.times do |byte_class|
+        (tt.classes.alphabet_len - 1).times do |byte_class|
           old_next = tt.next_state_by_class(old_tt_id, byte_class)
           reordered_tt.set_transition_by_class(new_tt_id, byte_class, reordered_tt.to_state_id(old_to_new[tt.to_index(old_next)]))
         end
@@ -2309,7 +2309,7 @@ module Regex::Automata::DFA
 
         old_tt_id = tt.to_state_id(old_index)
         new_tt_id = reordered_tt.to_state_id(new_index)
-        tt.classes.alphabet_len.times do |byte_class|
+        (tt.classes.alphabet_len - 1).times do |byte_class|
           old_next = tt.next_state_by_class(old_tt_id, byte_class)
           reordered_tt.set_transition_by_class(new_tt_id, byte_class, reordered_tt.to_state_id(old_to_new[tt.to_index(old_next)]))
         end
@@ -2329,7 +2329,7 @@ module Regex::Automata::DFA
     end
 
     private def build_state_shell(id : StateID, meta : StateMeta) : State
-      state = State.new(id, @byte_classes.alphabet_len, meta.look_need, meta.look_have, meta.is_from_word, meta.is_half_crlf)
+      state = State.new(id, @byte_classes.alphabet_len - 1, meta.look_need, meta.look_have, meta.is_from_word, meta.is_half_crlf)
       state.match = meta.matches.dup
       state
     end
@@ -2339,7 +2339,7 @@ module Regex::Automata::DFA
       metas.each_with_index do |meta, index|
         state = build_state_shell(StateID.new(index), meta)
         tt_id = tt.to_state_id(index)
-        state.next = Array.new(tt.classes.alphabet_len) do |byte_class|
+        state.next = Array.new(tt.classes.alphabet_len - 1) do |byte_class|
           StateID.new(tt.to_index(tt.next_state_by_class(tt_id, byte_class)))
         end
         state.eoi_next = StateID.new(tt.to_index(tt.next_eoi_state(tt_id)))

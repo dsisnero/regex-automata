@@ -601,37 +601,37 @@ src/nfa/thompson/range_trie.rs::method::RangeTrie.new	method	missing	-	auto-gene
 src/nfa/thompson/range_trie.rs::struct::RangeTrie	struct	missing	-	auto-generated
 src/nfa/thompson/range_trie.rs::test::no_splits	test	missing	-	auto-generated
 src/nfa/thompson/range_trie.rs::test::splits	test	missing	-	auto-generated
-src/util/alphabet.rs::func::alphabet_len	func	missing	-	auto-generated
-src/util/alphabet.rs::func::as_eoi	func	missing	-	auto-generated
-src/util/alphabet.rs::func::as_u8	func	missing	-	auto-generated
-src/util/alphabet.rs::func::as_usize	func	missing	-	auto-generated
-src/util/alphabet.rs::func::elements	func	missing	-	auto-generated
-src/util/alphabet.rs::func::empty	func	missing	-	auto-generated
-src/util/alphabet.rs::func::eoi	func	missing	-	auto-generated
-src/util/alphabet.rs::func::get	func	missing	-	auto-generated
-src/util/alphabet.rs::func::get_by_unit	func	missing	-	auto-generated
-src/util/alphabet.rs::func::is_byte	func	missing	-	auto-generated
-src/util/alphabet.rs::func::is_eoi	func	missing	-	auto-generated
-src/util/alphabet.rs::func::is_singleton	func	missing	-	auto-generated
-src/util/alphabet.rs::func::is_word_byte	func	missing	-	auto-generated
-src/util/alphabet.rs::func::iter	func	missing	-	auto-generated
-src/util/alphabet.rs::func::set	func	missing	-	auto-generated
-src/util/alphabet.rs::func::singletons	func	missing	-	auto-generated
-src/util/alphabet.rs::func::stride2	func	missing	-	auto-generated
-src/util/alphabet.rs::func::u8	func	missing	-	auto-generated
-src/util/alphabet.rs::method::ByteClasses.empty	method	missing	-	auto-generated
-src/util/alphabet.rs::method::Unit.u8	method	missing	-	auto-generated
-src/util/alphabet.rs::struct::ByteClassElements	struct	missing	-	auto-generated
-src/util/alphabet.rs::struct::ByteClassIter	struct	missing	-	auto-generated
-src/util/alphabet.rs::struct::ByteClassRepresentatives	struct	missing	-	auto-generated
-src/util/alphabet.rs::struct::ByteClasses	struct	missing	-	auto-generated
-src/util/alphabet.rs::struct::Unit	struct	missing	-	auto-generated
-src/util/alphabet.rs::test::byte_classes	test	missing	-	auto-generated
-src/util/alphabet.rs::test::elements_empty	test	missing	-	auto-generated
-src/util/alphabet.rs::test::elements_singletons	test	missing	-	auto-generated
-src/util/alphabet.rs::test::elements_typical	test	missing	-	auto-generated
-src/util/alphabet.rs::test::full_byte_classes	test	missing	-	auto-generated
-src/util/alphabet.rs::test::representatives	test	missing	-	auto-generated
+src/util/alphabet.rs::func::alphabet_len	func	ported	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	ported byte-class alphabet length semantics including the EOI sentinel
+src/util/alphabet.rs::func::as_eoi	func	ported	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	ported Unit EOI extraction
+src/util/alphabet.rs::func::as_u8	func	ported	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	ported Unit byte extraction
+src/util/alphabet.rs::func::as_usize	func	ported	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	ported Unit integer conversion
+src/util/alphabet.rs::func::elements	func	ported	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	ported byte-class element iteration
+src/util/alphabet.rs::func::empty	func	ported	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	ported empty byte-class constructor
+src/util/alphabet.rs::func::eoi	func	ported	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	ported ByteClasses EOI-unit constructor
+src/util/alphabet.rs::func::get	func	ported	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	ported byte-to-class lookup
+src/util/alphabet.rs::func::get_by_unit	func	ported	src/regex/automata/byte_classes.cr	ported unit-to-class lookup for transition-table callers
+src/util/alphabet.rs::func::is_byte	func	ported	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	ported Unit byte predicate
+src/util/alphabet.rs::func::is_eoi	func	ported	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	ported Unit EOI predicate
+src/util/alphabet.rs::func::is_singleton	func	ported	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	ported singleton-byte-class detection
+src/util/alphabet.rs::func::is_word_byte	func	ported	src/regex/automata/byte_classes.cr;src/regex/automata/utf8_sequences.cr;spec/byte_classes_spec.cr	ported ASCII word-byte classification through shared UTF-8 helpers
+src/util/alphabet.rs::func::iter	func	ported	src/regex/automata/byte_classes.cr	ported byte-class iteration including EOI
+src/util/alphabet.rs::func::set	func	ported	src/regex/automata/byte_classes.cr	ported byte-class assignment
+src/util/alphabet.rs::func::singletons	func	ported	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	ported singleton byte-class constructor
+src/util/alphabet.rs::func::stride2	func	ported	src/regex/automata/byte_classes.cr	ported stride exponent computation
+src/util/alphabet.rs::func::u8	func	ported	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	ported Unit byte constructor
+src/util/alphabet.rs::method::ByteClasses.empty	method	ported	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	ported empty byte-classes constructor
+src/util/alphabet.rs::method::Unit.u8	method	ported	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	ported Unit byte constructor
+src/util/alphabet.rs::struct::ByteClassElements	struct	ported	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	ported byte-class element iterator
+src/util/alphabet.rs::struct::ByteClassIter	struct	ported	src/regex/automata/byte_classes.cr	ported byte-class iterator
+src/util/alphabet.rs::struct::ByteClassRepresentatives	struct	ported	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	ported representative-byte iterator
+src/util/alphabet.rs::struct::ByteClasses	struct	ported	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	ported EOI-aware byte-class map and repr helpers
+src/util/alphabet.rs::struct::Unit	struct	ported	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	ported DFA alphabet unit type with byte and EOI variants
+src/util/alphabet.rs::test::byte_classes	test	ported	spec/byte_classes_spec.cr	ported upstream byte-class partitioning parity
+src/util/alphabet.rs::test::elements_empty	test	ported	spec/byte_classes_spec.cr	ported upstream empty byte-class element parity
+src/util/alphabet.rs::test::elements_singletons	test	ported	spec/byte_classes_spec.cr	ported upstream singleton byte-class element parity
+src/util/alphabet.rs::test::elements_typical	test	ported	spec/byte_classes_spec.cr	ported upstream typical byte-class element parity
+src/util/alphabet.rs::test::full_byte_classes	test	ported	spec/byte_classes_spec.cr	ported upstream full byte-class parity
+src/util/alphabet.rs::test::representatives	test	ported	spec/byte_classes_spec.cr	ported upstream representative-byte parity
 src/util/captures.rs::func::all	func	ported	spec/captures_spec.cr	Captures constructors and slot accounting are covered
 src/util/captures.rs::func::all_group_len	func	ported	spec/captures_spec.cr	GroupInfo aggregate sizing covered
 src/util/captures.rs::func::all_names	func	ported	spec/captures_spec.cr	GroupInfo iterators covered

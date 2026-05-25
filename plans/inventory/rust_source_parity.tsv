@@ -555,31 +555,31 @@ src/nfa/thompson/range_trie.rs::func::insert	missing	-	baseline
 src/nfa/thompson/range_trie.rs::func::new	missing	-	baseline
 src/nfa/thompson/range_trie.rs::method::RangeTrie.new	missing	-	baseline
 src/nfa/thompson/range_trie.rs::struct::RangeTrie	missing	-	baseline
-src/util/alphabet.rs::func::alphabet_len	missing	-	baseline
-src/util/alphabet.rs::func::as_eoi	missing	-	baseline
-src/util/alphabet.rs::func::as_u8	missing	-	baseline
-src/util/alphabet.rs::func::as_usize	missing	-	baseline
-src/util/alphabet.rs::func::elements	missing	-	baseline
-src/util/alphabet.rs::func::empty	missing	-	baseline
-src/util/alphabet.rs::func::eoi	missing	-	baseline
-src/util/alphabet.rs::func::get	missing	-	baseline
-src/util/alphabet.rs::func::get_by_unit	missing	-	baseline
-src/util/alphabet.rs::func::is_byte	missing	-	baseline
-src/util/alphabet.rs::func::is_eoi	missing	-	baseline
-src/util/alphabet.rs::func::is_singleton	missing	-	baseline
-src/util/alphabet.rs::func::is_word_byte	missing	-	baseline
-src/util/alphabet.rs::func::iter	missing	-	baseline
-src/util/alphabet.rs::func::set	missing	-	baseline
-src/util/alphabet.rs::func::singletons	missing	-	baseline
-src/util/alphabet.rs::func::stride2	missing	-	baseline
-src/util/alphabet.rs::func::u8	missing	-	baseline
-src/util/alphabet.rs::method::ByteClasses.empty	missing	-	baseline
-src/util/alphabet.rs::method::Unit.u8	missing	-	baseline
-src/util/alphabet.rs::struct::ByteClassElements	missing	-	baseline
-src/util/alphabet.rs::struct::ByteClassIter	missing	-	baseline
-src/util/alphabet.rs::struct::ByteClassRepresentatives	missing	-	baseline
-src/util/alphabet.rs::struct::ByteClasses	missing	-	baseline
-src/util/alphabet.rs::struct::Unit	missing	-	baseline
+src/util/alphabet.rs::func::alphabet_len	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to an EOI-aware ByteClasses implementation in Crystal
+src/util/alphabet.rs::func::as_eoi	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to Unit#as_eoi
+src/util/alphabet.rs::func::as_u8	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to Unit#as_u8
+src/util/alphabet.rs::func::as_usize	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to Unit#as_usize
+src/util/alphabet.rs::func::elements	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to ByteClasses#elements
+src/util/alphabet.rs::func::empty	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to ByteClasses.empty
+src/util/alphabet.rs::func::eoi	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to ByteClasses#eoi
+src/util/alphabet.rs::func::get	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to ByteClasses#get
+src/util/alphabet.rs::func::get_by_unit	mapped	src/regex/automata/byte_classes.cr	mapped to ByteClasses#get_by_unit
+src/util/alphabet.rs::func::is_byte	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to Unit#is_byte
+src/util/alphabet.rs::func::is_eoi	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to Unit#is_eoi
+src/util/alphabet.rs::func::is_singleton	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to ByteClasses#is_singleton
+src/util/alphabet.rs::func::is_word_byte	mapped	src/regex/automata/byte_classes.cr;src/regex/automata/utf8_sequences.cr;spec/byte_classes_spec.cr	mapped to shared UTF-8 word-byte helpers
+src/util/alphabet.rs::func::iter	mapped	src/regex/automata/byte_classes.cr	mapped to ByteClasses#iter
+src/util/alphabet.rs::func::set	mapped	src/regex/automata/byte_classes.cr	mapped to ByteClasses#set
+src/util/alphabet.rs::func::singletons	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to ByteClasses.singletons
+src/util/alphabet.rs::func::stride2	mapped	src/regex/automata/byte_classes.cr	mapped to ByteClasses#stride2
+src/util/alphabet.rs::func::u8	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to Unit.u8
+src/util/alphabet.rs::method::ByteClasses.empty	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to ByteClasses.empty
+src/util/alphabet.rs::method::Unit.u8	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to Unit.u8
+src/util/alphabet.rs::struct::ByteClassElements	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to ByteClassElements
+src/util/alphabet.rs::struct::ByteClassIter	mapped	src/regex/automata/byte_classes.cr	mapped to ByteClassIter
+src/util/alphabet.rs::struct::ByteClassRepresentatives	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to ByteClassRepresentatives; Crystal uses explicit start/end parameters instead of Rust RangeBounds
+src/util/alphabet.rs::struct::ByteClasses	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to a Crystal byte-class map with EOI-aware alphabet semantics
+src/util/alphabet.rs::struct::Unit	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to a Crystal Unit value type with byte and EOI variants
 src/util/captures.rs::func::all	missing	-	baseline
 src/util/captures.rs::func::all_group_len	missing	-	baseline
 src/util/captures.rs::func::all_names	missing	-	baseline

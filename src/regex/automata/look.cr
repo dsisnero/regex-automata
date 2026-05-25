@@ -535,13 +535,13 @@ module Regex::Automata
       ensure_valid_offset!(haystack, at)
 
       word_before = if at > 0
-                      return false unless Utf8.decode_last(haystack[0, at])
+                      return false unless Regex::Automata::Utf8.decode_last(haystack[0, at]).is_a?(Char)
                       IsWordChar.rev(haystack, at)
                     else
                       false
                     end
       word_after = if at < haystack.size
-                     return false unless Utf8.decode(haystack[at, haystack.size - at])
+                     return false unless Regex::Automata::Utf8.decode(haystack[at, haystack.size - at]).is_a?(Char)
                      IsWordChar.fwd(haystack, at)
                    else
                      false
@@ -592,7 +592,7 @@ module Regex::Automata
     def is_word_start_half_unicode(haystack : Bytes, at : Int32) : Bool
       ensure_valid_offset!(haystack, at)
       word_before = if at > 0
-                      return false unless Utf8.decode_last(haystack[0, at])
+                      return false unless Regex::Automata::Utf8.decode_last(haystack[0, at]).is_a?(Char)
                       IsWordChar.rev(haystack, at)
                     else
                       false
@@ -603,7 +603,7 @@ module Regex::Automata
     def is_word_end_half_unicode(haystack : Bytes, at : Int32) : Bool
       ensure_valid_offset!(haystack, at)
       word_after = if at < haystack.size
-                     return false unless Utf8.decode(haystack[at, haystack.size - at])
+                     return false unless Regex::Automata::Utf8.decode(haystack[at, haystack.size - at]).is_a?(Char)
                      IsWordChar.fwd(haystack, at)
                    else
                      false
@@ -629,71 +629,25 @@ module Regex::Automata
 
   private module IsWordChar
     def self.fwd(haystack : Bytes, at : Int32) : Bool
-      char = Utf8.decode(haystack[at, haystack.size - at])
-      return false if char.nil?
-
-      Regex::Syntax.try_is_word_character(char)
+      case result = Regex::Automata::Utf8.decode(haystack[at, haystack.size - at])
+      when Char
+        Regex::Syntax.try_is_word_character(result)
+      else
+        false
+      end
     end
 
     def self.rev(haystack : Bytes, at : Int32) : Bool
-      char = Utf8.decode_last(haystack[0, at])
-      return false if char.nil?
-
-      Regex::Syntax.try_is_word_character(char)
-    end
-  end
-
-  private module Utf8
-    def self.decode(bytes : Bytes) : Char?
-      return nil if bytes.empty?
-
-      len = codepoint_len(bytes[0])
-      return nil if len.nil? || len > bytes.size
-
-      string = String.new(bytes[0, len])
-      return nil unless string.valid_encoding?
-
-      string.each_char.first?
-    end
-
-    def self.decode_last(bytes : Bytes) : Char?
-      return nil if bytes.empty?
-
-      start = bytes.size - 1
-      limit = bytes.size > 4 ? bytes.size - 4 : 0
-      while start > limit && !leading_or_invalid_byte?(bytes[start])
-        start -= 1
-      end
-      decode(bytes[start, bytes.size - start])
-    end
-
-    private def self.codepoint_len(byte : UInt8) : Int32?
-      case byte
-      when 0b0000_0000_u8..0b0111_1111_u8 then 1
-      when 0b1000_0000_u8..0b1011_1111_u8 then nil
-      when 0b1100_0000_u8..0b1101_1111_u8 then 2
-      when 0b1110_0000_u8..0b1110_1111_u8 then 3
-      when 0b1111_0000_u8..0b1111_0111_u8 then 4
+      case result = Regex::Automata::Utf8.decode_last(haystack[0, at])
+      when Char
+        Regex::Syntax.try_is_word_character(result)
       else
-        nil
+        false
       end
     end
-
-    private def self.leading_or_invalid_byte?(byte : UInt8) : Bool
-      (byte & 0b1100_0000_u8) != 0b1000_0000_u8
-    end
-  end
-
-  private WORD_BYTE_TABLE = begin
-    table = StaticArray(Bool, 256).new(false)
-    table['_'.ord.to_u8] = true
-    ('0'.ord..'9'.ord).each { |ord| table[ord.to_u8] = true }
-    ('A'.ord..'Z'.ord).each { |ord| table[ord.to_u8] = true }
-    ('a'.ord..'z'.ord).each { |ord| table[ord.to_u8] = true }
-    table
   end
 
   def self.is_word_byte(byte : UInt8) : Bool
-    WORD_BYTE_TABLE[byte]
+    Utf8.is_word_byte(byte)
   end
 end

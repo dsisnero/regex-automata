@@ -218,7 +218,7 @@ describe "DFA::Dense" do
       .configure { |config| config.starts_for_each_pattern(true) }
       .build_many(["abc", "(?-u:\\b)def", "ghi$"])
 
-    dfa.alphabet_len.should eq(dfa.byte_classifier.alphabet_len + 1)
+    dfa.alphabet_len.should eq(dfa.byte_classifier.alphabet_len)
     dfa.stride.should eq(1 << dfa.stride2)
     dfa.stride.should be >= dfa.alphabet_len
     dfa.memory_usage.should eq(dfa.to_bytes_native_endian[0].size)
