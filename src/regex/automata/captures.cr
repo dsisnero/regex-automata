@@ -1,5 +1,6 @@
 require "./search"
 require "./types"
+require "./interpolate"
 
 module Regex::Automata
   class GroupInfoError < Error
@@ -189,13 +190,6 @@ module Regex::Automata
   end
 
   class Captures
-    struct CaptureNameRef
-      getter name : String
-
-      def initialize(@name : String)
-      end
-    end
-
     getter group_info : GroupInfo
     getter slots : Array(Int32?)
 
@@ -278,21 +272,20 @@ module Regex::Automata
     end
 
     def interpolate_string(haystack : String, replacement : String) : String
-      String.build do |io|
-        interpolate_tokens(replacement) do |token|
-          case token
-          when String
-            io << token
-          when Int32
-            if span = get_group(token)
-              io.write(haystack.to_slice[span.start, span.length])
+      String.build do |dst|
+        Interpolate.string(
+          replacement,
+          ->(index : Int32, io : IO) do
+            if span = get_group(index)
+              if match = haystack.byte_slice(span.start, span.length)
+                io << match
+              end
             end
-          when CaptureNameRef
-            if span = get_group_by_name(token.name)
-              io.write(haystack.to_slice[span.start, span.length])
-            end
-          end
-        end
+            nil
+          end,
+          ->(name : String) { @group_info.to_index(pattern.not_nil!, name) if pattern },
+          dst
+        )
       end
     end
 
@@ -307,20 +300,17 @@ module Regex::Automata
     end
 
     def interpolate_bytes_into(haystack : Bytes, replacement : Bytes, dst : Array(UInt8)) : Nil
-      interpolate_tokens(String.new(replacement)) do |token|
-        case token
-        when String
-          token.each_byte { |byte| dst << byte }
-        when Int32
-          if span = get_group(token)
-            haystack[span.start, span.length].each { |byte| dst << byte }
+      Interpolate.bytes(
+        replacement,
+        ->(index : Int32, out : Array(UInt8)) do
+          if span = get_group(index)
+            haystack[span.start, span.length].each { |byte| out << byte }
           end
-        when CaptureNameRef
-          if span = get_group_by_name(token.name)
-            haystack[span.start, span.length].each { |byte| dst << byte }
-          end
-        end
-      end
+          nil
+        end,
+        ->(name : String) { @group_info.to_index(pattern.not_nil!, name) if pattern },
+        dst
+      )
     end
 
     def clear : Nil
@@ -342,73 +332,6 @@ module Regex::Automata
 
     def memory_usage : Int32
       @group_info.memory_usage + (@slots.size * sizeof(Int32)).to_i32
-    end
-
-    private def interpolate_tokens(replacement : String, & : String | Int32 | CaptureNameRef ->) : Nil
-      bytes = replacement.to_slice
-      literal_start = 0
-      i = 0
-      while i < bytes.size
-        if bytes[i] == '$'.ord.to_u8
-          if parsed = parse_capture_reference(bytes, i + 1)
-            token, next_index = parsed
-            if literal_start < i
-              yield String.new(bytes[literal_start, i - literal_start])
-            end
-            yield token
-            i = next_index
-            literal_start = i
-            next
-          end
-        end
-        i += 1
-      end
-      if literal_start < bytes.size
-        yield String.new(bytes[literal_start, bytes.size - literal_start])
-      end
-    end
-
-    private def parse_capture_reference(bytes : Bytes, start_index : Int32) : Tuple(Int32 | CaptureNameRef, Int32)?
-      return nil if start_index >= bytes.size
-
-      if bytes[start_index] == '{'.ord.to_u8
-        finish = start_index + 1
-        while finish < bytes.size && bytes[finish] != '}'.ord.to_u8
-          finish += 1
-        end
-        return nil if finish >= bytes.size || finish == start_index + 1
-
-        name = String.new(bytes[start_index + 1, finish - start_index - 1])
-        token = reference_token(name)
-        return nil unless token
-        return {token, finish + 1}
-      end
-
-      finish = start_index
-      while finish < bytes.size && ascii_word?(bytes[finish])
-        finish += 1
-      end
-      return nil if finish == start_index
-
-      name = String.new(bytes[start_index, finish - start_index])
-      token = reference_token(name)
-      return nil unless token
-      {token, finish}
-    end
-
-    private def reference_token(name : String) : Int32 | CaptureNameRef
-      if name.each_char.all?(&.ascii_number?)
-        name.to_i32
-      else
-        CaptureNameRef.new(name)
-      end
-    end
-
-    private def ascii_word?(byte : UInt8) : Bool
-      (byte >= '0'.ord.to_u8 && byte <= '9'.ord.to_u8) ||
-        (byte >= 'A'.ord.to_u8 && byte <= 'Z'.ord.to_u8) ||
-        (byte >= 'a'.ord.to_u8 && byte <= 'z'.ord.to_u8) ||
-        byte == '_'.ord.to_u8
     end
   end
 

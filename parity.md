@@ -160,6 +160,7 @@
   - Workflow: still port helper specs module by module, but each module family should finish at a commit boundary instead of stopping on isolated utility methods
   - Red: port helper specs module by module, not as one lump
   - Green: supporting files under `src/regex/automata/`
+  - Progress: iterator helpers are complete, captures interpolation now uses a shared vendored-style helper, and the `syntax` config/parse wrapper is now covered as its own helper-family slice
   - Done when: each helper family has its own proven parity slice in the ledger
 
 ## Completed

@@ -51,7 +51,7 @@ src/util/alphabet.rs::test::elements_singletons	ported	spec/byte_classes_spec.cr
 src/util/alphabet.rs::test::elements_typical	ported	spec/byte_classes_spec.cr	ported upstream typical byte-class element parity
 src/util/alphabet.rs::test::full_byte_classes	ported	spec/byte_classes_spec.cr	ported upstream full byte-class parity
 src/util/alphabet.rs::test::representatives	ported	spec/byte_classes_spec.cr	ported upstream representative-byte parity
-src/util/interpolate.rs::test::interpolate_string	missing	-	baseline
+src/util/interpolate.rs::test::interpolate_string	ported	spec/interpolate_spec.cr	ported upstream interpolation matrix across string and byte replacements
 src/util/lazy.rs::test::oibits	missing	-	baseline
 src/util/lazy.rs::test::sync_not_send	missing	-	baseline
 src/util/look.rs::test::look_matches_end_line	ported	spec/look_spec.cr	ported upstream end-line look matcher parity
