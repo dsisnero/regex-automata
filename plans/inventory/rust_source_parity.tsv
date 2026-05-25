@@ -618,8 +618,8 @@ src/util/captures.rs::struct::GroupInfo	missing	-	baseline
 src/util/captures.rs::struct::GroupInfoAllNames	missing	-	baseline
 src/util/captures.rs::struct::GroupInfoError	missing	-	baseline
 src/util/captures.rs::struct::GroupInfoPatternNames	missing	-	baseline
-src/util/escape.rs::struct::DebugByte	missing	-	baseline
-src/util/escape.rs::struct::DebugHaystack	missing	-	baseline
+src/util/escape.rs::struct::DebugByte	mapped	src/regex/automata/escape.cr;spec/escape_spec.cr	mapped to a Crystal byte debug wrapper
+src/util/escape.rs::struct::DebugHaystack	mapped	src/regex/automata/escape.cr;spec/escape_spec.cr	mapped to a Crystal haystack debug wrapper
 src/util/interpolate.rs::func::bytes	missing	-	baseline
 src/util/interpolate.rs::func::string	missing	-	baseline
 src/util/iter.rs::func::infallible	missing	-	baseline
@@ -822,6 +822,6 @@ src/util/syntax.rs::func::utf8	missing	-	baseline
 src/util/syntax.rs::method::Config.new	missing	-	baseline
 src/util/syntax.rs::struct::Config	missing	-	baseline
 src/util/unicode_data/perl_word.rs::const::PERL_WORD	missing	-	baseline
-src/util/wire.rs::struct::AlignAs	missing	-	baseline
-src/util/wire.rs::struct::DeserializeError	missing	-	baseline
-src/util/wire.rs::struct::SerializeError	missing	-	baseline
+src/util/wire.rs::struct::AlignAs	mapped	src/regex/automata/wire.cr;spec/wire_spec.cr	mapped to a Crystal alignment helper wrapper
+src/util/wire.rs::struct::DeserializeError	mapped	src/regex/automata/errors.cr;src/regex/automata/wire.cr	mapped to the existing deserialize error type plus wire helper constructors
+src/util/wire.rs::struct::SerializeError	mapped	src/regex/automata/errors.cr;src/regex/automata/wire.cr	mapped to the existing serialize error type plus wire helper constructors

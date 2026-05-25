@@ -140,11 +140,11 @@
   - Green: new prefilter implementation files under `src/regex/automata/`
   - Done when: literal-acceleration parity is demonstrated
 
-- [ ] Utilities — Serialization and escaping
+- [x] Utilities — Serialization and escaping
   - Upstream scope: `src/util/wire.rs`, `src/util/escape.rs`
   - Inventory ids: `src/util/wire.rs::*`, `src/util/escape.rs::*`
-  - Red: port wire-format and escaping specs
-  - Green: `src/regex/automata/wire.cr`
+  - Green: `src/regex/automata/wire.cr`, `src/regex/automata/escape.cr`, `spec/wire_spec.cr`, `spec/escape_spec.cr`
+  - Progress: label writing/reading, padding math, `AlignAs`, and reusable `DebugByte`/`DebugHaystack` wrappers are now implemented and covered
   - Done when: serialization/deserialization parity is demonstrated
 
 - [x] Utilities — PatternSet

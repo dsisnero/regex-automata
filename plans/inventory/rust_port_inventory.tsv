@@ -670,8 +670,8 @@ src/util/captures.rs::struct::GroupInfo	struct	ported	spec/captures_spec.cr	grou
 src/util/captures.rs::struct::GroupInfoAllNames	struct	ported	spec/captures_spec.cr	all-names iterator implemented
 src/util/captures.rs::struct::GroupInfoError	struct	ported	spec/captures_spec.cr	group info validation errors implemented
 src/util/captures.rs::struct::GroupInfoPatternNames	struct	ported	spec/captures_spec.cr	pattern-names iterator implemented
-src/util/escape.rs::struct::DebugByte	struct	missing	-	auto-generated
-src/util/escape.rs::struct::DebugHaystack	struct	missing	-	auto-generated
+src/util/escape.rs::struct::DebugByte	struct	ported	src/regex/automata/escape.cr;spec/escape_spec.cr	ported byte debug escaping wrapper
+src/util/escape.rs::struct::DebugHaystack	struct	ported	src/regex/automata/escape.cr;spec/escape_spec.cr	ported haystack debug escaping wrapper
 src/util/interpolate.rs::func::bytes	func	missing	-	auto-generated
 src/util/interpolate.rs::func::string	func	missing	-	auto-generated
 src/util/interpolate.rs::test::interpolate_string	test	missing	-	auto-generated
@@ -908,14 +908,14 @@ src/util/syntax.rs::func::utf8	func	missing	-	auto-generated
 src/util/syntax.rs::method::Config.new	method	missing	-	auto-generated
 src/util/syntax.rs::struct::Config	struct	missing	-	auto-generated
 src/util/unicode_data/perl_word.rs::const::PERL_WORD	const	missing	-	auto-generated
-src/util/wire.rs::struct::AlignAs	struct	missing	-	auto-generated
-src/util/wire.rs::struct::DeserializeError	struct	missing	-	auto-generated
-src/util/wire.rs::struct::SerializeError	struct	missing	-	auto-generated
-src/util/wire.rs::test::bad_label_almost_too_long	test	missing	-	auto-generated
-src/util/wire.rs::test::bad_label_interior_nul	test	missing	-	auto-generated
-src/util/wire.rs::test::bad_label_too_long	test	missing	-	auto-generated
-src/util/wire.rs::test::labels	test	missing	-	auto-generated
-src/util/wire.rs::test::padding	test	missing	-	auto-generated
+src/util/wire.rs::struct::AlignAs	struct	ported	src/regex/automata/wire.cr;spec/wire_spec.cr	ported alignment helper wrapper
+src/util/wire.rs::struct::DeserializeError	struct	ported	src/regex/automata/errors.cr;src/regex/automata/wire.cr;spec/wire_spec.cr	ported deserialize error surface plus wire helper constructors
+src/util/wire.rs::struct::SerializeError	struct	ported	src/regex/automata/errors.cr;src/regex/automata/wire.cr;spec/wire_spec.cr	ported serialize error surface plus wire helper constructors
+src/util/wire.rs::test::bad_label_almost_too_long	test	ported	spec/wire_spec.cr	ported upstream max valid label case
+src/util/wire.rs::test::bad_label_interior_nul	test	ported	spec/wire_spec.cr	ported upstream interior-NUL label rejection
+src/util/wire.rs::test::bad_label_too_long	test	ported	spec/wire_spec.cr	ported upstream oversized label rejection
+src/util/wire.rs::test::labels	test	ported	spec/wire_spec.cr	ported upstream label round-trip and padding case
+src/util/wire.rs::test::padding	test	ported	spec/wire_spec.cr	ported upstream padding length table
 tests/dfa/api.rs::test::quit_fwd	test	ported	spec/dfa_api_spec.cr:6	Implemented with forward search
 tests/dfa/api.rs::test::quit_panics	test	ported	spec/dfa_api_spec.cr:74	Implemented with exception check
 tests/dfa/api.rs::test::quit_rev	test	ported	spec/dfa_api_spec.cr:56	Implemented with reverse DFA and quit byte precedence fix

@@ -85,11 +85,11 @@ src/util/start.rs::test::start_fwd	missing	-	baseline
 src/util/start.rs::test::start_fwd_done_range	missing	-	baseline
 src/util/start.rs::test::start_rev	missing	-	baseline
 src/util/start.rs::test::start_rev_done_range	missing	-	baseline
-src/util/wire.rs::test::bad_label_almost_too_long	missing	-	baseline
-src/util/wire.rs::test::bad_label_interior_nul	missing	-	baseline
-src/util/wire.rs::test::bad_label_too_long	missing	-	baseline
-src/util/wire.rs::test::labels	missing	-	baseline
-src/util/wire.rs::test::padding	missing	-	baseline
+src/util/wire.rs::test::bad_label_almost_too_long	ported	spec/wire_spec.cr	ported upstream max valid label case
+src/util/wire.rs::test::bad_label_interior_nul	ported	spec/wire_spec.cr	ported upstream interior-NUL label rejection
+src/util/wire.rs::test::bad_label_too_long	ported	spec/wire_spec.cr	ported upstream oversized label rejection
+src/util/wire.rs::test::labels	ported	spec/wire_spec.cr	ported upstream label round-trip and padding case
+src/util/wire.rs::test::padding	ported	spec/wire_spec.cr	ported upstream padding length table
 tests/dfa/api.rs::test::quit_fwd	missing	-	baseline
 tests/dfa/api.rs::test::quit_panics	missing	-	baseline
 tests/dfa/api.rs::test::quit_rev	missing	-	baseline
