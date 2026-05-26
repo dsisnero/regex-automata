@@ -384,45 +384,45 @@ src/meta/regex.rs::struct::Regex	struct	missing	-	auto-generated
 src/meta/regex.rs::struct::Split	struct	missing	-	auto-generated
 src/meta/regex.rs::struct::SplitN	struct	missing	-	auto-generated
 src/meta/regex.rs::test::regression_suffix_literal_count	test	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::func::always_match	func	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::func::build	func	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::func::build_from_nfa	func	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::func::builder	func	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::func::config	func	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::func::configure	func	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::func::create_cache	func	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::func::create_captures	func	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::func::get_config	func	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::func::get_nfa	func	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::func::get_prefilter	func	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::func::get_visited_capacity	func	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::func::max_haystack_len	func	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::func::memory_usage	func	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::func::min_visited_capacity	func	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::func::never_match	func	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::func::new	func	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::func::new_from_nfa	func	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::func::pattern_len	func	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::func::prefilter	func	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::func::reset	func	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::func::reset_cache	func	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::func::syntax	func	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::func::thompson	func	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::func::try_search	func	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::func::try_search_slots	func	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::func::visited_capacity	func	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.new	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.try_search	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::Builder.new	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::Cache.new	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::Config.new	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::struct::BoundedBacktracker	struct	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::struct::Builder	struct	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::struct::Cache	struct	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::struct::Config	struct	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::struct::TryCapturesMatches	struct	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::struct::TryFindMatches	struct	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::test::max_haystack_len_overflow	test	missing	-	auto-generated
+src/nfa/thompson/backtrack.rs::func::always_match	func	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::BoundedBacktracker.always_match;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::func::build	func	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::Builder#build;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::func::build_from_nfa	func	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::Builder#build_from_nfa;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::func::builder	func	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::BoundedBacktracker.builder;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::func::config	func	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::BoundedBacktracker.config;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::func::configure	func	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::Builder#configure;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::func::create_cache	func	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::BoundedBacktracker#create_cache;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::func::create_captures	func	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::BoundedBacktracker#create_captures;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::func::get_config	func	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::BoundedBacktracker#get_config;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::func::get_nfa	func	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::BoundedBacktracker#get_nfa;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::func::get_prefilter	func	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::Config#get_prefilter;src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::BoundedBacktracker#get_prefilter;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::func::get_visited_capacity	func	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::Config#get_visited_capacity;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::func::max_haystack_len	func	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::BoundedBacktracker#max_haystack_len;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::func::memory_usage	func	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::BoundedBacktracker#memory_usage;src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::Cache#memory_usage;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::func::min_visited_capacity	func	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack.min_visited_capacity;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::func::never_match	func	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::BoundedBacktracker.never_match;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::func::new	func	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::BoundedBacktracker.new;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::func::new_from_nfa	func	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::BoundedBacktracker.new_from_nfa;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::func::pattern_len	func	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::BoundedBacktracker#pattern_len;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::func::prefilter	func	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::Config#prefilter;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::func::reset	func	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::Cache#reset;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::func::reset_cache	func	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::BoundedBacktracker#reset_cache;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::func::syntax	func	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::Builder#syntax;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::func::thompson	func	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::Builder#thompson;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::func::try_search	func	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::BoundedBacktracker#try_search;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::func::try_search_slots	func	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::BoundedBacktracker#try_search_slots;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::func::visited_capacity	func	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::Config#visited_capacity;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.new	method	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::BoundedBacktracker.new;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.try_search	method	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::BoundedBacktracker#try_search;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::method::Builder.new	method	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::Builder.new;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::method::Cache.new	method	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::Cache.new;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::method::Config.new	method	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::Config.new;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::struct::BoundedBacktracker	struct	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::BoundedBacktracker;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::struct::Builder	struct	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::Builder;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::struct::Cache	struct	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::Cache;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::struct::Config	struct	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::Config;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::struct::TryCapturesMatches	struct	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::TryCapturesMatches;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::struct::TryFindMatches	struct	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::TryFindMatches;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
+src/nfa/thompson/backtrack.rs::test::max_haystack_len_overflow	test	ported	spec/backtrack_spec.cr	covered by the visited-capacity overflow regression spec
 src/nfa/thompson/builder.rs::func::add_capture_end	func	skipped	src/regex/automata/nfa.cr, src/regex/automata/hir_compiler.cr	Crystal keeps a narrower private Thompson builder and does not port Rust's public hand-assembly API or its intermediate CaptureStart/CaptureEnd/UnionReverse state model as a standalone surface.
 src/nfa/thompson/builder.rs::func::add_capture_start	func	skipped	src/regex/automata/nfa.cr, src/regex/automata/hir_compiler.cr	Crystal keeps a narrower private Thompson builder and does not port Rust's public hand-assembly API or its intermediate CaptureStart/CaptureEnd/UnionReverse state model as a standalone surface.
 src/nfa/thompson/builder.rs::func::add_empty	func	skipped	src/regex/automata/nfa.cr, src/regex/automata/hir_compiler.cr	Crystal keeps a narrower private Thompson builder and does not port Rust's public hand-assembly API or its intermediate CaptureStart/CaptureEnd/UnionReverse state model as a standalone surface.
@@ -967,10 +967,10 @@ tests/meta/suite.rs::test::no_dfa	test	missing	-	auto-generated
 tests/meta/suite.rs::test::no_dfa_hybrid	test	missing	-	auto-generated
 tests/meta/suite.rs::test::no_dfa_hybrid_onepass	test	missing	-	auto-generated
 tests/meta/suite.rs::test::no_dfa_hybrid_onepass_backtrack	test	missing	-	auto-generated
-tests/nfa/thompson/backtrack/regression.rs::test::too_many_slots_normal_pattern	test	missing	-	auto-generated
-tests/nfa/thompson/backtrack/suite.rs::test::default	test	missing	-	auto-generated
-tests/nfa/thompson/backtrack/suite.rs::test::min_visited_capacity	test	missing	-	auto-generated
-tests/nfa/thompson/backtrack/suite.rs::test::prefilter	test	missing	-	auto-generated
+tests/nfa/thompson/backtrack/regression.rs::test::too_many_slots_normal_pattern	test	ported	spec/backtrack_spec.cr	covered by the extra-slot regression spec using raw NonMaxUsize slots
+tests/nfa/thompson/backtrack/suite.rs::test::default	test	ported	spec/backtrack_spec.cr	covered by direct Crystal API parity specs instead of the Rust regex-test harness
+tests/nfa/thompson/backtrack/suite.rs::test::min_visited_capacity	test	ported	spec/backtrack_spec.cr	covered by direct Crystal visited-capacity parity specs instead of the Rust regex-test harness
+tests/nfa/thompson/backtrack/suite.rs::test::prefilter	test	ported	spec/backtrack_spec.cr	covered by direct Crystal prefilter parity specs instead of the Rust regex-test harness
 tests/nfa/thompson/pikevm/regression.rs::test::too_many_slots_normal_pattern	test	ported	spec/pikevm_spec.cr	ported oversized PikeVM slot-buffer regression coverage with NonMaxUsize slots
 tests/nfa/thompson/pikevm/suite.rs::test::default	test	ported	spec/pikevm_spec.cr	ported focused PikeVM constructor, search, capture, iterator, UTF-8, and Unicode word-boundary coverage instead of the upstream regex-test harness
 tests/nfa/thompson/pikevm/suite.rs::test::prefilter	test	ported	spec/pikevm_spec.cr	ported PikeVM prefilter configuration and search coverage

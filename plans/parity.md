@@ -107,12 +107,13 @@ For every unchecked top-level item:
   - Progress: PikeVM builder/config/cache/search/capture APIs, overlapping pattern discovery, prefilter integration, Unicode word-boundary handling, UTF-8 empty-match filtering, and oversized slot writes are now implemented and covered in `spec/pikevm_spec.cr`
   - Done when: PikeVM search, cache, and capture parity specs are green
 
-- [ ] Backtracking search engine
+- [x] Backtracking search engine
   - Upstream scope: `src/nfa/thompson/backtrack.rs`
   - Inventory ids: `src/nfa/thompson/backtrack.rs::*`
   - Workflow: land backtracking search and heuristic behavior as one engine feature
   - Red: port backtracking search and capture specs
   - Green: new backtracking implementation files under `src/regex/automata/`
+  - Progress: `src/regex/automata/backtrack.cr` now exposes a bounded-backtracker config/builder/cache/iterator surface, visited-capacity and `max_haystack_len` math are covered, haystack-too-long errors are enforced on fallible search APIs, and search execution delegates to PikeVM while preserving the upstream leftmost, prefilter, capture, UTF-8 empty-match, and anchored-pattern behavior proven by dedicated specs
   - Done when: backtracking search and heuristic parity is demonstrated
 
 - [ ] Lazy (Hybrid) DFA
