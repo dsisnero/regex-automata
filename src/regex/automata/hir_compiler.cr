@@ -399,6 +399,10 @@ module Regex::Automata
     end
 
     private def compile_unicode_class(node : Regex::Syntax::Hir::UnicodeClass) : NFA::ThompsonRef
+      if !node.negated? && node.intervals.all? { |range| range.begin <= 0x7F_u32 && range.end <= 0x7F_u32 }
+        byte_ranges = node.intervals.map { |range| range.begin.to_u8..range.end.to_u8 }
+        return @builder.build_class(byte_ranges, false, @pattern_id)
+      end
       @builder.build_unicode_class(node.intervals, node.negated?, @pattern_id)
     end
 

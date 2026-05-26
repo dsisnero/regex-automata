@@ -18,33 +18,33 @@ src/dfa/sparse.rs::test::heuristic_unicode_reverse	ported	spec/dfa_sparse_spec.c
 src/hybrid/dfa.rs::test::heuristic_unicode_reverse	missing	-	baseline
 src/meta/regex.rs::test::regression_suffix_literal_count	missing	-	baseline
 src/nfa/thompson/backtrack.rs::test::max_haystack_len_overflow	missing	-	baseline
-src/nfa/thompson/builder.rs::test::state_has_small_size	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_alternation	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_captures_all	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_captures_implicit	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_captures_none	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_class_ascii	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_class_unicode	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_empty	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_group	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_literal	missing	-	baseline
+src/nfa/thompson/builder.rs::test::state_has_small_size	partial	spec/nfa_thompson_representation_spec.cr	Rust memory-layout assertions have no stable Crystal equivalent; the representation feature is covered through direct graph and helper specs instead.
+src/nfa/thompson/compiler.rs::test::compile_alternation	partial	spec/nfa_thompson_representation_spec.cr	alternation semantics are covered, but Crystal does not port Rust's exact trie-factored alternation layout and state ordering
+src/nfa/thompson/compiler.rs::test::compile_captures_all	partial	spec/nfa_thompson_representation_spec.cr	`WhichCaptures::All` semantics are covered, but Crystal does not preserve Rust's exact capture-state insertion order
+src/nfa/thompson/compiler.rs::test::compile_captures_implicit	ported	spec/nfa_thompson_representation_spec.cr	ported exact implicit-capture Thompson state-shape parity
+src/nfa/thompson/compiler.rs::test::compile_captures_none	ported	spec/nfa_thompson_representation_spec.cr	ported exact capture-free Thompson state-shape parity
+src/nfa/thompson/compiler.rs::test::compile_class_ascii	ported	spec/nfa_thompson_representation_spec.cr	ported exact ASCII class state-shape parity, including ASCII-only Unicode HIR lowering
+src/nfa/thompson/compiler.rs::test::compile_class_unicode	partial	spec/nfa_thompson_representation_spec.cr	Unicode class matching is covered, but Crystal does not port Rust's exact range-trie suffix-sharing layout
+src/nfa/thompson/compiler.rs::test::compile_empty	ported	spec/nfa_thompson_representation_spec.cr	ported exact empty-pattern Thompson state-shape parity
+src/nfa/thompson/compiler.rs::test::compile_group	partial	spec/nfa_thompson_representation_spec.cr	grouped repetition semantics are covered, but Crystal allocates repetition states in a different order
+src/nfa/thompson/compiler.rs::test::compile_literal	ported	spec/nfa_thompson_representation_spec.cr	ported exact literal Thompson state-shape parity
 src/nfa/thompson/compiler.rs::test::compile_many_start_pattern	ported	spec/nfa_thompson_spec.cr	ported exact multi-pattern start-state parity for the public Thompson compiler surface
-src/nfa/thompson/compiler.rs::test::compile_no_reverse_unanchored_prefix_with_end_anchor	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_no_unanchored_prefix_with_start_anchor	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_non_binary_union	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_repetition	missing	-	baseline
+src/nfa/thompson/compiler.rs::test::compile_no_reverse_unanchored_prefix_with_end_anchor	partial	spec/nfa_thompson_spec.cr	anchored-prefix behavior is covered, but Crystal's regex-syntax lowering maps `$` to text-anchor HIR kinds instead of Rust's exact line-anchor state shape
+src/nfa/thompson/compiler.rs::test::compile_no_unanchored_prefix_with_start_anchor	partial	spec/nfa_thompson_spec.cr	anchored-prefix behavior is covered, but Crystal's regex-syntax lowering maps `^` to text-anchor HIR kinds instead of Rust's exact line-anchor state shape
+src/nfa/thompson/compiler.rs::test::compile_non_binary_union	partial	spec/nfa_thompson_representation_spec.cr	reverse Unicode class behavior is covered, but Crystal does not port Rust's exact range-trie factored non-binary union layout
+src/nfa/thompson/compiler.rs::test::compile_repetition	partial	spec/nfa_thompson_representation_spec.cr	repetition semantics are covered, but Crystal does not preserve Rust's exact union-first state ordering for optional and plus construction
 src/nfa/thompson/compiler.rs::test::compile_unanchored_prefix	ported	spec/nfa_thompson_spec.cr	ported exact unanchored-prefix state-shape parity for the public Thompson compiler surface
-src/nfa/thompson/compiler.rs::test::compile_yes_reverse_unanchored_prefix_with_start_anchor	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_yes_unanchored_prefix_with_end_anchor	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::empty_class_bytes	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::empty_class_unicode	missing	-	baseline
-src/nfa/thompson/literal_trie.rs::test::maker	missing	-	baseline
-src/nfa/thompson/literal_trie.rs::test::zap	missing	-	baseline
-src/nfa/thompson/nfa.rs::test::always_match	missing	-	baseline
-src/nfa/thompson/nfa.rs::test::never_match	missing	-	baseline
-src/nfa/thompson/nfa.rs::test::state_has_small_size	missing	-	baseline
-src/nfa/thompson/range_trie.rs::test::no_splits	missing	-	baseline
-src/nfa/thompson/range_trie.rs::test::splits	missing	-	baseline
+src/nfa/thompson/compiler.rs::test::compile_yes_reverse_unanchored_prefix_with_start_anchor	partial	spec/nfa_thompson_spec.cr	reverse anchored-prefix behavior is covered, but Crystal's regex-syntax lowering maps `^` to text-anchor HIR kinds instead of Rust's exact line-anchor state shape
+src/nfa/thompson/compiler.rs::test::compile_yes_unanchored_prefix_with_end_anchor	partial	spec/nfa_thompson_spec.cr	end-anchor unanchored-prefix behavior is covered, but Crystal's regex-syntax lowering maps `$` to text-anchor HIR kinds instead of Rust's exact line-anchor state shape
+src/nfa/thompson/compiler.rs::test::empty_class_bytes	ported	spec/nfa_thompson_representation_spec.cr	ported exact empty byte-class Thompson lowering parity
+src/nfa/thompson/compiler.rs::test::empty_class_unicode	ported	spec/nfa_thompson_representation_spec.cr	ported exact empty Unicode-class Thompson lowering parity
+src/nfa/thompson/literal_trie.rs::test::maker	partial	spec/nfa_thompson_representation_spec.cr	literal-trie driven graph behavior is only covered indirectly because Crystal does not expose Rust's internal literal-trie builder
+src/nfa/thompson/literal_trie.rs::test::zap	partial	spec/nfa_thompson_representation_spec.cr	literal-trie driven graph behavior is only covered indirectly because Crystal does not expose Rust's internal literal-trie builder
+src/nfa/thompson/nfa.rs::test::always_match	partial	spec/nfa_thompson_spec.cr	constructor state-shape parity is covered here; Rust's PikeVM search semantics are deferred to the PikeVM feature
+src/nfa/thompson/nfa.rs::test::never_match	partial	spec/nfa_thompson_spec.cr	constructor state-shape parity is covered here; Rust's PikeVM search semantics are deferred to the PikeVM feature
+src/nfa/thompson/nfa.rs::test::state_has_small_size	partial	spec/nfa_thompson_representation_spec.cr	Rust memory-layout assertions have no stable Crystal equivalent; the representation feature is covered through direct graph and helper specs instead
+src/nfa/thompson/range_trie.rs::test::no_splits	partial	spec/nfa_thompson_representation_spec.cr	range-trie driven graph behavior is only covered indirectly because Crystal does not expose Rust's internal range-trie builder
+src/nfa/thompson/range_trie.rs::test::splits	partial	spec/nfa_thompson_representation_spec.cr	range-trie driven graph behavior is only covered indirectly because Crystal does not expose Rust's internal range-trie builder
 src/util/alphabet.rs::test::byte_classes	ported	spec/byte_classes_spec.cr	ported upstream byte-class partitioning parity
 src/util/alphabet.rs::test::elements_empty	ported	spec/byte_classes_spec.cr	ported upstream empty byte-class element parity
 src/util/alphabet.rs::test::elements_singletons	ported	spec/byte_classes_spec.cr	ported upstream singleton byte-class element parity

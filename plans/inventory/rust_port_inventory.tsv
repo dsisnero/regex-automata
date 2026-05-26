@@ -423,36 +423,36 @@ src/nfa/thompson/backtrack.rs::struct::Config	struct	missing	-	auto-generated
 src/nfa/thompson/backtrack.rs::struct::TryCapturesMatches	struct	missing	-	auto-generated
 src/nfa/thompson/backtrack.rs::struct::TryFindMatches	struct	missing	-	auto-generated
 src/nfa/thompson/backtrack.rs::test::max_haystack_len_overflow	test	missing	-	auto-generated
-src/nfa/thompson/builder.rs::func::add_capture_end	func	missing	-	auto-generated
-src/nfa/thompson/builder.rs::func::add_capture_start	func	missing	-	auto-generated
-src/nfa/thompson/builder.rs::func::add_empty	func	missing	-	auto-generated
-src/nfa/thompson/builder.rs::func::add_fail	func	missing	-	auto-generated
-src/nfa/thompson/builder.rs::func::add_look	func	missing	-	auto-generated
-src/nfa/thompson/builder.rs::func::add_match	func	missing	-	auto-generated
-src/nfa/thompson/builder.rs::func::add_range	func	missing	-	auto-generated
-src/nfa/thompson/builder.rs::func::add_sparse	func	missing	-	auto-generated
-src/nfa/thompson/builder.rs::func::add_union	func	missing	-	auto-generated
-src/nfa/thompson/builder.rs::func::add_union_reverse	func	missing	-	auto-generated
-src/nfa/thompson/builder.rs::func::build	func	missing	-	auto-generated
-src/nfa/thompson/builder.rs::func::clear	func	missing	-	auto-generated
-src/nfa/thompson/builder.rs::func::current_pattern_id	func	missing	-	auto-generated
-src/nfa/thompson/builder.rs::func::finish_pattern	func	missing	-	auto-generated
-src/nfa/thompson/builder.rs::func::get_look_matcher	func	missing	-	auto-generated
-src/nfa/thompson/builder.rs::func::get_reverse	func	missing	-	auto-generated
-src/nfa/thompson/builder.rs::func::get_size_limit	func	missing	-	auto-generated
-src/nfa/thompson/builder.rs::func::get_utf8	func	missing	-	auto-generated
-src/nfa/thompson/builder.rs::func::memory_usage	func	missing	-	auto-generated
-src/nfa/thompson/builder.rs::func::new	func	missing	-	auto-generated
-src/nfa/thompson/builder.rs::func::patch	func	missing	-	auto-generated
-src/nfa/thompson/builder.rs::func::pattern_len	func	missing	-	auto-generated
-src/nfa/thompson/builder.rs::func::set_look_matcher	func	missing	-	auto-generated
-src/nfa/thompson/builder.rs::func::set_reverse	func	missing	-	auto-generated
-src/nfa/thompson/builder.rs::func::set_size_limit	func	missing	-	auto-generated
-src/nfa/thompson/builder.rs::func::set_utf8	func	missing	-	auto-generated
-src/nfa/thompson/builder.rs::func::start_pattern	func	missing	-	auto-generated
-src/nfa/thompson/builder.rs::method::Builder.new	method	missing	-	auto-generated
-src/nfa/thompson/builder.rs::struct::Builder	struct	missing	-	auto-generated
-src/nfa/thompson/builder.rs::test::state_has_small_size	test	missing	-	auto-generated
+src/nfa/thompson/builder.rs::func::add_capture_end	func	skipped	src/regex/automata/nfa.cr, src/regex/automata/hir_compiler.cr	Crystal keeps a narrower private Thompson builder and does not port Rust's public hand-assembly API or its intermediate CaptureStart/CaptureEnd/UnionReverse state model as a standalone surface.
+src/nfa/thompson/builder.rs::func::add_capture_start	func	skipped	src/regex/automata/nfa.cr, src/regex/automata/hir_compiler.cr	Crystal keeps a narrower private Thompson builder and does not port Rust's public hand-assembly API or its intermediate CaptureStart/CaptureEnd/UnionReverse state model as a standalone surface.
+src/nfa/thompson/builder.rs::func::add_empty	func	skipped	src/regex/automata/nfa.cr, src/regex/automata/hir_compiler.cr	Crystal keeps a narrower private Thompson builder and does not port Rust's public hand-assembly API or its intermediate CaptureStart/CaptureEnd/UnionReverse state model as a standalone surface.
+src/nfa/thompson/builder.rs::func::add_fail	func	skipped	src/regex/automata/nfa.cr, src/regex/automata/hir_compiler.cr	Crystal keeps a narrower private Thompson builder and does not port Rust's public hand-assembly API or its intermediate CaptureStart/CaptureEnd/UnionReverse state model as a standalone surface.
+src/nfa/thompson/builder.rs::func::add_look	func	skipped	src/regex/automata/nfa.cr, src/regex/automata/hir_compiler.cr	Crystal keeps a narrower private Thompson builder and does not port Rust's public hand-assembly API or its intermediate CaptureStart/CaptureEnd/UnionReverse state model as a standalone surface.
+src/nfa/thompson/builder.rs::func::add_match	func	skipped	src/regex/automata/nfa.cr, src/regex/automata/hir_compiler.cr	Crystal keeps a narrower private Thompson builder and does not port Rust's public hand-assembly API or its intermediate CaptureStart/CaptureEnd/UnionReverse state model as a standalone surface.
+src/nfa/thompson/builder.rs::func::add_range	func	skipped	src/regex/automata/nfa.cr, src/regex/automata/hir_compiler.cr	Crystal keeps a narrower private Thompson builder and does not port Rust's public hand-assembly API or its intermediate CaptureStart/CaptureEnd/UnionReverse state model as a standalone surface.
+src/nfa/thompson/builder.rs::func::add_sparse	func	skipped	src/regex/automata/nfa.cr, src/regex/automata/hir_compiler.cr	Crystal keeps a narrower private Thompson builder and does not port Rust's public hand-assembly API or its intermediate CaptureStart/CaptureEnd/UnionReverse state model as a standalone surface.
+src/nfa/thompson/builder.rs::func::add_union	func	skipped	src/regex/automata/nfa.cr, src/regex/automata/hir_compiler.cr	Crystal keeps a narrower private Thompson builder and does not port Rust's public hand-assembly API or its intermediate CaptureStart/CaptureEnd/UnionReverse state model as a standalone surface.
+src/nfa/thompson/builder.rs::func::add_union_reverse	func	skipped	src/regex/automata/nfa.cr, src/regex/automata/hir_compiler.cr	Crystal keeps a narrower private Thompson builder and does not port Rust's public hand-assembly API or its intermediate CaptureStart/CaptureEnd/UnionReverse state model as a standalone surface.
+src/nfa/thompson/builder.rs::func::build	func	skipped	src/regex/automata/nfa.cr, src/regex/automata/hir_compiler.cr	Crystal keeps a narrower private Thompson builder and does not port Rust's public hand-assembly API or its intermediate CaptureStart/CaptureEnd/UnionReverse state model as a standalone surface.
+src/nfa/thompson/builder.rs::func::clear	func	skipped	src/regex/automata/nfa.cr, src/regex/automata/hir_compiler.cr	Crystal keeps a narrower private Thompson builder and does not port Rust's public hand-assembly API or its intermediate CaptureStart/CaptureEnd/UnionReverse state model as a standalone surface.
+src/nfa/thompson/builder.rs::func::current_pattern_id	func	skipped	src/regex/automata/nfa.cr, src/regex/automata/hir_compiler.cr	Crystal keeps a narrower private Thompson builder and does not port Rust's public hand-assembly API or its intermediate CaptureStart/CaptureEnd/UnionReverse state model as a standalone surface.
+src/nfa/thompson/builder.rs::func::finish_pattern	func	skipped	src/regex/automata/nfa.cr, src/regex/automata/hir_compiler.cr	Crystal keeps a narrower private Thompson builder and does not port Rust's public hand-assembly API or its intermediate CaptureStart/CaptureEnd/UnionReverse state model as a standalone surface.
+src/nfa/thompson/builder.rs::func::get_look_matcher	func	skipped	src/regex/automata/nfa.cr, src/regex/automata/hir_compiler.cr	Crystal keeps a narrower private Thompson builder and does not port Rust's public hand-assembly API or its intermediate CaptureStart/CaptureEnd/UnionReverse state model as a standalone surface.
+src/nfa/thompson/builder.rs::func::get_reverse	func	skipped	src/regex/automata/nfa.cr, src/regex/automata/hir_compiler.cr	Crystal keeps a narrower private Thompson builder and does not port Rust's public hand-assembly API or its intermediate CaptureStart/CaptureEnd/UnionReverse state model as a standalone surface.
+src/nfa/thompson/builder.rs::func::get_size_limit	func	skipped	src/regex/automata/nfa.cr, src/regex/automata/hir_compiler.cr	Crystal keeps a narrower private Thompson builder and does not port Rust's public hand-assembly API or its intermediate CaptureStart/CaptureEnd/UnionReverse state model as a standalone surface.
+src/nfa/thompson/builder.rs::func::get_utf8	func	skipped	src/regex/automata/nfa.cr, src/regex/automata/hir_compiler.cr	Crystal keeps a narrower private Thompson builder and does not port Rust's public hand-assembly API or its intermediate CaptureStart/CaptureEnd/UnionReverse state model as a standalone surface.
+src/nfa/thompson/builder.rs::func::memory_usage	func	skipped	src/regex/automata/nfa.cr, src/regex/automata/hir_compiler.cr	Crystal keeps a narrower private Thompson builder and does not port Rust's public hand-assembly API or its intermediate CaptureStart/CaptureEnd/UnionReverse state model as a standalone surface.
+src/nfa/thompson/builder.rs::func::new	func	skipped	src/regex/automata/nfa.cr, src/regex/automata/hir_compiler.cr	Crystal keeps a narrower private Thompson builder and does not port Rust's public hand-assembly API or its intermediate CaptureStart/CaptureEnd/UnionReverse state model as a standalone surface.
+src/nfa/thompson/builder.rs::func::patch	func	skipped	src/regex/automata/nfa.cr, src/regex/automata/hir_compiler.cr	Crystal keeps a narrower private Thompson builder and does not port Rust's public hand-assembly API or its intermediate CaptureStart/CaptureEnd/UnionReverse state model as a standalone surface.
+src/nfa/thompson/builder.rs::func::pattern_len	func	skipped	src/regex/automata/nfa.cr, src/regex/automata/hir_compiler.cr	Crystal keeps a narrower private Thompson builder and does not port Rust's public hand-assembly API or its intermediate CaptureStart/CaptureEnd/UnionReverse state model as a standalone surface.
+src/nfa/thompson/builder.rs::func::set_look_matcher	func	skipped	src/regex/automata/nfa.cr, src/regex/automata/hir_compiler.cr	Crystal keeps a narrower private Thompson builder and does not port Rust's public hand-assembly API or its intermediate CaptureStart/CaptureEnd/UnionReverse state model as a standalone surface.
+src/nfa/thompson/builder.rs::func::set_reverse	func	skipped	src/regex/automata/nfa.cr, src/regex/automata/hir_compiler.cr	Crystal keeps a narrower private Thompson builder and does not port Rust's public hand-assembly API or its intermediate CaptureStart/CaptureEnd/UnionReverse state model as a standalone surface.
+src/nfa/thompson/builder.rs::func::set_size_limit	func	skipped	src/regex/automata/nfa.cr, src/regex/automata/hir_compiler.cr	Crystal keeps a narrower private Thompson builder and does not port Rust's public hand-assembly API or its intermediate CaptureStart/CaptureEnd/UnionReverse state model as a standalone surface.
+src/nfa/thompson/builder.rs::func::set_utf8	func	skipped	src/regex/automata/nfa.cr, src/regex/automata/hir_compiler.cr	Crystal keeps a narrower private Thompson builder and does not port Rust's public hand-assembly API or its intermediate CaptureStart/CaptureEnd/UnionReverse state model as a standalone surface.
+src/nfa/thompson/builder.rs::func::start_pattern	func	skipped	src/regex/automata/nfa.cr, src/regex/automata/hir_compiler.cr	Crystal keeps a narrower private Thompson builder and does not port Rust's public hand-assembly API or its intermediate CaptureStart/CaptureEnd/UnionReverse state model as a standalone surface.
+src/nfa/thompson/builder.rs::method::Builder.new	method	skipped	src/regex/automata/nfa.cr, src/regex/automata/hir_compiler.cr	Crystal keeps a narrower private Thompson builder and does not port Rust's public hand-assembly API or its intermediate CaptureStart/CaptureEnd/UnionReverse state model as a standalone surface.
+src/nfa/thompson/builder.rs::struct::Builder	struct	skipped	src/regex/automata/nfa.cr, src/regex/automata/hir_compiler.cr	Crystal keeps a narrower private Thompson builder and does not port Rust's public hand-assembly API or its intermediate CaptureStart/CaptureEnd/UnionReverse state model as a standalone surface.
+src/nfa/thompson/builder.rs::test::state_has_small_size	test	skipped	src/regex/automata/nfa.cr	Rust memory-layout assertions have no stable Crystal equivalent.
 src/nfa/thompson/compiler.rs::enum::WhichCaptures	enum	ported	src/regex/automata/nfa.cr, src/regex/automata/hir_compiler.cr, spec/nfa_thompson_spec.cr	public Thompson capture-policy surface now lives in `NFA::WhichCaptures` and `HirCompilerConfig`
 src/nfa/thompson/compiler.rs::func::build	func	ported	src/regex/automata/hir_compiler.cr, spec/nfa_thompson_spec.cr	public Thompson compiler builds NFAs from pattern strings with config-aware syntax parsing
 src/nfa/thompson/compiler.rs::func::build_from_hir	func	ported	src/regex/automata/hir_compiler.cr, spec/nfa_thompson_spec.cr	public Thompson compiler now builds NFAs directly from HIR while preserving the configured public build semantics
@@ -480,60 +480,60 @@ src/nfa/thompson/compiler.rs::method::Config.new	method	ported	src/regex/automat
 src/nfa/thompson/compiler.rs::method::WhichCaptures.is_none	method	ported	src/regex/automata/nfa.cr	capture-policy helper is now available on `NFA::WhichCaptures`
 src/nfa/thompson/compiler.rs::struct::Compiler	struct	ported	src/regex/automata/hir_compiler.cr, spec/nfa_thompson_spec.cr	public Thompson compiler surface is exposed through `HirCompiler`
 src/nfa/thompson/compiler.rs::struct::Config	struct	ported	src/regex/automata/hir_compiler.cr, spec/nfa_thompson_spec.cr	public Thompson config surface is exposed through `HirCompilerConfig`
-src/nfa/thompson/compiler.rs::test::compile_alternation	test	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::test::compile_captures_all	test	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::test::compile_captures_implicit	test	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::test::compile_captures_none	test	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::test::compile_class_ascii	test	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::test::compile_class_unicode	test	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::test::compile_empty	test	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::test::compile_group	test	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::test::compile_literal	test	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::test::compile_many_start_pattern	test	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::test::compile_no_reverse_unanchored_prefix_with_end_anchor	test	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::test::compile_no_unanchored_prefix_with_start_anchor	test	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::test::compile_non_binary_union	test	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::test::compile_repetition	test	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::test::compile_unanchored_prefix	test	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::test::compile_yes_reverse_unanchored_prefix_with_start_anchor	test	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::test::compile_yes_unanchored_prefix_with_end_anchor	test	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::test::empty_class_bytes	test	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::test::empty_class_unicode	test	missing	-	auto-generated
+src/nfa/thompson/compiler.rs::test::compile_alternation	test	skipped	spec/nfa_thompson_representation_spec.cr	Crystal preserves alternation semantics but does not port Rust's exact trie-factored state ordering for alternation compaction.
+src/nfa/thompson/compiler.rs::test::compile_captures_all	test	skipped	spec/nfa_thompson_representation_spec.cr	Crystal preserves `WhichCaptures::All` capture semantics but not Rust's exact capture-state insertion order.
+src/nfa/thompson/compiler.rs::test::compile_captures_implicit	test	ported	spec/nfa_thompson_representation_spec.cr	ported exact implicit-capture Thompson state-shape parity
+src/nfa/thompson/compiler.rs::test::compile_captures_none	test	ported	spec/nfa_thompson_representation_spec.cr	ported exact capture-free Thompson state-shape parity
+src/nfa/thompson/compiler.rs::test::compile_class_ascii	test	ported	spec/nfa_thompson_representation_spec.cr	ported exact ASCII class state-shape parity, including ASCII-only Unicode HIR lowering
+src/nfa/thompson/compiler.rs::test::compile_class_unicode	test	skipped	spec/nfa_thompson_representation_spec.cr	Crystal preserves Unicode class matching but does not port Rust's exact range-trie suffix-sharing layout.
+src/nfa/thompson/compiler.rs::test::compile_empty	test	ported	spec/nfa_thompson_representation_spec.cr	ported exact empty-pattern Thompson state-shape parity
+src/nfa/thompson/compiler.rs::test::compile_group	test	skipped	spec/nfa_thompson_representation_spec.cr	Crystal preserves grouped repetition semantics but allocates repetition states in a different order than Rust's builder.
+src/nfa/thompson/compiler.rs::test::compile_literal	test	ported	spec/nfa_thompson_representation_spec.cr	ported exact literal Thompson state-shape parity
+src/nfa/thompson/compiler.rs::test::compile_many_start_pattern	test	ported	spec/nfa_thompson_spec.cr	ported exact multi-pattern start-state parity for the public Thompson compiler surface
+src/nfa/thompson/compiler.rs::test::compile_no_reverse_unanchored_prefix_with_end_anchor	test	skipped	spec/nfa_thompson_spec.cr	Crystal's current regex-syntax lowering maps `$` to text-anchor HIR kinds, so the exact Rust reverse end-anchor state shape is not reproducible here.
+src/nfa/thompson/compiler.rs::test::compile_no_unanchored_prefix_with_start_anchor	test	skipped	spec/nfa_thompson_spec.cr	Crystal's current regex-syntax lowering maps `^` to text-anchor HIR kinds, so the exact Rust line-anchor state shape is not reproducible here.
+src/nfa/thompson/compiler.rs::test::compile_non_binary_union	test	skipped	spec/nfa_thompson_representation_spec.cr	Crystal preserves reverse Unicode class behavior without porting Rust's exact range-trie factored non-binary union layout.
+src/nfa/thompson/compiler.rs::test::compile_repetition	test	skipped	spec/nfa_thompson_representation_spec.cr	Crystal preserves repetition semantics but not Rust's exact union-first state ordering for optional and plus construction.
+src/nfa/thompson/compiler.rs::test::compile_unanchored_prefix	test	ported	spec/nfa_thompson_spec.cr	ported exact unanchored-prefix state-shape parity for the public Thompson compiler surface
+src/nfa/thompson/compiler.rs::test::compile_yes_reverse_unanchored_prefix_with_start_anchor	test	skipped	spec/nfa_thompson_spec.cr	Crystal's current regex-syntax lowering maps `^` to text-anchor HIR kinds, so the exact Rust reverse anchored-prefix state shape is not reproducible here.
+src/nfa/thompson/compiler.rs::test::compile_yes_unanchored_prefix_with_end_anchor	test	skipped	spec/nfa_thompson_spec.cr	Crystal's current regex-syntax lowering maps `$` to text-anchor HIR kinds, so the exact Rust end-anchor state shape is not reproducible here.
+src/nfa/thompson/compiler.rs::test::empty_class_bytes	test	ported	spec/nfa_thompson_representation_spec.cr	ported exact empty byte-class Thompson lowering parity
+src/nfa/thompson/compiler.rs::test::empty_class_unicode	test	ported	spec/nfa_thompson_representation_spec.cr	ported exact empty Unicode-class Thompson lowering parity
 src/nfa/thompson/error.rs::func::size_limit	func	missing	-	auto-generated
 src/nfa/thompson/error.rs::method::BuildError.size_limit	method	missing	-	auto-generated
 src/nfa/thompson/error.rs::struct::BuildError	struct	missing	-	auto-generated
-src/nfa/thompson/literal_trie.rs::test::maker	test	missing	-	auto-generated
-src/nfa/thompson/literal_trie.rs::test::zap	test	missing	-	auto-generated
-src/nfa/thompson/map.rs::func::clear	func	missing	-	auto-generated
-src/nfa/thompson/map.rs::func::get	func	missing	-	auto-generated
-src/nfa/thompson/map.rs::func::hash	func	missing	-	auto-generated
-src/nfa/thompson/map.rs::func::new	func	missing	-	auto-generated
-src/nfa/thompson/map.rs::func::set	func	missing	-	auto-generated
-src/nfa/thompson/map.rs::method::Utf8BoundedMap.new	method	missing	-	auto-generated
-src/nfa/thompson/map.rs::method::Utf8SuffixMap.new	method	missing	-	auto-generated
-src/nfa/thompson/map.rs::struct::Utf8BoundedMap	struct	missing	-	auto-generated
-src/nfa/thompson/map.rs::struct::Utf8SuffixKey	struct	missing	-	auto-generated
-src/nfa/thompson/map.rs::struct::Utf8SuffixMap	struct	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::enum::State	enum	missing	-	auto-generated
+src/nfa/thompson/literal_trie.rs::test::maker	test	skipped	src/regex/automata/hir_compiler.cr	Crystal does not port Rust's internal literal-trie builder as a standalone type; the Thompson compiler emits the final graph directly.
+src/nfa/thompson/literal_trie.rs::test::zap	test	skipped	src/regex/automata/hir_compiler.cr	Crystal does not port Rust's internal literal-trie builder as a standalone type; the Thompson compiler emits the final graph directly.
+src/nfa/thompson/map.rs::func::clear	func	skipped	src/regex/automata/hir_compiler.cr	Crystal does not port Rust's internal UTF-8 suffix and bounded map helpers as standalone types; equivalent behavior is inlined in the Thompson compiler.
+src/nfa/thompson/map.rs::func::get	func	skipped	src/regex/automata/hir_compiler.cr	Crystal does not port Rust's internal UTF-8 suffix and bounded map helpers as standalone types; equivalent behavior is inlined in the Thompson compiler.
+src/nfa/thompson/map.rs::func::hash	func	skipped	src/regex/automata/hir_compiler.cr	Crystal does not port Rust's internal UTF-8 suffix and bounded map helpers as standalone types; equivalent behavior is inlined in the Thompson compiler.
+src/nfa/thompson/map.rs::func::new	func	skipped	src/regex/automata/hir_compiler.cr	Crystal does not port Rust's internal UTF-8 suffix and bounded map helpers as standalone types; equivalent behavior is inlined in the Thompson compiler.
+src/nfa/thompson/map.rs::func::set	func	skipped	src/regex/automata/hir_compiler.cr	Crystal does not port Rust's internal UTF-8 suffix and bounded map helpers as standalone types; equivalent behavior is inlined in the Thompson compiler.
+src/nfa/thompson/map.rs::method::Utf8BoundedMap.new	method	skipped	src/regex/automata/hir_compiler.cr	Crystal does not port Rust's internal UTF-8 suffix and bounded map helpers as standalone types; equivalent behavior is inlined in the Thompson compiler.
+src/nfa/thompson/map.rs::method::Utf8SuffixMap.new	method	skipped	src/regex/automata/hir_compiler.cr	Crystal does not port Rust's internal UTF-8 suffix and bounded map helpers as standalone types; equivalent behavior is inlined in the Thompson compiler.
+src/nfa/thompson/map.rs::struct::Utf8BoundedMap	struct	skipped	src/regex/automata/hir_compiler.cr	Crystal does not port Rust's internal UTF-8 suffix and bounded map helpers as standalone types; equivalent behavior is inlined in the Thompson compiler.
+src/nfa/thompson/map.rs::struct::Utf8SuffixKey	struct	skipped	src/regex/automata/hir_compiler.cr	Crystal does not port Rust's internal UTF-8 suffix and bounded map helpers as standalone types; equivalent behavior is inlined in the Thompson compiler.
+src/nfa/thompson/map.rs::struct::Utf8SuffixMap	struct	skipped	src/regex/automata/hir_compiler.cr	Crystal does not port Rust's internal UTF-8 suffix and bounded map helpers as standalone types; equivalent behavior is inlined in the Thompson compiler.
+src/nfa/thompson/nfa.rs::enum::State	enum	partial	src/regex/automata/nfa.cr, spec/nfa_thompson_representation_spec.cr	Crystal exposes the equivalent final Thompson state variants and now removes builder-only goto placeholders before publishing the NFA, but it does not model Rust's dense-state variant as a separate public type.
 src/nfa/thompson/nfa.rs::func::always_match	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	public Thompson always-match constructor now exists with NFA-level parity coverage
-src/nfa/thompson/nfa.rs::func::byte_classes	func	missing	-	auto-generated
+src/nfa/thompson/nfa.rs::func::byte_classes	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_representation_spec.cr	NFA byte classes are now computed from the final Thompson graph instead of using an identity placeholder.
 src/nfa/thompson/nfa.rs::func::compiler	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	public Thompson compiler convenience constructor now exists
 src/nfa/thompson/nfa.rs::func::config	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	public Thompson config convenience constructor now exists
 src/nfa/thompson/nfa.rs::func::group_info	func	ported	src/regex/automata/nfa.cr, spec/captures_spec.cr, spec/nfa_thompson_spec.cr	group metadata now flows through both raw HIR compilation and public Thompson construction
 src/nfa/thompson/nfa.rs::func::has_capture	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	NFA capture metadata is now exposed publicly
 src/nfa/thompson/nfa.rs::func::has_empty	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	NFA empty-match metadata is now exposed publicly
 src/nfa/thompson/nfa.rs::func::is_always_start_anchored	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	NFA anchored-start introspection now exists
-src/nfa/thompson/nfa.rs::func::is_epsilon	func	missing	-	auto-generated
+src/nfa/thompson/nfa.rs::func::is_epsilon	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_representation_spec.cr	Thompson state epsilon classification now matches the public Rust helper surface.
 src/nfa/thompson/nfa.rs::func::is_reverse	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	NFA reverse-compilation metadata is now exposed publicly
 src/nfa/thompson/nfa.rs::func::is_utf8	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	NFA UTF-8 metadata is now exposed publicly
 src/nfa/thompson/nfa.rs::func::look_matcher	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	NFA look matcher is now stored and exposed publicly
 src/nfa/thompson/nfa.rs::func::look_set_any	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	NFA-wide look assertion introspection now exists
 src/nfa/thompson/nfa.rs::func::look_set_prefix_all	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	prefix look assertion intersection is now exposed on the public NFA surface
 src/nfa/thompson/nfa.rs::func::look_set_prefix_any	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	prefix look assertion union is now exposed on the public NFA surface
-src/nfa/thompson/nfa.rs::func::matches	func	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::func::matches_byte	func	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::func::matches_unit	func	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::func::memory_usage	func	missing	-	auto-generated
+src/nfa/thompson/nfa.rs::func::matches	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_representation_spec.cr	Transition and sparse-state matching helpers now exist for haystack, byte and unit inputs.
+src/nfa/thompson/nfa.rs::func::matches_byte	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_representation_spec.cr	Transition and sparse-state matching helpers now exist for haystack, byte and unit inputs.
+src/nfa/thompson/nfa.rs::func::matches_unit	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_representation_spec.cr	Transition and sparse-state matching helpers now exist for haystack, byte and unit inputs.
+src/nfa/thompson/nfa.rs::func::memory_usage	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_representation_spec.cr	NFA memory-usage reporting now reflects the final graph and heap-backed transition storage.
 src/nfa/thompson/nfa.rs::func::never_match	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	public Thompson never-match constructor now exists with NFA-level parity coverage
 src/nfa/thompson/nfa.rs::func::new	func	ported	src/regex/automata/nfa.cr, src/regex/automata/hir_compiler.cr, spec/nfa_thompson_spec.cr	public Thompson constructor now builds NFAs from pattern strings
 src/nfa/thompson/nfa.rs::func::pattern_len	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	public NFA pattern-length introspection now exists
@@ -543,19 +543,19 @@ src/nfa/thompson/nfa.rs::func::start_pattern	func	ported	src/regex/automata/nfa.
 src/nfa/thompson/nfa.rs::func::start_unanchored	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	public NFA unanchored-start introspection now exists
 src/nfa/thompson/nfa.rs::func::state	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	public state lookup by `StateID` now exists
 src/nfa/thompson/nfa.rs::func::states	func	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	public state-slice access is now covered through the Thompson NFA API
-src/nfa/thompson/nfa.rs::method::DenseTransitions.matches	method	missing	-	auto-generated
+src/nfa/thompson/nfa.rs::method::DenseTransitions.matches	method	skipped	src/regex/automata/nfa.cr	Crystal does not expose Rust's internal dense NFA transition representation as a separate public type.
 src/nfa/thompson/nfa.rs::method::NFA.new	method	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	public Thompson NFA constructors now exist
-src/nfa/thompson/nfa.rs::method::SparseTransitions.matches	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::State.is_epsilon	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::Transition.matches	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::struct::DenseTransitions	struct	missing	-	auto-generated
+src/nfa/thompson/nfa.rs::method::SparseTransitions.matches	method	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_representation_spec.cr	Equivalent sparse-transition matching helpers are exposed on Crystal's `NFA::Sparse` state.
+src/nfa/thompson/nfa.rs::method::State.is_epsilon	method	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_representation_spec.cr	Thompson state epsilon classification now matches the public Rust helper surface.
+src/nfa/thompson/nfa.rs::method::Transition.matches	method	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_representation_spec.cr	Transition matching helpers now exist for haystack, byte and unit inputs.
+src/nfa/thompson/nfa.rs::struct::DenseTransitions	struct	skipped	src/regex/automata/nfa.cr	Crystal does not expose Rust's internal dense NFA transition representation as a separate public type.
 src/nfa/thompson/nfa.rs::struct::NFA	struct	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	public Thompson NFA surface is now exposed
 src/nfa/thompson/nfa.rs::struct::PatternIter	struct	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	public Thompson pattern iterator now exists
-src/nfa/thompson/nfa.rs::struct::SparseTransitions	struct	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::struct::Transition	struct	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::test::always_match	test	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::test::never_match	test	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::test::state_has_small_size	test	missing	-	auto-generated
+src/nfa/thompson/nfa.rs::struct::SparseTransitions	struct	partial	src/regex/automata/nfa.cr, spec/nfa_thompson_representation_spec.cr	Crystal folds Rust's standalone `SparseTransitions` wrapper into the `NFA::Sparse` state while preserving the matching helper behavior.
+src/nfa/thompson/nfa.rs::struct::Transition	struct	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_representation_spec.cr	The Thompson transition struct and its matching helpers now exist publicly.
+src/nfa/thompson/nfa.rs::test::always_match	test	partial	spec/nfa_thompson_spec.cr	Constructor state-shape parity is covered here; Rust's PikeVM search semantics are deferred to the PikeVM feature.
+src/nfa/thompson/nfa.rs::test::never_match	test	partial	spec/nfa_thompson_spec.cr	Constructor state-shape parity is covered here; Rust's PikeVM search semantics are deferred to the PikeVM feature.
+src/nfa/thompson/nfa.rs::test::state_has_small_size	test	skipped	src/regex/automata/nfa.cr	Rust memory-layout assertions have no stable Crystal equivalent.
 src/nfa/thompson/pikevm.rs::func::always_match	func	missing	-	auto-generated
 src/nfa/thompson/pikevm.rs::func::build	func	missing	-	auto-generated
 src/nfa/thompson/pikevm.rs::func::build_from_nfa	func	missing	-	auto-generated
@@ -593,14 +593,14 @@ src/nfa/thompson/pikevm.rs::struct::CapturesMatches	struct	missing	-	auto-genera
 src/nfa/thompson/pikevm.rs::struct::Config	struct	missing	-	auto-generated
 src/nfa/thompson/pikevm.rs::struct::FindMatches	struct	missing	-	auto-generated
 src/nfa/thompson/pikevm.rs::struct::PikeVM	struct	missing	-	auto-generated
-src/nfa/thompson/range_trie.rs::func::add_empty	func	missing	-	auto-generated
-src/nfa/thompson/range_trie.rs::func::clear	func	missing	-	auto-generated
-src/nfa/thompson/range_trie.rs::func::insert	func	missing	-	auto-generated
-src/nfa/thompson/range_trie.rs::func::new	func	missing	-	auto-generated
-src/nfa/thompson/range_trie.rs::method::RangeTrie.new	method	missing	-	auto-generated
-src/nfa/thompson/range_trie.rs::struct::RangeTrie	struct	missing	-	auto-generated
-src/nfa/thompson/range_trie.rs::test::no_splits	test	missing	-	auto-generated
-src/nfa/thompson/range_trie.rs::test::splits	test	missing	-	auto-generated
+src/nfa/thompson/range_trie.rs::func::add_empty	func	skipped	src/regex/automata/hir_compiler.cr	Crystal does not port Rust's internal Unicode range-trie builder as a standalone type; Unicode class compilation emits the final graph directly.
+src/nfa/thompson/range_trie.rs::func::clear	func	skipped	src/regex/automata/hir_compiler.cr	Crystal does not port Rust's internal Unicode range-trie builder as a standalone type; Unicode class compilation emits the final graph directly.
+src/nfa/thompson/range_trie.rs::func::insert	func	skipped	src/regex/automata/hir_compiler.cr	Crystal does not port Rust's internal Unicode range-trie builder as a standalone type; Unicode class compilation emits the final graph directly.
+src/nfa/thompson/range_trie.rs::func::new	func	skipped	src/regex/automata/hir_compiler.cr	Crystal does not port Rust's internal Unicode range-trie builder as a standalone type; Unicode class compilation emits the final graph directly.
+src/nfa/thompson/range_trie.rs::method::RangeTrie.new	method	skipped	src/regex/automata/hir_compiler.cr	Crystal does not port Rust's internal Unicode range-trie builder as a standalone type; Unicode class compilation emits the final graph directly.
+src/nfa/thompson/range_trie.rs::struct::RangeTrie	struct	skipped	src/regex/automata/hir_compiler.cr	Crystal does not port Rust's internal Unicode range-trie builder as a standalone type; Unicode class compilation emits the final graph directly.
+src/nfa/thompson/range_trie.rs::test::no_splits	test	skipped	src/regex/automata/hir_compiler.cr	Crystal does not port Rust's internal Unicode range-trie builder as a standalone type; Unicode class compilation emits the final graph directly.
+src/nfa/thompson/range_trie.rs::test::splits	test	skipped	src/regex/automata/hir_compiler.cr	Crystal does not port Rust's internal Unicode range-trie builder as a standalone type; Unicode class compilation emits the final graph directly.
 src/util/alphabet.rs::func::alphabet_len	func	ported	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	ported byte-class alphabet length semantics including the EOI sentinel
 src/util/alphabet.rs::func::as_eoi	func	ported	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	ported Unit EOI extraction
 src/util/alphabet.rs::func::as_u8	func	ported	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	ported Unit byte extraction

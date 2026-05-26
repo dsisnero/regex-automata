@@ -88,13 +88,14 @@ For every unchecked top-level item:
   - Progress: public Thompson constructors, compiler/config wrappers, capture-policy controls, look-set metadata, pattern/start iterators, `always_match`, `never_match`, and exact public unanchored-prefix and multi-start parity are now implemented and covered
   - Done when: the public Thompson NFA/compiler API, capture-policy surface, and the covered upstream compiler semantics are green and inventory-backed; exact raw graph-layout cases that still belong to lower-level representation work stay with the next Thompson NFA feature
 
-- [ ] Thompson NFA graph representation and analytics
+- [x] Thompson NFA graph representation and analytics
   - Upstream scope: lower-level representation/build details in `src/nfa/thompson/nfa.rs`, `src/nfa/thompson/builder.rs`, `src/nfa/thompson/literal_trie.rs`, `src/nfa/thompson/range_trie.rs`, and `src/nfa/thompson/map.rs`
   - Inventory ids: remaining representation/analysis rows under `src/nfa/thompson/nfa.rs::*`, plus `src/nfa/thompson/builder.rs::*`, `src/nfa/thompson/literal_trie.rs::*`, `src/nfa/thompson/range_trie.rs::*`, and `src/nfa/thompson/map.rs::*`
   - Workflow: finish byte-class analysis, memory/reporting helpers, builder internals, and trie/map representation behavior as a second Thompson NFA milestone
   - Red: port the remaining representation/builder parity specs after the public/compiler API is stable
   - Green: `src/regex/automata/nfa.cr`, `src/regex/automata/hir_compiler.cr`
-  - Done when: the remaining Thompson NFA representation and builder rows for this family are `ported`, `skipped`, or documented as intentional divergences
+  - Progress: final Thompson NFAs now drop builder-only goto placeholders before publication, compute real byte classes and memory usage from the final graph, and expose the Rust-style transition/sparse/state helper behavior through focused parity specs
+  - Done when: the remaining Thompson NFA representation and builder rows for this family are `ported` or `skipped`
 
 - [ ] PikeVM search engine
   - Upstream scope: `src/nfa/thompson/pikevm.rs`
