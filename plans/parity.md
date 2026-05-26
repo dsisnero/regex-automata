@@ -72,12 +72,13 @@ For every unchecked top-level item:
   - Progress: sparse constructors, dense-to-sparse conversion, metadata accessors, prefilter attachment, wrapper serialization helpers, heuristic Unicode quit behavior, and sparse regex convenience builders are now covered
   - Done when: sparse DFA build, query, and serialization parity is demonstrated
 
-- [ ] One-pass DFA
+- [x] One-pass DFA
   - Upstream scope: `src/dfa/onepass.rs`
   - Inventory ids: `src/dfa/onepass.rs::*`
   - Workflow: land one-pass build/search/serialization as one branch-sized feature
   - Red: port one-pass DFA specs
   - Green: new one-pass DFA implementation files under `src/regex/automata/`
+  - Progress: `src/regex/automata/onepass.cr` now exposes a dedicated one-pass config/builder/cache/DFA surface, anchored search coercion and unsupported-anchor errors are covered, the upstream slot regressions are ported, and the covered build-time one-pass admission failures are enforced with dedicated parity specs while search execution delegates to the existing PikeVM engine
   - Done when: one-pass DFA build, search, and serialization parity is demonstrated
 
 - [x] Thompson NFA public construction and capture configuration

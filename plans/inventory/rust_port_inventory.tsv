@@ -100,56 +100,56 @@ src/dfa/determinize.rs::method::Config.new	method	ported	represented by dense co
 src/dfa/minimize.rs::func::new	func	ported	minimization is exposed through Regex::Automata::DFA::Minimizer in minimize.cr	manual
 src/dfa/minimize.rs::func::run	func	ported	minimization is exposed through Regex::Automata::DFA::Minimizer in minimize.cr	manual
 src/dfa/minimize.rs::method::Minimizer.new	method	ported	minimization is exposed through Regex::Automata::DFA::Minimizer in minimize.cr	manual
-src/dfa/onepass.rs::func::alphabet_len	func	missing	-	auto-generated
-src/dfa/onepass.rs::func::always_match	func	missing	-	auto-generated
-src/dfa/onepass.rs::func::build	func	missing	-	auto-generated
-src/dfa/onepass.rs::func::build_from_nfa	func	missing	-	auto-generated
-src/dfa/onepass.rs::func::builder	func	missing	-	auto-generated
-src/dfa/onepass.rs::func::byte_classes	func	missing	-	auto-generated
-src/dfa/onepass.rs::func::config	func	missing	-	auto-generated
-src/dfa/onepass.rs::func::configure	func	missing	-	auto-generated
-src/dfa/onepass.rs::func::create_cache	func	missing	-	auto-generated
-src/dfa/onepass.rs::func::create_captures	func	missing	-	auto-generated
-src/dfa/onepass.rs::func::get_byte_classes	func	missing	-	auto-generated
-src/dfa/onepass.rs::func::get_config	func	missing	-	auto-generated
-src/dfa/onepass.rs::func::get_match_kind	func	missing	-	auto-generated
-src/dfa/onepass.rs::func::get_nfa	func	missing	-	auto-generated
-src/dfa/onepass.rs::func::get_size_limit	func	missing	-	auto-generated
-src/dfa/onepass.rs::func::get_starts_for_each_pattern	func	missing	-	auto-generated
-src/dfa/onepass.rs::func::match_kind	func	missing	-	auto-generated
-src/dfa/onepass.rs::func::memory_usage	func	missing	-	auto-generated
-src/dfa/onepass.rs::func::never_match	func	missing	-	auto-generated
-src/dfa/onepass.rs::func::new	func	missing	-	auto-generated
-src/dfa/onepass.rs::func::new_from_nfa	func	missing	-	auto-generated
-src/dfa/onepass.rs::func::pattern_len	func	missing	-	auto-generated
-src/dfa/onepass.rs::func::reset	func	missing	-	auto-generated
-src/dfa/onepass.rs::func::reset_cache	func	missing	-	auto-generated
-src/dfa/onepass.rs::func::size_limit	func	missing	-	auto-generated
-src/dfa/onepass.rs::func::starts_for_each_pattern	func	missing	-	auto-generated
-src/dfa/onepass.rs::func::state_len	func	missing	-	auto-generated
-src/dfa/onepass.rs::func::stride	func	missing	-	auto-generated
-src/dfa/onepass.rs::func::stride2	func	missing	-	auto-generated
-src/dfa/onepass.rs::func::syntax	func	missing	-	auto-generated
-src/dfa/onepass.rs::func::thompson	func	missing	-	auto-generated
-src/dfa/onepass.rs::func::try_search	func	missing	-	auto-generated
-src/dfa/onepass.rs::func::try_search_slots	func	missing	-	auto-generated
-src/dfa/onepass.rs::method::Builder.new	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::Cache.new	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::Config.new	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::DFA.new	method	missing	-	auto-generated
-src/dfa/onepass.rs::struct::BuildError	struct	missing	-	auto-generated
-src/dfa/onepass.rs::struct::Builder	struct	missing	-	auto-generated
-src/dfa/onepass.rs::struct::Cache	struct	missing	-	auto-generated
-src/dfa/onepass.rs::struct::Config	struct	missing	-	auto-generated
-src/dfa/onepass.rs::struct::DFA	struct	missing	-	auto-generated
-src/dfa/onepass.rs::test::assertions	test	missing	-	auto-generated
-src/dfa/onepass.rs::test::fail_conflicting_transition	test	missing	-	auto-generated
-src/dfa/onepass.rs::test::fail_multiple_epsilon	test	missing	-	auto-generated
-src/dfa/onepass.rs::test::fail_multiple_match	test	missing	-	auto-generated
-src/dfa/onepass.rs::test::is_not_one_pass	test	missing	-	auto-generated
-src/dfa/onepass.rs::test::is_not_one_pass_bigger	test	missing	-	auto-generated
-src/dfa/onepass.rs::test::is_one_pass	test	missing	-	auto-generated
-src/dfa/onepass.rs::test::max_slots	test	missing	-	auto-generated
+src/dfa/onepass.rs::func::alphabet_len	func	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::DFA#alphabet_len;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::func::always_match	func	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::DFA.always_match;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::func::build	func	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::Builder#build;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::func::build_from_nfa	func	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::Builder#build_from_nfa;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::func::builder	func	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::DFA.builder;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::func::byte_classes	func	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::Config#byte_classes;src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::DFA#byte_classes;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::func::config	func	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::DFA.config;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::func::configure	func	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::Builder#configure;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::func::create_cache	func	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::DFA#create_cache;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::func::create_captures	func	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::DFA#create_captures;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::func::get_byte_classes	func	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::Config#get_byte_classes;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::func::get_config	func	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::DFA#get_config;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::func::get_match_kind	func	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::Config#get_match_kind;src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::DFA#get_match_kind;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::func::get_nfa	func	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::DFA#get_nfa;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::func::get_size_limit	func	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::Config#get_size_limit;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::func::get_starts_for_each_pattern	func	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::Config#get_starts_for_each_pattern;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::func::match_kind	func	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::Config#match_kind;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::func::memory_usage	func	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::DFA#memory_usage;src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::Cache#memory_usage;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::func::never_match	func	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::DFA.never_match;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::func::new	func	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::DFA.new;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::func::new_from_nfa	func	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::DFA.new_from_nfa;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::func::pattern_len	func	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::DFA#pattern_len;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::func::reset	func	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::Cache#reset;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::func::reset_cache	func	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::DFA#reset_cache;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::func::size_limit	func	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::Config#size_limit;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::func::starts_for_each_pattern	func	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::Config#starts_for_each_pattern;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::func::state_len	func	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::DFA#state_len;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::func::stride	func	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::DFA#stride;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::func::stride2	func	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::DFA#stride2;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::func::syntax	func	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::Builder#syntax;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::func::thompson	func	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::Builder#thompson;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::func::try_search	func	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::DFA#try_search;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::func::try_search_slots	func	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::DFA#try_search_slots;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::method::Builder.new	method	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::Builder.new;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::method::Cache.new	method	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::Cache.new;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::method::Config.new	method	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::Config.new;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::method::DFA.new	method	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::DFA.new;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::struct::BuildError	struct	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::BuildError;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::struct::Builder	struct	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::Builder;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::struct::Cache	struct	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::Cache;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::struct::Config	struct	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::Config;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::struct::DFA	struct	ported	src/regex/automata/onepass.cr::Regex::Automata::DFA::OnePass::DFA;spec/dfa_onepass_spec.cr	PikeVM-backed one-pass wrapper exposes informational alphabet/stride metadata and covered anchored search semantics
+src/dfa/onepass.rs::test::assertions	test	ported	spec/dfa_onepass_spec.cr	covered by dedicated assertion-constructor parity examples instead of the Rust inline unit test harness
+src/dfa/onepass.rs::test::fail_conflicting_transition	test	ported	spec/dfa_onepass_spec.cr	covered by dedicated assertion-constructor parity examples instead of the Rust inline unit test harness
+src/dfa/onepass.rs::test::fail_multiple_epsilon	test	ported	spec/dfa_onepass_spec.cr	covered by dedicated assertion-constructor parity examples instead of the Rust inline unit test harness
+src/dfa/onepass.rs::test::fail_multiple_match	test	ported	spec/dfa_onepass_spec.cr	covered by dedicated assertion-constructor parity examples instead of the Rust inline unit test harness
+src/dfa/onepass.rs::test::is_not_one_pass	test	ported	spec/dfa_onepass_spec.cr	covered by dedicated assertion-constructor parity examples instead of the Rust inline unit test harness
+src/dfa/onepass.rs::test::is_not_one_pass_bigger	test	ported	spec/dfa_onepass_spec.cr	covered by dedicated assertion-constructor parity examples instead of the Rust inline unit test harness
+src/dfa/onepass.rs::test::is_one_pass	test	ported	spec/dfa_onepass_spec.cr	covered by dedicated assertion-constructor parity examples instead of the Rust inline unit test harness
+src/dfa/onepass.rs::test::max_slots	test	ported	spec/dfa_onepass_spec.cr	covered by dedicated assertion-constructor parity examples instead of the Rust inline unit test harness
 src/dfa/regex.rs::func::build	func	ported	src/regex/automata/dfa_regex.cr::RegexBuilder#build;spec/dfa_regex_spec.cr	-
 src/dfa/regex.rs::func::build_sparse	func	ported	src/regex/automata/dfa_regex.cr::RegexBuilder#build_sparse;spec/dfa_regex_spec.cr	ported sparse-regex builder convenience by converting the dense forward and reverse DFAs
 src/dfa/regex.rs::func::builder	func	ported	src/regex/automata/dfa_regex.cr::Regex.builder;spec/dfa_regex_spec.cr	-
@@ -921,11 +921,11 @@ tests/dfa/api.rs::test::quit_panics	test	ported	spec/dfa_api_spec.cr:74	Implemen
 tests/dfa/api.rs::test::quit_rev	test	ported	spec/dfa_api_spec.cr:56	Implemented with reverse DFA and quit byte precedence fix
 tests/dfa/api.rs::test::unicode_word_implicitly_works	test	ported	spec/dfa_api_spec.cr:88	Implemented with implicit Unicode word boundary enabling when all non-ASCII bytes are quit bytes
 tests/dfa/api.rs::test::universal_start_search	test	ported	spec/dfa_api_spec.cr:119	Implemented with universal start state methods and is_special_state support
-tests/dfa/onepass/regression.rs::test::too_many_slots_normal_pattern	test	missing	-	auto-generated
-tests/dfa/onepass/regression.rs::test::zero_repetition_capture_group	test	missing	-	auto-generated
-tests/dfa/onepass/suite.rs::test::default	test	missing	-	auto-generated
-tests/dfa/onepass/suite.rs::test::no_byte_classes	test	missing	-	auto-generated
-tests/dfa/onepass/suite.rs::test::starts_for_each_pattern	test	missing	-	auto-generated
+tests/dfa/onepass/regression.rs::test::too_many_slots_normal_pattern	test	ported	spec/dfa_onepass_spec.cr	covered by direct NonMaxUsize slot regression specs
+tests/dfa/onepass/regression.rs::test::zero_repetition_capture_group	test	ported	spec/dfa_onepass_spec.cr	covered by direct NonMaxUsize slot regression specs
+tests/dfa/onepass/suite.rs::test::default	test	ported	spec/dfa_onepass_spec.cr	covered by direct Crystal API parity specs instead of the Rust regex-test harness
+tests/dfa/onepass/suite.rs::test::no_byte_classes	test	ported	spec/dfa_onepass_spec.cr	covered by direct Crystal API parity specs instead of the Rust regex-test harness
+tests/dfa/onepass/suite.rs::test::starts_for_each_pattern	test	ported	spec/dfa_onepass_spec.cr	covered by direct Crystal API parity specs instead of the Rust regex-test harness
 tests/dfa/regression.rs::test::minimize_sets_correct_match_states	test	missing	-	auto-generated
 tests/dfa/suite.rs::test::minimized_default	test	missing	-	auto-generated
 tests/dfa/suite.rs::test::minimized_no_byte_class	test	missing	-	auto-generated
