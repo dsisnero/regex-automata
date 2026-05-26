@@ -145,6 +145,6 @@ tests/nfa/thompson/backtrack/regression.rs::test::too_many_slots_normal_pattern	
 tests/nfa/thompson/backtrack/suite.rs::test::default	missing	-	baseline
 tests/nfa/thompson/backtrack/suite.rs::test::min_visited_capacity	missing	-	baseline
 tests/nfa/thompson/backtrack/suite.rs::test::prefilter	missing	-	baseline
-tests/nfa/thompson/pikevm/regression.rs::test::too_many_slots_normal_pattern	missing	-	baseline
-tests/nfa/thompson/pikevm/suite.rs::test::default	missing	-	baseline
-tests/nfa/thompson/pikevm/suite.rs::test::prefilter	missing	-	baseline
+tests/nfa/thompson/pikevm/regression.rs::test::too_many_slots_normal_pattern	ported	spec/pikevm_spec.cr	ported oversized PikeVM slot-buffer regression coverage with NonMaxUsize slots
+tests/nfa/thompson/pikevm/suite.rs::test::default	ported	spec/pikevm_spec.cr	ported focused PikeVM constructor, search, capture, iterator, UTF-8, and Unicode word-boundary coverage instead of the upstream regex-test harness
+tests/nfa/thompson/pikevm/suite.rs::test::prefilter	ported	spec/pikevm_spec.cr	ported PikeVM prefilter configuration and search coverage

@@ -97,12 +97,13 @@ For every unchecked top-level item:
   - Progress: final Thompson NFAs now drop builder-only goto placeholders before publication, compute real byte classes and memory usage from the final graph, and expose the Rust-style transition/sparse/state helper behavior through focused parity specs
   - Done when: the remaining Thompson NFA representation and builder rows for this family are `ported` or `skipped`
 
-- [ ] PikeVM search engine
+- [x] PikeVM search engine
   - Upstream scope: `src/nfa/thompson/pikevm.rs`
   - Inventory ids: `src/nfa/thompson/pikevm.rs::*`
   - Workflow: land PikeVM search and capture behavior as one runnable engine milestone
   - Red: port PikeVM search and capture specs
   - Green: new PikeVM implementation files under `src/regex/automata/`
+  - Progress: PikeVM builder/config/cache/search/capture APIs, overlapping pattern discovery, prefilter integration, Unicode word-boundary handling, UTF-8 empty-match filtering, and oversized slot writes are now implemented and covered in `spec/pikevm_spec.cr`
   - Done when: PikeVM search, cache, and capture parity specs are green
 
 - [ ] Backtracking search engine

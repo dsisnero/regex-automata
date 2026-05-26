@@ -24,6 +24,10 @@ module Regex::Automata
     # report the match corresponding to the part of the regex that appears
     # first in the syntax.
     LeftmostFirst
+
+    def continue_past_first_match : Bool
+      self == All
+    end
   end
 
   # The kind of start states to support in a DFA

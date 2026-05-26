@@ -51,6 +51,30 @@ module Regex::Automata
     end
   end
 
+  struct NonMaxUsize
+    include Comparable(NonMaxUsize)
+
+    @value : Int32
+
+    def self.new(value : Int32) : NonMaxUsize?
+      return nil if value == Int32::MAX || value < 0
+
+      value = value
+      previous_def
+    end
+
+    def initialize(@value : Int32)
+    end
+
+    def <=>(other : self) : Int32
+      @value <=> other.@value
+    end
+
+    def get : Int32
+      @value
+    end
+  end
+
   # Flags describing DFA behavior and configuration
   struct DFAFlags
     # Whether the DFA is premultiplied (state IDs = index * alphabet_len)
