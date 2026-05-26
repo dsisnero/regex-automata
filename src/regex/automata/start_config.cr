@@ -46,5 +46,13 @@ module Regex::Automata
     def anchored(mode : Anchored, pattern : PatternID? = nil) : StartConfig
       StartConfig.new(@look_behind, mode, pattern)
     end
+
+    def get_look_behind : UInt8?
+      @look_behind
+    end
+
+    def get_anchored : Anchored
+      @anchored
+    end
   end
 end

@@ -46,13 +46,22 @@ module Regex::Automata
     def initialize(@kind : Kind, @byte : UInt8? = nil, @offset : Int32? = nil, @len : Int32? = nil, @mode : Anchored? = nil)
       message = case @kind
                 when Kind::Quit
-                  "quit byte #{@byte.not_nil!} at offset #{@offset.not_nil!}"
+                  "quit search after observing byte #{@byte.not_nil!} at offset #{@offset.not_nil!}"
                 when Kind::GaveUp
-                  "gave up at offset #{@offset.not_nil!}"
+                  "gave up searching at offset #{@offset.not_nil!}"
                 when Kind::HaystackTooLong
-                  "haystack too long: #{@len.not_nil!} bytes"
+                  "haystack of length #{@len.not_nil!} is too long"
                 when Kind::UnsupportedAnchored
-                  "unsupported anchored mode"
+                  case @mode
+                  when Anchored::Yes
+                    "anchored searches are not supported or enabled"
+                  when Anchored::No
+                    "unanchored searches are not supported or enabled"
+                  when Anchored::Pattern
+                    "anchored searches for a specific pattern are not supported or enabled"
+                  else
+                    "unsupported anchored mode"
+                  end
                 else
                   "match error"
                 end

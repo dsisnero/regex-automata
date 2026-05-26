@@ -25,7 +25,7 @@ For every unchecked top-level item:
 4. Implement only enough Crystal code to make that specific spec pass.
 5. Run the narrowest relevant check set, then expand to feature-level checks.
 6. Repeat until the full top-level feature scope is covered.
-7. Update `parity.md` and the inventory manifests only after the behavior is proven.
+7. Update `plans/parity.md` and the inventory manifests only after the behavior is proven.
 8. Commit when the whole top-level feature is done, not when one helper landed.
 
 ## Stop Rule
@@ -190,13 +190,13 @@ For every unchecked top-level item:
   - Progress: `PatternSet`, `PatternSetInsertError`, and `PatternSetIter` now live in `search.cr` with capacity-checked insertion, removal, forward and reverse iteration, and dedicated API coverage
   - Done when: PatternSet API parity is demonstrated
 
-- [ ] Utilities — Shared infrastructure helpers
+- [x] Utilities — Shared infrastructure helpers
   - Upstream scope: `src/util/pool.rs`, `src/util/lazy.rs`, `src/util/iter.rs`, `src/util/primitives.rs`, `src/util/sparse_set.rs`, `src/util/start.rs`, `src/util/syntax.rs`, `src/util/interpolate.rs`, `src/util/int.rs`, `src/util/empty.rs`, `src/util/memchr.rs`
   - Inventory ids: `src/util/pool.rs::*`, `src/util/lazy.rs::*`, `src/util/iter.rs::*`, `src/util/primitives.rs::*`, `src/util/sparse_set.rs::*`, `src/util/start.rs::*`, `src/util/syntax.rs::*`, `src/util/interpolate.rs::*`, `src/util/int.rs::*`, `src/util/empty.rs::*`, `src/util/memchr.rs::*`
   - Workflow: still port helper specs module by module, but each module family should finish at a commit boundary instead of stopping on isolated utility methods
   - Red: port helper specs module by module, not as one lump
   - Green: supporting files under `src/regex/automata/`
-  - Progress: iterator helpers are complete, captures interpolation now uses a shared vendored-style helper, and the `syntax` config/parse wrapper is now covered as its own helper-family slice
+  - Progress: iterator helpers are complete, captures interpolation now uses a shared vendored-style helper, the `syntax` config/parse wrapper is covered as its own helper-family slice, `util/start.rs` now has dedicated `StartConfig` parity coverage for forward/reverse and done-range start classification, `util/search.rs` MatchError constructors/accessors are now directly covered with Rust-only size/layout checks explicitly skipped, `util/lazy.rs` now has a shared lazy wrapper with direct getter/caching coverage, `util/pool.rs` now has mutex-backed pool/guard coverage with the Rust-only owner-thread optimization checks explicitly skipped, and `util/primitives.rs` now has direct primitive wrapper coverage for constants, byte roundtrips, and checked helper methods while preserving the existing Crystal compatibility constructors
   - Done when: each helper family has its own proven parity slice in the ledger
 
 ## Completed

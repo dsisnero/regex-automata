@@ -688,11 +688,11 @@ src/util/iter.rs::struct::Searcher	struct	ported	src/regex/automata/search.cr::S
 src/util/iter.rs::struct::TryCapturesIter	struct	ported	src/regex/automata/search.cr::TryCapturesIter;spec/searcher_spec.cr	ported fallible captures iterator wrapper
 src/util/iter.rs::struct::TryHalfMatchesIter	struct	ported	src/regex/automata/search.cr::TryHalfMatchesIter;spec/searcher_spec.cr	ported fallible half-match iterator wrapper
 src/util/iter.rs::struct::TryMatchesIter	struct	ported	src/regex/automata/search.cr::TryMatchesIter;spec/searcher_spec.cr	ported fallible match iterator wrapper
-src/util/lazy.rs::func::get	func	missing	-	auto-generated
-src/util/lazy.rs::method::T.get	method	missing	-	auto-generated
-src/util/lazy.rs::struct::Lazy	struct	missing	-	auto-generated
-src/util/lazy.rs::test::oibits	test	missing	-	auto-generated
-src/util/lazy.rs::test::sync_not_send	test	missing	-	auto-generated
+src/util/lazy.rs::func::get	func	ported	src/regex/automata/lazy.cr:Lazy.get;spec/lazy_spec.cr	ported upstream-style class getter for lazily initialized values with caching coverage
+src/util/lazy.rs::method::T.get	method	ported	src/regex/automata/lazy.cr:Lazy#get;spec/lazy_spec.cr	ported instance getter with one-time initialization semantics
+src/util/lazy.rs::struct::Lazy	struct	ported	src/regex/automata/lazy.cr:Lazy;spec/lazy_spec.cr	ported thread-safe lazy wrapper using Crystal mutex synchronization
+src/util/lazy.rs::test::oibits	test	skipped	src/regex/automata/lazy.cr	Rust auto-trait (`Send`/`Sync`) assertion has no direct Crystal equivalent because thread-safety is not expressed through the same trait system
+src/util/lazy.rs::test::sync_not_send	test	skipped	src/regex/automata/lazy.cr	Rust negative `Send`/positive `Sync` auto-trait assertion has no direct Crystal equivalent because thread-safety is not expressed through the same trait system
 src/util/look.rs::enum::Look	enum	ported	src/regex/automata/look.cr;spec/look_spec.cr	ported the full look-around assertion enum, reverse mapping, repr conversion, and display-char surface
 src/util/look.rs::func::available	func	ported	src/regex/automata/look.cr;spec/look_spec.cr	ported availability checks; Crystal always ships the Unicode word tables required by this surface
 src/util/look.rs::func::check	func	ported	src/regex/automata/look.cr;spec/look_spec.cr	ported Unicode word-boundary availability API; the Rust feature-disabled error branch is not applicable here
@@ -771,19 +771,19 @@ src/util/look.rs::test::look_matches_word_unicode_negate	test	ported	src/regex/a
 src/util/look.rs::test::look_set	test	ported	src/regex/automata/look.cr;spec/look_spec.cr	ported upstream look-set parity
 src/util/look.rs::test::look_set_debug	test	ported	src/regex/automata/look.cr;spec/look_spec.cr	ported upstream look-set debug parity
 src/util/look.rs::test::look_set_iter	test	ported	src/regex/automata/look.cr;spec/look_spec.cr	ported upstream look-set iterator parity
-src/util/pool.rs::func::get	func	missing	-	auto-generated
-src/util/pool.rs::func::new	func	missing	-	auto-generated
-src/util/pool.rs::func::put	func	missing	-	auto-generated
-src/util/pool.rs::method::Pool.new	method	missing	-	auto-generated
-src/util/pool.rs::method::T.get	method	missing	-	auto-generated
-src/util/pool.rs::method::T.put	method	missing	-	auto-generated
-src/util/pool.rs::struct::Pool	struct	missing	-	auto-generated
-src/util/pool.rs::struct::PoolGuard	struct	missing	-	auto-generated
-src/util/pool.rs::test::oibits	test	missing	-	auto-generated
-src/util/pool.rs::test::thread_owner_distinct	test	missing	-	auto-generated
-src/util/pool.rs::test::thread_owner_optimization	test	missing	-	auto-generated
-src/util/pool.rs::test::thread_owner_send_drop	test	missing	-	auto-generated
-src/util/pool.rs::test::thread_owner_sync	test	missing	-	auto-generated
+src/util/pool.rs::func::get	func	ported	src/regex/automata/pool.cr:Pool#get;spec/pool_spec.cr	ported stack-backed pool checkout returning an exclusive guard
+src/util/pool.rs::func::new	func	ported	src/regex/automata/pool.cr:Pool#initialize;spec/pool_spec.cr	ported pool constructor from a value factory block
+src/util/pool.rs::func::put	func	ported	src/regex/automata/pool.cr:PoolGuard.put;src/regex/automata/pool.cr:PoolGuard#put;spec/pool_spec.cr	ported explicit guard return-to-pool helpers
+src/util/pool.rs::method::Pool.new	method	ported	src/regex/automata/pool.cr:Pool#initialize;spec/pool_spec.cr	ported pool constructor
+src/util/pool.rs::method::T.get	method	ported	src/regex/automata/pool.cr:Pool#get;spec/pool_spec.cr	ported value checkout from the pool
+src/util/pool.rs::method::T.put	method	ported	src/regex/automata/pool.cr:PoolGuard#put;src/regex/automata/pool.cr:PoolGuard.put;spec/pool_spec.cr	ported explicit return of a checked-out value to the pool
+src/util/pool.rs::struct::Pool	struct	ported	src/regex/automata/pool.cr:Pool;spec/pool_spec.cr	ported simplified mutex-backed reusable object pool
+src/util/pool.rs::struct::PoolGuard	struct	ported	src/regex/automata/pool.cr:PoolGuard;spec/pool_spec.cr	ported exclusive guard wrapper for checked-out pool values
+src/util/pool.rs::test::oibits	test	skipped	src/regex/automata/pool.cr	Rust auto-trait (`Send`/`Sync`/unwind-safety) assertion has no direct Crystal equivalent because the language does not expose the same trait surface
+src/util/pool.rs::test::thread_owner_distinct	test	ported	spec/pool_spec.cr	ported the core correctness property that simultaneous gets yield distinct mutable values
+src/util/pool.rs::test::thread_owner_optimization	test	skipped	src/regex/automata/pool.cr	Rust owner-thread optimization is an implementation detail not reproduced by the Crystal mutex-backed pool
+src/util/pool.rs::test::thread_owner_send_drop	test	skipped	src/regex/automata/pool.cr	Rust owner-thread optimization and cross-thread guard drop behavior are not reproduced by the Crystal mutex-backed pool
+src/util/pool.rs::test::thread_owner_sync	test	skipped	src/regex/automata/pool.cr	Rust thread-owner and `Send`/`Sync` interaction test is not directly portable because the Crystal pool does not implement the same owner-thread optimization contract
 src/util/prefilter/mod.rs::func::find	func	ported	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	ported candidate span search for explicit needles and HIR prefixes
 src/util/prefilter/mod.rs::func::from_hir_prefix	func	ported	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	ported HIR prefix extraction via regex-syntax literal extraction
 src/util/prefilter/mod.rs::func::is_fast	func	ported	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	ported prefilter speed heuristic surface
@@ -791,26 +791,26 @@ src/util/prefilter/mod.rs::func::max_needle_len	func	ported	src/regex/automata/p
 src/util/prefilter/mod.rs::func::memory_usage	func	ported	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	ported prefilter memory accounting surface
 src/util/prefilter/mod.rs::func::prefix	func	ported	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	ported anchored prefix matching
 src/util/prefilter/mod.rs::struct::Prefilter	struct	ported	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	ported public prefilter wrapper for literal acceleration
-src/util/primitives.rs::const::LIMIT	const	missing	-	auto-generated
-src/util/primitives.rs::const::MAX	const	missing	-	auto-generated
-src/util/primitives.rs::const::SIZE	const	missing	-	auto-generated
-src/util/primitives.rs::const::ZERO	const	missing	-	auto-generated
-src/util/primitives.rs::func::attempted	func	missing	-	auto-generated
-src/util/primitives.rs::func::from_ne_bytes	func	missing	-	auto-generated
-src/util/primitives.rs::func::from_ne_bytes_unchecked	func	missing	-	auto-generated
-src/util/primitives.rs::func::get	func	missing	-	auto-generated
-src/util/primitives.rs::func::must	func	missing	-	auto-generated
-src/util/primitives.rs::func::new	func	missing	-	auto-generated
-src/util/primitives.rs::func::one_more	func	missing	-	auto-generated
-src/util/primitives.rs::func::to_ne_bytes	func	missing	-	auto-generated
-src/util/primitives.rs::method::NonMaxUsize.new	method	missing	-	auto-generated
-src/util/primitives.rs::method::SmallIndex.new	method	missing	-	auto-generated
-src/util/primitives.rs::method::SmallIndexError.attempted	method	missing	-	auto-generated
-src/util/primitives.rs::struct::NonMaxUsize	struct	missing	-	auto-generated
-src/util/primitives.rs::struct::PatternID	struct	missing	-	auto-generated
-src/util/primitives.rs::struct::SmallIndex	struct	missing	-	auto-generated
-src/util/primitives.rs::struct::SmallIndexError	struct	missing	-	auto-generated
-src/util/primitives.rs::struct::StateID	struct	missing	-	auto-generated
+src/util/primitives.rs::const::LIMIT	const	ported	src/regex/automata/types.cr:SmallIndex::LIMIT;src/regex/automata/types.cr:PatternID::LIMIT;src/regex/automata/types.cr:StateID::LIMIT;spec/primitives_spec.cr	ported small-index and identifier limit constants
+src/util/primitives.rs::const::MAX	const	ported	src/regex/automata/types.cr:SmallIndex::MAX;src/regex/automata/types.cr:PatternID::MAX;src/regex/automata/types.cr:StateID::MAX;spec/primitives_spec.cr	ported small-index and identifier max constants
+src/util/primitives.rs::const::SIZE	const	ported	src/regex/automata/types.cr:SmallIndex::SIZE;src/regex/automata/types.cr:PatternID::SIZE;src/regex/automata/types.cr:StateID::SIZE;spec/primitives_spec.cr	ported size constants for the small-index family
+src/util/primitives.rs::const::ZERO	const	ported	src/regex/automata/types.cr:SmallIndex::ZERO;src/regex/automata/types.cr:PatternID::ZERO;src/regex/automata/types.cr:StateID::ZERO;spec/primitives_spec.cr	ported zero constants for the small-index family
+src/util/primitives.rs::func::attempted	func	ported	src/regex/automata/types.cr:SmallIndexError#attempted;spec/primitives_spec.cr	ported attempted-value accessor on checked small-index decode failures
+src/util/primitives.rs::func::from_ne_bytes	func	ported	src/regex/automata/types.cr:SmallIndex.from_ne_bytes;src/regex/automata/types.cr:PatternID.from_ne_bytes;src/regex/automata/types.cr:StateID.from_ne_bytes;spec/primitives_spec.cr	ported native-endian checked decoding for small-index and identifier wrappers
+src/util/primitives.rs::func::from_ne_bytes_unchecked	func	ported	src/regex/automata/types.cr:SmallIndex.from_ne_bytes_unchecked;src/regex/automata/types.cr:PatternID.from_ne_bytes_unchecked;src/regex/automata/types.cr:StateID.from_ne_bytes_unchecked;spec/primitives_spec.cr	ported native-endian unchecked decoding helpers for small-index and identifier wrappers
+src/util/primitives.rs::func::get	func	ported	src/regex/automata/types.cr:NonMaxUsize#get;spec/primitives_spec.cr	ported underlying-value accessor for NonMaxUsize
+src/util/primitives.rs::func::must	func	ported	src/regex/automata/types.cr:SmallIndex.must;src/regex/automata/types.cr:PatternID.must;src/regex/automata/types.cr:StateID.must;spec/primitives_spec.cr	ported checked constructor helpers for small-index and identifier wrappers
+src/util/primitives.rs::func::new	func	ported	src/regex/automata/types.cr:PatternID#initialize;src/regex/automata/types.cr:StateID#initialize;src/regex/automata/types.cr:NonMaxUsize#initialize;src/regex/automata/types.cr:SmallIndex#initialize;spec/primitives_spec.cr	ported compatibility constructors for primitive wrappers; checked validation is provided by `must` and checked decode helpers
+src/util/primitives.rs::func::one_more	func	ported	src/regex/automata/types.cr:SmallIndex#one_more;src/regex/automata/types.cr:PatternID#one_more;src/regex/automata/types.cr:StateID#one_more;spec/primitives_spec.cr	ported one-more helpers for small-index and identifier wrappers
+src/util/primitives.rs::func::to_ne_bytes	func	ported	src/regex/automata/types.cr:SmallIndex#to_ne_bytes;src/regex/automata/types.cr:PatternID#to_ne_bytes;src/regex/automata/types.cr:StateID#to_ne_bytes;spec/primitives_spec.cr	ported native-endian byte encoding for small-index and identifier wrappers
+src/util/primitives.rs::method::NonMaxUsize.new	method	ported	src/regex/automata/types.cr:NonMaxUsize#initialize;spec/primitives_spec.cr	ported compatibility constructor for NonMaxUsize; the checked Rust `Option` shape is represented elsewhere in the Crystal API
+src/util/primitives.rs::method::SmallIndex.new	method	ported	src/regex/automata/types.cr:SmallIndex#initialize;src/regex/automata/types.cr:SmallIndex.must;spec/primitives_spec.cr	ported compatibility constructor for SmallIndex; checked validation is provided by `must` and checked decode helpers
+src/util/primitives.rs::method::SmallIndexError.attempted	method	ported	src/regex/automata/types.cr:SmallIndexError#attempted;spec/primitives_spec.cr	ported attempted-value accessor on SmallIndexError
+src/util/primitives.rs::struct::NonMaxUsize	struct	ported	src/regex/automata/types.cr:NonMaxUsize;spec/primitives_spec.cr	ported non-max integer wrapper used for match offsets
+src/util/primitives.rs::struct::PatternID	struct	ported	src/regex/automata/types.cr:PatternID;spec/primitives_spec.cr	ported pattern identifier wrapper with byte roundtrip and constant helpers
+src/util/primitives.rs::struct::SmallIndex	struct	ported	src/regex/automata/types.cr:SmallIndex;spec/primitives_spec.cr	ported small-index compatibility wrapper with checked byte decode and helper constants
+src/util/primitives.rs::struct::SmallIndexError	struct	ported	src/regex/automata/types.cr:SmallIndexError;spec/primitives_spec.cr	ported error surface for checked small-index decode failures
+src/util/primitives.rs::struct::StateID	struct	ported	src/regex/automata/types.cr:StateID;spec/primitives_spec.cr	ported state identifier wrapper with byte roundtrip and constant helpers
 src/util/search.rs::enum::Anchored	enum	ported	src/regex/automata/search.cr:Anchored	ported from Rust
 src/util/search.rs::enum::MatchErrorKind	enum	ported	src/regex/automata/errors.cr:MatchError::Kind	ported from Rust
 src/util/search.rs::enum::MatchKind	enum	ported	src/regex/automata/search.cr:MatchKind;spec/search_primitives_spec.cr	ported match-kind enum and primitive semantics coverage
@@ -820,13 +820,13 @@ src/util/search.rs::func::clear	func	ported	src/regex/automata/search.cr:Pattern
 src/util/search.rs::func::contains	func	ported	src/regex/automata/search.cr:PatternSet#contains;spec/pattern_set_spec.cr	ported PatternSet membership checks
 src/util/search.rs::func::earliest	func	ported	src/regex/automata/search.cr:Input#earliest	ported for Input; covered by spec/search_input_spec.cr
 src/util/search.rs::func::end	func	ported	src/regex/automata/search.cr:Input#end	ported for Input; covered by spec/search_input_spec.cr
-src/util/search.rs::func::gave_up	func	missing	-	auto-generated
+src/util/search.rs::func::gave_up	func	ported	src/regex/automata/errors.cr:MatchError.gave_up;spec/match_error_spec.cr	ported MatchError gave-up constructor with kind/message/predicate coverage
 src/util/search.rs::func::get_anchored	func	ported	src/regex/automata/search.cr:Input#get_anchored	ported for Input; covered by spec/search_input_spec.cr
 src/util/search.rs::func::get_earliest	func	ported	src/regex/automata/search.cr:Input#get_earliest	ported for Input; covered by spec/search_input_spec.cr
 src/util/search.rs::func::get_range	func	ported	src/regex/automata/search.cr:Input#get_range	ported for Input; covered by spec/search_input_spec.cr
 src/util/search.rs::func::get_span	func	ported	src/regex/automata/search.cr:Input#get_span	ported for Input; covered by spec/search_input_spec.cr
 src/util/search.rs::func::haystack	func	ported	src/regex/automata/search.cr:Input#haystack	ported for Input; covered by spec/search_input_spec.cr
-src/util/search.rs::func::haystack_too_long	func	missing	-	auto-generated
+src/util/search.rs::func::haystack_too_long	func	ported	src/regex/automata/errors.cr:MatchError.haystack_too_long;spec/match_error_spec.cr	ported MatchError haystack-too-long constructor with kind/message/predicate coverage
 src/util/search.rs::func::insert	func	ported	src/regex/automata/search.cr:PatternSet#insert;spec/pattern_set_spec.cr	ported PatternSet insertion
 src/util/search.rs::func::is_anchored	func	ported	src/regex/automata/search.cr:Anchored#is_anchored;spec/search_primitives_spec.cr	ported anchored-mode predicate
 src/util/search.rs::func::is_char_boundary	func	ported	src/regex/automata/search.cr:Input#is_char_boundary	ported for Input; covered by spec/search_input_spec.cr
@@ -834,13 +834,13 @@ src/util/search.rs::func::is_done	func	ported	src/regex/automata/search.cr:Input
 src/util/search.rs::func::is_empty	func	ported	src/regex/automata/search.cr:Span#empty?;Match#empty?;PatternSet#is_empty;spec/search_primitives_spec.cr;spec/pattern_set_spec.cr	ported primitive empty predicates and PatternSet emptiness
 src/util/search.rs::func::is_full	func	ported	src/regex/automata/search.cr:PatternSet#is_full;spec/pattern_set_spec.cr	ported PatternSet fullness checks
 src/util/search.rs::func::iter	func	ported	src/regex/automata/search.cr:PatternSet#iter;PatternSetIter;spec/pattern_set_spec.cr	ported PatternSet iteration
-src/util/search.rs::func::kind	func	missing	-	auto-generated
+src/util/search.rs::func::kind	func	ported	src/regex/automata/errors.cr:MatchError#kind;spec/match_error_spec.cr	ported MatchError kind accessor with constructor-specific parity coverage
 src/util/search.rs::func::len	func	ported	src/regex/automata/search.cr:Span#length;Match#length;PatternSet#len;spec/search_primitives_spec.cr;spec/pattern_set_spec.cr	ported primitive length helpers and PatternSet cardinality
 src/util/search.rs::func::must	func	ported	src/regex/automata/search.cr:HalfMatch.must;Match.must;spec/search_primitives_spec.cr	ported convenience constructors
 src/util/search.rs::func::new	func	ported	src/regex/automata/search.cr:Input.new	ported for Input; covered by spec/search_input_spec.cr
 src/util/search.rs::func::offset	func	ported	src/regex/automata/search.cr:HalfMatch#offset;Span#offset;spec/search_primitives_spec.cr	ported offset accessors/helpers
 src/util/search.rs::func::pattern	func	ported	src/regex/automata/search.cr:HalfMatch#pattern;Match#pattern;spec/search_primitives_spec.cr	ported pattern accessors
-src/util/search.rs::func::quit	func	missing	-	auto-generated
+src/util/search.rs::func::quit	func	ported	src/regex/automata/errors.cr:MatchError.quit;spec/match_error_spec.cr	ported MatchError quit constructor with kind/message/predicate coverage
 src/util/search.rs::func::range	func	ported	src/regex/automata/search.cr:Input#range	ported for Input; covered by spec/search_input_spec.cr
 src/util/search.rs::func::remove	func	ported	src/regex/automata/search.cr:PatternSet#remove;spec/pattern_set_spec.cr	ported PatternSet removal
 src/util/search.rs::func::set_anchored	func	ported	src/regex/automata/search.cr:Input#set_anchored	ported for Input; covered by spec/search_input_spec.cr
@@ -850,7 +850,7 @@ src/util/search.rs::func::set_start	func	ported	src/regex/automata/search.cr:Inp
 src/util/search.rs::func::span	func	ported	src/regex/automata/search.cr:Input#span	ported for Input; covered by spec/search_input_spec.cr
 src/util/search.rs::func::start	func	ported	src/regex/automata/search.cr:Input#start	ported for Input; covered by spec/search_input_spec.cr
 src/util/search.rs::func::try_insert	func	ported	src/regex/automata/search.cr:PatternSet#try_insert;spec/pattern_set_spec.cr	ported fallible PatternSet insertion
-src/util/search.rs::func::unsupported_anchored	func	missing	-	auto-generated
+src/util/search.rs::func::unsupported_anchored	func	ported	src/regex/automata/errors.cr:MatchError.unsupported_anchored;spec/match_error_spec.cr	ported MatchError unsupported-anchored constructor with mode-specific message coverage
 src/util/search.rs::method::Anchored.is_anchored	method	ported	src/regex/automata/search.cr:Anchored#is_anchored;spec/search_primitives_spec.cr	ported anchored-mode predicate
 src/util/search.rs::method::HalfMatch.new	method	ported	src/regex/automata/search.cr:HalfMatch.initialize	ported from Rust
 src/util/search.rs::method::MatchError.new	method	ported	src/regex/automata/errors.cr:MatchError.initialize	ported from Rust
@@ -864,22 +864,22 @@ src/util/search.rs::struct::PatternSet	struct	ported	src/regex/automata/search.c
 src/util/search.rs::struct::PatternSetInsertError	struct	ported	src/regex/automata/search.cr:PatternSetInsertError;spec/pattern_set_spec.cr	ported PatternSet insert failure surface
 src/util/search.rs::struct::PatternSetIter	struct	ported	src/regex/automata/search.cr:PatternSetIter;spec/pattern_set_spec.cr	ported PatternSet iterator
 src/util/search.rs::struct::Span	struct	ported	src/regex/automata/search.cr:Span	ported as support type for Input; covered by spec/search_input_spec.cr
-src/util/search.rs::test::incorrect_asref_guard	test	missing	-	auto-generated
-src/util/search.rs::test::match_error_kind_size	test	missing	-	auto-generated
-src/util/search.rs::test::match_error_size	test	missing	-	auto-generated
-src/util/start.rs::func::anchored	func	missing	-	auto-generated
-src/util/start.rs::func::from_input_forward	func	missing	-	auto-generated
-src/util/start.rs::func::from_input_reverse	func	missing	-	auto-generated
-src/util/start.rs::func::get_anchored	func	missing	-	auto-generated
-src/util/start.rs::func::get_look_behind	func	missing	-	auto-generated
-src/util/start.rs::func::look_behind	func	missing	-	auto-generated
-src/util/start.rs::func::new	func	missing	-	auto-generated
-src/util/start.rs::method::Config.new	method	missing	-	auto-generated
-src/util/start.rs::struct::Config	struct	missing	-	auto-generated
-src/util/start.rs::test::start_fwd	test	missing	-	auto-generated
-src/util/start.rs::test::start_fwd_done_range	test	missing	-	auto-generated
-src/util/start.rs::test::start_rev	test	missing	-	auto-generated
-src/util/start.rs::test::start_rev_done_range	test	missing	-	auto-generated
+src/util/search.rs::test::incorrect_asref_guard	test	skipped	src/regex/automata/search.cr	Rust-only `AsRef` guard has no direct Crystal analogue because the port stores `Bytes` directly during `Input` initialization
+src/util/search.rs::test::match_error_kind_size	test	skipped	src/regex/automata/errors.cr	Rust size/layout assertion is not meaningful in Crystal because object representation and union boxing differ from Rust's ABI-focused check
+src/util/search.rs::test::match_error_size	test	skipped	src/regex/automata/errors.cr	Rust size/layout assertion is not meaningful in Crystal because object representation and union boxing differ from Rust's ABI-focused check
+src/util/start.rs::func::anchored	func	ported	src/regex/automata/start_config.cr:StartConfig#anchored;spec/start_config_spec.cr	ported anchored-mode builder on the port's `StartConfig` compatibility type
+src/util/start.rs::func::from_input_forward	func	ported	src/regex/automata/start_config.cr:StartConfig.from_input_forward;src/regex/automata/start_table.cr:StartTable.from_look_behind;spec/start_config_spec.cr	ported forward input-to-start-config conversion with upstream text/line/word classification coverage
+src/util/start.rs::func::from_input_reverse	func	ported	src/regex/automata/start_config.cr:StartConfig.from_input_reverse;src/regex/automata/start_table.cr:StartTable.from_look_behind;spec/start_config_spec.cr	ported reverse input-to-start-config conversion with upstream text/line/word classification coverage
+src/util/start.rs::func::get_anchored	func	ported	src/regex/automata/start_config.cr:StartConfig#get_anchored;spec/start_config_spec.cr	ported anchored-mode getter on `StartConfig`
+src/util/start.rs::func::get_look_behind	func	ported	src/regex/automata/start_config.cr:StartConfig#get_look_behind;spec/start_config_spec.cr	ported look-behind getter on `StartConfig`
+src/util/start.rs::func::look_behind	func	ported	src/regex/automata/start_config.cr:StartConfig#look_behind;spec/start_config_spec.cr	ported look-behind builder on `StartConfig`
+src/util/start.rs::func::new	func	ported	src/regex/automata/start_config.cr:StartConfig.new;spec/start_config_spec.cr	ported default start configuration constructor as the existing `StartConfig` compatibility surface
+src/util/start.rs::method::Config.new	method	ported	src/regex/automata/start_config.cr:StartConfig.new;spec/start_config_spec.cr	ported Rust `Config::new` semantics on the port's `StartConfig` type
+src/util/start.rs::struct::Config	struct	ported	src/regex/automata/start_config.cr:StartConfig;spec/start_config_spec.cr	ported as `StartConfig` because the top-level `Config` name is already used by DFA compilation configuration
+src/util/start.rs::test::start_fwd	test	ported	spec/start_config_spec.cr	ported upstream forward start-classification coverage
+src/util/start.rs::test::start_fwd_done_range	test	ported	spec/start_config_spec.cr	ported upstream forward done-range start-classification coverage
+src/util/start.rs::test::start_rev	test	ported	spec/start_config_spec.cr	ported upstream reverse start-classification coverage
+src/util/start.rs::test::start_rev_done_range	test	ported	spec/start_config_spec.cr	ported upstream reverse done-range start-classification coverage
 src/util/syntax.rs::func::case_insensitive	func	ported	src/regex/automata/syntax.cr;spec/syntax_spec.cr	ported syntax config case-insensitive builder with value-style chaining
 src/util/syntax.rs::func::crlf	func	ported	src/regex/automata/syntax.cr;spec/syntax_spec.cr	ported syntax config CRLF builder
 src/util/syntax.rs::func::dot_matches_new_line	func	ported	src/regex/automata/syntax.cr;spec/syntax_spec.cr	ported syntax config dot-matches-new-line builder
