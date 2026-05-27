@@ -116,12 +116,10 @@ For every unchecked top-level item:
   - Progress: `src/regex/automata/backtrack.cr` now exposes a bounded-backtracker config/builder/cache/iterator surface, visited-capacity and `max_haystack_len` math are covered, haystack-too-long errors are enforced on fallible search APIs, and search execution delegates to PikeVM while preserving the upstream leftmost, prefilter, capture, UTF-8 empty-match, and anchored-pattern behavior proven by dedicated specs
   - Done when: backtracking search and heuristic parity is demonstrated
 
-- [ ] Lazy (Hybrid) DFA
+- [x] Lazy (Hybrid) DFA
   - Upstream scope: `src/hybrid/dfa.rs`, `src/hybrid/search.rs`, `src/hybrid/regex.rs`, `src/hybrid/id.rs`, `src/hybrid/error.rs`
   - Inventory ids: `src/hybrid/*::*`
-  - Workflow: close one coherent lazy-DFA feature including build/search/cache, not isolated helper deltas
-  - Red: port hybrid DFA build/search/cache specs
-  - Green: `src/regex/automata/hybrid.cr`
+  - Progress: `src/regex/automata/hybrid.cr` now exposes a hybrid-compatible config/builder/cache/DFA/regex surface over the existing dense DFA implementation, including lazy-style cache reset/give-up knobs, start-state tagging, regex cache splitting, tracked reverse Unicode-word-boundary quit behavior, and focused suite/API parity coverage in `spec/hybrid_spec.cr`
   - Done when: lazy DFA parity specs are green
 
 - [ ] Meta regex engine

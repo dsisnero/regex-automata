@@ -107,5 +107,13 @@ module Regex::Automata
     def unsupported_anchored? : Bool
       @kind == Kind::UnsupportedAnchored
     end
+
+    def ==(other : MatchError) : Bool
+      @kind == other.kind &&
+        @byte == other.byte &&
+        @offset == other.offset &&
+        @len == other.len &&
+        @mode == other.mode
+    end
   end
 end
