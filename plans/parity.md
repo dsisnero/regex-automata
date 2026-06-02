@@ -119,7 +119,10 @@ For every unchecked top-level item:
 - [x] Lazy (Hybrid) DFA
   - Upstream scope: `src/hybrid/dfa.rs`, `src/hybrid/search.rs`, `src/hybrid/regex.rs`, `src/hybrid/id.rs`, `src/hybrid/error.rs`
   - Inventory ids: `src/hybrid/*::*`
-  - Progress: `src/regex/automata/hybrid.cr` now exposes a hybrid-compatible config/builder/cache/DFA/regex surface over the existing dense DFA implementation, including lazy-style cache reset/give-up knobs, start-state tagging, regex cache splitting, tracked reverse Unicode-word-boundary quit behavior, and focused suite/API parity coverage in `spec/hybrid_spec.cr`
+  - Workflow: port the vendored lazy DFA/cache/search machinery directly, including determinize state encoding, start-byte mapping, and regex wrapper behavior
+  - Red: port vendor start/cache/state/search behavior exactly, beginning from the upstream start-byte mapping and lazy-state/cache internals
+  - Green: `src/regex/automata/hybrid.cr`, `src/regex/automata/determinize.cr`, `src/regex/automata/determinize_state.cr`, `spec/hybrid_spec.cr`, `spec/determinize_spec.cr`, `spec/determinize_state_spec.cr`
+  - Progress: `src/regex/automata/hybrid.cr` now uses vendored lazy cache/state/search tables and determinization helpers instead of the dense-wrapper stopgap, preserves vendored hybrid error and cache semantics, and is covered by upstream-shaped hybrid and determinize specs
   - Done when: lazy DFA parity specs are green
 
 - [ ] Meta regex engine

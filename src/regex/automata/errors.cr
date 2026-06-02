@@ -42,8 +42,9 @@ module Regex::Automata
     getter offset : Int32?
     getter len : Int32?
     getter mode : Anchored?
+    getter pattern : PatternID?
 
-    def initialize(@kind : Kind, @byte : UInt8? = nil, @offset : Int32? = nil, @len : Int32? = nil, @mode : Anchored? = nil)
+    def initialize(@kind : Kind, @byte : UInt8? = nil, @offset : Int32? = nil, @len : Int32? = nil, @mode : Anchored? = nil, @pattern : PatternID? = nil)
       message = case @kind
                 when Kind::Quit
                   "quit search after observing byte #{@byte.not_nil!} at offset #{@offset.not_nil!}"
@@ -58,7 +59,11 @@ module Regex::Automata
                   when Anchored::No
                     "unanchored searches are not supported or enabled"
                   when Anchored::Pattern
-                    "anchored searches for a specific pattern are not supported or enabled"
+                    if pattern = @pattern
+                      "anchored searches for a specific pattern (#{pattern.to_i}) are not supported or enabled"
+                    else
+                      "anchored searches for a specific pattern are not supported or enabled"
+                    end
                   else
                     "unsupported anchored mode"
                   end
@@ -84,8 +89,8 @@ module Regex::Automata
     end
 
     # Create a new "unsupported anchored" error
-    def self.unsupported_anchored(mode : Anchored) : MatchError
-      new(Kind::UnsupportedAnchored, mode: mode)
+    def self.unsupported_anchored(mode : Anchored, pattern : PatternID? = nil) : MatchError
+      new(Kind::UnsupportedAnchored, mode: mode, pattern: pattern)
     end
 
     # Check if this is a quit error
@@ -113,7 +118,8 @@ module Regex::Automata
         @byte == other.byte &&
         @offset == other.offset &&
         @len == other.len &&
-        @mode == other.mode
+        @mode == other.mode &&
+        @pattern == other.pattern
     end
   end
 end

@@ -73,9 +73,9 @@ module Regex::Automata
         offset = input.start > 0 ? input.start - 1 : 0
         MatchError.quit(result.byte, offset)
       when UnsupportedAnchoredStartError
-        MatchError.unsupported_anchored(result.mode)
+        MatchError.unsupported_anchored(result.mode, result.pattern)
       else
-        MatchError.unsupported_anchored(input.anchored)
+        MatchError.unsupported_anchored(input.anchored, input.pattern)
       end
     end
 
@@ -102,9 +102,9 @@ module Regex::Automata
         offset = input.end
         MatchError.quit(result.byte, offset)
       when UnsupportedAnchoredStartError
-        MatchError.unsupported_anchored(result.mode)
+        MatchError.unsupported_anchored(result.mode, result.pattern)
       else
-        MatchError.unsupported_anchored(input.anchored)
+        MatchError.unsupported_anchored(input.anchored, input.pattern)
       end
     end
 
@@ -561,7 +561,7 @@ module Regex::Automata
       case current_state
       when StartError
         return MatchError.quit(current_state.byte, 0) if current_state.is_a?(QuitStartError)
-        return MatchError.unsupported_anchored(current_state.mode)
+        return MatchError.unsupported_anchored(current_state.mode, current_state.pattern)
       when StateID
         idx = 0
         while idx < slice.size
@@ -591,6 +591,10 @@ module Regex::Automata
       Anchored::No
     end
 
+    def pattern : PatternID?
+      nil
+    end
+
     # Get the byte (defaults to 0)
     def byte : UInt8
       0_u8
@@ -600,8 +604,9 @@ module Regex::Automata
   # The automaton does not support the given anchored mode.
   class UnsupportedAnchoredStartError < StartError
     getter mode : Anchored
+    getter pattern : PatternID?
 
-    def initialize(@mode : Anchored)
+    def initialize(@mode : Anchored, @pattern : PatternID? = nil)
       super("Unsupported anchored mode: #{@mode}")
     end
   end

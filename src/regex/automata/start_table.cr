@@ -15,6 +15,42 @@ module Regex::Automata
     def self.len : Int32
       6
     end
+
+    def as_u8 : UInt8
+      to_i.to_u8
+    end
+
+    def as_usize : Int32
+      to_i32
+    end
+  end
+
+  struct StartByteMap
+    @map : StaticArray(Start, 256)
+
+    def initialize(@map : StaticArray(Start, 256))
+    end
+
+    def self.new(lookm : LookMatcher) : StartByteMap
+      map = StaticArray(Start, 256).new(Start::NonWordByte)
+      map['\n'.ord] = Start::LineLF
+      map['\r'.ord] = Start::LineCR
+      map['_'.ord] = Start::WordByte
+
+      ('0'.ord..'9'.ord).each { |byte| map[byte] = Start::WordByte }
+      ('A'.ord..'Z'.ord).each { |byte| map[byte] = Start::WordByte }
+      ('a'.ord..'z'.ord).each { |byte| map[byte] = Start::WordByte }
+
+      lineterm = lookm.get_line_terminator
+      if lineterm != '\r'.ord.to_u8 && lineterm != '\n'.ord.to_u8
+        map[lineterm] = Start::CustomLineTerminator
+      end
+      StartByteMap.new(map)
+    end
+
+    def get(byte : UInt8) : Start
+      @map[byte]
+    end
   end
 
   # Dense DFA start state metadata.
@@ -55,13 +91,13 @@ module Regex::Automata
         return UnsupportedAnchoredStartError.new(anchored) if @kind == StartKind::Unanchored
         @anchored_states[start]? || @anchored
       when Anchored::Pattern
-        return UnsupportedAnchoredStartError.new(anchored) unless pattern
-        return UnsupportedAnchoredStartError.new(anchored) if @pattern_states.empty?
+        return UnsupportedAnchoredStartError.new(anchored, pattern) unless pattern
+        return UnsupportedAnchoredStartError.new(anchored, pattern) if @pattern_states.empty?
         states = @pattern_states[pattern]?
         return @dead unless states
-        states[start]? || states[Start::Text]? || UnsupportedAnchoredStartError.new(anchored)
+        states[start]? || states[Start::Text]? || UnsupportedAnchoredStartError.new(anchored, pattern)
       else
-        UnsupportedAnchoredStartError.new(anchored)
+        UnsupportedAnchoredStartError.new(anchored, pattern)
       end
     end
 
@@ -109,14 +145,7 @@ module Regex::Automata
     def self.from_look_behind(byte : UInt8?) : Start
       return Start::Text if byte.nil?
 
-      case byte
-      when '\n'.ord.to_u8
-        Start::LineLF
-      when '\r'.ord.to_u8
-        Start::LineCR
-      else
-        Regex::Automata.is_word_byte(byte) ? Start::WordByte : Start::NonWordByte
-      end
+      StartByteMap.new(LookMatcher.new).get(byte)
     end
 
     private def default_states(id : StateID) : Hash(Start, StateID)

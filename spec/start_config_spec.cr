@@ -1,5 +1,9 @@
 require "./spec_helper"
 
+private def start_map
+  Regex::Automata::StartByteMap.new(Regex::Automata::LookMatcher.new)
+end
+
 describe Regex::Automata::StartConfig do
   it "defaults to an unanchored text start and supports builder-style updates" do
     original = Regex::Automata::StartConfig.new
@@ -18,7 +22,8 @@ describe Regex::Automata::StartConfig do
     input = Regex::Automata::Input.new("").span(1...0)
     config = Regex::Automata::StartConfig.from_input_forward(input)
 
-    Regex::Automata::StartTable.from_look_behind(config.get_look_behind).should eq(
+    config.get_look_behind.try { |byte| start_map.get(byte) }.should eq(nil)
+    (config.get_look_behind.try { |byte| start_map.get(byte) } || Regex::Automata::Start::Text).should eq(
       Regex::Automata::Start::Text
     )
   end
@@ -27,7 +32,8 @@ describe Regex::Automata::StartConfig do
     input = Regex::Automata::Input.new("").span(1...0)
     config = Regex::Automata::StartConfig.from_input_reverse(input)
 
-    Regex::Automata::StartTable.from_look_behind(config.get_look_behind).should eq(
+    config.get_look_behind.try { |byte| start_map.get(byte) }.should eq(nil)
+    (config.get_look_behind.try { |byte| start_map.get(byte) } || Regex::Automata::Start::Text).should eq(
       Regex::Automata::Start::Text
     )
   end
@@ -36,7 +42,7 @@ describe Regex::Automata::StartConfig do
     classify = ->(haystack : String, start : Int32, finish : Int32) do
       input = Regex::Automata::Input.new(haystack).span(start...finish)
       config = Regex::Automata::StartConfig.from_input_forward(input)
-      Regex::Automata::StartTable.from_look_behind(config.get_look_behind)
+      config.get_look_behind.try { |byte| start_map.get(byte) } || Regex::Automata::Start::Text
     end
 
     classify.call("", 0, 0).should eq(Regex::Automata::Start::Text)
@@ -52,7 +58,7 @@ describe Regex::Automata::StartConfig do
     classify = ->(haystack : String, start : Int32, finish : Int32) do
       input = Regex::Automata::Input.new(haystack).span(start...finish)
       config = Regex::Automata::StartConfig.from_input_reverse(input)
-      Regex::Automata::StartTable.from_look_behind(config.get_look_behind)
+      config.get_look_behind.try { |byte| start_map.get(byte) } || Regex::Automata::Start::Text
     end
 
     classify.call("", 0, 0).should eq(Regex::Automata::Start::Text)

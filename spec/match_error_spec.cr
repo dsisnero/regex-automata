@@ -63,4 +63,15 @@ describe Regex::Automata::MatchError do
       .message
       .should eq("anchored searches for a specific pattern are not supported or enabled")
   end
+
+  it "includes the specific pattern id when available" do
+    error = Regex::Automata::MatchError.unsupported_anchored(
+      Regex::Automata::Anchored::Pattern,
+      Regex::Automata::PatternID.new(3)
+    )
+
+    error.message.should eq(
+      "anchored searches for a specific pattern (3) are not supported or enabled"
+    )
+  end
 end

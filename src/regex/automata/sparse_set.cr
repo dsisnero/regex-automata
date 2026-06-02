@@ -55,4 +55,32 @@ module Regex::Automata
       ((@dense.size * sizeof(StateID)) + (@sparse.size * sizeof(Int32))).to_i32
     end
   end
+
+  class SparseSets
+    getter set1 : SparseSet
+    getter set2 : SparseSet
+
+    def initialize(capacity : Int32)
+      @set1 = SparseSet.new(capacity)
+      @set2 = SparseSet.new(capacity)
+    end
+
+    def clear : Nil
+      @set1.clear
+      @set2.clear
+    end
+
+    def swap : Nil
+      @set1, @set2 = @set2, @set1
+    end
+
+    def resize(capacity : Int32) : Nil
+      @set1.resize(capacity)
+      @set2.resize(capacity)
+    end
+
+    def memory_usage : Int32
+      @set1.memory_usage + @set2.memory_usage
+    end
+  end
 end
