@@ -274,12 +274,14 @@ module Regex::Automata::Determinize
     look_have : ::Regex::Automata::LookSet,
   ) : Bool
     case kind
-    when ::Regex::Automata::NFA::Look::Kind::Start
-      look_have.includes?(::Regex::Automata::Look::StartLF) ||
-        look_have.includes?(::Regex::Automata::Look::StartCRLF)
-    when ::Regex::Automata::NFA::Look::Kind::End
-      look_have.includes?(::Regex::Automata::Look::EndLF) ||
-        look_have.includes?(::Regex::Automata::Look::EndCRLF)
+    when ::Regex::Automata::NFA::Look::Kind::StartLF
+      look_have.includes?(::Regex::Automata::Look::StartLF)
+    when ::Regex::Automata::NFA::Look::Kind::EndLF
+      look_have.includes?(::Regex::Automata::Look::EndLF)
+    when ::Regex::Automata::NFA::Look::Kind::StartCRLF
+      look_have.includes?(::Regex::Automata::Look::StartCRLF)
+    when ::Regex::Automata::NFA::Look::Kind::EndCRLF
+      look_have.includes?(::Regex::Automata::Look::EndCRLF)
     when ::Regex::Automata::NFA::Look::Kind::WordBoundaryAscii
       look_have.includes?(::Regex::Automata::Look::WordAscii)
     when ::Regex::Automata::NFA::Look::Kind::NonWordBoundaryAscii
@@ -300,10 +302,14 @@ module Regex::Automata::Determinize
 
   private def self.look_set_from_kind(kind : ::Regex::Automata::NFA::Look::Kind) : ::Regex::Automata::LookSet
     case kind
-    when ::Regex::Automata::NFA::Look::Kind::Start
+    when ::Regex::Automata::NFA::Look::Kind::StartLF
       ::Regex::Automata::LookSet.singleton(::Regex::Automata::Look::StartLF)
-    when ::Regex::Automata::NFA::Look::Kind::End
+    when ::Regex::Automata::NFA::Look::Kind::EndLF
       ::Regex::Automata::LookSet.singleton(::Regex::Automata::Look::EndLF)
+    when ::Regex::Automata::NFA::Look::Kind::StartCRLF
+      ::Regex::Automata::LookSet.singleton(::Regex::Automata::Look::StartCRLF)
+    when ::Regex::Automata::NFA::Look::Kind::EndCRLF
+      ::Regex::Automata::LookSet.singleton(::Regex::Automata::Look::EndCRLF)
     when ::Regex::Automata::NFA::Look::Kind::WordBoundaryAscii
       ::Regex::Automata::LookSet.singleton(::Regex::Automata::Look::WordAscii)
     when ::Regex::Automata::NFA::Look::Kind::NonWordBoundaryAscii

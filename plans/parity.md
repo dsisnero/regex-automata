@@ -205,6 +205,18 @@ For every unchecked top-level item:
 
 ## Completed
 
+- [x] Thompson always-match and never-match ranged-search parity
+  - Inventory ids: `src/nfa/thompson/nfa.rs::test::always_match`, `src/nfa/thompson/nfa.rs::test::never_match`
+  - Specs: `spec/nfa_thompson_spec.cr`
+  - Crystal: `src/regex/automata/nfa.cr`, `src/regex/automata/pikevm.cr`
+  - Notes: ported the upstream ranged-input search assertions by driving the public `NFA::always_match` and `NFA::never_match` helpers through PikeVM over explicit `Input#range` slices
+
+- [x] Residual DFA regex-set and Thompson error parity cleanup
+  - Inventory ids: `src/nfa/thompson/error.rs::*`, `src/util/unicode_data/perl_word.rs::const::PERL_WORD`, `tests/dfa/regression.rs::test::minimize_sets_correct_match_states`, `tests/dfa/suite.rs::*`, `tests/fuzz/dense.rs::*`, `tests/gen/dense/mod.rs::test::multi_pattern_v2`, `tests/gen/sparse/mod.rs::test::multi_pattern_v2`, `tests/fuzz/sparse.rs::*`
+  - Specs: `spec/nfa_thompson_spec.cr`, `spec/dfa_remaining_parity_spec.cr`
+  - Crystal: `src/regex/automata/errors.cr`, `src/regex/automata/hir_compiler.cr`, `src/regex/automata/nfa.cr`, `src/regex/automata/dfa.cr`, `src/regex/automata/dfa_regex.cr`, `src/regex/automata/determinize.cr`, `src/regex/automata/pikevm.cr`
+  - Notes: finished the remaining dense DFA regression/suite/generated/fuzz-dense coverage, preserved Thompson size-limit introspection on shared `BuildError`, and documented the sparse serialized-fuzz rows as an intentional divergence because the Crystal sparse DFA remains a dense-backed wrapper with a different on-wire layout
+
 - [x] Utilities — Input configuration API
   - Inventory ids: `src/util/search.rs::struct::Input`, `src/util/search.rs::func::new`, `src/util/search.rs::func::span`, `src/util/search.rs::func::range`, `src/util/search.rs::func::anchored`, `src/util/search.rs::func::earliest`, `src/util/search.rs::func::set_range`, `src/util/search.rs::func::set_start`, `src/util/search.rs::func::set_end`, `src/util/search.rs::func::set_anchored`, `src/util/search.rs::func::set_earliest`, `src/util/search.rs::func::haystack`, `src/util/search.rs::func::start`, `src/util/search.rs::func::end`, `src/util/search.rs::func::get_span`, `src/util/search.rs::func::get_range`, `src/util/search.rs::func::get_anchored`, `src/util/search.rs::func::get_earliest`, `src/util/search.rs::func::is_done`, `src/util/search.rs::func::is_char_boundary`, `src/util/search.rs::struct::Span`, `src/util/search.rs::method::Span.range`
   - Specs: `spec/search_input_spec.cr`

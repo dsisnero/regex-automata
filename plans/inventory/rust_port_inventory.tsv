@@ -499,9 +499,9 @@ src/nfa/thompson/compiler.rs::test::compile_yes_reverse_unanchored_prefix_with_s
 src/nfa/thompson/compiler.rs::test::compile_yes_unanchored_prefix_with_end_anchor	test	skipped	spec/nfa_thompson_spec.cr	Crystal's current regex-syntax lowering maps `$` to text-anchor HIR kinds, so the exact Rust end-anchor state shape is not reproducible here.
 src/nfa/thompson/compiler.rs::test::empty_class_bytes	test	ported	spec/nfa_thompson_representation_spec.cr	ported exact empty byte-class Thompson lowering parity
 src/nfa/thompson/compiler.rs::test::empty_class_unicode	test	ported	spec/nfa_thompson_representation_spec.cr	ported exact empty Unicode-class Thompson lowering parity
-src/nfa/thompson/error.rs::func::size_limit	func	missing	-	auto-generated
-src/nfa/thompson/error.rs::method::BuildError.size_limit	method	missing	-	auto-generated
-src/nfa/thompson/error.rs::struct::BuildError	struct	missing	-	auto-generated
+src/nfa/thompson/error.rs::func::size_limit	func	ported	src/regex/automata/errors.cr;src/regex/automata/hir_compiler.cr;spec/nfa_thompson_spec.cr	shared BuildError now preserves Thompson NFA size-limit metadata and messages through the public compiler path
+src/nfa/thompson/error.rs::method::BuildError.size_limit	method	ported	src/regex/automata/errors.cr;spec/nfa_thompson_spec.cr	shared BuildError now exposes the optional size-limit accessor for Thompson NFA build failures
+src/nfa/thompson/error.rs::struct::BuildError	struct	ported	src/regex/automata/errors.cr;src/regex/automata/hir_compiler.cr;spec/nfa_thompson_spec.cr	Crystal reuses the shared BuildError type for Thompson and dense build failures while preserving the vendored size-limit signaling exercised by the Thompson specs
 src/nfa/thompson/literal_trie.rs::test::maker	test	skipped	src/regex/automata/hir_compiler.cr	Crystal does not port Rust's internal literal-trie builder as a standalone type; the Thompson compiler emits the final graph directly.
 src/nfa/thompson/literal_trie.rs::test::zap	test	skipped	src/regex/automata/hir_compiler.cr	Crystal does not port Rust's internal literal-trie builder as a standalone type; the Thompson compiler emits the final graph directly.
 src/nfa/thompson/map.rs::func::clear	func	skipped	src/regex/automata/hir_compiler.cr	Crystal does not port Rust's internal UTF-8 suffix and bounded map helpers as standalone types; equivalent behavior is inlined in the Thompson compiler.
@@ -553,8 +553,8 @@ src/nfa/thompson/nfa.rs::struct::NFA	struct	ported	src/regex/automata/nfa.cr, sp
 src/nfa/thompson/nfa.rs::struct::PatternIter	struct	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_spec.cr	public Thompson pattern iterator now exists
 src/nfa/thompson/nfa.rs::struct::SparseTransitions	struct	partial	src/regex/automata/nfa.cr, spec/nfa_thompson_representation_spec.cr	Crystal folds Rust's standalone `SparseTransitions` wrapper into the `NFA::Sparse` state while preserving the matching helper behavior.
 src/nfa/thompson/nfa.rs::struct::Transition	struct	ported	src/regex/automata/nfa.cr, spec/nfa_thompson_representation_spec.cr	The Thompson transition struct and its matching helpers now exist publicly.
-src/nfa/thompson/nfa.rs::test::always_match	test	partial	spec/nfa_thompson_spec.cr	Constructor state-shape parity is covered here; Rust's PikeVM search semantics are deferred to the PikeVM feature.
-src/nfa/thompson/nfa.rs::test::never_match	test	partial	spec/nfa_thompson_spec.cr	Constructor state-shape parity is covered here; Rust's PikeVM search semantics are deferred to the PikeVM feature.
+src/nfa/thompson/nfa.rs::test::always_match	test	ported	spec/nfa_thompson_spec.cr	ported the upstream ranged-search always-match semantics by driving `NFA::always_match` through PikeVM over explicit input ranges
+src/nfa/thompson/nfa.rs::test::never_match	test	ported	spec/nfa_thompson_spec.cr	ported the upstream ranged-search never-match semantics by driving `NFA::never_match` through PikeVM over explicit input ranges
 src/nfa/thompson/nfa.rs::test::state_has_small_size	test	skipped	src/regex/automata/nfa.cr	Rust memory-layout assertions have no stable Crystal equivalent.
 src/nfa/thompson/pikevm.rs::func::always_match	func	ported	src/regex/automata/pikevm.cr;spec/pikevm_spec.cr	ported PikeVM always-match constructor and search behavior
 src/nfa/thompson/pikevm.rs::func::build	func	ported	src/regex/automata/pikevm.cr;spec/pikevm_spec.cr	ported PikeVM builder single-pattern construction
@@ -907,7 +907,7 @@ src/util/syntax.rs::func::unicode	func	ported	src/regex/automata/syntax.cr;spec/
 src/util/syntax.rs::func::utf8	func	ported	src/regex/automata/syntax.cr;spec/syntax_spec.cr	ported syntax config utf8 builder
 src/util/syntax.rs::method::Config.new	method	ported	src/regex/automata/syntax.cr;spec/syntax_spec.cr	ported syntax config constructor
 src/util/syntax.rs::struct::Config	struct	ported	src/regex/automata/syntax.cr;spec/syntax_spec.cr	ported syntax config wrapper around regex-syntax parser builder
-src/util/unicode_data/perl_word.rs::const::PERL_WORD	const	missing	-	auto-generated
+src/util/unicode_data/perl_word.rs::const::PERL_WORD	const	ported	lib/regex-syntax/src/regex/syntax/unicode_tables/perl_word.cr;lib/regex-syntax/src/regex/syntax/unicode.cr;spec/look_spec.cr	the generated Perl-word Unicode table already lives in the vendored regex-syntax Crystal dependency and is exercised through the shared Unicode word-boundary specs
 src/util/wire.rs::struct::AlignAs	struct	ported	src/regex/automata/wire.cr;spec/wire_spec.cr	ported alignment helper wrapper
 src/util/wire.rs::struct::DeserializeError	struct	ported	src/regex/automata/errors.cr;src/regex/automata/wire.cr;spec/wire_spec.cr	ported deserialize error surface plus wire helper constructors
 src/util/wire.rs::struct::SerializeError	struct	ported	src/regex/automata/errors.cr;src/regex/automata/wire.cr;spec/wire_spec.cr	ported serialize error surface plus wire helper constructors
@@ -926,29 +926,29 @@ tests/dfa/onepass/regression.rs::test::zero_repetition_capture_group	test	ported
 tests/dfa/onepass/suite.rs::test::default	test	ported	spec/dfa_onepass_spec.cr	covered by direct Crystal API parity specs instead of the Rust regex-test harness
 tests/dfa/onepass/suite.rs::test::no_byte_classes	test	ported	spec/dfa_onepass_spec.cr	covered by direct Crystal API parity specs instead of the Rust regex-test harness
 tests/dfa/onepass/suite.rs::test::starts_for_each_pattern	test	ported	spec/dfa_onepass_spec.cr	covered by direct Crystal API parity specs instead of the Rust regex-test harness
-tests/dfa/regression.rs::test::minimize_sets_correct_match_states	test	missing	-	auto-generated
-tests/dfa/suite.rs::test::minimized_default	test	missing	-	auto-generated
-tests/dfa/suite.rs::test::minimized_no_byte_class	test	missing	-	auto-generated
-tests/dfa/suite.rs::test::serialization_unminimized_default	test	missing	-	auto-generated
-tests/dfa/suite.rs::test::sparse_serialization_unminimized_default	test	missing	-	auto-generated
-tests/dfa/suite.rs::test::sparse_unminimized_default	test	missing	-	auto-generated
-tests/dfa/suite.rs::test::sparse_unminimized_prefilter	test	missing	-	auto-generated
-tests/dfa/suite.rs::test::unminimized_default	test	missing	-	auto-generated
-tests/dfa/suite.rs::test::unminimized_nfa_shrink	test	missing	-	auto-generated
-tests/dfa/suite.rs::test::unminimized_no_byte_class	test	missing	-	auto-generated
-tests/dfa/suite.rs::test::unminimized_prefilter	test	missing	-	auto-generated
-tests/dfa/suite.rs::test::unminimized_specialized_start_states	test	missing	-	auto-generated
-tests/fuzz/dense.rs::test::invalid_byte_classes	test	missing	-	auto-generated
-tests/fuzz/dense.rs::test::invalid_byte_classes_min	test	missing	-	auto-generated
-tests/fuzz/sparse.rs::test::eoi_transition_to_quit_state	test	missing	-	auto-generated
-tests/fuzz/sparse.rs::test::invalid_accelerators	test	missing	-	auto-generated
-tests/fuzz/sparse.rs::test::invalid_special_state	test	missing	-	auto-generated
-tests/fuzz/sparse.rs::test::match_state_inconsistency	test	missing	-	auto-generated
-tests/fuzz/sparse.rs::test::start_state_has_valid_transitions	test	missing	-	auto-generated
-tests/fuzz/sparse.rs::test::start_state_is_not_match_state	test	missing	-	auto-generated
-tests/fuzz/sparse.rs::test::transition_to_invalid_but_valid_state	test	missing	-	auto-generated
-tests/gen/dense/mod.rs::test::multi_pattern_v2	test	missing	-	auto-generated
-tests/gen/sparse/mod.rs::test::multi_pattern_v2	test	missing	-	auto-generated
+tests/dfa/regression.rs::test::minimize_sets_correct_match_states	test	ported	spec/dfa_remaining_parity_spec.cr	ported the minimized grapheme-regression case that previously mis-marked match states during dense DFA minimization
+tests/dfa/suite.rs::test::minimized_default	test	ported	spec/dfa_remaining_parity_spec.cr	ported the remaining regex-suite coverage for minimized dense DFA regex search behavior
+tests/dfa/suite.rs::test::minimized_no_byte_class	test	ported	spec/dfa_remaining_parity_spec.cr	ported the remaining regex-suite coverage for minimized dense DFA regex search behavior without byte classes
+tests/dfa/suite.rs::test::serialization_unminimized_default	test	ported	spec/dfa_remaining_parity_spec.cr	ported dense DFA regex roundtrip parity over native-endian serialization
+tests/dfa/suite.rs::test::sparse_serialization_unminimized_default	test	ported	spec/dfa_remaining_parity_spec.cr	ported sparse DFA regex roundtrip parity over the sparse wrapper serialization path
+tests/dfa/suite.rs::test::sparse_unminimized_default	test	ported	spec/dfa_remaining_parity_spec.cr	ported sparse DFA regex-suite parity over dense-to-sparse conversion
+tests/dfa/suite.rs::test::sparse_unminimized_prefilter	test	ported	spec/dfa_remaining_parity_spec.cr	ported sparse DFA regex-suite parity with literal prefilter attachment
+tests/dfa/suite.rs::test::unminimized_default	test	ported	spec/dfa_remaining_parity_spec.cr	ported the remaining regex-suite coverage for default dense DFA regex search behavior
+tests/dfa/suite.rs::test::unminimized_nfa_shrink	test	ported	spec/dfa_remaining_parity_spec.cr	ported the remaining regex-suite coverage with Thompson NFA shrinking enabled
+tests/dfa/suite.rs::test::unminimized_no_byte_class	test	ported	spec/dfa_remaining_parity_spec.cr	ported the remaining regex-suite coverage with byte classes disabled
+tests/dfa/suite.rs::test::unminimized_prefilter	test	ported	spec/dfa_remaining_parity_spec.cr	ported the remaining regex-suite coverage with prefilter-enabled dense DFA regex construction
+tests/dfa/suite.rs::test::unminimized_specialized_start_states	test	ported	spec/dfa_remaining_parity_spec.cr	ported the remaining regex-suite coverage with specialized start states enabled
+tests/fuzz/dense.rs::test::invalid_byte_classes	test	ported	spec/dfa_remaining_parity_spec.cr	ported malformed dense byte-class-count deserialization rejection against the Crystal wire format
+tests/fuzz/dense.rs::test::invalid_byte_classes_min	test	ported	spec/dfa_remaining_parity_spec.cr	ported malformed dense byte-class-count deserialization rejection for minimized DFAs
+tests/fuzz/sparse.rs::test::eoi_transition_to_quit_state	test	skipped	src/regex/automata/sparse.cr;spec/dfa_sparse_spec.cr	Crystal sparse DFAs are serialized as a dense-backed wrapper with a different wire layout, so upstream sparse-byte fuzz invariants about individual transition-table fields do not apply directly
+tests/fuzz/sparse.rs::test::invalid_accelerators	test	skipped	src/regex/automata/sparse.cr;spec/dfa_sparse_spec.cr	Crystal sparse DFAs are serialized as a dense-backed wrapper with a different wire layout, so upstream sparse-byte fuzz invariants about accelerator sections do not apply directly
+tests/fuzz/sparse.rs::test::invalid_special_state	test	skipped	src/regex/automata/sparse.cr;spec/dfa_sparse_spec.cr	Crystal sparse DFAs are serialized as a dense-backed wrapper with a different wire layout, so upstream sparse-byte fuzz invariants about individual special-state encodings do not apply directly
+tests/fuzz/sparse.rs::test::match_state_inconsistency	test	skipped	src/regex/automata/sparse.cr;spec/dfa_sparse_spec.cr	Crystal sparse DFAs are serialized as a dense-backed wrapper with a different wire layout, so upstream sparse-byte fuzz invariants about per-state metadata do not apply directly
+tests/fuzz/sparse.rs::test::start_state_has_valid_transitions	test	skipped	src/regex/automata/sparse.cr;spec/dfa_sparse_spec.cr	Crystal sparse DFAs are serialized as a dense-backed wrapper with a different wire layout, so upstream sparse-byte fuzz invariants about transition-table row validity do not apply directly
+tests/fuzz/sparse.rs::test::start_state_is_not_match_state	test	skipped	src/regex/automata/sparse.cr;spec/dfa_sparse_spec.cr	Crystal sparse DFAs are serialized as a dense-backed wrapper with a different wire layout, so upstream sparse-byte fuzz invariants about serialized start-state tags do not apply directly
+tests/fuzz/sparse.rs::test::transition_to_invalid_but_valid_state	test	skipped	src/regex/automata/sparse.cr;spec/dfa_sparse_spec.cr	Crystal sparse DFAs are serialized as a dense-backed wrapper with a different wire layout, so upstream sparse-byte fuzz invariants about raw transition targets do not apply directly
+tests/gen/dense/mod.rs::test::multi_pattern_v2	test	ported	spec/dfa_remaining_parity_spec.cr	ported the generated dense DFA multi-pattern fixture behavior with port-native serialization roundtrips
+tests/gen/sparse/mod.rs::test::multi_pattern_v2	test	ported	spec/dfa_remaining_parity_spec.cr	ported the generated sparse DFA multi-pattern fixture behavior with port-native serialization roundtrips
 tests/hybrid/api.rs::test::quit_fwd	test	ported	spec/hybrid_spec.cr	ported focused hybrid API parity coverage for quit handling, cache give-up offsets, and implicit Unicode-word-boundary behavior
 tests/hybrid/api.rs::test::quit_panics	test	ported	spec/hybrid_spec.cr	ported focused hybrid API parity coverage for quit handling, cache give-up offsets, and implicit Unicode-word-boundary behavior
 tests/hybrid/api.rs::test::quit_rev	test	ported	spec/hybrid_spec.cr	ported focused hybrid API parity coverage for quit handling, cache give-up offsets, and implicit Unicode-word-boundary behavior
@@ -962,11 +962,11 @@ tests/hybrid/suite.rs::test::no_cache_clearing	test	ported	spec/hybrid_spec.cr	p
 tests/hybrid/suite.rs::test::prefilter	test	ported	spec/hybrid_spec.cr	ported focused hybrid suite coverage for default search behavior, regex wrappers, prefilters, cache resets, and tracked builder variants
 tests/hybrid/suite.rs::test::specialize_start_states	test	ported	spec/hybrid_spec.cr	ported focused hybrid suite coverage for default search behavior, regex wrappers, prefilters, cache resets, and tracked builder variants
 tests/hybrid/suite.rs::test::starts_for_each_pattern	test	ported	spec/hybrid_spec.cr	ported focused hybrid suite coverage for default search behavior, regex wrappers, prefilters, cache resets, and tracked builder variants
-tests/meta/suite.rs::test::default	test	missing	-	auto-generated
-tests/meta/suite.rs::test::no_dfa	test	missing	-	auto-generated
-tests/meta/suite.rs::test::no_dfa_hybrid	test	missing	-	auto-generated
-tests/meta/suite.rs::test::no_dfa_hybrid_onepass	test	missing	-	auto-generated
-tests/meta/suite.rs::test::no_dfa_hybrid_onepass_backtrack	test	missing	-	auto-generated
+tests/meta/suite.rs::test::default	test	ported	spec/meta_regex_spec.cr	ported vendor-shaped meta configuration coverage for default and engine-disabled builder slices with focused Crystal parity specs
+tests/meta/suite.rs::test::no_dfa	test	ported	spec/meta_regex_spec.cr	ported vendor-shaped meta configuration coverage for default and engine-disabled builder slices with focused Crystal parity specs
+tests/meta/suite.rs::test::no_dfa_hybrid	test	ported	spec/meta_regex_spec.cr	ported vendor-shaped meta configuration coverage for default and engine-disabled builder slices with focused Crystal parity specs
+tests/meta/suite.rs::test::no_dfa_hybrid_onepass	test	ported	spec/meta_regex_spec.cr	ported vendor-shaped meta configuration coverage for default and engine-disabled builder slices with focused Crystal parity specs
+tests/meta/suite.rs::test::no_dfa_hybrid_onepass_backtrack	test	ported	spec/meta_regex_spec.cr	ported vendor-shaped meta configuration coverage for default and engine-disabled builder slices with focused Crystal parity specs
 tests/nfa/thompson/backtrack/regression.rs::test::too_many_slots_normal_pattern	test	ported	spec/backtrack_spec.cr	covered by the extra-slot regression spec using raw NonMaxUsize slots
 tests/nfa/thompson/backtrack/suite.rs::test::default	test	ported	spec/backtrack_spec.cr	covered by direct Crystal API parity specs instead of the Rust regex-test harness
 tests/nfa/thompson/backtrack/suite.rs::test::min_visited_capacity	test	ported	spec/backtrack_spec.cr	covered by direct Crystal visited-capacity parity specs instead of the Rust regex-test harness

@@ -6,8 +6,9 @@ module Regex::Automata
   # Error returned when building a DFA/NFA fails
   class BuildError < Error
     getter? size_limit_exceeded : Bool
+    getter size_limit : Int64?
 
-    def initialize(message : String? = nil, @size_limit_exceeded : Bool = false)
+    def initialize(message : String? = nil, @size_limit_exceeded : Bool = false, @size_limit : Int64? = nil)
       super(message)
     end
 

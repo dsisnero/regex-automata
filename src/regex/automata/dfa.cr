@@ -1507,7 +1507,10 @@ module Regex::Automata::DFA
           when NFA::Look::Kind::WordBoundaryUnicode, NFA::Look::Kind::NonWordBoundaryUnicode
             @nfa_has_word = true
             @nfa_has_unicode_word = true
-          when NFA::Look::Kind::Start, NFA::Look::Kind::End
+          when NFA::Look::Kind::StartLF,
+               NFA::Look::Kind::EndLF,
+               NFA::Look::Kind::StartCRLF,
+               NFA::Look::Kind::EndCRLF
             @nfa_has_crlf = true
           when NFA::Look::Kind::StartText, NFA::Look::Kind::EndText, NFA::Look::Kind::EndTextWithNewline
             # Text anchors do not require extra CRLF bookkeeping here.
@@ -1747,6 +1750,11 @@ module Regex::Automata::DFA
         end
       end
 
+      unanchored_start_lookup = {} of StateID => Start
+      unanchored_start_states.each do |start_kind, start_id|
+        unanchored_start_lookup[start_id] = start_kind
+      end
+
       while !queue.empty?
         dfa_id = queue.pop
         if ENV["LOGOS_DEBUG_DFA_BUILD"]? && @dfa_state_count % 10 == 0
@@ -1818,11 +1826,11 @@ module Regex::Automata::DFA
           next_is_from_word = @nfa_has_word && ::Regex::Automata.is_word_byte(byte)
           next_is_half_crlf = @nfa_has_crlf && byte == '\r'.ord.to_u8
 
-          # Recompute epsilon closure if new look-ahead assertions are satisfied.
-          effective_nfa_set = nfa_set
-          if !current_look_have.difference(look_have).intersection(look_need).empty?
-            effective_nfa_set = nfa.epsilon_closure_with_look(nfa_set, current_look_have)
-          end
+          # Recompute the closure for every transition so that contextual
+          # assertions like word boundaries and line anchors are evaluated from
+          # the current byte boundary instead of only when a coarse look_need
+          # summary happens to detect it.
+          effective_nfa_set = nfa.epsilon_closure_with_look(nfa_set, current_look_have)
 
           next_set.clear
           effective_nfa_set.each do |nfa_id|
@@ -1857,12 +1865,19 @@ module Regex::Automata::DFA
               end
               @transition_table.set_transition_by_class(@transition_table.to_state_id(dfa_id.to_i), byte_class, @transition_table.to_state_id(next_id.to_i))
             else
-              # No transition from this NFA state set for this byte class
-              # For unanchored start state with no look-around assertions, add self-loop
-              # to create universal start state
-              if @start_unanchored && dfa_id == @start_unanchored && look_need.empty?
-                # Universal start state: self-loop for bytes that don't match
-                @transition_table.set_transition_by_class(@transition_table.to_state_id(dfa_id.to_i), byte_class, @transition_table.to_state_id(dfa_id.to_i))
+              # No transition from this NFA state set for this byte class.
+              # In an unanchored search, consuming a byte should leave us in the
+              # appropriate contextual start state for the next position so that
+              # look-behind sensitive assertions like word boundaries and line
+              # anchors can still begin matching later in the haystack.
+              if unanchored_start_lookup.has_key?(dfa_id)
+                next_start_kind = StartTable.from_look_behind(byte)
+                next_start_id = unanchored_start_states[next_start_kind]? || unanchored_start_states[Start::Text]
+                @transition_table.set_transition_by_class(
+                  @transition_table.to_state_id(dfa_id.to_i),
+                  byte_class,
+                  @transition_table.to_state_id(next_start_id.to_i)
+                )
               end
               # Otherwise, default dead-state transition remains in place.
             end
@@ -1932,6 +1947,9 @@ module Regex::Automata::DFA
       )
       @dfa_state_count = @dfa_state_metas.size
       @dfa_states = materialize_states_from_metadata(@dfa_state_metas, @transition_table)
+      patch_contextual_start_transitions(@transition_table, unanchored_start_states)
+      patch_contextual_start_transitions(@transition_table, anchored_start_states)
+      @dfa_states = materialize_states_from_metadata(@dfa_state_metas, @transition_table)
 
       # Create DFA flags from config
       flags = DFAFlags.new(
@@ -1997,7 +2015,7 @@ module Regex::Automata::DFA
     end
 
     private def build_start_states(nfa_start : StateID) : Hash(Start, StateID)
-      start_set = @nfa.not_nil!.epsilon_closure(Set{nfa_start})
+      start_set = Set{nfa_start}
       starts = {} of Start => StateID
 
       text_look_have, text_is_from_word = start_look_have_for(Start::Text)
@@ -2149,10 +2167,14 @@ module Regex::Automata::DFA
 
     private def look_from_nfa_kind(kind : NFA::Look::Kind) : LookSet
       case kind
-      when NFA::Look::Kind::Start
-        LookSet.from_look(Look::StartLF).insert(Look::StartCRLF)
-      when NFA::Look::Kind::End
-        LookSet.from_look(Look::EndLF).insert(Look::EndCRLF)
+      when NFA::Look::Kind::StartLF
+        LookSet.from_look(Look::StartLF)
+      when NFA::Look::Kind::EndLF
+        LookSet.from_look(Look::EndLF)
+      when NFA::Look::Kind::StartCRLF
+        LookSet.from_look(Look::StartCRLF)
+      when NFA::Look::Kind::EndCRLF
+        LookSet.from_look(Look::EndCRLF)
       when NFA::Look::Kind::WordBoundaryAscii
         LookSet.from_look(Look::WordAscii)
       when NFA::Look::Kind::NonWordBoundaryAscii
@@ -2176,6 +2198,57 @@ module Regex::Automata::DFA
         expanded = expanded.add(byte.to_u8)
       end
       expanded
+    end
+
+    private def patch_contextual_start_transitions(tt : TransitionTable, start_states : Hash(Start, StateID)) : Nil
+      start_ids = start_states.values.uniq
+      return if start_ids.empty?
+      start_tt_ids = start_ids.map { |id| tt.to_state_id(id.to_i) }.to_set
+
+      text_start_id = start_states[Start::Text]? || start_ids.first
+      text_tt_id = tt.to_state_id(text_start_id.to_i)
+
+      start_ids.each do |start_id|
+        start_kind = start_states.key_for(start_id)
+        next unless start_kind
+
+        tt_id = tt.to_state_id(start_id.to_i)
+        (@byte_classes.alphabet_len - 1).times do |byte_class|
+          next_state = tt.next_state_by_class(tt_id, byte_class)
+          text_next = tt.next_state_by_class(text_tt_id, byte_class)
+
+          byte = @byte_classes.representative(byte_class)
+          if ::Regex::Automata::DFA.dead_state?(next_state)
+            if contextual_start_kind?(start_kind) &&
+               !::Regex::Automata::DFA.dead_state?(text_next) &&
+               !start_tt_ids.includes?(text_next)
+              tt.set_transition_by_class(tt_id, byte_class, text_next)
+            else
+              next_start_kind = StartTable.from_look_behind(byte)
+              next_start_id = start_states[next_start_kind]? || text_start_id
+              tt.set_transition_by_class(tt_id, byte_class, tt.to_state_id(next_start_id.to_i))
+            end
+            next
+          end
+
+          next unless contextual_start_kind?(start_kind)
+
+          next if ::Regex::Automata::DFA.dead_state?(text_next)
+          next unless start_tt_ids.includes?(next_state)
+          next if start_tt_ids.includes?(text_next)
+
+          tt.set_transition_by_class(tt_id, byte_class, text_next)
+        end
+      end
+    end
+
+    private def contextual_start_kind?(start_kind : Start) : Bool
+      case start_kind
+      when Start::NonWordByte, Start::LineLF, Start::LineCR, Start::CustomLineTerminator
+        true
+      else
+        false
+      end
     end
 
     private def all_non_ascii_bytes_are_quit?(quitset : ByteSet) : Bool

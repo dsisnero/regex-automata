@@ -113,8 +113,10 @@ module Regex::Automata::NFA
   # Look-around assertion (word boundary, ^, $, etc.)
   struct Look
     enum Kind
-      Start                  # ^
-      End                    # $
+      StartLF                # ^ with LF line mode
+      EndLF                  # $ with LF line mode
+      StartCRLF              # ^ with CRLF line mode
+      EndCRLF                # $ with CRLF line mode
       WordBoundaryAscii      # (?-u:\b)
       NonWordBoundaryAscii   # (?-u:\B)
       WordBoundaryUnicode    # \b
@@ -1257,10 +1259,14 @@ module Regex::Automata::NFA
           # Look states are conditional epsilon transitions
           # Check if this look kind is satisfied
           look_kind_satisfied = case state.kind
-                                when Look::Kind::Start
-                                  look_have.includes?(Regex::Automata::Look::StartLF) || look_have.includes?(Regex::Automata::Look::StartCRLF)
-                                when Look::Kind::End
-                                  look_have.includes?(Regex::Automata::Look::EndLF) || look_have.includes?(Regex::Automata::Look::EndCRLF)
+                                when Look::Kind::StartLF
+                                  look_have.includes?(Regex::Automata::Look::StartLF)
+                                when Look::Kind::EndLF
+                                  look_have.includes?(Regex::Automata::Look::EndLF)
+                                when Look::Kind::StartCRLF
+                                  look_have.includes?(Regex::Automata::Look::StartCRLF)
+                                when Look::Kind::EndCRLF
+                                  look_have.includes?(Regex::Automata::Look::EndCRLF)
                                 when Look::Kind::WordBoundaryAscii
                                   look_have.includes?(Regex::Automata::Look::WordAscii)
                                 when Look::Kind::NonWordBoundaryAscii
@@ -1437,10 +1443,14 @@ module Regex::Automata::NFA
 
     private def look_from_kind(kind : Look::Kind) : Regex::Automata::LookSet
       case kind
-      when Look::Kind::Start
+      when Look::Kind::StartLF
         Regex::Automata::LookSet.singleton(Regex::Automata::Look::StartLF)
-      when Look::Kind::End
+      when Look::Kind::EndLF
         Regex::Automata::LookSet.singleton(Regex::Automata::Look::EndLF)
+      when Look::Kind::StartCRLF
+        Regex::Automata::LookSet.singleton(Regex::Automata::Look::StartCRLF)
+      when Look::Kind::EndCRLF
+        Regex::Automata::LookSet.singleton(Regex::Automata::Look::EndCRLF)
       when Look::Kind::WordBoundaryAscii
         Regex::Automata::LookSet.singleton(Regex::Automata::Look::WordAscii)
       when Look::Kind::NonWordBoundaryAscii

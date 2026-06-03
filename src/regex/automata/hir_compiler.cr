@@ -342,7 +342,7 @@ module Regex::Automata
     private def finalize_build(nfa : NFA::NFA) : NFA::NFA
       if limit = @config.nfa_size_limit
         if nfa.memory_usage > limit
-          raise BuildError.new("NFA exceeded size limit of #{limit} bytes", size_limit_exceeded: true)
+          raise BuildError.new("NFA exceeded size limit of #{limit} bytes", size_limit_exceeded: true, size_limit: limit)
         end
       end
       nfa
@@ -412,12 +412,14 @@ module Regex::Automata
 
     private def compile_look(node : Regex::Syntax::Hir::Look) : NFA::ThompsonRef
       kind = case node.kind
-             when Regex::Syntax::Hir::Look::Kind::StartLF,
-                  Regex::Syntax::Hir::Look::Kind::StartCRLF
-               NFA::Look::Kind::Start
-             when Regex::Syntax::Hir::Look::Kind::EndLF,
-                  Regex::Syntax::Hir::Look::Kind::EndCRLF
-               NFA::Look::Kind::End
+             when Regex::Syntax::Hir::Look::Kind::StartLF
+               NFA::Look::Kind::StartLF
+             when Regex::Syntax::Hir::Look::Kind::StartCRLF
+               NFA::Look::Kind::StartCRLF
+             when Regex::Syntax::Hir::Look::Kind::EndLF
+               NFA::Look::Kind::EndLF
+             when Regex::Syntax::Hir::Look::Kind::EndCRLF
+               NFA::Look::Kind::EndCRLF
              when Regex::Syntax::Hir::Look::Kind::WordAscii,
                   Regex::Syntax::Hir::Look::Kind::WordStartAscii,
                   Regex::Syntax::Hir::Look::Kind::WordEndAscii,
@@ -443,6 +445,7 @@ module Regex::Automata
              else
                raise "Unsupported look kind: #{node.kind}"
              end
+      kind = kind.not_nil!
 
       kind = reverse_look_kind(kind) if @config.reverse
       look_id = @builder.add_state(NFA::Look.new(kind, StateID.new(0)))
@@ -453,10 +456,14 @@ module Regex::Automata
 
     private def reverse_look_kind(kind : NFA::Look::Kind) : NFA::Look::Kind
       case kind
-      when NFA::Look::Kind::Start
-        NFA::Look::Kind::End
-      when NFA::Look::Kind::End
-        NFA::Look::Kind::Start
+      when NFA::Look::Kind::StartLF
+        NFA::Look::Kind::EndLF
+      when NFA::Look::Kind::EndLF
+        NFA::Look::Kind::StartLF
+      when NFA::Look::Kind::StartCRLF
+        NFA::Look::Kind::EndCRLF
+      when NFA::Look::Kind::EndCRLF
+        NFA::Look::Kind::StartCRLF
       when NFA::Look::Kind::StartText
         NFA::Look::Kind::EndText
       when NFA::Look::Kind::EndText

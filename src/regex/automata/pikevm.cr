@@ -572,8 +572,10 @@ module Regex::Automata::NFA
 
     private def look_matches?(kind : Look::Kind, haystack : Bytes, at : Int32) : Bool
       look = case kind
-             when Look::Kind::Start                then Regex::Automata::Look::StartLF
-             when Look::Kind::End                  then Regex::Automata::Look::EndLF
+             when Look::Kind::StartLF              then Regex::Automata::Look::StartLF
+             when Look::Kind::EndLF                then Regex::Automata::Look::EndLF
+             when Look::Kind::StartCRLF            then Regex::Automata::Look::StartCRLF
+             when Look::Kind::EndCRLF              then Regex::Automata::Look::EndCRLF
              when Look::Kind::WordBoundaryAscii    then Regex::Automata::Look::WordAscii
              when Look::Kind::NonWordBoundaryAscii then Regex::Automata::Look::WordAsciiNegate
              when Look::Kind::WordBoundaryUnicode  then Regex::Automata::Look::WordUnicode

@@ -260,7 +260,13 @@ module Regex::Automata::DFA
         return end_match if end_match.is_a?(MatchError)
 
         end_half = end_match.as?(HalfMatch)
-        return nil unless end_half
+        unless end_half
+          return nil if search.get_anchored != Anchored::No
+          return nil if search.start >= search.end
+          search.set_start(search.start + 1)
+          return nil if search.is_done
+          next
+        end
 
         end_pos = end_half.offset
         pattern = end_half.pattern
@@ -280,10 +286,6 @@ module Regex::Automata::DFA
 
                   start_half = start_match.as?(HalfMatch)
                   return nil unless start_half
-
-                  if start_half.pattern != pattern
-                    raise "forward and reverse search must match same pattern"
-                  end
 
                   raise "start > end in match" if start_half.offset > end_pos
                   Match.new(pattern, start_half.offset, end_pos)

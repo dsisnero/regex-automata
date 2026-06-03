@@ -80,6 +80,17 @@ describe Regex::Automata::NFA::NFA do
     nfa.pattern_len.should eq(1)
   end
 
+  it "reports NFA size-limit failures through BuildError introspection" do
+    error = expect_raises(Regex::Automata::BuildError) do
+      Regex::Automata::NFA::NFA.compiler
+        .configure(Regex::Automata::NFA::NFA.config.nfa_size_limit(0_i64))
+        .build("abc")
+    end
+
+    error.is_size_limit_exceeded.should be_true
+    error.size_limit.should eq(0_i64)
+  end
+
   it "builds always-match and never-match NFAs" do
     always = Regex::Automata::NFA::NFA.always_match
     always.pattern_len.should eq(1)
@@ -99,6 +110,40 @@ describe Regex::Automata::NFA::NFA do
     never.has_empty.should be_false
     never.start_pattern(pid(0)).should be_nil
     never.states.should eq([s_fail])
+  end
+
+  it "matches always-match and never-match NFAs through PikeVM over ranged input" do
+    always = Regex::Automata::NFA::PikeVM.new_from_nfa(Regex::Automata::NFA::NFA.always_match)
+    always_cache = always.create_cache
+    always_caps = always.create_captures
+    always_find = ->(haystack : String, start : Int32, finish : Int32) do
+      input = Regex::Automata::Input.new(haystack).range(start...finish)
+      always.search(always_cache, input, always_caps)
+      always_caps.get_match.try(&.end)
+    end
+
+    always_find.call("", 0, 0).should eq(0)
+    always_find.call("a", 0, 1).should eq(0)
+    always_find.call("a", 1, 1).should eq(1)
+    always_find.call("ab", 0, 2).should eq(0)
+    always_find.call("ab", 1, 2).should eq(1)
+    always_find.call("ab", 2, 2).should eq(2)
+
+    never = Regex::Automata::NFA::PikeVM.new_from_nfa(Regex::Automata::NFA::NFA.never_match)
+    never_cache = never.create_cache
+    never_caps = never.create_captures
+    never_find = ->(haystack : String, start : Int32, finish : Int32) do
+      input = Regex::Automata::Input.new(haystack).range(start...finish)
+      never.search(never_cache, input, never_caps)
+      never_caps.get_match.try(&.end)
+    end
+
+    never_find.call("", 0, 0).should be_nil
+    never_find.call("a", 0, 1).should be_nil
+    never_find.call("a", 1, 1).should be_nil
+    never_find.call("ab", 0, 2).should be_nil
+    never_find.call("ab", 1, 2).should be_nil
+    never_find.call("ab", 2, 2).should be_nil
   end
 
   it "adds the unanchored prefix when compiling unanchored patterns" do

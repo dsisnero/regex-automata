@@ -130,7 +130,7 @@ module Regex::Automata
       byte_classes = new(classes)
       expected_alphabet_len = byte_class_count + 1
       if byte_classes.alphabet_len != expected_alphabet_len
-        raise "byte class count mismatch: expected #{expected_alphabet_len}, got #{byte_classes.alphabet_len}"
+        raise DeserializeError.new("byte class count mismatch: expected #{expected_alphabet_len}, got #{byte_classes.alphabet_len}")
       end
       byte_classes
     end
