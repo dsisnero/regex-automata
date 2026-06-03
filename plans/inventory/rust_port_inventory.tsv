@@ -301,89 +301,89 @@ src/hybrid/regex.rs::struct::Builder	struct	ported	src/regex/automata/hybrid.cr;
 src/hybrid/regex.rs::struct::Cache	struct	ported	src/regex/automata/hybrid.cr;spec/hybrid_spec.cr	ported vendored hybrid regex/cache surface over forward and reverse lazy DFAs
 src/hybrid/regex.rs::struct::FindMatches	struct	ported	src/regex/automata/hybrid.cr;spec/hybrid_spec.cr	ported vendored hybrid regex/cache surface over forward and reverse lazy DFAs
 src/hybrid/regex.rs::struct::Regex	struct	ported	src/regex/automata/hybrid.cr;spec/hybrid_spec.cr	ported vendored hybrid regex/cache surface over forward and reverse lazy DFAs
-src/meta/error.rs::func::pattern	func	missing	-	auto-generated
-src/meta/error.rs::func::size_limit	func	missing	-	auto-generated
-src/meta/error.rs::func::syntax_error	func	missing	-	auto-generated
-src/meta/error.rs::method::BuildError.pattern	method	missing	-	auto-generated
-src/meta/error.rs::struct::BuildError	struct	missing	-	auto-generated
-src/meta/regex.rs::func::auto_prefilter	func	missing	-	auto-generated
-src/meta/regex.rs::func::backtrack	func	missing	-	auto-generated
-src/meta/regex.rs::func::build	func	missing	-	auto-generated
-src/meta/regex.rs::func::build_from_hir	func	missing	-	auto-generated
-src/meta/regex.rs::func::builder	func	missing	-	auto-generated
-src/meta/regex.rs::func::byte_classes	func	missing	-	auto-generated
-src/meta/regex.rs::func::captures_len	func	missing	-	auto-generated
-src/meta/regex.rs::func::config	func	missing	-	auto-generated
-src/meta/regex.rs::func::configure	func	missing	-	auto-generated
-src/meta/regex.rs::func::create_cache	func	missing	-	auto-generated
-src/meta/regex.rs::func::create_captures	func	missing	-	auto-generated
-src/meta/regex.rs::func::dfa	func	missing	-	auto-generated
-src/meta/regex.rs::func::dfa_size_limit	func	missing	-	auto-generated
-src/meta/regex.rs::func::dfa_state_limit	func	missing	-	auto-generated
-src/meta/regex.rs::func::get_auto_prefilter	func	missing	-	auto-generated
-src/meta/regex.rs::func::get_backtrack	func	missing	-	auto-generated
-src/meta/regex.rs::func::get_byte_classes	func	missing	-	auto-generated
-src/meta/regex.rs::func::get_config	func	missing	-	auto-generated
-src/meta/regex.rs::func::get_dfa	func	missing	-	auto-generated
-src/meta/regex.rs::func::get_dfa_size_limit	func	missing	-	auto-generated
-src/meta/regex.rs::func::get_dfa_state_limit	func	missing	-	auto-generated
-src/meta/regex.rs::func::get_hybrid	func	missing	-	auto-generated
-src/meta/regex.rs::func::get_hybrid_cache_capacity	func	missing	-	auto-generated
-src/meta/regex.rs::func::get_line_terminator	func	missing	-	auto-generated
-src/meta/regex.rs::func::get_match_kind	func	missing	-	auto-generated
-src/meta/regex.rs::func::get_nfa_size_limit	func	missing	-	auto-generated
-src/meta/regex.rs::func::get_onepass	func	missing	-	auto-generated
-src/meta/regex.rs::func::get_onepass_size_limit	func	missing	-	auto-generated
-src/meta/regex.rs::func::get_prefilter	func	missing	-	auto-generated
-src/meta/regex.rs::func::get_utf8_empty	func	missing	-	auto-generated
-src/meta/regex.rs::func::get_which_captures	func	missing	-	auto-generated
-src/meta/regex.rs::func::group_info	func	missing	-	auto-generated
-src/meta/regex.rs::func::hybrid	func	missing	-	auto-generated
-src/meta/regex.rs::func::hybrid_cache_capacity	func	missing	-	auto-generated
-src/meta/regex.rs::func::is_accelerated	func	missing	-	auto-generated
-src/meta/regex.rs::func::line_terminator	func	missing	-	auto-generated
-src/meta/regex.rs::func::match_kind	func	missing	-	auto-generated
-src/meta/regex.rs::func::memory_usage	func	missing	-	auto-generated
-src/meta/regex.rs::func::new	func	missing	-	auto-generated
-src/meta/regex.rs::func::nfa_size_limit	func	missing	-	auto-generated
-src/meta/regex.rs::func::onepass	func	missing	-	auto-generated
-src/meta/regex.rs::func::onepass_size_limit	func	missing	-	auto-generated
-src/meta/regex.rs::func::pattern_len	func	missing	-	auto-generated
-src/meta/regex.rs::func::prefilter	func	missing	-	auto-generated
-src/meta/regex.rs::func::regex	func	missing	-	auto-generated
-src/meta/regex.rs::func::reset	func	missing	-	auto-generated
-src/meta/regex.rs::func::search	func	missing	-	auto-generated
-src/meta/regex.rs::func::search_captures	func	missing	-	auto-generated
-src/meta/regex.rs::func::search_captures_with	func	missing	-	auto-generated
-src/meta/regex.rs::func::search_half	func	missing	-	auto-generated
-src/meta/regex.rs::func::search_half_with	func	missing	-	auto-generated
-src/meta/regex.rs::func::search_slots	func	missing	-	auto-generated
-src/meta/regex.rs::func::search_slots_with	func	missing	-	auto-generated
-src/meta/regex.rs::func::search_with	func	missing	-	auto-generated
-src/meta/regex.rs::func::static_captures_len	func	missing	-	auto-generated
-src/meta/regex.rs::func::syntax	func	missing	-	auto-generated
-src/meta/regex.rs::func::utf8_empty	func	missing	-	auto-generated
-src/meta/regex.rs::func::which_captures	func	missing	-	auto-generated
-src/meta/regex.rs::func::which_overlapping_matches	func	missing	-	auto-generated
-src/meta/regex.rs::func::which_overlapping_matches_with	func	missing	-	auto-generated
-src/meta/regex.rs::method::Builder.new	method	missing	-	auto-generated
-src/meta/regex.rs::method::Cache.new	method	missing	-	auto-generated
-src/meta/regex.rs::method::CapturesMatches.regex	method	missing	-	auto-generated
-src/meta/regex.rs::method::Config.new	method	missing	-	auto-generated
-src/meta/regex.rs::method::FindMatches.regex	method	missing	-	auto-generated
-src/meta/regex.rs::method::Regex.create_captures	method	missing	-	auto-generated
-src/meta/regex.rs::method::Regex.new	method	missing	-	auto-generated
-src/meta/regex.rs::method::Regex.search	method	missing	-	auto-generated
-src/meta/regex.rs::method::Regex.search_with	method	missing	-	auto-generated
-src/meta/regex.rs::struct::Builder	struct	missing	-	auto-generated
-src/meta/regex.rs::struct::Cache	struct	missing	-	auto-generated
-src/meta/regex.rs::struct::CapturesMatches	struct	missing	-	auto-generated
-src/meta/regex.rs::struct::Config	struct	missing	-	auto-generated
-src/meta/regex.rs::struct::FindMatches	struct	missing	-	auto-generated
-src/meta/regex.rs::struct::Regex	struct	missing	-	auto-generated
-src/meta/regex.rs::struct::Split	struct	missing	-	auto-generated
-src/meta/regex.rs::struct::SplitN	struct	missing	-	auto-generated
-src/meta/regex.rs::test::regression_suffix_literal_count	test	missing	-	auto-generated
+src/meta/error.rs::func::pattern	func	ported	src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta build-error pattern, size-limit, and syntax-error reporting for the Crystal meta wrapper
+src/meta/error.rs::func::size_limit	func	ported	src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta build-error pattern, size-limit, and syntax-error reporting for the Crystal meta wrapper
+src/meta/error.rs::func::syntax_error	func	ported	src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta build-error pattern, size-limit, and syntax-error reporting for the Crystal meta wrapper
+src/meta/error.rs::method::BuildError.pattern	method	ported	src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta build-error pattern, size-limit, and syntax-error reporting for the Crystal meta wrapper
+src/meta/error.rs::struct::BuildError	struct	ported	src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta build-error pattern, size-limit, and syntax-error reporting for the Crystal meta wrapper
+src/meta/regex.rs::func::auto_prefilter	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::backtrack	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::build	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::build_from_hir	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::builder	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::byte_classes	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::captures_len	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::config	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::configure	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::create_cache	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::create_captures	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::dfa	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::dfa_size_limit	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::dfa_state_limit	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::get_auto_prefilter	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::get_backtrack	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::get_byte_classes	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::get_config	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::get_dfa	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::get_dfa_size_limit	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::get_dfa_state_limit	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::get_hybrid	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::get_hybrid_cache_capacity	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::get_line_terminator	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::get_match_kind	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::get_nfa_size_limit	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::get_onepass	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::get_onepass_size_limit	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::get_prefilter	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::get_utf8_empty	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::get_which_captures	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::group_info	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::hybrid	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::hybrid_cache_capacity	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::is_accelerated	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::line_terminator	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::match_kind	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::memory_usage	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::new	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::nfa_size_limit	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::onepass	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::onepass_size_limit	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::pattern_len	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::prefilter	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::regex	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::reset	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::search	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::search_captures	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::search_captures_with	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::search_half	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::search_half_with	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::search_slots	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::search_slots_with	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::search_with	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::static_captures_len	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::syntax	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::utf8_empty	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::which_captures	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::which_overlapping_matches	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::func::which_overlapping_matches_with	func	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::method::Builder.new	method	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::method::Cache.new	method	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::method::CapturesMatches.regex	method	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::method::Config.new	method	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::method::FindMatches.regex	method	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::method::Regex.create_captures	method	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::method::Regex.new	method	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::method::Regex.search	method	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::method::Regex.search_with	method	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::struct::Builder	struct	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::struct::Cache	struct	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::struct::CapturesMatches	struct	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::struct::Config	struct	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::struct::FindMatches	struct	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::struct::Regex	struct	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::struct::Split	struct	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::struct::SplitN	struct	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
+src/meta/regex.rs::test::regression_suffix_literal_count	test	ported	src/regex/automata/meta.cr;src/regex/automata/meta_error.cr;spec/meta_regex_spec.cr	ported meta regex builder, config, cache, search, captures, overlapping-match, and iterator helpers over the Thompson NFA and PikeVM engines
 src/nfa/thompson/backtrack.rs::func::always_match	func	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::BoundedBacktracker.always_match;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
 src/nfa/thompson/backtrack.rs::func::build	func	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::Builder#build;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage
 src/nfa/thompson/backtrack.rs::func::build_from_nfa	func	ported	src/regex/automata/backtrack.cr::Regex::Automata::NFA::Backtrack::Builder#build_from_nfa;spec/backtrack_spec.cr	Bounded backtracker API is implemented as a PikeVM-backed wrapper with explicit visited-capacity gating and iterator coverage

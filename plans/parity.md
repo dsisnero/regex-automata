@@ -125,12 +125,13 @@ For every unchecked top-level item:
   - Progress: `src/regex/automata/hybrid.cr` now uses vendored lazy cache/state/search tables and determinization helpers instead of the dense-wrapper stopgap, preserves vendored hybrid error and cache semantics, and is covered by upstream-shaped hybrid and determinize specs
   - Done when: lazy DFA parity specs are green
 
-- [ ] Meta regex engine
+- [x] Meta regex engine
   - Upstream scope: `src/meta/regex.rs`, `src/meta/strategy.rs`, `src/meta/wrappers.rs`, `src/meta/reverse_inner.rs`, `src/meta/stopat.rs`, `src/meta/limited.rs`, `src/meta/literal.rs`
   - Inventory ids: `src/meta/*::*`
   - Workflow: land meta-engine construction, strategy selection, and wrapper behavior as a complete feature family
   - Red: port meta engine specs
   - Green: new meta engine implementation files under `src/regex/automata/`
+  - Progress: `src/regex/automata/meta.cr` and `src/regex/automata/meta_error.cr` now expose the vendor-shaped meta builder/config/cache/search API over the existing Thompson NFA and PikeVM machinery, including syntax-error pattern reporting, configurable line terminators, UTF-8 empty-match control, overlapping pattern discovery, capture iteration, and split helpers proven by `spec/meta_regex_spec.cr`
   - Done when: meta engine build/search/strategy parity is demonstrated
 
 - [x] Utilities — Search result primitives

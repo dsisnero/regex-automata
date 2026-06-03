@@ -8,6 +8,7 @@ module Regex::Automata::NFA
     class Config
       @match_kind : Regex::Automata::MatchKind?
       @prefilter : Regex::Automata::Prefilter?
+      @utf8_empty : Bool?
 
       def initialize
       end
@@ -26,6 +27,11 @@ module Regex::Automata::NFA
         self
       end
 
+      def utf8_empty(yes : Bool) : Config
+        @utf8_empty = yes
+        self
+      end
+
       def get_match_kind : Regex::Automata::MatchKind
         @match_kind || Regex::Automata::MatchKind::LeftmostFirst
       end
@@ -34,10 +40,15 @@ module Regex::Automata::NFA
         @prefilter
       end
 
+      def get_utf8_empty : Bool
+        @utf8_empty.nil? ? true : @utf8_empty.not_nil!
+      end
+
       def overwrite(other : Config) : Config
         merged = Config.new
         merged.match_kind(other.@match_kind || @match_kind || Regex::Automata::MatchKind::LeftmostFirst)
         merged.prefilter(other.@prefilter.nil? ? @prefilter : other.@prefilter)
+        merged.utf8_empty(other.@utf8_empty.nil? ? get_utf8_empty : other.@utf8_empty.not_nil!)
         merged
       end
     end
@@ -600,7 +611,7 @@ module Regex::Automata::NFA
     end
 
     private def should_skip_empty_utf8_match?(input : Regex::Automata::Input, hm : Regex::Automata::HalfMatch, slots : Array(Int32?)) : Bool
-      return false unless @nfa.has_empty && @nfa.is_utf8
+      return false unless @config.get_utf8_empty && @nfa.has_empty && @nfa.is_utf8
 
       slot_index = hm.pattern.to_i * 2
       start = slots[slot_index]?
@@ -611,7 +622,7 @@ module Regex::Automata::NFA
     end
 
     private def should_skip_empty_utf8_thread?(input : Regex::Automata::Input, at : Int32, slots : Array(Int32?), pid : Regex::Automata::PatternID) : Bool
-      return false unless @nfa.has_empty && @nfa.is_utf8
+      return false unless @config.get_utf8_empty && @nfa.has_empty && @nfa.is_utf8
 
       slot_index = pid.to_i * 2
       start = slots[slot_index]?
