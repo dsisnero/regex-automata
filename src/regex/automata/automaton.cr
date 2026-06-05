@@ -193,7 +193,7 @@ module Regex::Automata
 
       while at < input.end
         next_state = next_state(current_state, input.haystack[at])
-        return MatchError.quit(input.haystack[at], at) if is_quit_state?(next_state)
+        return last_match || MatchError.quit(input.haystack[at], at) if is_quit_state?(next_state)
         break if is_dead_state?(next_state)
 
         current_state = next_state
@@ -210,7 +210,9 @@ module Regex::Automata
                         else
                           next_eoi_state(current_state)
                         end
-        return MatchError.quit(input.haystack[input.end], input.end) if input.end < input.haystack.size && is_quit_state?(current_state)
+        if input.end < input.haystack.size && is_quit_state?(current_state)
+          return last_match || MatchError.quit(input.haystack[input.end], input.end)
+        end
         if is_match_state?(current_state)
           offset = input.end < input.haystack.size ? input.end : input.haystack.size
           last_match = HalfMatch.new(match_pattern(current_state, 0), offset)
@@ -254,7 +256,7 @@ module Regex::Automata
       at = input.end - 1
       loop do
         next_state = next_state(current_state, input.haystack[at])
-        return MatchError.quit(input.haystack[at], at) if is_quit_state?(next_state)
+        return last_match || MatchError.quit(input.haystack[at], at) if is_quit_state?(next_state)
         break if is_dead_state?(next_state)
 
         current_state = next_state

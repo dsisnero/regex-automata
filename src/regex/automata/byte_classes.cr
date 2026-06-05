@@ -107,7 +107,8 @@ module Regex::Automata
       next_class = 0
 
       256.times do |byte|
-        signature = dfa.states.map { |state| state.next[byte].to_i }
+        old_class = dfa.byte_classifier[byte]
+        signature = dfa.states.map { |state| state.next[old_class].to_i }
         class_id = signatures[signature]?
         if class_id.nil?
           class_id = next_class.to_u8

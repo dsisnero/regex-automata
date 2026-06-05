@@ -768,6 +768,20 @@ module Regex::Automata::NFA
 
     # Build the final NFA
     def build(group_info : Regex::Automata::GroupInfo = Regex::Automata::GroupInfo.empty) : NFA
+      if @states.empty?
+        fail_id = StateID.new(0)
+        return NFA.new(
+          [Fail.new] of State,
+          fail_id,
+          fail_id,
+          [] of StateID,
+          @utf8,
+          @reverse,
+          group_info,
+          @look_matcher
+        )
+      end
+
       remap = Array.new(@states.size) { StateID.new(0) }
       final_states = [] of State
 

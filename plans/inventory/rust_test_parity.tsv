@@ -1,5 +1,5 @@
 # source_test_id	status	crystal_refs	notes
-src/dfa/automaton.rs::test::object_safe	missing	-	baseline
+src/dfa/automaton.rs::test::object_safe	ported	spec/automaton_spec.cr	ported abstract-automaton search parity through the base `Automaton` API
 src/dfa/dense.rs::test::errors_with_unicode_word_boundary	ported	spec/dfa_dense_spec.cr	preserved ASCII-vs-Unicode word-boundary distinction and reject Unicode boundaries unless heuristic DFA support is enabled
 src/dfa/dense.rs::test::heuristic_unicode_reverse	ported	spec/dfa_dense_spec.cr	heuristic Unicode reverse searches now auto-quit on non-ASCII bytes while preserving reverse boundary semantics on ASCII spans
 src/dfa/dense.rs::test::regression_validation_order	ported	spec/dfa_dense_spec.cr	validates malformed serialized start-state IDs before universal-start inspection	manual
@@ -52,8 +52,8 @@ src/util/alphabet.rs::test::elements_typical	ported	spec/byte_classes_spec.cr	po
 src/util/alphabet.rs::test::full_byte_classes	ported	spec/byte_classes_spec.cr	ported upstream full byte-class parity
 src/util/alphabet.rs::test::representatives	ported	spec/byte_classes_spec.cr	ported upstream representative-byte parity
 src/util/interpolate.rs::test::interpolate_string	ported	spec/interpolate_spec.cr	ported upstream interpolation matrix across string and byte replacements
-src/util/lazy.rs::test::oibits	missing	-	baseline
-src/util/lazy.rs::test::sync_not_send	missing	-	baseline
+src/util/lazy.rs::test::oibits	partial	spec/lazy_spec.cr	Rust auto-trait assertions have no direct Crystal equivalent; lazy getter and one-time initialization behavior are covered directly
+src/util/lazy.rs::test::sync_not_send	partial	spec/lazy_spec.cr	Rust compile-fail `Send`/`Sync` boundary checks have no direct Crystal equivalent; lazy getter and one-time initialization behavior are covered directly
 src/util/look.rs::test::look_matches_end_line	ported	spec/look_spec.cr	ported upstream end-line look matcher parity
 src/util/look.rs::test::look_matches_end_text	ported	spec/look_spec.cr	ported upstream end-text look matcher parity
 src/util/look.rs::test::look_matches_start_line	ported	spec/look_spec.cr	ported upstream start-line look matcher parity
@@ -73,28 +73,28 @@ src/util/look.rs::test::look_matches_word_unicode_negate	ported	spec/look_spec.c
 src/util/look.rs::test::look_set	ported	spec/look_spec.cr	ported upstream look-set parity
 src/util/look.rs::test::look_set_debug	ported	spec/look_spec.cr	ported upstream look-set debug parity
 src/util/look.rs::test::look_set_iter	ported	spec/look_spec.cr	ported upstream look-set iterator parity
-src/util/pool.rs::test::oibits	missing	-	baseline
-src/util/pool.rs::test::thread_owner_distinct	missing	-	baseline
-src/util/pool.rs::test::thread_owner_optimization	missing	-	baseline
-src/util/pool.rs::test::thread_owner_send_drop	missing	-	baseline
-src/util/pool.rs::test::thread_owner_sync	missing	-	baseline
-src/util/search.rs::test::incorrect_asref_guard	missing	-	baseline
-src/util/search.rs::test::match_error_kind_size	missing	-	baseline
-src/util/search.rs::test::match_error_size	missing	-	baseline
-src/util/start.rs::test::start_fwd	missing	-	baseline
-src/util/start.rs::test::start_fwd_done_range	missing	-	baseline
-src/util/start.rs::test::start_rev	missing	-	baseline
-src/util/start.rs::test::start_rev_done_range	missing	-	baseline
+src/util/pool.rs::test::oibits	partial	spec/pool_spec.cr	Rust auto-trait assertions have no direct Crystal equivalent; mutex-backed pool and guard behavior are covered directly
+src/util/pool.rs::test::thread_owner_distinct	ported	spec/pool_spec.cr	ported distinct-outstanding-guard parity so simultaneous gets mutate independent values
+src/util/pool.rs::test::thread_owner_optimization	partial	spec/pool_spec.cr	Rust's std-only owner-thread optimization is an implementation detail and is not present in the Crystal mutex-backed pool
+src/util/pool.rs::test::thread_owner_send_drop	partial	spec/pool_spec.cr	Rust cross-thread guard-drop behavior depends on owner-thread optimization and `Drop`, which have no direct Crystal equivalent
+src/util/pool.rs::test::thread_owner_sync	partial	spec/pool_spec.cr	distinct outstanding guard mutation is covered directly, but Rust's cross-thread guard sharing semantics have no direct Crystal equivalent
+src/util/search.rs::test::incorrect_asref_guard	partial	spec/search_input_spec.cr	Crystal `Input` accepts `String` or `Bytes` directly and does not expose Rust's generic `AsRef<[u8]>` misimplementation surface
+src/util/search.rs::test::match_error_kind_size	partial	spec/match_error_spec.cr	Rust memory-layout assertions have no stable Crystal equivalent; MatchError constructors and accessors are covered directly
+src/util/search.rs::test::match_error_size	partial	spec/match_error_spec.cr	Rust memory-layout assertions have no stable Crystal equivalent; MatchError constructors and accessors are covered directly
+src/util/start.rs::test::start_fwd	ported	spec/start_config_spec.cr	ported forward start-classification parity from input context
+src/util/start.rs::test::start_fwd_done_range	ported	spec/start_config_spec.cr	ported forward done-range start classification parity
+src/util/start.rs::test::start_rev	ported	spec/start_config_spec.cr	ported reverse start-classification parity from input context
+src/util/start.rs::test::start_rev_done_range	ported	spec/start_config_spec.cr	ported reverse done-range start classification parity
 src/util/wire.rs::test::bad_label_almost_too_long	ported	spec/wire_spec.cr	ported upstream max valid label case
 src/util/wire.rs::test::bad_label_interior_nul	ported	spec/wire_spec.cr	ported upstream interior-NUL label rejection
 src/util/wire.rs::test::bad_label_too_long	ported	spec/wire_spec.cr	ported upstream oversized label rejection
 src/util/wire.rs::test::labels	ported	spec/wire_spec.cr	ported upstream label round-trip and padding case
 src/util/wire.rs::test::padding	ported	spec/wire_spec.cr	ported upstream padding length table
-tests/dfa/api.rs::test::quit_fwd	missing	-	baseline
-tests/dfa/api.rs::test::quit_panics	missing	-	baseline
-tests/dfa/api.rs::test::quit_rev	missing	-	baseline
-tests/dfa/api.rs::test::unicode_word_implicitly_works	missing	-	baseline
-tests/dfa/api.rs::test::universal_start_search	missing	-	baseline
+tests/dfa/api.rs::test::quit_fwd	ported	spec/dfa_api_regression_spec.cr	ported forward quit-byte parity for standard and overlapping DFA searches
+tests/dfa/api.rs::test::quit_panics	ported	spec/dfa_api_regression_spec.cr	ported builder panic parity for conflicting non-ASCII quit-byte configuration with Unicode word boundaries
+tests/dfa/api.rs::test::quit_rev	ported	spec/dfa_api_regression_spec.cr	ported reverse quit-byte parity
+tests/dfa/api.rs::test::unicode_word_implicitly_works	ported	spec/dfa_api_regression_spec.cr	ported implicit Unicode word-boundary enablement parity when all non-ASCII bytes are quit bytes
+tests/dfa/api.rs::test::universal_start_search	ported	spec/dfa_api_regression_spec.cr	ported manual universal-start traversal parity through the abstract DFA API
 tests/dfa/onepass/regression.rs::test::too_many_slots_normal_pattern	missing	-	baseline
 tests/dfa/onepass/regression.rs::test::zero_repetition_capture_group	missing	-	baseline
 tests/dfa/onepass/suite.rs::test::default	missing	-	baseline

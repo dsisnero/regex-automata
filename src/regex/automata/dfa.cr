@@ -127,6 +127,8 @@ module Regex::Automata::DFA
         @start_anchored = @tt.not_nil!.to_state_id(@start_anchored.to_i)
       end
 
+      @states = self.class.normalize_states_for_transition_table(@states, @tt.not_nil!)
+
       @st = start_table || StartTable.new(
         @flags.is_anchored ? StartKind::Anchored : StartKind::Both,
         @start_unanchored,
@@ -142,6 +144,25 @@ module Regex::Automata::DFA
       end
       @ms = MatchStates.from_states(@states, @tt)
       @special = build_special
+    end
+
+    def self.normalize_states_for_transition_table(states : Array(State), tt : TransitionTable) : Array(State)
+      return states if states.each_with_index.all? { |state, index| state.id == tt.to_state_id(index) }
+
+      states.map_with_index do |state, index|
+        normalized = State.new(
+          tt.to_state_id(index),
+          state.next.size,
+          state.look_need,
+          state.look_have,
+          state.is_from_word?,
+          state.is_half_crlf?
+        )
+        normalized.next = state.next.map { |next_id| tt.to_state_id(next_id.to_i) }
+        normalized.match = state.match.dup
+        normalized.eoi_next = tt.to_state_id(state.eoi_next.to_i)
+        normalized
+      end
     end
 
     # Create a new DFA from a pattern string using default configuration
@@ -847,16 +868,21 @@ module Regex::Automata::DFA
       @states.each_with_index do |state, i|
         state.next.each do |next_id|
           if !is_terminal_state?(next_id)
-            reverse[next_id.to_i].add(StateID.new(i))
+            next_index = if tt = @tt
+                           tt.to_index(next_id)
+                         else
+                           next_id.to_i
+                         end
+            reverse[next_index].add(state.id)
           end
         end
       end
 
       # Start from accepting states
       stack.clear
-      @states.each_with_index do |state, i|
+      @states.each do |state|
         if state.accepting?
-          state_id = StateID.new(i)
+          state_id = state.id
           backward.add(state_id)
           stack.push(state_id)
         end
@@ -865,7 +891,12 @@ module Regex::Automata::DFA
       # BFS from accepting states
       while !stack.empty?
         state_id = stack.pop
-        reverse[state_id.to_i].each do |prev_id|
+        state_idx = if tt = @tt
+                      tt.to_index(state_id)
+                    else
+                      state_id.to_i
+                    end
+        reverse[state_idx].each do |prev_id|
           unless backward.includes?(prev_id)
             backward.add(prev_id)
             stack.push(prev_id)
@@ -910,13 +941,69 @@ module Regex::Automata::DFA
       new_start_unanchored = old_to_new[@start_unanchored]? || StateID.new(0)
       new_start_anchored = old_to_new[@start_anchored]? || new_start_unanchored
 
-      DFA.new(new_states, new_start_unanchored, @byte_classifier, new_start_anchored)
+      DFA.new(new_states, nil, new_start_unanchored, @byte_classifier, new_start_anchored)
     end
 
     # Reduce byte classes using equivalence analysis
     def reduce_byte_classes : DFA
       byte_classes = ByteClasses.from_dfa(self)
-      byte_classes.apply_to_dfa(self)
+      class_count = byte_classes.alphabet_len - 1
+      new_states = @states.each_with_index.map do |state, index|
+        reduced = State.new(
+          StateID.new(index),
+          class_count,
+          state.look_need,
+          state.look_have,
+          state.is_from_word?,
+          state.is_half_crlf?
+        )
+        reduced.match = state.match.dup
+        reduced.eoi_next = if tt = @tt
+                             StateID.new(tt.to_index(state.eoi_next))
+                           else
+                             state.eoi_next
+                           end
+
+        class_count.times do |klass|
+          representative = byte_classes.representative(klass)
+          old_class = @byte_classifier[representative]
+          reduced.next[klass] = if tt = @tt
+                                  StateID.new(tt.to_index(state.next[old_class]))
+                                else
+                                  state.next[old_class]
+                                end
+        end
+        reduced
+      end.to_a
+
+      start_unanchored = if tt = @tt
+                           StateID.new(tt.to_index(@start_unanchored))
+                         else
+                           @start_unanchored
+                         end
+      start_anchored = if tt = @tt
+                         StateID.new(tt.to_index(@start_anchored))
+                       else
+                         @start_anchored
+                       end
+      start_table = if tt = @tt
+                      @st.remap { |id| StateID.new(tt.to_index(id)) }
+                    else
+                      @st
+                    end
+
+      DFA.new(
+        new_states,
+        nil,
+        start_unanchored,
+        byte_classes,
+        start_anchored,
+        nil,
+        @prefilter,
+        @quitset,
+        @flags,
+        start_table
+      )
     end
 
     # Find the longest match in the input string
@@ -925,10 +1012,21 @@ module Regex::Automata::DFA
       find_longest_match(input.to_slice)
     end
 
+    def find_longest_match_at_start(input : String) : Tuple(Int32, Array(PatternID))?
+      find_longest_match_at_start(input.to_slice)
+    end
+
     # Find the longest match in a byte slice
     def find_longest_match(slice : Bytes) : Tuple(Int32, Array(PatternID))?
+      find_longest_match(slice, search_start_state)
+    end
+
+    def find_longest_match_at_start(slice : Bytes) : Tuple(Int32, Array(PatternID))?
+      find_longest_match(slice, @st.anchored)
+    end
+
+    private def find_longest_match(slice : Bytes, start_state_id : StateID) : Tuple(Int32, Array(PatternID))?
       last_match : Tuple(Int32, Array(PatternID))? = nil
-      start_state_id = search_start_state
       current_state_id = start_state_id
 
       idx = 0
@@ -973,7 +1071,7 @@ module Regex::Automata::DFA
         next_state_id = transition(slice[idx], current_state_id)
 
         if is_quit_state?(next_state_id)
-          return MatchError.quit(byte, idx)
+          return last_match || MatchError.quit(byte, idx)
         end
 
         break if is_dead_state?(next_state_id)
@@ -1015,7 +1113,7 @@ module Regex::Automata::DFA
         end
 
         if is_quit_state?(next_state_id)
-          return MatchError.quit(byte, idx)
+          return last_match || MatchError.quit(byte, idx)
         end
 
         break if is_dead_state?(next_state_id)
@@ -1402,11 +1500,13 @@ module Regex::Automata::DFA
 
     private def build_special : Special
       special = Special.new
-      special.set_quit_id(if tt = @tt
-        tt.to_state_id(QUIT_STATE_ID.to_i)
-      else
-        QUIT_STATE_ID
-      end)
+      unless @quitset.empty?
+        special.set_quit_id(if tt = @tt
+          tt.to_state_id(QUIT_STATE_ID.to_i)
+        else
+          QUIT_STATE_ID
+        end)
+      end
 
       @states.each_with_index do |state, index|
         state_id = if tt = @tt
@@ -1449,6 +1549,7 @@ module Regex::Automata::DFA
     @syntax_config : ::Regex::Syntax::ParserBuilder?
     @start_unanchored : StateID?
     @start_anchored : StateID?
+    @track_delayed_matches : Bool
 
     # Create a new builder with default configuration
     def self.new : Builder
@@ -1462,13 +1563,13 @@ module Regex::Automata::DFA
 
     # Configure the builder with a new configuration
     def configure(config : Config) : Builder
-      Builder.new(config, nfa: @nfa, hir_compiler: @hir_compiler, syntax_config: @syntax_config)
+      Builder.new(config, nfa: @nfa, hir_compiler: @hir_compiler, syntax_config: @syntax_config, track_delayed_matches: @track_delayed_matches)
     end
 
     # Configure the builder using a block
     def configure(&block : Config -> Config) : Builder
       config = block.call(@config.dup)
-      Builder.new(config, nfa: @nfa, hir_compiler: @hir_compiler, syntax_config: @syntax_config)
+      Builder.new(config, nfa: @nfa, hir_compiler: @hir_compiler, syntax_config: @syntax_config, track_delayed_matches: @track_delayed_matches)
     end
 
     # Configure the Thompson NFA compiler
@@ -1477,21 +1578,22 @@ module Regex::Automata::DFA
       hir_compiler_config = HirCompilerConfig.new.which_captures(NFA::WhichCaptures::None)
       hir_compiler_config = block.call(hir_compiler_config)
       hir_compiler = HirCompiler.new(hir_compiler_config)
-      Builder.new(config, nfa: @nfa, hir_compiler: hir_compiler, syntax_config: @syntax_config)
+      Builder.new(config, nfa: @nfa, hir_compiler: hir_compiler, syntax_config: @syntax_config, track_delayed_matches: @track_delayed_matches)
     end
 
     # Configure the syntax parser used before HIR compilation.
     def syntax(&block : ::Regex::Syntax::ParserBuilder -> ::Regex::Syntax::ParserBuilder) : Builder
       syntax_config = block.call((@syntax_config || ::Regex::Syntax::ParserBuilder.new))
-      Builder.new(@config, nfa: @nfa, hir_compiler: @hir_compiler, syntax_config: syntax_config)
+      Builder.new(@config, nfa: @nfa, hir_compiler: @hir_compiler, syntax_config: syntax_config, track_delayed_matches: @track_delayed_matches)
     end
 
-    def initialize(config : Config = Config.new, nfa : NFA::NFA? = nil, hir_compiler : HirCompiler? = nil, byte_classes : ByteClasses | Int32 = 256, syntax_config : ::Regex::Syntax::ParserBuilder? = nil)
+    def initialize(config : Config = Config.new, nfa : NFA::NFA? = nil, hir_compiler : HirCompiler? = nil, byte_classes : ByteClasses | Int32 = 256, syntax_config : ::Regex::Syntax::ParserBuilder? = nil, track_delayed_matches : Bool = true)
       @config = config
       @quitset = config.quitset
       @nfa = nfa
       @hir_compiler = hir_compiler || HirCompiler.new(HirCompilerConfig.new.which_captures(NFA::WhichCaptures::None))
       @syntax_config = syntax_config
+      @track_delayed_matches = track_delayed_matches
 
       # Precompute whether NFA contains word boundary or CRLF assertions.
       @nfa_has_word = false
@@ -1852,7 +1954,7 @@ module Regex::Automata::DFA
             end
             @transition_table.set_transition_by_class(@transition_table.to_state_id(dfa_id.to_i), byte_class, @transition_table.to_state_id(QUIT_STATE_ID.to_i))
           else
-            delayed_matches = collect_matches(effective_nfa_set)
+            delayed_matches = @track_delayed_matches ? collect_matches(effective_nfa_set) : [] of PatternID
             if !next_set_closure.empty? || !delayed_matches.empty?
               key = {next_set_closure, next_look_have, next_is_from_word, next_is_half_crlf, delayed_matches}
               next_id = @state_map[key]?
@@ -1948,7 +2050,6 @@ module Regex::Automata::DFA
       @dfa_state_count = @dfa_state_metas.size
       @dfa_states = materialize_states_from_metadata(@dfa_state_metas, @transition_table)
       patch_contextual_start_transitions(@transition_table, unanchored_start_states)
-      patch_contextual_start_transitions(@transition_table, anchored_start_states)
       @dfa_states = materialize_states_from_metadata(@dfa_state_metas, @transition_table)
 
       # Create DFA flags from config
@@ -2096,7 +2197,15 @@ module Regex::Automata::DFA
 
       # First compute epsilon closure with the given satisfied look conditions
       closure = nfa.epsilon_closure_with_look(nfa_set, look_have)
-      state_matches = matches || collect_matches(closure)
+      state_matches = collect_matches(closure)
+      if matches
+        matches.each do |pattern_id|
+          idx = state_matches.bsearch_index { |pid| pid >= pattern_id } || state_matches.size
+          if idx == state_matches.size || state_matches[idx] != pattern_id
+            state_matches.insert(idx, pattern_id)
+          end
+        end
+      end
 
       # Check if we already have a DFA state for this (closure, look_have, delayed matches)
       key = {closure, look_have, is_from_word, is_half_crlf, state_matches}

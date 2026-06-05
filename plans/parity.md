@@ -205,6 +205,12 @@ For every unchecked top-level item:
 
 ## Completed
 
+- [x] Residual utility and DFA API regression parity cleanup
+  - Inventory ids: `src/dfa/automaton.rs::test::object_safe`, `src/util/lazy.rs::test::*`, `src/util/pool.rs::test::*`, `src/util/search.rs::test::incorrect_asref_guard`, `src/util/search.rs::test::match_error_kind_size`, `src/util/search.rs::test::match_error_size`, `src/util/start.rs::test::*`, `tests/dfa/api.rs::*`
+  - Specs: `spec/automaton_spec.cr`, `spec/dfa_api_regression_spec.cr`, `spec/lazy_spec.cr`, `spec/match_error_spec.cr`, `spec/pool_spec.cr`, `spec/search_input_spec.cr`, `spec/start_config_spec.cr`
+  - Crystal: `src/regex/automata/automaton.cr`, `src/regex/automata/lazy.cr`, `src/regex/automata/pool.cr`, `src/regex/automata/search.cr`, `src/regex/automata/start_config.cr`, `src/regex/automata/dfa.cr`
+  - Notes: closed the remaining utility/API regression rows by adding direct abstract-automaton search coverage, mapping the existing DFA quit-byte and universal-start specs into the ledger, and recording the Rust-only auto-trait, compile-fail, `AsRef<[u8]>`, owner-thread optimization, and memory-layout checks as intentional `partial` parity where Crystal has no exact equivalent surface
+
 - [x] Thompson always-match and never-match ranged-search parity
   - Inventory ids: `src/nfa/thompson/nfa.rs::test::always_match`, `src/nfa/thompson/nfa.rs::test::never_match`
   - Specs: `spec/nfa_thompson_spec.cr`
