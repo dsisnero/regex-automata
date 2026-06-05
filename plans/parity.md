@@ -134,6 +134,15 @@ For every unchecked top-level item:
   - Progress: `src/regex/automata/meta.cr` and `src/regex/automata/meta_error.cr` now expose the vendor-shaped meta builder/config/cache/search API over the existing Thompson NFA and PikeVM machinery, including syntax-error pattern reporting, configurable line terminators, UTF-8 empty-match control, overlapping pattern discovery, capture iteration, and split helpers proven by `spec/meta_regex_spec.cr`
   - Done when: meta engine build/search/strategy parity is demonstrated
 
+- [x] Hybrid and Meta vendor self-test cleanup
+  - Upstream scope: `src/hybrid/dfa.rs::test::heuristic_unicode_reverse`, `tests/hybrid/api.rs::test::quit_fwd`, `src/meta/regex.rs::test::regression_suffix_literal_count`
+  - Inventory ids: `src/hybrid/dfa.rs::test::heuristic_unicode_reverse`, `tests/hybrid/api.rs::test::quit_fwd`, `src/meta/regex.rs::test::regression_suffix_literal_count`
+  - Workflow: tighten the direct Crystal specs where broad feature coverage existed but the exact upstream regression/self-test cases were not asserted explicitly
+  - Red: add the exact overlapping-quit and suffix-literal regression expectations from vendor
+  - Green: `spec/hybrid_spec.cr`, `spec/meta_regex_spec.cr`
+  - Progress: the hybrid quit-byte spec now asserts the upstream overlapping forward quit path directly, and the meta suite now carries the vendor's `tingling` suffix-literal-count regression explicitly instead of relying on broader iterator coverage
+  - Done when: the explicit vendor self-test cases pass under the focused Crystal specs and the full suite
+
 - [x] Utilities — Search result primitives
   - Upstream scope: `src/util/search.rs::struct::Span`, `src/util/search.rs::struct::Match`, `src/util/search.rs::struct::HalfMatch`, `src/util/search.rs::enum::Anchored`, `src/util/search.rs::enum::MatchKind`
   - Inventory ids: `src/util/search.rs::struct::Span`, `src/util/search.rs::struct::Match`, `src/util/search.rs::struct::HalfMatch`, `src/util/search.rs::enum::Anchored`, `src/util/search.rs::enum::MatchKind`, `src/util/search.rs::func::must`, `src/util/search.rs::func::offset`, `src/util/search.rs::func::pattern`, `src/util/search.rs::func::len`, `src/util/search.rs::func::is_empty`, `src/util/search.rs::method::Anchored.is_anchored`, `src/util/search.rs::method::Span.range`

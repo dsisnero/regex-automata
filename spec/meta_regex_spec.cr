@@ -134,4 +134,10 @@ describe Regex::Automata::Meta::Regex do
       Regex::Automata::Span.new(5, 6),
     ])
   end
+
+  it "counts one match for suffix literal regressions" do
+    re = Regex::Automata::Meta::Regex.new("[a-zA-Z]+ing")
+
+    re.find_iter("tingling").to_a.size.should eq(1)
+  end
 end
