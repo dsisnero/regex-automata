@@ -256,7 +256,7 @@ module Regex::Automata
       at = input.end - 1
       loop do
         next_state = next_state(current_state, input.haystack[at])
-        return last_match || MatchError.quit(input.haystack[at], at) if is_quit_state?(next_state)
+        return MatchError.quit(input.haystack[at], at) if is_quit_state?(next_state)
         break if is_dead_state?(next_state)
 
         current_state = next_state
