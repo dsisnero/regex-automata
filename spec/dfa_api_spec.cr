@@ -183,7 +183,7 @@ describe "DFA API" do
     it "builds the dense transition table directly during determinization" do
       dfa = Regex::Automata::DFA::Builder.new
         .configure { |config| config.starts_for_each_pattern(true) }
-        .build_many(["abc", "\\bdef", "ghi$"])
+        .build_many(["abc", "(?-u:\\b)def", "ghi$"])
 
       rebuilt = Regex::Automata::DFA::DFA.build_transition_table(dfa.states, dfa.byte_classifier)
 
@@ -209,10 +209,27 @@ describe "DFA API" do
     end
 
     it "uses delayed EOI matches for word boundaries" do
-      dfa = Regex::Automata::DFA::Builder.new.build("a\\b")
+      dfa = Regex::Automata::DFA::Builder.new.build("a(?-u:\\b)")
 
       result = dfa.try_search_fwd("a".to_slice)
       result.should eq({1, [Regex::Automata::PatternID.new(0)]})
+    end
+
+    it "reports empty alternatives at the current search start" do
+      dfa = Regex::Automata::DFA::Builder.new.build("a|")
+
+      dfa.try_search_fwd(Regex::Automata::Input.new("abba").span(1...4)).should eq(
+        Regex::Automata::HalfMatch.must(0, 1)
+      )
+      dfa.try_search_fwd(Regex::Automata::Input.new("abba").span(2...4)).should eq(
+        Regex::Automata::HalfMatch.must(0, 2)
+      )
+      dfa.try_search_fwd(Regex::Automata::Input.new("abba").span(3...4)).should eq(
+        Regex::Automata::HalfMatch.must(0, 4)
+      )
+      dfa.try_search_fwd(Regex::Automata::Input.new("abba").span(4...4)).should eq(
+        Regex::Automata::HalfMatch.must(0, 4)
+      )
     end
 
     it "reports anchored configuration via flags" do
@@ -302,7 +319,7 @@ describe "DFA API" do
     it "chooses different anchored start states based on look-behind" do
       dfa = Regex::Automata::DFA::Builder.new
         .configure { |config| config.start_kind(Regex::Automata::StartKind::Anchored) }
-        .build("\\babc")
+        .build("(?-u:\\b)abc")
 
       text_start = dfa.start_state(Regex::Automata::StartConfig.new(nil, Regex::Automata::Anchored::Yes)).as(Regex::Automata::StateID)
       word_start = dfa.start_state(Regex::Automata::StartConfig.new('q'.ord.to_u8, Regex::Automata::Anchored::Yes)).as(Regex::Automata::StateID)
@@ -390,6 +407,98 @@ describe "DFA API" do
         {1, [Regex::Automata::PatternID.new(0), Regex::Automata::PatternID.new(1)]},
       ])
     end
+
+    it "supports vendor-style stateful overlapping forward search" do
+      dfa = Regex::Automata::DFA::Builder.new
+        .configure { |config| config.match_kind(Regex::Automata::MatchKind::All) }
+        .build_many(["a", "a"])
+      input = Regex::Automata::Input.new("a")
+      state = Regex::Automata::OverlappingState.start
+
+      dfa.try_search_overlapping_fwd(input, state).should be_nil
+      state.get_match.should eq(Regex::Automata::HalfMatch.must(0, 1))
+
+      dfa.try_search_overlapping_fwd(input, state).should be_nil
+      state.get_match.should eq(Regex::Automata::HalfMatch.must(1, 1))
+    end
+
+    it "supports stateful overlapping reverse search" do
+      dfa = Regex::Automata::DFA::Builder.new
+        .configure { |config| config.match_kind(Regex::Automata::MatchKind::All) }
+        .thompson { |config| config.reverse(true) }
+        .build("ab?")
+      input = Regex::Automata::Input.new("ab")
+      state = Regex::Automata::OverlappingState.start
+      matches = [] of Regex::Automata::HalfMatch
+
+      loop do
+        dfa.try_search_overlapping_rev(input, state).should be_nil
+        half_match = state.get_match
+        break unless half_match
+        matches << half_match
+      end
+
+      matches.should eq([
+        Regex::Automata::HalfMatch.must(0, 0),
+      ])
+    end
+
+    it "reports reverse overlapping empty matches at search boundaries" do
+      dfa = Regex::Automata::DFA::Builder.new
+        .configure { |config| config.match_kind(Regex::Automata::MatchKind::All) }
+        .thompson { |config| config.reverse(true) }
+        .build("a|")
+      input = Regex::Automata::Input.new("a")
+      state = Regex::Automata::OverlappingState.start
+      matches = [] of Regex::Automata::HalfMatch
+
+      loop do
+        dfa.try_search_overlapping_rev(input, state).should be_nil
+        half_match = state.get_match
+        break unless half_match
+        matches << half_match
+      end
+
+      matches.should eq([
+        Regex::Automata::HalfMatch.must(0, 1),
+        Regex::Automata::HalfMatch.must(0, 0),
+      ])
+    end
+
+    it "returns the unique set of overlapping patterns" do
+      dfa = Regex::Automata::DFA::Builder.new
+        .configure { |config| config.match_kind(Regex::Automata::MatchKind::All) }
+        .build_many([
+          "[[:word:]]+",
+          "[0-9]+",
+          "[[:alpha:]]+",
+          "foo",
+          "bar",
+          "barfoo",
+          "foobar",
+        ])
+
+      dfa.try_which_overlapping_matches("foobar".to_slice).should eq([
+        Regex::Automata::PatternID.new(0),
+        Regex::Automata::PatternID.new(2),
+        Regex::Automata::PatternID.new(3),
+        Regex::Automata::PatternID.new(4),
+        Regex::Automata::PatternID.new(6),
+      ])
+    end
+
+    it "merges overlapping matches found from later anchored starts" do
+      dfa = Regex::Automata::DFA::Builder.new
+        .configure { |config| config.match_kind(Regex::Automata::MatchKind::All) }
+        .build_many(["[a-z]+$", "\\S+$"])
+
+      dfa.try_search_overlapping_fwd("@foo".to_slice).should eq([
+        {4, [
+          Regex::Automata::PatternID.new(0),
+          Regex::Automata::PatternID.new(1),
+        ]},
+      ])
+    end
   end
 
   describe "serialization" do
@@ -460,7 +569,7 @@ describe "DFA API" do
     it "preserves contextual start states across serialization" do
       dfa = Regex::Automata::DFA::Builder.new
         .configure { |config| config.start_kind(Regex::Automata::StartKind::Anchored) }
-        .build("\\babc")
+        .build("(?-u:\\b)abc")
 
       serialized = dfa.to_bytes_little_endian
       bytes = serialized[0]

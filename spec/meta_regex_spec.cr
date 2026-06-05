@@ -1,0 +1,137 @@
+require "./spec_helper"
+
+describe Regex::Automata::Meta::Regex do
+  it "default" do
+    re = Regex::Automata::Meta::Regex.builder.build_many(["foo[0-9]+", "bar"] of String)
+
+    re.is_match("zzzfoo123zzz").should be_true
+    re.find("zzzfoo123zzz").should eq(Regex::Automata::Match.must(0, 3...9))
+
+    caps = re.create_captures
+    re.captures("bar", caps)
+    caps.get_match.should eq(Regex::Automata::Match.must(1, 0...3))
+  end
+
+  it "no_dfa" do
+    re = Regex::Automata::Meta::Regex.builder
+      .configure(Regex::Automata::Meta::Regex.config.dfa(false))
+      .build("foo|bar")
+
+    re.find("zzbarzz").should eq(Regex::Automata::Match.must(0, 2...5))
+  end
+
+  it "no_dfa_hybrid" do
+    re = Regex::Automata::Meta::Regex.builder
+      .configure(
+        Regex::Automata::Meta::Regex.config
+          .dfa(false)
+          .hybrid(false)
+      )
+      .build("[a-z]+")
+
+    re.find("123abc456").should eq(Regex::Automata::Match.must(0, 3...6))
+  end
+
+  it "no_dfa_hybrid_onepass" do
+    re = Regex::Automata::Meta::Regex.builder
+      .configure(
+        Regex::Automata::Meta::Regex.config
+          .dfa(false)
+          .hybrid(false)
+          .onepass(false)
+      )
+      .build("sam|samwise")
+
+    re.find("samwise").should eq(Regex::Automata::Match.must(0, 0...3))
+  end
+
+  it "no_dfa_hybrid_onepass_backtrack" do
+    re = Regex::Automata::Meta::Regex.builder
+      .configure(
+        Regex::Automata::Meta::Regex.config
+          .dfa(false)
+          .hybrid(false)
+          .onepass(false)
+          .backtrack(false)
+      )
+      .build("foo\\d+")
+
+    re.is_match("foo123").should be_true
+    re.find("foo123").should eq(Regex::Automata::Match.must(0, 0...6))
+  end
+
+  it "reports the pattern that caused a syntax error" do
+    expect_raises(Regex::Automata::Meta::BuildError) do
+      Regex::Automata::Meta::Regex.builder.build_many(["a", "\\p{Foo}", "c"] of String)
+    end.tap do |error|
+      error.pattern.should eq(Regex::Automata::PatternID.new(1))
+      error.syntax_error.should_not be_nil
+      error.message.should eq("error parsing pattern 1")
+    end
+  end
+
+  it "supports explicit cache-backed searching" do
+    re = Regex::Automata::Meta::Regex.new("foo(?P<num>[0-9]+)")
+    cache = re.create_cache
+    input = Regex::Automata::Input.new("xxfoo123yy")
+
+    re.search_with(cache, input).should eq(Regex::Automata::Match.must(0, 2...8))
+    re.search_half_with(cache, input).should eq(Regex::Automata::HalfMatch.must(0, 8))
+
+    caps = re.create_captures
+    re.search_captures_with(cache, input, caps)
+    caps.get_match.should eq(Regex::Automata::Match.must(0, 2...8))
+    caps.get_group_by_name("num").should eq(Regex::Automata::Span.new(5, 8))
+  end
+
+  it "supports overlapping pattern discovery under MatchKind::All" do
+    re = Regex::Automata::Meta::Regex.builder
+      .configure(Regex::Automata::Meta::Regex.config.match_kind(Regex::Automata::MatchKind::All))
+      .build_many(["\\w+", "\\d+", "foo", "bar", "foobar"] of String)
+
+    patset = Regex::Automata::PatternSet.new(re.pattern_len)
+    re.which_overlapping_matches(Regex::Automata::Input.new("foobar"), patset)
+
+    patset.iter.to_a.should eq([
+      Regex::Automata::PatternID.new(0),
+      Regex::Automata::PatternID.new(2),
+      Regex::Automata::PatternID.new(3),
+      Regex::Automata::PatternID.new(4),
+    ])
+  end
+
+  it "honors utf8_empty(false) for empty matches inside a codepoint" do
+    re = Regex::Automata::Meta::Regex.builder
+      .configure(Regex::Automata::Meta::Regex.config.utf8_empty(false))
+      .build("a*")
+
+    input = Regex::Automata::Input.new("☃").span(1...2)
+    re.is_match(input).should be_true
+    re.find(input).should eq(Regex::Automata::Match.must(0, 1...1))
+  end
+
+  it "uses the configured line terminator with syntax settings" do
+    re = Regex::Automata::Meta::Regex.builder
+      .configure(Regex::Automata::Meta::Regex.config.line_terminator(0_u8))
+      .syntax(Regex::Automata::Syntax::Config.new.multi_line(true))
+      .build("^foo$")
+
+    re.find("\x00foo\x00").should eq(Regex::Automata::Match.must(0, 1...4))
+  end
+
+  it "iterates captures and split spans" do
+    re = Regex::Automata::Meta::Regex.new("foo(?P<num>[0-9]+)")
+
+    re.captures_iter("foo1 foo12").map(&.get_group_by_name("num")).to_a.should eq([
+      Regex::Automata::Span.new(3, 4),
+      Regex::Automata::Span.new(8, 10),
+    ])
+
+    splitter = Regex::Automata::Meta::Regex.new("[ ]+")
+    splitter.split("a b  c").to_a.should eq([
+      Regex::Automata::Span.new(0, 1),
+      Regex::Automata::Span.new(2, 3),
+      Regex::Automata::Span.new(5, 6),
+    ])
+  end
+end

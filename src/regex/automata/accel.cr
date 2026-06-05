@@ -22,11 +22,10 @@ module Regex::Automata
     bs = needles
     case needles.size
     when 1
-      if idx = haystack[at..]?.index(bs[0])
-        at + idx
-      else
-        nil
-      end
+      tail = haystack[at..]?
+      return nil unless tail
+      idx = tail.index(bs[0])
+      idx ? at + idx : nil
     when 2
       # Simple linear search for 2 bytes
       (at...haystack.size).each do |i|
@@ -55,7 +54,9 @@ module Regex::Automata
     bs = needles
     case needles.size
     when 1
-      haystack[0...at]?.rindex(bs[0])
+      head = haystack[0...at]?
+      return nil unless head
+      head.rindex(bs[0])
     when 2
       # Simple linear reverse search for 2 bytes
       (0...at).reverse_each do |i|
@@ -160,8 +161,8 @@ module Regex::Automata
     def as_accel_tys : StaticArray(AccelTy, 2)
       raise "ACCEL_CAP must be 8" unless ACCEL_CAP == 8
 
-      first = Pointer(UInt32).new(@bytes.to_unsafe.as(UInt64)).value
-      second = Pointer(UInt32).new(@bytes.to_unsafe.as(UInt64) + 4).value
+      first = IO::ByteFormat::SystemEndian.decode(UInt32, Slice.new(@bytes.to_unsafe, 4))
+      second = IO::ByteFormat::SystemEndian.decode(UInt32, Slice.new(@bytes.to_unsafe + 4, 4))
       StaticArray[first, second]
     end
 
@@ -185,6 +186,27 @@ module Regex::Automata
       Accels.new(Slice(AccelTy).new(1, 0_u32))
     end
 
+    # Deserialize a sequence of accelerators from the given raw bytes.
+    #
+    # This trusts the encoded layout and only checks that enough bytes are
+    # present to materialize the declared number of accelerators.
+    def self.from_bytes_unchecked(slice : Slice(UInt8)) : Tuple(Accels, Int32)
+      raise "accelerators buffer too small" if slice.size < ACCEL_TY_SIZE
+
+      accel_len = IO::ByteFormat::SystemEndian.decode(UInt32, slice[0, ACCEL_TY_SIZE]).to_i
+      accel_tys_len = 1 + accel_len * 2
+      accel_bytes_len = accel_tys_len * ACCEL_TY_SIZE
+      raise "accelerators buffer too small" if slice.size < accel_bytes_len
+
+      accels = Slice(AccelTy).new(accel_tys_len, 0_u32)
+      offset = 0
+      accel_tys_len.times do |i|
+        accels[i] = IO::ByteFormat::SystemEndian.decode(UInt32, slice[offset, ACCEL_TY_SIZE])
+        offset += ACCEL_TY_SIZE
+      end
+      {Accels.new(accels), accel_bytes_len}
+    end
+
     def initialize(@accels : Slice(AccelTy))
     end
 
@@ -196,8 +218,8 @@ module Regex::Automata
       accel_tys = accel.as_accel_tys
       new_accels = Slice(AccelTy).new(@accels.size + 2, 0_u32)
       @accels.copy_to(new_accels.to_unsafe, @accels.size)
-      accel_tys[0] = new_accels[@accels.size]
-      accel_tys[1] = new_accels[@accels.size + 1]
+      new_accels[@accels.size] = accel_tys[0]
+      new_accels[@accels.size + 1] = accel_tys[1]
       @accels = new_accels
 
       # Update length
@@ -255,6 +277,11 @@ module Regex::Automata
     # Returns a borrowed version of the accelerators.
     def as_ref : Accels
       self
+    end
+
+    # Returns an owned copy of these accelerators.
+    def to_owned : Accels
+      Accels.new(@accels.dup)
     end
 
     # Writes these accelerators to the given byte buffer.

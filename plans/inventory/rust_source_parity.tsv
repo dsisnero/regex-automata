@@ -555,31 +555,31 @@ src/nfa/thompson/range_trie.rs::func::insert	missing	-	baseline
 src/nfa/thompson/range_trie.rs::func::new	missing	-	baseline
 src/nfa/thompson/range_trie.rs::method::RangeTrie.new	missing	-	baseline
 src/nfa/thompson/range_trie.rs::struct::RangeTrie	missing	-	baseline
-src/util/alphabet.rs::func::alphabet_len	missing	-	baseline
-src/util/alphabet.rs::func::as_eoi	missing	-	baseline
-src/util/alphabet.rs::func::as_u8	missing	-	baseline
-src/util/alphabet.rs::func::as_usize	missing	-	baseline
-src/util/alphabet.rs::func::elements	missing	-	baseline
-src/util/alphabet.rs::func::empty	missing	-	baseline
-src/util/alphabet.rs::func::eoi	missing	-	baseline
-src/util/alphabet.rs::func::get	missing	-	baseline
-src/util/alphabet.rs::func::get_by_unit	missing	-	baseline
-src/util/alphabet.rs::func::is_byte	missing	-	baseline
-src/util/alphabet.rs::func::is_eoi	missing	-	baseline
-src/util/alphabet.rs::func::is_singleton	missing	-	baseline
-src/util/alphabet.rs::func::is_word_byte	missing	-	baseline
-src/util/alphabet.rs::func::iter	missing	-	baseline
-src/util/alphabet.rs::func::set	missing	-	baseline
-src/util/alphabet.rs::func::singletons	missing	-	baseline
-src/util/alphabet.rs::func::stride2	missing	-	baseline
-src/util/alphabet.rs::func::u8	missing	-	baseline
-src/util/alphabet.rs::method::ByteClasses.empty	missing	-	baseline
-src/util/alphabet.rs::method::Unit.u8	missing	-	baseline
-src/util/alphabet.rs::struct::ByteClassElements	missing	-	baseline
-src/util/alphabet.rs::struct::ByteClassIter	missing	-	baseline
-src/util/alphabet.rs::struct::ByteClassRepresentatives	missing	-	baseline
-src/util/alphabet.rs::struct::ByteClasses	missing	-	baseline
-src/util/alphabet.rs::struct::Unit	missing	-	baseline
+src/util/alphabet.rs::func::alphabet_len	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to an EOI-aware ByteClasses implementation in Crystal
+src/util/alphabet.rs::func::as_eoi	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to Unit#as_eoi
+src/util/alphabet.rs::func::as_u8	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to Unit#as_u8
+src/util/alphabet.rs::func::as_usize	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to Unit#as_usize
+src/util/alphabet.rs::func::elements	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to ByteClasses#elements
+src/util/alphabet.rs::func::empty	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to ByteClasses.empty
+src/util/alphabet.rs::func::eoi	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to ByteClasses#eoi
+src/util/alphabet.rs::func::get	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to ByteClasses#get
+src/util/alphabet.rs::func::get_by_unit	mapped	src/regex/automata/byte_classes.cr	mapped to ByteClasses#get_by_unit
+src/util/alphabet.rs::func::is_byte	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to Unit#is_byte
+src/util/alphabet.rs::func::is_eoi	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to Unit#is_eoi
+src/util/alphabet.rs::func::is_singleton	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to ByteClasses#is_singleton
+src/util/alphabet.rs::func::is_word_byte	mapped	src/regex/automata/byte_classes.cr;src/regex/automata/utf8_sequences.cr;spec/byte_classes_spec.cr	mapped to shared UTF-8 word-byte helpers
+src/util/alphabet.rs::func::iter	mapped	src/regex/automata/byte_classes.cr	mapped to ByteClasses#iter
+src/util/alphabet.rs::func::set	mapped	src/regex/automata/byte_classes.cr	mapped to ByteClasses#set
+src/util/alphabet.rs::func::singletons	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to ByteClasses.singletons
+src/util/alphabet.rs::func::stride2	mapped	src/regex/automata/byte_classes.cr	mapped to ByteClasses#stride2
+src/util/alphabet.rs::func::u8	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to Unit.u8
+src/util/alphabet.rs::method::ByteClasses.empty	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to ByteClasses.empty
+src/util/alphabet.rs::method::Unit.u8	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to Unit.u8
+src/util/alphabet.rs::struct::ByteClassElements	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to ByteClassElements
+src/util/alphabet.rs::struct::ByteClassIter	mapped	src/regex/automata/byte_classes.cr	mapped to ByteClassIter
+src/util/alphabet.rs::struct::ByteClassRepresentatives	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to ByteClassRepresentatives; Crystal uses explicit start/end parameters instead of Rust RangeBounds
+src/util/alphabet.rs::struct::ByteClasses	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to a Crystal byte-class map with EOI-aware alphabet semantics
+src/util/alphabet.rs::struct::Unit	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to a Crystal Unit value type with byte and EOI variants
 src/util/captures.rs::func::all	missing	-	baseline
 src/util/captures.rs::func::all_group_len	missing	-	baseline
 src/util/captures.rs::func::all_names	missing	-	baseline
@@ -592,10 +592,10 @@ src/util/captures.rs::func::get_match	missing	-	baseline
 src/util/captures.rs::func::group_info	missing	-	baseline
 src/util/captures.rs::func::group_len	missing	-	baseline
 src/util/captures.rs::func::implicit_slot_len	missing	-	baseline
-src/util/captures.rs::func::interpolate_bytes	missing	-	baseline
-src/util/captures.rs::func::interpolate_bytes_into	missing	-	baseline
-src/util/captures.rs::func::interpolate_string	missing	-	baseline
-src/util/captures.rs::func::interpolate_string_into	missing	-	baseline
+src/util/captures.rs::func::interpolate_bytes	mapped	src/regex/automata/captures.cr;spec/captures_spec.cr	mapped byte interpolation through shared helper-backed captures API
+src/util/captures.rs::func::interpolate_bytes_into	mapped	src/regex/automata/captures.cr;spec/captures_spec.cr	mapped byte interpolation append path through shared helper-backed captures API
+src/util/captures.rs::func::interpolate_string	mapped	src/regex/automata/captures.cr;spec/captures_spec.cr	mapped string interpolation through shared helper-backed captures API
+src/util/captures.rs::func::interpolate_string_into	mapped	src/regex/automata/captures.cr;spec/captures_spec.cr	mapped string interpolation append path through shared helper-backed captures API
 src/util/captures.rs::func::is_match	missing	-	baseline
 src/util/captures.rs::func::iter	missing	-	baseline
 src/util/captures.rs::func::matches	missing	-	baseline
@@ -618,10 +618,10 @@ src/util/captures.rs::struct::GroupInfo	missing	-	baseline
 src/util/captures.rs::struct::GroupInfoAllNames	missing	-	baseline
 src/util/captures.rs::struct::GroupInfoError	missing	-	baseline
 src/util/captures.rs::struct::GroupInfoPatternNames	missing	-	baseline
-src/util/escape.rs::struct::DebugByte	missing	-	baseline
-src/util/escape.rs::struct::DebugHaystack	missing	-	baseline
-src/util/interpolate.rs::func::bytes	missing	-	baseline
-src/util/interpolate.rs::func::string	missing	-	baseline
+src/util/escape.rs::struct::DebugByte	mapped	src/regex/automata/escape.cr;spec/escape_spec.cr	mapped to a Crystal byte debug wrapper
+src/util/escape.rs::struct::DebugHaystack	mapped	src/regex/automata/escape.cr;spec/escape_spec.cr	mapped to a Crystal haystack debug wrapper
+src/util/interpolate.rs::func::bytes	mapped	src/regex/automata/interpolate.cr;spec/interpolate_spec.cr	mapped byte interpolation helper with vendored capture-reference parsing
+src/util/interpolate.rs::func::string	mapped	src/regex/automata/interpolate.cr;spec/interpolate_spec.cr	mapped string interpolation helper with vendored capture-reference parsing
 src/util/iter.rs::func::infallible	missing	-	baseline
 src/util/iter.rs::func::new	missing	-	baseline
 src/util/iter.rs::method::Searcher.new	missing	-	baseline
@@ -638,65 +638,65 @@ src/util/iter.rs::struct::TryMatchesIter	missing	-	baseline
 src/util/lazy.rs::func::get	missing	-	baseline
 src/util/lazy.rs::method::T.get	missing	-	baseline
 src/util/lazy.rs::struct::Lazy	missing	-	baseline
-src/util/look.rs::enum::Look	missing	-	baseline
-src/util/look.rs::func::available	missing	-	baseline
-src/util/look.rs::func::check	missing	-	baseline
-src/util/look.rs::func::contains	missing	-	baseline
-src/util/look.rs::func::contains_anchor	missing	-	baseline
-src/util/look.rs::func::contains_anchor_crlf	missing	-	baseline
-src/util/look.rs::func::contains_anchor_haystack	missing	-	baseline
-src/util/look.rs::func::contains_anchor_lf	missing	-	baseline
-src/util/look.rs::func::contains_anchor_line	missing	-	baseline
-src/util/look.rs::func::contains_word	missing	-	baseline
-src/util/look.rs::func::contains_word_ascii	missing	-	baseline
-src/util/look.rs::func::contains_word_unicode	missing	-	baseline
-src/util/look.rs::func::empty	missing	-	baseline
-src/util/look.rs::func::full	missing	-	baseline
-src/util/look.rs::func::get_line_terminator	missing	-	baseline
-src/util/look.rs::func::insert	missing	-	baseline
-src/util/look.rs::func::intersect	missing	-	baseline
-src/util/look.rs::func::is_empty	missing	-	baseline
-src/util/look.rs::func::is_end	missing	-	baseline
-src/util/look.rs::func::is_end_crlf	missing	-	baseline
-src/util/look.rs::func::is_end_lf	missing	-	baseline
-src/util/look.rs::func::is_start	missing	-	baseline
-src/util/look.rs::func::is_start_crlf	missing	-	baseline
-src/util/look.rs::func::is_start_lf	missing	-	baseline
-src/util/look.rs::func::is_word_ascii	missing	-	baseline
-src/util/look.rs::func::is_word_ascii_negate	missing	-	baseline
-src/util/look.rs::func::is_word_end_ascii	missing	-	baseline
-src/util/look.rs::func::is_word_end_half_ascii	missing	-	baseline
-src/util/look.rs::func::is_word_end_half_unicode	missing	-	baseline
-src/util/look.rs::func::is_word_end_unicode	missing	-	baseline
-src/util/look.rs::func::is_word_start_ascii	missing	-	baseline
-src/util/look.rs::func::is_word_start_half_ascii	missing	-	baseline
-src/util/look.rs::func::is_word_start_half_unicode	missing	-	baseline
-src/util/look.rs::func::is_word_start_unicode	missing	-	baseline
-src/util/look.rs::func::is_word_unicode	missing	-	baseline
-src/util/look.rs::func::is_word_unicode_negate	missing	-	baseline
-src/util/look.rs::func::iter	missing	-	baseline
-src/util/look.rs::func::len	missing	-	baseline
-src/util/look.rs::func::matches	missing	-	baseline
-src/util/look.rs::func::matches_set	missing	-	baseline
-src/util/look.rs::func::new	missing	-	baseline
-src/util/look.rs::func::read_repr	missing	-	baseline
-src/util/look.rs::func::remove	missing	-	baseline
-src/util/look.rs::func::set_insert	missing	-	baseline
-src/util/look.rs::func::set_intersect	missing	-	baseline
-src/util/look.rs::func::set_line_terminator	missing	-	baseline
-src/util/look.rs::func::set_remove	missing	-	baseline
-src/util/look.rs::func::set_subtract	missing	-	baseline
-src/util/look.rs::func::set_union	missing	-	baseline
-src/util/look.rs::func::singleton	missing	-	baseline
-src/util/look.rs::func::subtract	missing	-	baseline
-src/util/look.rs::func::union	missing	-	baseline
-src/util/look.rs::func::write_repr	missing	-	baseline
-src/util/look.rs::method::LookMatcher.new	missing	-	baseline
-src/util/look.rs::method::LookSet.empty	missing	-	baseline
-src/util/look.rs::struct::LookMatcher	missing	-	baseline
-src/util/look.rs::struct::LookSet	missing	-	baseline
-src/util/look.rs::struct::LookSetIter	missing	-	baseline
-src/util/look.rs::struct::UnicodeWordBoundaryError	missing	-	baseline
+src/util/look.rs::enum::Look	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported the full look-around assertion enum, reverse mapping, repr conversion, and display-char surface
+src/util/look.rs::func::available	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported availability checks; Crystal always ships the Unicode word tables required by this surface
+src/util/look.rs::func::check	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported Unicode word-boundary availability API; the Rust feature-disabled error branch is not applicable here
+src/util/look.rs::func::contains	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported look-set membership checks
+src/util/look.rs::func::contains_anchor	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported look-set anchor category checks
+src/util/look.rs::func::contains_anchor_crlf	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported look-set CRLF anchor category checks
+src/util/look.rs::func::contains_anchor_haystack	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported look-set haystack-anchor category checks
+src/util/look.rs::func::contains_anchor_lf	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported look-set LF-anchor category checks
+src/util/look.rs::func::contains_anchor_line	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported look-set line-anchor category checks
+src/util/look.rs::func::contains_word	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported look-set word-boundary category checks
+src/util/look.rs::func::contains_word_ascii	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported ASCII word-boundary category checks
+src/util/look.rs::func::contains_word_unicode	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported Unicode word-boundary category checks
+src/util/look.rs::func::empty	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported empty look-set constructor
+src/util/look.rs::func::full	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported full look-set constructor and iteration behavior
+src/util/look.rs::func::get_line_terminator	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported configurable look-matcher line terminator getter
+src/util/look.rs::func::insert	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported persistent look-set insertion
+src/util/look.rs::func::intersect	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported persistent look-set intersection
+src/util/look.rs::func::is_empty	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported look-set emptiness checks
+src/util/look.rs::func::is_end	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported end-of-haystack assertion matching
+src/util/look.rs::func::is_end_crlf	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported CRLF-aware end-of-line assertion matching
+src/util/look.rs::func::is_end_lf	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported LF-aware end-of-line assertion matching
+src/util/look.rs::func::is_start	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported start-of-haystack assertion matching
+src/util/look.rs::func::is_start_crlf	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported CRLF-aware start-of-line assertion matching
+src/util/look.rs::func::is_start_lf	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported LF-aware start-of-line assertion matching
+src/util/look.rs::func::is_word_ascii	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported ASCII word-boundary matching
+src/util/look.rs::func::is_word_ascii_negate	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported ASCII non-word-boundary matching
+src/util/look.rs::func::is_word_end_ascii	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported ASCII word-end matching
+src/util/look.rs::func::is_word_end_half_ascii	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported ASCII word-end-half matching
+src/util/look.rs::func::is_word_end_half_unicode	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported Unicode word-end-half matching with UTF-8 boundary filtering
+src/util/look.rs::func::is_word_end_unicode	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported Unicode word-end matching
+src/util/look.rs::func::is_word_start_ascii	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported ASCII word-start matching
+src/util/look.rs::func::is_word_start_half_ascii	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported ASCII word-start-half matching
+src/util/look.rs::func::is_word_start_half_unicode	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported Unicode word-start-half matching with UTF-8 boundary filtering
+src/util/look.rs::func::is_word_start_unicode	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported Unicode word-start matching
+src/util/look.rs::func::is_word_unicode	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported Unicode word-boundary matching via UTF-8 decoding and regex-syntax tables
+src/util/look.rs::func::is_word_unicode_negate	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported Unicode non-word-boundary matching with split-codepoint suppression
+src/util/look.rs::func::iter	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported look-set iterator surface
+src/util/look.rs::func::len	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported look-set length surface
+src/util/look.rs::func::matches	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported per-assertion look matcher
+src/util/look.rs::func::matches_set	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported combined look-set matcher
+src/util/look.rs::func::new	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported default constructors for look-set and look-matcher
+src/util/look.rs::func::read_repr	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported native-endian look-set deserialization
+src/util/look.rs::func::remove	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported persistent look-set removal
+src/util/look.rs::func::set_insert	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported in-place look-set insertion
+src/util/look.rs::func::set_intersect	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported in-place look-set intersection
+src/util/look.rs::func::set_line_terminator	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported configurable look-matcher line terminator setter
+src/util/look.rs::func::set_remove	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported in-place look-set removal
+src/util/look.rs::func::set_subtract	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported in-place look-set subtraction
+src/util/look.rs::func::set_union	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported in-place look-set union
+src/util/look.rs::func::singleton	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported singleton look-set constructor
+src/util/look.rs::func::subtract	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported persistent look-set subtraction
+src/util/look.rs::func::union	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported persistent look-set union
+src/util/look.rs::func::write_repr	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported native-endian look-set serialization
+src/util/look.rs::method::LookMatcher.new	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported default look-matcher constructor
+src/util/look.rs::method::LookSet.empty	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported empty look-set constructor
+src/util/look.rs::struct::LookMatcher	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported configurable look matcher
+src/util/look.rs::struct::LookSet	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported look-set storage, repr I/O, and set operations
+src/util/look.rs::struct::LookSetIter	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported look-set iterator
+src/util/look.rs::struct::UnicodeWordBoundaryError	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported the availability-error surface; only Rust's disabled-feature branch is not applicable in Crystal
 src/util/pool.rs::func::get	missing	-	baseline
 src/util/pool.rs::func::new	missing	-	baseline
 src/util/pool.rs::func::put	missing	-	baseline
@@ -705,13 +705,13 @@ src/util/pool.rs::method::T.get	missing	-	baseline
 src/util/pool.rs::method::T.put	missing	-	baseline
 src/util/pool.rs::struct::Pool	missing	-	baseline
 src/util/pool.rs::struct::PoolGuard	missing	-	baseline
-src/util/prefilter/mod.rs::func::find	missing	-	baseline
-src/util/prefilter/mod.rs::func::from_hir_prefix	missing	-	baseline
-src/util/prefilter/mod.rs::func::is_fast	missing	-	baseline
-src/util/prefilter/mod.rs::func::max_needle_len	missing	-	baseline
-src/util/prefilter/mod.rs::func::memory_usage	missing	-	baseline
-src/util/prefilter/mod.rs::func::prefix	missing	-	baseline
-src/util/prefilter/mod.rs::struct::Prefilter	missing	-	baseline
+src/util/prefilter/mod.rs::func::find	mapped	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	mapped to literal prefilter candidate searching
+src/util/prefilter/mod.rs::func::from_hir_prefix	mapped	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	mapped to HIR prefix extraction using the Crystal regex-syntax literal extractor
+src/util/prefilter/mod.rs::func::is_fast	mapped	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	mapped to the Crystal prefilter speed heuristic
+src/util/prefilter/mod.rs::func::max_needle_len	mapped	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	mapped to longest-needle metadata
+src/util/prefilter/mod.rs::func::memory_usage	mapped	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	mapped to prefilter memory-usage reporting
+src/util/prefilter/mod.rs::func::prefix	mapped	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	mapped to anchored prefix matching
+src/util/prefilter/mod.rs::struct::Prefilter	mapped	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	mapped to a Crystal literal-prefilter wrapper
 src/util/primitives.rs::const::LIMIT	missing	-	baseline
 src/util/primitives.rs::const::MAX	missing	-	baseline
 src/util/primitives.rs::const::SIZE	missing	-	baseline
@@ -736,9 +736,9 @@ src/util/search.rs::enum::Anchored	missing	-	baseline
 src/util/search.rs::enum::MatchErrorKind	missing	-	baseline
 src/util/search.rs::enum::MatchKind	missing	-	baseline
 src/util/search.rs::func::anchored	missing	-	baseline
-src/util/search.rs::func::capacity	missing	-	baseline
-src/util/search.rs::func::clear	missing	-	baseline
-src/util/search.rs::func::contains	missing	-	baseline
+src/util/search.rs::func::capacity	mapped	src/regex/automata/search.cr	mapped to PatternSet#capacity
+src/util/search.rs::func::clear	mapped	src/regex/automata/search.cr	mapped to PatternSet#clear
+src/util/search.rs::func::contains	mapped	src/regex/automata/search.cr	mapped to PatternSet#contains
 src/util/search.rs::func::earliest	missing	-	baseline
 src/util/search.rs::func::end	missing	-	baseline
 src/util/search.rs::func::gave_up	missing	-	baseline
@@ -748,42 +748,42 @@ src/util/search.rs::func::get_range	missing	-	baseline
 src/util/search.rs::func::get_span	missing	-	baseline
 src/util/search.rs::func::haystack	missing	-	baseline
 src/util/search.rs::func::haystack_too_long	missing	-	baseline
-src/util/search.rs::func::insert	missing	-	baseline
+src/util/search.rs::func::insert	mapped	src/regex/automata/search.cr	mapped to PatternSet#insert
 src/util/search.rs::func::is_anchored	missing	-	baseline
 src/util/search.rs::func::is_char_boundary	missing	-	baseline
 src/util/search.rs::func::is_done	missing	-	baseline
-src/util/search.rs::func::is_empty	missing	-	baseline
-src/util/search.rs::func::is_full	missing	-	baseline
-src/util/search.rs::func::iter	missing	-	baseline
+src/util/search.rs::func::is_empty	mapped	src/regex/automata/search.cr	mapped to primitive empty predicates and PatternSet#is_empty
+src/util/search.rs::func::is_full	mapped	src/regex/automata/search.cr	mapped to PatternSet#is_full
+src/util/search.rs::func::iter	mapped	src/regex/automata/search.cr	mapped to PatternSet#iter and PatternSetIter
 src/util/search.rs::func::kind	missing	-	baseline
-src/util/search.rs::func::len	missing	-	baseline
+src/util/search.rs::func::len	mapped	src/regex/automata/search.cr	mapped to primitive length helpers and PatternSet#len
 src/util/search.rs::func::must	missing	-	baseline
 src/util/search.rs::func::new	missing	-	baseline
 src/util/search.rs::func::offset	missing	-	baseline
 src/util/search.rs::func::pattern	missing	-	baseline
 src/util/search.rs::func::quit	missing	-	baseline
 src/util/search.rs::func::range	missing	-	baseline
-src/util/search.rs::func::remove	missing	-	baseline
+src/util/search.rs::func::remove	mapped	src/regex/automata/search.cr	mapped to PatternSet#remove
 src/util/search.rs::func::set_anchored	missing	-	baseline
 src/util/search.rs::func::set_earliest	missing	-	baseline
 src/util/search.rs::func::set_end	missing	-	baseline
 src/util/search.rs::func::set_start	missing	-	baseline
 src/util/search.rs::func::span	missing	-	baseline
 src/util/search.rs::func::start	missing	-	baseline
-src/util/search.rs::func::try_insert	missing	-	baseline
+src/util/search.rs::func::try_insert	mapped	src/regex/automata/search.cr	mapped to PatternSet#try_insert
 src/util/search.rs::func::unsupported_anchored	missing	-	baseline
 src/util/search.rs::method::Anchored.is_anchored	missing	-	baseline
 src/util/search.rs::method::HalfMatch.new	missing	-	baseline
 src/util/search.rs::method::MatchError.new	missing	-	baseline
-src/util/search.rs::method::PatternSet.new	missing	-	baseline
+src/util/search.rs::method::PatternSet.new	mapped	src/regex/automata/search.cr	mapped to PatternSet.initialize
 src/util/search.rs::method::Span.range	missing	-	baseline
 src/util/search.rs::struct::HalfMatch	missing	-	baseline
 src/util/search.rs::struct::Input	missing	-	baseline
 src/util/search.rs::struct::Match	missing	-	baseline
 src/util/search.rs::struct::MatchError	missing	-	baseline
-src/util/search.rs::struct::PatternSet	missing	-	baseline
-src/util/search.rs::struct::PatternSetInsertError	missing	-	baseline
-src/util/search.rs::struct::PatternSetIter	missing	-	baseline
+src/util/search.rs::struct::PatternSet	mapped	src/regex/automata/search.cr;spec/pattern_set_spec.cr	mapped to the Crystal PatternSet container
+src/util/search.rs::struct::PatternSetInsertError	mapped	src/regex/automata/search.cr;spec/pattern_set_spec.cr	mapped to the Crystal PatternSet insert failure type
+src/util/search.rs::struct::PatternSetIter	mapped	src/regex/automata/search.cr;spec/pattern_set_spec.cr	mapped to the Crystal PatternSet iterator
 src/util/search.rs::struct::Span	missing	-	baseline
 src/util/start.rs::func::anchored	missing	-	baseline
 src/util/start.rs::func::from_input_forward	missing	-	baseline
@@ -794,34 +794,34 @@ src/util/start.rs::func::look_behind	missing	-	baseline
 src/util/start.rs::func::new	missing	-	baseline
 src/util/start.rs::method::Config.new	missing	-	baseline
 src/util/start.rs::struct::Config	missing	-	baseline
-src/util/syntax.rs::func::case_insensitive	missing	-	baseline
-src/util/syntax.rs::func::crlf	missing	-	baseline
-src/util/syntax.rs::func::dot_matches_new_line	missing	-	baseline
-src/util/syntax.rs::func::get_case_insensitive	missing	-	baseline
-src/util/syntax.rs::func::get_crlf	missing	-	baseline
-src/util/syntax.rs::func::get_dot_matches_new_line	missing	-	baseline
-src/util/syntax.rs::func::get_ignore_whitespace	missing	-	baseline
-src/util/syntax.rs::func::get_line_terminator	missing	-	baseline
-src/util/syntax.rs::func::get_multi_line	missing	-	baseline
-src/util/syntax.rs::func::get_nest_limit	missing	-	baseline
-src/util/syntax.rs::func::get_octal	missing	-	baseline
-src/util/syntax.rs::func::get_swap_greed	missing	-	baseline
-src/util/syntax.rs::func::get_unicode	missing	-	baseline
-src/util/syntax.rs::func::get_utf8	missing	-	baseline
-src/util/syntax.rs::func::ignore_whitespace	missing	-	baseline
-src/util/syntax.rs::func::line_terminator	missing	-	baseline
-src/util/syntax.rs::func::multi_line	missing	-	baseline
-src/util/syntax.rs::func::nest_limit	missing	-	baseline
-src/util/syntax.rs::func::new	missing	-	baseline
-src/util/syntax.rs::func::octal	missing	-	baseline
-src/util/syntax.rs::func::parse	missing	-	baseline
-src/util/syntax.rs::func::parse_with	missing	-	baseline
-src/util/syntax.rs::func::swap_greed	missing	-	baseline
-src/util/syntax.rs::func::unicode	missing	-	baseline
-src/util/syntax.rs::func::utf8	missing	-	baseline
-src/util/syntax.rs::method::Config.new	missing	-	baseline
-src/util/syntax.rs::struct::Config	missing	-	baseline
+src/util/syntax.rs::func::case_insensitive	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config case-insensitive builder
+src/util/syntax.rs::func::crlf	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config CRLF builder
+src/util/syntax.rs::func::dot_matches_new_line	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config dot-matches-new-line builder
+src/util/syntax.rs::func::get_case_insensitive	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config case-insensitive getter
+src/util/syntax.rs::func::get_crlf	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config CRLF getter
+src/util/syntax.rs::func::get_dot_matches_new_line	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config dot-matches-new-line getter
+src/util/syntax.rs::func::get_ignore_whitespace	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config ignore-whitespace getter
+src/util/syntax.rs::func::get_line_terminator	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config line-terminator getter
+src/util/syntax.rs::func::get_multi_line	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config multi-line getter
+src/util/syntax.rs::func::get_nest_limit	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config nest-limit getter
+src/util/syntax.rs::func::get_octal	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config octal getter
+src/util/syntax.rs::func::get_swap_greed	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config swap-greed getter
+src/util/syntax.rs::func::get_unicode	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config unicode getter
+src/util/syntax.rs::func::get_utf8	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config utf8 getter
+src/util/syntax.rs::func::ignore_whitespace	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config ignore-whitespace builder
+src/util/syntax.rs::func::line_terminator	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config line-terminator builder
+src/util/syntax.rs::func::multi_line	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config multi-line builder
+src/util/syntax.rs::func::nest_limit	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config nest-limit builder
+src/util/syntax.rs::func::new	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config defaults
+src/util/syntax.rs::func::octal	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config octal builder
+src/util/syntax.rs::func::parse	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped default syntax parse helper
+src/util/syntax.rs::func::parse_with	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped configured syntax parse helper
+src/util/syntax.rs::func::swap_greed	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config swap-greed builder
+src/util/syntax.rs::func::unicode	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config unicode builder
+src/util/syntax.rs::func::utf8	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config utf8 builder
+src/util/syntax.rs::method::Config.new	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config constructor
+src/util/syntax.rs::struct::Config	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config wrapper around regex-syntax parser builder
 src/util/unicode_data/perl_word.rs::const::PERL_WORD	missing	-	baseline
-src/util/wire.rs::struct::AlignAs	missing	-	baseline
-src/util/wire.rs::struct::DeserializeError	missing	-	baseline
-src/util/wire.rs::struct::SerializeError	missing	-	baseline
+src/util/wire.rs::struct::AlignAs	mapped	src/regex/automata/wire.cr;spec/wire_spec.cr	mapped to a Crystal alignment helper wrapper
+src/util/wire.rs::struct::DeserializeError	mapped	src/regex/automata/errors.cr;src/regex/automata/wire.cr	mapped to the existing deserialize error type plus wire helper constructors
+src/util/wire.rs::struct::SerializeError	mapped	src/regex/automata/errors.cr;src/regex/automata/wire.cr	mapped to the existing serialize error type plus wire helper constructors

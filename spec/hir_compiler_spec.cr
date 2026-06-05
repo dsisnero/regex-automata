@@ -182,7 +182,7 @@ describe Regex::Automata::HirCompiler do
 
   it "compiles look-around assertions" do
     # Test that look-around assertions compile to NFA
-    patterns = ["^a", "a$", "\\ba", "a\\b", "\\Aa", "a\\z", "a\\Z"]
+    patterns = ["^a", "a$", "(?-u:\\b)a", "a(?-u:\\b)", "\\Aa", "a\\z", "a\\Z"]
 
     patterns.each do |pattern|
       hir = Regex::Syntax.parse(pattern)

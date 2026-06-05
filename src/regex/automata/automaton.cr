@@ -73,9 +73,9 @@ module Regex::Automata
         offset = input.start > 0 ? input.start - 1 : 0
         MatchError.quit(result.byte, offset)
       when UnsupportedAnchoredStartError
-        MatchError.unsupported_anchored(result.mode)
+        MatchError.unsupported_anchored(result.mode, result.pattern)
       else
-        MatchError.unsupported_anchored(input.anchored)
+        MatchError.unsupported_anchored(input.anchored, input.pattern)
       end
     end
 
@@ -102,9 +102,9 @@ module Regex::Automata
         offset = input.end
         MatchError.quit(result.byte, offset)
       when UnsupportedAnchoredStartError
-        MatchError.unsupported_anchored(result.mode)
+        MatchError.unsupported_anchored(result.mode, result.pattern)
       else
-        MatchError.unsupported_anchored(input.anchored)
+        MatchError.unsupported_anchored(input.anchored, input.pattern)
       end
     end
 
@@ -177,6 +177,51 @@ module Regex::Automata
     # or a MatchError if an error occurred.
     abstract def try_search_fwd(slice : Bytes) : Tuple(Int32, Array(PatternID)) | Nil | MatchError
 
+    # Executes a forward search using the full input configuration.
+    #
+    # This honors the search span within the context of the complete haystack,
+    # which matters for look-around at the boundaries of the span.
+    def try_search_fwd(input : Input) : HalfMatch? | MatchError
+      return nil if input.is_done
+
+      start_state = start_state_forward(input)
+      return start_state if start_state.is_a?(MatchError)
+
+      current_state = start_state.as(StateID)
+      last_match : HalfMatch? = nil
+      at = input.start
+
+      while at < input.end
+        next_state = next_state(current_state, input.haystack[at])
+        return last_match || MatchError.quit(input.haystack[at], at) if is_quit_state?(next_state)
+        break if is_dead_state?(next_state)
+
+        current_state = next_state
+        if is_match_state?(current_state)
+          last_match = HalfMatch.new(match_pattern(current_state, 0), at)
+          return last_match if input.get_earliest
+        end
+        at += 1
+      end
+
+      if at == input.end
+        current_state = if trailing = input.haystack[input.end]?
+                          next_state(current_state, trailing)
+                        else
+                          next_eoi_state(current_state)
+                        end
+        if input.end < input.haystack.size && is_quit_state?(current_state)
+          return last_match || MatchError.quit(input.haystack[input.end], input.end)
+        end
+        if is_match_state?(current_state)
+          offset = input.end < input.haystack.size ? input.end : input.haystack.size
+          last_match = HalfMatch.new(match_pattern(current_state, 0), offset)
+        end
+      end
+
+      last_match
+    end
+
     # Executes a reverse search and returns a match if one is found.
     #
     # This is the core search routine for reverse searches.
@@ -184,10 +229,192 @@ module Regex::Automata
     # or a MatchError if an error occurred.
     abstract def try_search_rev(slice : Bytes) : Tuple(Int32, Array(PatternID)) | Nil | MatchError
 
+    # Executes a reverse search using the full input configuration.
+    #
+    # This honors the search span within the context of the complete haystack,
+    # which matters for look-around at the boundaries of the span.
+    def try_search_rev(input : Input) : HalfMatch? | MatchError
+      return nil if input.is_done
+
+      start_state = start_state_reverse(input)
+      return start_state if start_state.is_a?(MatchError)
+
+      current_state = start_state.as(StateID)
+      last_match : HalfMatch? = nil
+
+      if input.start == input.end
+        current_state = if input.start > 0
+                          next_state(current_state, input.haystack[input.start - 1])
+                        else
+                          next_eoi_state(current_state)
+                        end
+        return MatchError.quit(input.haystack[input.start - 1], input.start - 1) if input.start > 0 && is_quit_state?(current_state)
+        return HalfMatch.new(match_pattern(current_state, 0), input.start) if is_match_state?(current_state)
+        return nil
+      end
+
+      at = input.end - 1
+      loop do
+        next_state = next_state(current_state, input.haystack[at])
+        return MatchError.quit(input.haystack[at], at) if is_quit_state?(next_state)
+        break if is_dead_state?(next_state)
+
+        current_state = next_state
+        if is_match_state?(current_state)
+          last_match = HalfMatch.new(match_pattern(current_state, 0), at + 1)
+          return last_match if input.get_earliest
+        end
+
+        break if at == input.start
+        at -= 1
+      end
+
+      if at == input.start
+        current_state = if input.start > 0
+                          next_state(current_state, input.haystack[input.start - 1])
+                        else
+                          next_eoi_state(current_state)
+                        end
+        return MatchError.quit(input.haystack[input.start - 1], input.start - 1) if input.start > 0 && is_quit_state?(current_state)
+        last_match = HalfMatch.new(match_pattern(current_state, 0), input.start) if is_match_state?(current_state)
+      end
+
+      last_match
+    end
+
     # Executes a forward overlapping search.
     #
     # This is used when searching for overlapping matches.
     abstract def try_search_overlapping_fwd(slice : Bytes) : Array(Tuple(Int32, Array(PatternID))) | MatchError
+
+    # Executes an overlapping forward search using explicit search state.
+    #
+    # On success, the given state is updated. Callers should inspect
+    # `state.get_match` to retrieve the most recent match, if any.
+    def try_search_overlapping_fwd(input : Input, state : OverlappingState) : Nil | MatchError
+      state.mat = nil
+      return nil if input.is_done
+
+      pre = input.get_anchored == Anchored::No ? get_prefilter : nil
+      universal_start = !universal_start_state(Anchored::No).nil?
+
+      current_state = if sid = state.id
+                        if next_match_index = state.next_match_index
+                          if next_match_index < match_len(sid)
+                            state.next_match_index = next_match_index + 1
+                            state.mat = HalfMatch.new(match_pattern(sid, next_match_index), state.at)
+                            return skip_empty_utf8_splits_overlapping_fwd(input, state)
+                          end
+                        end
+                        state.at += 1
+                        return nil if state.at > input.end
+                        sid
+                      else
+                        state.at = input.start
+                        sid = start_state_forward(input)
+                        return sid if sid.is_a?(MatchError)
+                        sid.as(StateID)
+                      end
+
+      while state.at < input.end
+        current_state = next_state(current_state, input.haystack[state.at])
+        state.id = current_state
+        if is_special_state?(current_state)
+          if is_start_state?(current_state)
+            if pre
+              # Prefilters are not implemented yet in this port.
+            elsif is_accel_state?(current_state)
+              needles = accelerator(current_state)
+              state.at = Regex::Automata.find_fwd(needles, input.haystack, state.at + 1) || input.end
+              next
+            end
+          elsif is_match_state?(current_state)
+            state.next_match_index = 1
+            state.mat = HalfMatch.new(match_pattern(current_state, 0), state.at)
+            return skip_empty_utf8_splits_overlapping_fwd(input, state)
+          elsif is_accel_state?(current_state)
+            needles = accelerator(current_state)
+            state.at = Regex::Automata.find_fwd(needles, input.haystack, state.at + 1) || input.end
+            next
+          elsif is_dead_state?(current_state)
+            return nil
+          else
+            return MatchError.quit(input.haystack[state.at], state.at)
+          end
+        end
+        state.at += 1
+      end
+
+      overlap_eoi_fwd(input, state, current_state)
+    end
+
+    # Executes an overlapping reverse search using explicit search state.
+    #
+    # On success, the given state is updated. Callers should inspect
+    # `state.get_match` to retrieve the most recent match, if any.
+    def try_search_overlapping_rev(input : Input, state : OverlappingState) : Nil | MatchError
+      state.mat = nil
+      return nil if input.is_done
+
+      current_state = if sid = state.id
+                        if next_match_index = state.next_match_index
+                          if next_match_index < match_len(sid)
+                            state.next_match_index = next_match_index + 1
+                            state.mat = HalfMatch.new(match_pattern(sid, next_match_index), state.at)
+                            return skip_empty_utf8_splits_overlapping_rev(input, state)
+                          end
+                        end
+
+                        if state.rev_eoi
+                          return nil
+                        elsif state.at == input.start
+                          state.rev_eoi = true
+                        else
+                          state.at -= 1
+                        end
+                        sid
+                      else
+                        sid = start_state_reverse(input)
+                        return sid if sid.is_a?(MatchError)
+
+                        state.id = sid.as(StateID)
+                        if input.start == input.end
+                          state.rev_eoi = true
+                        else
+                          state.at = input.end - 1
+                        end
+                        sid.as(StateID)
+                      end
+
+      until state.rev_eoi
+        current_state = next_state(current_state, input.haystack[state.at])
+        state.id = current_state
+        if is_special_state?(current_state)
+          if is_start_state?(current_state)
+            if is_accel_state?(current_state)
+              needles = accelerator(current_state)
+              state.at = Regex::Automata.find_rev(needles, input.haystack, state.at).try(&.+(1)) || input.start
+            end
+          elsif is_match_state?(current_state)
+            state.next_match_index = 1
+            state.mat = HalfMatch.new(match_pattern(current_state, 0), state.at + 1)
+            return skip_empty_utf8_splits_overlapping_rev(input, state)
+          elsif is_accel_state?(current_state)
+            needles = accelerator(current_state)
+            state.at = Regex::Automata.find_rev(needles, input.haystack, state.at).try(&.+(1)) || input.start
+          elsif is_dead_state?(current_state)
+            return nil
+          else
+            return MatchError.quit(input.haystack[state.at], state.at)
+          end
+        end
+
+        break if state.at == input.start
+        state.at -= 1
+      end
+
+      overlap_eoi_rev(input, state, current_state)
+    end
 
     # A convenience method that returns the start state for a forward search
     # with the given anchored mode.
@@ -232,14 +459,85 @@ module Regex::Automata
     # patterns matched.
     def try_which_overlapping_matches(slice : Bytes) : Array(PatternID) | MatchError
       result = try_search_overlapping_fwd(slice)
-      case result
-      when MatchError
-        result
-      when Array(Tuple(Int32, Array(PatternID)))
-        result.flat_map { |(_, patterns)| patterns }.uniq
-      else
-        [] of PatternID
+      return result if result.is_a?(MatchError)
+
+      result
+        .as(Array(Tuple(Int32, Array(PatternID))))
+        .flat_map { |(_, patterns)| patterns }
+        .uniq
+    end
+
+    private def overlap_eoi_fwd(input : Input, state : OverlappingState, current_state : StateID) : Nil | MatchError
+      next_state_id = if trailing = input.haystack[input.end]?
+                        next_state(current_state, trailing)
+                      else
+                        next_eoi_state(current_state)
+                      end
+      state.id = next_state_id
+      if is_match_state?(next_state_id)
+        state.mat = HalfMatch.new(match_pattern(next_state_id, 0), input.end < input.haystack.size ? input.end : input.haystack.size)
+        state.next_match_index = 1
+      elsif input.end < input.haystack.size && is_quit_state?(next_state_id)
+        return MatchError.quit(input.haystack[input.end], input.end)
       end
+      skip_empty_utf8_splits_overlapping_fwd(input, state)
+    end
+
+    private def skip_empty_utf8_splits_overlapping_fwd(input : Input, state : OverlappingState) : Nil | MatchError
+      return nil unless has_empty? && is_utf8?
+
+      half_match = state.get_match
+      return nil unless half_match
+
+      if input.get_anchored != Anchored::No
+        state.mat = nil unless input.is_char_boundary(half_match.offset)
+        return nil
+      end
+
+      while half_match && !input.is_char_boundary(half_match.offset)
+        state.mat = nil
+        result = try_search_overlapping_fwd(input, state)
+        return result if result.is_a?(MatchError)
+        half_match = state.get_match
+      end
+      nil
+    end
+
+    private def overlap_eoi_rev(input : Input, state : OverlappingState, current_state : StateID) : Nil | MatchError
+      next_state_id = if input.start > 0
+                        next_state(current_state, input.haystack[input.start - 1])
+                      else
+                        next_eoi_state(current_state)
+                      end
+      state.rev_eoi = true
+      state.id = next_state_id
+      if is_match_state?(next_state_id)
+        state.mat = HalfMatch.new(match_pattern(next_state_id, 0), input.start)
+        state.next_match_index = 1
+      elsif input.start > 0 && is_quit_state?(next_state_id)
+        return MatchError.quit(input.haystack[input.start - 1], input.start - 1)
+      end
+      skip_empty_utf8_splits_overlapping_rev(input, state)
+    end
+
+    private def skip_empty_utf8_splits_overlapping_rev(input : Input, state : OverlappingState) : Nil | MatchError
+      return nil unless has_empty? && is_utf8?
+
+      half_match = state.get_match
+      return nil unless half_match
+
+      if input.get_anchored != Anchored::No
+        state.mat = nil unless input.is_char_boundary(half_match.offset)
+        return nil
+      end
+
+      while half_match && !input.is_char_boundary(half_match.offset)
+        state.mat = nil
+        result = try_search_overlapping_rev(input, state)
+        return result if result.is_a?(MatchError)
+        half_match = state.get_match
+      end
+      nil
     end
 
     # A convenience method that checks if a match exists at the given position.
@@ -265,12 +563,8 @@ module Regex::Automata
       case current_state
       when StartError
         return MatchError.quit(current_state.byte, 0) if current_state.is_a?(QuitStartError)
-        return MatchError.unsupported_anchored(current_state.mode)
+        return MatchError.unsupported_anchored(current_state.mode, current_state.pattern)
       when StateID
-        if is_match_state?(current_state)
-          return {0, Array.new(match_len(current_state)) { |i| match_pattern(current_state, i) }}
-        end
-
         idx = 0
         while idx < slice.size
           next_state = next_state(current_state, slice[idx])
@@ -279,7 +573,7 @@ module Regex::Automata
 
           current_state = next_state
           if is_match_state?(current_state)
-            return {idx + 1, Array.new(match_len(current_state)) { |i| match_pattern(current_state, i) }}
+            return {idx, Array.new(match_len(current_state)) { |i| match_pattern(current_state, i) }}
           end
           idx += 1
         end
@@ -299,6 +593,10 @@ module Regex::Automata
       Anchored::No
     end
 
+    def pattern : PatternID?
+      nil
+    end
+
     # Get the byte (defaults to 0)
     def byte : UInt8
       0_u8
@@ -308,8 +606,9 @@ module Regex::Automata
   # The automaton does not support the given anchored mode.
   class UnsupportedAnchoredStartError < StartError
     getter mode : Anchored
+    getter pattern : PatternID?
 
-    def initialize(@mode : Anchored)
+    def initialize(@mode : Anchored, @pattern : PatternID? = nil)
       super("Unsupported anchored mode: #{@mode}")
     end
   end

@@ -5,10 +5,24 @@ module Regex::Automata
 
   # Error returned when building a DFA/NFA fails
   class BuildError < Error
+    getter? size_limit_exceeded : Bool
+    getter size_limit : Int64?
+
+    def initialize(message : String? = nil, @size_limit_exceeded : Bool = false, @size_limit : Int64? = nil)
+      super(message)
+    end
+
+    def is_size_limit_exceeded : Bool
+      @size_limit_exceeded
+    end
   end
 
   # Error returned when deserialization fails
   class DeserializeError < Error
+  end
+
+  # Error returned when serialization fails
+  class SerializeError < Error
   end
 
   # Match error returned when a search fails
@@ -29,17 +43,31 @@ module Regex::Automata
     getter offset : Int32?
     getter len : Int32?
     getter mode : Anchored?
+    getter pattern : PatternID?
 
-    def initialize(@kind : Kind, @byte : UInt8? = nil, @offset : Int32? = nil, @len : Int32? = nil, @mode : Anchored? = nil)
+    def initialize(@kind : Kind, @byte : UInt8? = nil, @offset : Int32? = nil, @len : Int32? = nil, @mode : Anchored? = nil, @pattern : PatternID? = nil)
       message = case @kind
                 when Kind::Quit
-                  "quit byte #{@byte.not_nil!} at offset #{@offset.not_nil!}"
+                  "quit search after observing byte #{@byte.not_nil!} at offset #{@offset.not_nil!}"
                 when Kind::GaveUp
-                  "gave up at offset #{@offset.not_nil!}"
+                  "gave up searching at offset #{@offset.not_nil!}"
                 when Kind::HaystackTooLong
-                  "haystack too long: #{@len.not_nil!} bytes"
+                  "haystack of length #{@len.not_nil!} is too long"
                 when Kind::UnsupportedAnchored
-                  "unsupported anchored mode"
+                  case @mode
+                  when Anchored::Yes
+                    "anchored searches are not supported or enabled"
+                  when Anchored::No
+                    "unanchored searches are not supported or enabled"
+                  when Anchored::Pattern
+                    if pattern = @pattern
+                      "anchored searches for a specific pattern (#{pattern.to_i}) are not supported or enabled"
+                    else
+                      "anchored searches for a specific pattern are not supported or enabled"
+                    end
+                  else
+                    "unsupported anchored mode"
+                  end
                 else
                   "match error"
                 end
@@ -62,8 +90,8 @@ module Regex::Automata
     end
 
     # Create a new "unsupported anchored" error
-    def self.unsupported_anchored(mode : Anchored) : MatchError
-      new(Kind::UnsupportedAnchored, mode: mode)
+    def self.unsupported_anchored(mode : Anchored, pattern : PatternID? = nil) : MatchError
+      new(Kind::UnsupportedAnchored, mode: mode, pattern: pattern)
     end
 
     # Check if this is a quit error
@@ -84,6 +112,15 @@ module Regex::Automata
     # Check if this is an unsupported anchored error
     def unsupported_anchored? : Bool
       @kind == Kind::UnsupportedAnchored
+    end
+
+    def ==(other : MatchError) : Bool
+      @kind == other.kind &&
+        @byte == other.byte &&
+        @offset == other.offset &&
+        @len == other.len &&
+        @mode == other.mode &&
+        @pattern == other.pattern
     end
   end
 end

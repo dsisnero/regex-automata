@@ -1,10 +1,10 @@
 # source_test_id	status	crystal_refs	notes
-src/dfa/automaton.rs::test::object_safe	missing	-	baseline
-src/dfa/dense.rs::test::errors_with_unicode_word_boundary	missing	-	baseline
-src/dfa/dense.rs::test::heuristic_unicode_reverse	missing	-	baseline
-src/dfa/dense.rs::test::regression_validation_order	missing	-	baseline
-src/dfa/dense.rs::test::roundtrip_always_match	missing	-	baseline
-src/dfa/dense.rs::test::roundtrip_never_match	missing	-	baseline
+src/dfa/automaton.rs::test::object_safe	ported	spec/automaton_spec.cr	ported abstract-automaton search parity through the base `Automaton` API
+src/dfa/dense.rs::test::errors_with_unicode_word_boundary	ported	spec/dfa_dense_spec.cr	preserved ASCII-vs-Unicode word-boundary distinction and reject Unicode boundaries unless heuristic DFA support is enabled
+src/dfa/dense.rs::test::heuristic_unicode_reverse	ported	spec/dfa_dense_spec.cr	heuristic Unicode reverse searches now auto-quit on non-ASCII bytes while preserving reverse boundary semantics on ASCII spans
+src/dfa/dense.rs::test::regression_validation_order	ported	spec/dfa_dense_spec.cr	validates malformed serialized start-state IDs before universal-start inspection	manual
+src/dfa/dense.rs::test::roundtrip_always_match	ported	spec/dfa_dense_spec.cr	ported dense always-match serialization roundtrip parity spec
+src/dfa/dense.rs::test::roundtrip_never_match	ported	spec/dfa_dense_spec.cr	ported dense never-match serialization roundtrip parity spec
 src/dfa/onepass.rs::test::assertions	missing	-	baseline
 src/dfa/onepass.rs::test::fail_conflicting_transition	missing	-	baseline
 src/dfa/onepass.rs::test::fail_multiple_epsilon	missing	-	baseline
@@ -13,88 +13,88 @@ src/dfa/onepass.rs::test::is_not_one_pass	missing	-	baseline
 src/dfa/onepass.rs::test::is_not_one_pass_bigger	missing	-	baseline
 src/dfa/onepass.rs::test::is_one_pass	missing	-	baseline
 src/dfa/onepass.rs::test::max_slots	missing	-	baseline
-src/dfa/sparse.rs::test::heuristic_unicode_forward	missing	-	baseline
-src/dfa/sparse.rs::test::heuristic_unicode_reverse	missing	-	baseline
+src/dfa/sparse.rs::test::heuristic_unicode_forward	ported	spec/dfa_sparse_spec.cr	ported sparse forward heuristic Unicode quit-byte parity
+src/dfa/sparse.rs::test::heuristic_unicode_reverse	ported	spec/dfa_sparse_spec.cr	ported sparse reverse heuristic Unicode quit-byte parity
 src/hybrid/dfa.rs::test::heuristic_unicode_reverse	missing	-	baseline
 src/meta/regex.rs::test::regression_suffix_literal_count	missing	-	baseline
 src/nfa/thompson/backtrack.rs::test::max_haystack_len_overflow	missing	-	baseline
-src/nfa/thompson/builder.rs::test::state_has_small_size	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_alternation	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_captures_all	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_captures_implicit	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_captures_none	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_class_ascii	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_class_unicode	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_empty	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_group	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_literal	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_many_start_pattern	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_no_reverse_unanchored_prefix_with_end_anchor	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_no_unanchored_prefix_with_start_anchor	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_non_binary_union	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_repetition	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_unanchored_prefix	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_yes_reverse_unanchored_prefix_with_start_anchor	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_yes_unanchored_prefix_with_end_anchor	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::empty_class_bytes	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::empty_class_unicode	missing	-	baseline
-src/nfa/thompson/literal_trie.rs::test::maker	missing	-	baseline
-src/nfa/thompson/literal_trie.rs::test::zap	missing	-	baseline
-src/nfa/thompson/nfa.rs::test::always_match	missing	-	baseline
-src/nfa/thompson/nfa.rs::test::never_match	missing	-	baseline
-src/nfa/thompson/nfa.rs::test::state_has_small_size	missing	-	baseline
-src/nfa/thompson/range_trie.rs::test::no_splits	missing	-	baseline
-src/nfa/thompson/range_trie.rs::test::splits	missing	-	baseline
-src/util/alphabet.rs::test::byte_classes	missing	-	baseline
-src/util/alphabet.rs::test::elements_empty	missing	-	baseline
-src/util/alphabet.rs::test::elements_singletons	missing	-	baseline
-src/util/alphabet.rs::test::elements_typical	missing	-	baseline
-src/util/alphabet.rs::test::full_byte_classes	missing	-	baseline
-src/util/alphabet.rs::test::representatives	missing	-	baseline
-src/util/interpolate.rs::test::interpolate_string	missing	-	baseline
-src/util/lazy.rs::test::oibits	missing	-	baseline
-src/util/lazy.rs::test::sync_not_send	missing	-	baseline
-src/util/look.rs::test::look_matches_end_line	missing	-	baseline
-src/util/look.rs::test::look_matches_end_text	missing	-	baseline
-src/util/look.rs::test::look_matches_start_line	missing	-	baseline
-src/util/look.rs::test::look_matches_start_text	missing	-	baseline
-src/util/look.rs::test::look_matches_word_ascii	missing	-	baseline
-src/util/look.rs::test::look_matches_word_ascii_negate	missing	-	baseline
-src/util/look.rs::test::look_matches_word_end_ascii	missing	-	baseline
-src/util/look.rs::test::look_matches_word_end_half_ascii	missing	-	baseline
-src/util/look.rs::test::look_matches_word_end_half_unicode	missing	-	baseline
-src/util/look.rs::test::look_matches_word_end_unicode	missing	-	baseline
-src/util/look.rs::test::look_matches_word_start_ascii	missing	-	baseline
-src/util/look.rs::test::look_matches_word_start_half_ascii	missing	-	baseline
-src/util/look.rs::test::look_matches_word_start_half_unicode	missing	-	baseline
-src/util/look.rs::test::look_matches_word_start_unicode	missing	-	baseline
-src/util/look.rs::test::look_matches_word_unicode	missing	-	baseline
-src/util/look.rs::test::look_matches_word_unicode_negate	missing	-	baseline
-src/util/look.rs::test::look_set	missing	-	baseline
-src/util/look.rs::test::look_set_debug	missing	-	baseline
-src/util/look.rs::test::look_set_iter	missing	-	baseline
-src/util/pool.rs::test::oibits	missing	-	baseline
-src/util/pool.rs::test::thread_owner_distinct	missing	-	baseline
-src/util/pool.rs::test::thread_owner_optimization	missing	-	baseline
-src/util/pool.rs::test::thread_owner_send_drop	missing	-	baseline
-src/util/pool.rs::test::thread_owner_sync	missing	-	baseline
-src/util/search.rs::test::incorrect_asref_guard	missing	-	baseline
-src/util/search.rs::test::match_error_kind_size	missing	-	baseline
-src/util/search.rs::test::match_error_size	missing	-	baseline
-src/util/start.rs::test::start_fwd	missing	-	baseline
-src/util/start.rs::test::start_fwd_done_range	missing	-	baseline
-src/util/start.rs::test::start_rev	missing	-	baseline
-src/util/start.rs::test::start_rev_done_range	missing	-	baseline
-src/util/wire.rs::test::bad_label_almost_too_long	missing	-	baseline
-src/util/wire.rs::test::bad_label_interior_nul	missing	-	baseline
-src/util/wire.rs::test::bad_label_too_long	missing	-	baseline
-src/util/wire.rs::test::labels	missing	-	baseline
-src/util/wire.rs::test::padding	missing	-	baseline
-tests/dfa/api.rs::test::quit_fwd	missing	-	baseline
-tests/dfa/api.rs::test::quit_panics	missing	-	baseline
-tests/dfa/api.rs::test::quit_rev	missing	-	baseline
-tests/dfa/api.rs::test::unicode_word_implicitly_works	missing	-	baseline
-tests/dfa/api.rs::test::universal_start_search	missing	-	baseline
+src/nfa/thompson/builder.rs::test::state_has_small_size	partial	spec/nfa_thompson_representation_spec.cr	Rust memory-layout assertions have no stable Crystal equivalent; the representation feature is covered through direct graph and helper specs instead.
+src/nfa/thompson/compiler.rs::test::compile_alternation	partial	spec/nfa_thompson_representation_spec.cr	alternation semantics are covered, but Crystal does not port Rust's exact trie-factored alternation layout and state ordering
+src/nfa/thompson/compiler.rs::test::compile_captures_all	partial	spec/nfa_thompson_representation_spec.cr	`WhichCaptures::All` semantics are covered, but Crystal does not preserve Rust's exact capture-state insertion order
+src/nfa/thompson/compiler.rs::test::compile_captures_implicit	ported	spec/nfa_thompson_representation_spec.cr	ported exact implicit-capture Thompson state-shape parity
+src/nfa/thompson/compiler.rs::test::compile_captures_none	ported	spec/nfa_thompson_representation_spec.cr	ported exact capture-free Thompson state-shape parity
+src/nfa/thompson/compiler.rs::test::compile_class_ascii	ported	spec/nfa_thompson_representation_spec.cr	ported exact ASCII class state-shape parity, including ASCII-only Unicode HIR lowering
+src/nfa/thompson/compiler.rs::test::compile_class_unicode	partial	spec/nfa_thompson_representation_spec.cr	Unicode class matching is covered, but Crystal does not port Rust's exact range-trie suffix-sharing layout
+src/nfa/thompson/compiler.rs::test::compile_empty	ported	spec/nfa_thompson_representation_spec.cr	ported exact empty-pattern Thompson state-shape parity
+src/nfa/thompson/compiler.rs::test::compile_group	partial	spec/nfa_thompson_representation_spec.cr	grouped repetition semantics are covered, but Crystal allocates repetition states in a different order
+src/nfa/thompson/compiler.rs::test::compile_literal	ported	spec/nfa_thompson_representation_spec.cr	ported exact literal Thompson state-shape parity
+src/nfa/thompson/compiler.rs::test::compile_many_start_pattern	ported	spec/nfa_thompson_spec.cr	ported exact multi-pattern start-state parity for the public Thompson compiler surface
+src/nfa/thompson/compiler.rs::test::compile_no_reverse_unanchored_prefix_with_end_anchor	partial	spec/nfa_thompson_spec.cr	anchored-prefix behavior is covered, but Crystal's regex-syntax lowering maps `$` to text-anchor HIR kinds instead of Rust's exact line-anchor state shape
+src/nfa/thompson/compiler.rs::test::compile_no_unanchored_prefix_with_start_anchor	partial	spec/nfa_thompson_spec.cr	anchored-prefix behavior is covered, but Crystal's regex-syntax lowering maps `^` to text-anchor HIR kinds instead of Rust's exact line-anchor state shape
+src/nfa/thompson/compiler.rs::test::compile_non_binary_union	partial	spec/nfa_thompson_representation_spec.cr	reverse Unicode class behavior is covered, but Crystal does not port Rust's exact range-trie factored non-binary union layout
+src/nfa/thompson/compiler.rs::test::compile_repetition	partial	spec/nfa_thompson_representation_spec.cr	repetition semantics are covered, but Crystal does not preserve Rust's exact union-first state ordering for optional and plus construction
+src/nfa/thompson/compiler.rs::test::compile_unanchored_prefix	ported	spec/nfa_thompson_spec.cr	ported exact unanchored-prefix state-shape parity for the public Thompson compiler surface
+src/nfa/thompson/compiler.rs::test::compile_yes_reverse_unanchored_prefix_with_start_anchor	partial	spec/nfa_thompson_spec.cr	reverse anchored-prefix behavior is covered, but Crystal's regex-syntax lowering maps `^` to text-anchor HIR kinds instead of Rust's exact line-anchor state shape
+src/nfa/thompson/compiler.rs::test::compile_yes_unanchored_prefix_with_end_anchor	partial	spec/nfa_thompson_spec.cr	end-anchor unanchored-prefix behavior is covered, but Crystal's regex-syntax lowering maps `$` to text-anchor HIR kinds instead of Rust's exact line-anchor state shape
+src/nfa/thompson/compiler.rs::test::empty_class_bytes	ported	spec/nfa_thompson_representation_spec.cr	ported exact empty byte-class Thompson lowering parity
+src/nfa/thompson/compiler.rs::test::empty_class_unicode	ported	spec/nfa_thompson_representation_spec.cr	ported exact empty Unicode-class Thompson lowering parity
+src/nfa/thompson/literal_trie.rs::test::maker	partial	spec/nfa_thompson_representation_spec.cr	literal-trie driven graph behavior is only covered indirectly because Crystal does not expose Rust's internal literal-trie builder
+src/nfa/thompson/literal_trie.rs::test::zap	partial	spec/nfa_thompson_representation_spec.cr	literal-trie driven graph behavior is only covered indirectly because Crystal does not expose Rust's internal literal-trie builder
+src/nfa/thompson/nfa.rs::test::always_match	partial	spec/nfa_thompson_spec.cr	constructor state-shape parity is covered here; Rust's PikeVM search semantics are deferred to the PikeVM feature
+src/nfa/thompson/nfa.rs::test::never_match	partial	spec/nfa_thompson_spec.cr	constructor state-shape parity is covered here; Rust's PikeVM search semantics are deferred to the PikeVM feature
+src/nfa/thompson/nfa.rs::test::state_has_small_size	partial	spec/nfa_thompson_representation_spec.cr	Rust memory-layout assertions have no stable Crystal equivalent; the representation feature is covered through direct graph and helper specs instead
+src/nfa/thompson/range_trie.rs::test::no_splits	partial	spec/nfa_thompson_representation_spec.cr	range-trie driven graph behavior is only covered indirectly because Crystal does not expose Rust's internal range-trie builder
+src/nfa/thompson/range_trie.rs::test::splits	partial	spec/nfa_thompson_representation_spec.cr	range-trie driven graph behavior is only covered indirectly because Crystal does not expose Rust's internal range-trie builder
+src/util/alphabet.rs::test::byte_classes	ported	spec/byte_classes_spec.cr	ported upstream byte-class partitioning parity
+src/util/alphabet.rs::test::elements_empty	ported	spec/byte_classes_spec.cr	ported upstream empty byte-class element parity
+src/util/alphabet.rs::test::elements_singletons	ported	spec/byte_classes_spec.cr	ported upstream singleton byte-class element parity
+src/util/alphabet.rs::test::elements_typical	ported	spec/byte_classes_spec.cr	ported upstream typical byte-class element parity
+src/util/alphabet.rs::test::full_byte_classes	ported	spec/byte_classes_spec.cr	ported upstream full byte-class parity
+src/util/alphabet.rs::test::representatives	ported	spec/byte_classes_spec.cr	ported upstream representative-byte parity
+src/util/interpolate.rs::test::interpolate_string	ported	spec/interpolate_spec.cr	ported upstream interpolation matrix across string and byte replacements
+src/util/lazy.rs::test::oibits	partial	spec/lazy_spec.cr	Rust auto-trait assertions have no direct Crystal equivalent; lazy getter and one-time initialization behavior are covered directly
+src/util/lazy.rs::test::sync_not_send	partial	spec/lazy_spec.cr	Rust compile-fail `Send`/`Sync` boundary checks have no direct Crystal equivalent; lazy getter and one-time initialization behavior are covered directly
+src/util/look.rs::test::look_matches_end_line	ported	spec/look_spec.cr	ported upstream end-line look matcher parity
+src/util/look.rs::test::look_matches_end_text	ported	spec/look_spec.cr	ported upstream end-text look matcher parity
+src/util/look.rs::test::look_matches_start_line	ported	spec/look_spec.cr	ported upstream start-line look matcher parity
+src/util/look.rs::test::look_matches_start_text	ported	spec/look_spec.cr	ported upstream start-text look matcher parity
+src/util/look.rs::test::look_matches_word_ascii	ported	spec/look_spec.cr	ported upstream ASCII word-boundary parity
+src/util/look.rs::test::look_matches_word_ascii_negate	ported	spec/look_spec.cr	ported upstream ASCII non-word-boundary parity
+src/util/look.rs::test::look_matches_word_end_ascii	ported	spec/look_spec.cr	ported upstream ASCII word-end parity
+src/util/look.rs::test::look_matches_word_end_half_ascii	ported	spec/look_spec.cr	ported upstream ASCII word-end-half parity
+src/util/look.rs::test::look_matches_word_end_half_unicode	ported	spec/look_spec.cr	ported upstream Unicode word-end-half parity
+src/util/look.rs::test::look_matches_word_end_unicode	ported	spec/look_spec.cr	ported upstream Unicode word-end parity
+src/util/look.rs::test::look_matches_word_start_ascii	ported	spec/look_spec.cr	ported upstream ASCII word-start parity
+src/util/look.rs::test::look_matches_word_start_half_ascii	ported	spec/look_spec.cr	ported upstream ASCII word-start-half parity
+src/util/look.rs::test::look_matches_word_start_half_unicode	ported	spec/look_spec.cr	ported upstream Unicode word-start-half parity
+src/util/look.rs::test::look_matches_word_start_unicode	ported	spec/look_spec.cr	ported upstream Unicode word-start parity
+src/util/look.rs::test::look_matches_word_unicode	ported	spec/look_spec.cr	ported upstream Unicode word-boundary parity
+src/util/look.rs::test::look_matches_word_unicode_negate	ported	spec/look_spec.cr	ported upstream Unicode non-word-boundary parity
+src/util/look.rs::test::look_set	ported	spec/look_spec.cr	ported upstream look-set parity
+src/util/look.rs::test::look_set_debug	ported	spec/look_spec.cr	ported upstream look-set debug parity
+src/util/look.rs::test::look_set_iter	ported	spec/look_spec.cr	ported upstream look-set iterator parity
+src/util/pool.rs::test::oibits	partial	spec/pool_spec.cr	Rust auto-trait assertions have no direct Crystal equivalent; mutex-backed pool and guard behavior are covered directly
+src/util/pool.rs::test::thread_owner_distinct	ported	spec/pool_spec.cr	ported distinct-outstanding-guard parity so simultaneous gets mutate independent values
+src/util/pool.rs::test::thread_owner_optimization	partial	spec/pool_spec.cr	Rust's std-only owner-thread optimization is an implementation detail and is not present in the Crystal mutex-backed pool
+src/util/pool.rs::test::thread_owner_send_drop	partial	spec/pool_spec.cr	Rust cross-thread guard-drop behavior depends on owner-thread optimization and `Drop`, which have no direct Crystal equivalent
+src/util/pool.rs::test::thread_owner_sync	partial	spec/pool_spec.cr	distinct outstanding guard mutation is covered directly, but Rust's cross-thread guard sharing semantics have no direct Crystal equivalent
+src/util/search.rs::test::incorrect_asref_guard	partial	spec/search_input_spec.cr	Crystal `Input` accepts `String` or `Bytes` directly and does not expose Rust's generic `AsRef<[u8]>` misimplementation surface
+src/util/search.rs::test::match_error_kind_size	partial	spec/match_error_spec.cr	Rust memory-layout assertions have no stable Crystal equivalent; MatchError constructors and accessors are covered directly
+src/util/search.rs::test::match_error_size	partial	spec/match_error_spec.cr	Rust memory-layout assertions have no stable Crystal equivalent; MatchError constructors and accessors are covered directly
+src/util/start.rs::test::start_fwd	ported	spec/start_config_spec.cr	ported forward start-classification parity from input context
+src/util/start.rs::test::start_fwd_done_range	ported	spec/start_config_spec.cr	ported forward done-range start classification parity
+src/util/start.rs::test::start_rev	ported	spec/start_config_spec.cr	ported reverse start-classification parity from input context
+src/util/start.rs::test::start_rev_done_range	ported	spec/start_config_spec.cr	ported reverse done-range start classification parity
+src/util/wire.rs::test::bad_label_almost_too_long	ported	spec/wire_spec.cr	ported upstream max valid label case
+src/util/wire.rs::test::bad_label_interior_nul	ported	spec/wire_spec.cr	ported upstream interior-NUL label rejection
+src/util/wire.rs::test::bad_label_too_long	ported	spec/wire_spec.cr	ported upstream oversized label rejection
+src/util/wire.rs::test::labels	ported	spec/wire_spec.cr	ported upstream label round-trip and padding case
+src/util/wire.rs::test::padding	ported	spec/wire_spec.cr	ported upstream padding length table
+tests/dfa/api.rs::test::quit_fwd	ported	spec/dfa_api_regression_spec.cr	ported forward quit-byte parity for standard and overlapping DFA searches
+tests/dfa/api.rs::test::quit_panics	ported	spec/dfa_api_regression_spec.cr	ported builder panic parity for conflicting non-ASCII quit-byte configuration with Unicode word boundaries
+tests/dfa/api.rs::test::quit_rev	ported	spec/dfa_api_regression_spec.cr	ported reverse quit-byte parity
+tests/dfa/api.rs::test::unicode_word_implicitly_works	ported	spec/dfa_api_regression_spec.cr	ported implicit Unicode word-boundary enablement parity when all non-ASCII bytes are quit bytes
+tests/dfa/api.rs::test::universal_start_search	ported	spec/dfa_api_regression_spec.cr	ported manual universal-start traversal parity through the abstract DFA API
 tests/dfa/onepass/regression.rs::test::too_many_slots_normal_pattern	missing	-	baseline
 tests/dfa/onepass/regression.rs::test::zero_repetition_capture_group	missing	-	baseline
 tests/dfa/onepass/suite.rs::test::default	missing	-	baseline
@@ -145,6 +145,6 @@ tests/nfa/thompson/backtrack/regression.rs::test::too_many_slots_normal_pattern	
 tests/nfa/thompson/backtrack/suite.rs::test::default	missing	-	baseline
 tests/nfa/thompson/backtrack/suite.rs::test::min_visited_capacity	missing	-	baseline
 tests/nfa/thompson/backtrack/suite.rs::test::prefilter	missing	-	baseline
-tests/nfa/thompson/pikevm/regression.rs::test::too_many_slots_normal_pattern	missing	-	baseline
-tests/nfa/thompson/pikevm/suite.rs::test::default	missing	-	baseline
-tests/nfa/thompson/pikevm/suite.rs::test::prefilter	missing	-	baseline
+tests/nfa/thompson/pikevm/regression.rs::test::too_many_slots_normal_pattern	ported	spec/pikevm_spec.cr	ported oversized PikeVM slot-buffer regression coverage with NonMaxUsize slots
+tests/nfa/thompson/pikevm/suite.rs::test::default	ported	spec/pikevm_spec.cr	ported focused PikeVM constructor, search, capture, iterator, UTF-8, and Unicode word-boundary coverage instead of the upstream regex-test harness
+tests/nfa/thompson/pikevm/suite.rs::test::prefilter	ported	spec/pikevm_spec.cr	ported PikeVM prefilter configuration and search coverage

@@ -4,7 +4,7 @@ module Regex::Automata
   # Configuration for building a DFA
   class Config
     @accelerate : Bool?
-    @prefilter : Bool?
+    @prefilter : Prefilter?
     @minimize : Bool?
     @match_kind : MatchKind?
     @start_kind : StartKind?
@@ -71,6 +71,20 @@ module Regex::Automata
     # Returns whether this configuration has enabled simple state acceleration.
     def accelerate? : Bool
       @accelerate.nil? ? true : @accelerate.not_nil!
+    end
+
+    # Set or clear the prefilter attached to DFAs built with this config.
+    def prefilter(prefilter : Prefilter?) : Config
+      @prefilter = prefilter
+      if @specialize_start_states.nil?
+        @specialize_start_states = !prefilter.nil?
+      end
+      self
+    end
+
+    # Returns the prefilter attached to this configuration, if any.
+    def prefilter : Prefilter?
+      @prefilter
     end
 
     # Enable or disable Unicode word boundaries
@@ -150,6 +164,79 @@ module Regex::Automata
     # Check if Unicode word boundaries are enabled
     def unicode_word_boundary? : Bool
       @unicode_word_boundary || false
+    end
+
+    # Enable or disable DFA minimization.
+    def minimize(yes : Bool) : Config
+      @minimize = yes
+      self
+    end
+
+    # Enable or disable byte class compression.
+    def byte_classes(yes : Bool) : Config
+      @byte_classes = yes
+      self
+    end
+
+    # Set an optional size limit for the final DFA.
+    def dfa_size_limit(bytes : Int64?) : Config
+      @dfa_size_limit = bytes
+      self
+    end
+
+    # Set an optional size limit for determinization scratch space.
+    def determinize_size_limit(bytes : Int64?) : Config
+      @determinize_size_limit = bytes
+      self
+    end
+
+    # Upstream compatibility getter aliases.
+    def get_accelerate : Bool
+      accelerate?
+    end
+
+    def get_minimize : Bool
+      @minimize || false
+    end
+
+    def get_match_kind : MatchKind
+      match_kind
+    end
+
+    def get_starts : StartKind
+      start_kind
+    end
+
+    def get_starts_for_each_pattern : Bool
+      starts_for_each_pattern?
+    end
+
+    def get_byte_classes : Bool
+      @byte_classes.nil? ? true : @byte_classes.not_nil!
+    end
+
+    def get_unicode_word_boundary : Bool
+      unicode_word_boundary?
+    end
+
+    def get_quit(byte : UInt8) : Bool
+      quitset.includes?(byte)
+    end
+
+    def get_specialize_start_states : Bool
+      specialize_start_states?
+    end
+
+    def get_dfa_size_limit : Int64?
+      @dfa_size_limit
+    end
+
+    def get_determinize_size_limit : Int64?
+      @determinize_size_limit
+    end
+
+    def get_prefilter : Prefilter?
+      @prefilter
     end
 
     # Create a copy of this configuration
