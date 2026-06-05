@@ -143,6 +143,15 @@ For every unchecked top-level item:
   - Progress: the hybrid quit-byte spec now asserts the upstream overlapping forward quit path directly, and the meta suite now carries the vendor's `tingling` suffix-literal-count regression explicitly instead of relying on broader iterator coverage
   - Done when: the explicit vendor self-test cases pass under the focused Crystal specs and the full suite
 
+- [x] Meta literal strategy fast path
+  - Upstream scope: literal-only strategy selection in `src/meta/strategy.rs`, plus `src/meta/regex.rs::is_accelerated`, cache-backed search helpers, and exact-literal preference behavior
+  - Inventory ids: `src/meta/regex.rs::func::is_accelerated`, `src/meta/regex.rs::func::search_with`, `src/meta/regex.rs::func::search_half_with`, `src/meta/regex.rs::func::search_captures_with`, `src/meta/regex.rs::func::search_slots_with`, `src/meta/regex.rs::func::which_overlapping_matches_with`
+  - Workflow: add the first real meta composition path beyond the PikeVM-only wrapper by short-circuiting exact single-pattern literal languages through literal search
+  - Red: assert the vendor acceleration signal for simple literals and drive the explicit cache-backed literal search APIs through the fast path
+  - Green: `src/regex/automata/meta.cr`, `spec/meta_regex_spec.cr`
+  - Progress: `Meta::Regex` now detects exact single-pattern literal languages eligible for the upstream `Pre` strategy class, reports `is_accelerated` accordingly, and routes cache-backed match, half-match, captures, slot, and overlapping-pattern queries through literal search before falling back to PikeVM
+  - Done when: simple literal meta regexes behave as accelerated searchers under the focused Crystal specs and the full suite
+
 - [x] Utilities — Search result primitives
   - Upstream scope: `src/util/search.rs::struct::Span`, `src/util/search.rs::struct::Match`, `src/util/search.rs::struct::HalfMatch`, `src/util/search.rs::enum::Anchored`, `src/util/search.rs::enum::MatchKind`
   - Inventory ids: `src/util/search.rs::struct::Span`, `src/util/search.rs::struct::Match`, `src/util/search.rs::struct::HalfMatch`, `src/util/search.rs::enum::Anchored`, `src/util/search.rs::enum::MatchKind`, `src/util/search.rs::func::must`, `src/util/search.rs::func::offset`, `src/util/search.rs::func::pattern`, `src/util/search.rs::func::len`, `src/util/search.rs::func::is_empty`, `src/util/search.rs::method::Anchored.is_anchored`, `src/util/search.rs::method::Span.range`

@@ -84,6 +84,35 @@ describe Regex::Automata::Meta::Regex do
     caps.get_group_by_name("num").should eq(Regex::Automata::Span.new(5, 8))
   end
 
+  it "uses the literal fast path for exact single-pattern languages" do
+    re = Regex::Automata::Meta::Regex.new("sam|samwise")
+    cache = re.create_cache
+    caps = re.create_captures
+    int_slots = Array(Int32?).new(caps.slot_len, nil)
+    nm_slots = Array(Regex::Automata::NonMaxUsize?).new(caps.slot_len, nil)
+
+    re.is_accelerated.should be_true
+    re.find("samwise").should eq(Regex::Automata::Match.must(0, 0...3))
+    re.search_half_with(cache, Regex::Automata::Input.new("samwise")).should eq(
+      Regex::Automata::HalfMatch.must(0, 3)
+    )
+    re.search_captures_with(cache, Regex::Automata::Input.new("xxsamyy"), caps)
+    caps.get_match.should eq(Regex::Automata::Match.must(0, 2...5))
+    re.search_slots_with(cache, Regex::Automata::Input.new("xxsamyy"), int_slots).should eq(
+      Regex::Automata::PatternID.new(0)
+    )
+    int_slots.should eq([2, 5])
+    re.search_slots_with(cache, Regex::Automata::Input.new("xxsamyy"), nm_slots).should eq(
+      Regex::Automata::PatternID.new(0)
+    )
+    nm_slots.map(&.try(&.get)).should eq([2, 5])
+  end
+
+  it "matches the vendor acceleration signal for simple literals" do
+    Regex::Automata::Meta::Regex.new("foo").is_accelerated.should be_true
+    Regex::Automata::Meta::Regex.new("\\w").is_accelerated.should be_false
+  end
+
   it "supports overlapping pattern discovery under MatchKind::All" do
     re = Regex::Automata::Meta::Regex.builder
       .configure(Regex::Automata::Meta::Regex.config.match_kind(Regex::Automata::MatchKind::All))
