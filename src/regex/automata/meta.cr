@@ -1,4 +1,5 @@
 require "./meta_error"
+require "./meta_limited"
 require "./captures"
 require "./dfa"
 require "./nfa"
@@ -914,7 +915,12 @@ module Regex::Automata::Meta
       return nil if input.anchored.is_anchored
 
       hm_start = reverse_suffix_start(input)
-      return nil unless hm_start
+      case hm_start
+      when ::Regex::Automata::Meta::RetryError
+        return @pikevm.find(cache.raw_cache, input)
+      when Nil
+        return nil
+      end
 
       scoped = input.clone
         .span(hm_start.offset...input.end)
@@ -922,7 +928,7 @@ module Regex::Automata::Meta
       @pikevm.find(cache.raw_cache, scoped)
     end
 
-    private def reverse_suffix_start(input : ::Regex::Automata::Input) : ::Regex::Automata::HalfMatch?
+    private def reverse_suffix_start(input : ::Regex::Automata::Input) : ::Regex::Automata::HalfMatch? | ::Regex::Automata::Meta::RetryError
       prefilter = @reverse_suffix_prefilter
       dfa = @reverse_suffix_dfa
       return nil unless prefilter && dfa
@@ -936,8 +942,12 @@ module Regex::Automata::Meta
         revinput = input.clone
           .span(min_start...litmatch.end)
           .anchored(::Regex::Automata::Anchored::Yes)
-        if start_match = reverse_match_from_dfa(dfa, revinput)
-          return ::Regex::Automata::HalfMatch.new(start_match.pattern, start_match.start)
+        start_match = ::Regex::Automata::Meta::Limited.dfa_try_search_half_rev(dfa, revinput, min_start)
+        case start_match
+        when ::Regex::Automata::Meta::RetryError
+          return start_match
+        when ::Regex::Automata::HalfMatch
+          return start_match
         end
 
         break if span.start >= span.end
@@ -958,6 +968,7 @@ module Regex::Automata::Meta
       return nil if input.anchored.is_anchored
 
       span = ::Regex::Automata::Span.new(input.start, input.end)
+      min_match_start = input.start
       loop do
         litmatch = prefilter.find(input.haystack, span)
         return nil unless litmatch
@@ -965,9 +976,13 @@ module Regex::Automata::Meta
         revinput = input.clone
           .span(input.start...litmatch.start)
           .anchored(::Regex::Automata::Anchored::Yes)
-        if start_match = reverse_match_from_dfa(dfa, revinput)
+        start_match = ::Regex::Automata::Meta::Limited.dfa_try_search_half_rev(dfa, revinput, min_match_start)
+        case start_match
+        when ::Regex::Automata::Meta::RetryError
+          return @pikevm.find(cache.raw_cache, input)
+        when ::Regex::Automata::HalfMatch
           scoped = input.clone
-            .span(start_match.start...input.end)
+            .span(start_match.offset...input.end)
             .anchored(::Regex::Automata::Anchored::Pattern, start_match.pattern)
           if match = @pikevm.find(cache.raw_cache, scoped)
             return match
@@ -980,6 +995,7 @@ module Regex::Automata::Meta
         break if next_start > span.end
 
         span = ::Regex::Automata::Span.new(next_start, span.end)
+        min_match_start = litmatch.end
       end
       nil
     end

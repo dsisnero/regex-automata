@@ -188,6 +188,15 @@ For every unchecked top-level item:
   - Progress: `Meta::Regex` now derives the normal core prefix prefilter for unanchored searches, threads it into the PikeVM-backed core engine path, counts it in `memory_usage`, and uses its fastness to report the same acceleration signal the vendor core strategy exposes
   - Done when: the focused core-prefilter specs and the full suite are green with core prefix prefilter plumbing active
 
+- [x] Meta reverse limited guard
+  - Upstream scope: the dense-DFA bounded reverse-search behavior in `src/meta/limited.rs`, plus the reverse-suffix and reverse-inner start-discovery paths in `src/meta/strategy.rs` that consume it
+  - Inventory ids: `src/meta/regex.rs::func::search_with`, `src/meta/regex.rs::func::search_half_with`, `src/meta/regex.rs::func::search_captures_with`, `src/meta/regex.rs::func::search_slots_with`
+  - Workflow: port the bounded reverse dense-DFA helper that rejects truncated false-positive starts and thread it into the reverse-suffix and reverse-inner strategies before forward confirmation
+  - Red: assert that a truncated reverse search like `[0-9]*foo` over `123foo` with a bounded start returns a quadratic-guard retry instead of a bogus start, and that a bounded reverse search still returns a real start when the start is provable
+  - Green: `src/regex/automata/meta_error.cr`, `src/regex/automata/meta_limited.cr`, `src/regex/automata/meta.cr`, focused meta guard specs
+  - Progress: `Meta::Limited` now ports the vendor bounded reverse dense-DFA helper, surfaces retry-fail versus retry-quadratic outcomes, and drives reverse-suffix plus reverse-inner start discovery so those strategies stop trusting truncated reverse starts that cannot be proven correct
+  - Done when: the bounded reverse helper specs and the full suite are green with reverse-suffix and reverse-inner using the limited reverse guard
+
 - [x] Utilities — Search result primitives
   - Upstream scope: `src/util/search.rs::struct::Span`, `src/util/search.rs::struct::Match`, `src/util/search.rs::struct::HalfMatch`, `src/util/search.rs::enum::Anchored`, `src/util/search.rs::enum::MatchKind`
   - Inventory ids: `src/util/search.rs::struct::Span`, `src/util/search.rs::struct::Match`, `src/util/search.rs::struct::HalfMatch`, `src/util/search.rs::enum::Anchored`, `src/util/search.rs::enum::MatchKind`, `src/util/search.rs::func::must`, `src/util/search.rs::func::offset`, `src/util/search.rs::func::pattern`, `src/util/search.rs::func::len`, `src/util/search.rs::func::is_empty`, `src/util/search.rs::method::Anchored.is_anchored`, `src/util/search.rs::method::Span.range`

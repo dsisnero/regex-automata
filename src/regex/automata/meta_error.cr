@@ -36,4 +36,31 @@ module Regex::Automata::Meta
       )
     end
   end
+
+  abstract class RetryError < ::Regex::Automata::Error
+  end
+
+  class RetryQuadraticError < RetryError
+    def initialize
+      super("regex engine gave up to avoid quadratic behavior")
+    end
+  end
+
+  class RetryFailError < RetryError
+    getter offset : Int32
+
+    def initialize(@offset : Int32)
+      super("regex engine failed at offset #{@offset}")
+    end
+
+    def self.from_match_error(error : ::Regex::Automata::MatchError) : self
+      case error.kind
+      when ::Regex::Automata::MatchError::Kind::Quit,
+           ::Regex::Automata::MatchError::Kind::GaveUp
+        new(error.offset || 0)
+      else
+        raise "impossible meta retry failure: #{error.message}"
+      end
+    end
+  end
 end
