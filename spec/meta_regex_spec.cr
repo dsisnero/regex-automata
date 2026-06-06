@@ -113,6 +113,40 @@ describe Regex::Automata::Meta::Regex do
     Regex::Automata::Meta::Regex.new("\\w").is_accelerated.should be_false
   end
 
+  it "uses automatic core prefilters for non-literal meta regexes" do
+    re = Regex::Automata::Meta::Regex.new("Bruce \\w+")
+
+    re.is_accelerated.should be_true
+    re.memory_usage.should be > re.pikevm.memory_usage
+    re.find("xxBruce Wayne!").should eq(Regex::Automata::Match.must(0, 2...13))
+  end
+
+  it "disables automatic core prefilters when configured" do
+    re = Regex::Automata::Meta::Regex.builder
+      .configure(Regex::Automata::Meta::Regex.config.auto_prefilter(false))
+      .build("Bruce \\w+")
+
+    re.is_accelerated.should be_false
+    re.find("xxBruce Wayne!").should eq(Regex::Automata::Match.must(0, 2...13))
+  end
+
+  it "lets explicit core prefilters drive acceleration" do
+    pre = Regex::Automata::Prefilter.new(
+      Regex::Automata::MatchKind::LeftmostFirst,
+      ["Bruce "]
+    )
+    re = Regex::Automata::Meta::Regex.builder
+      .configure(
+        Regex::Automata::Meta::Regex.config
+          .auto_prefilter(false)
+          .prefilter(pre)
+      )
+      .build("Bruce \\w+")
+
+    re.is_accelerated.should be_true
+    re.find("xxBruce Wayne!").should eq(Regex::Automata::Match.must(0, 2...13))
+  end
+
   it "uses reverse anchored acceleration for end-anchored regexes" do
     re = Regex::Automata::Meta::Regex.new("foo$")
     cache = re.create_cache

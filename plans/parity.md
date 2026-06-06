@@ -179,6 +179,15 @@ For every unchecked top-level item:
   - Progress: `Meta::Regex` now extracts a fast inner literal from eligible top-level concatenations, builds a reverse dense DFA for the prefix before that literal, discovers candidate starts from the inner literal, and confirms final match bounds with the existing forward PikeVM path before reusing the normal capture and slot fallback machinery
   - Done when: the focused reverse-inner specs and the full suite are green with the inner-literal prefilter plus reverse prefix DFA path active
 
+- [x] Meta core prefilter plumbing
+  - Upstream scope: the core prefilter selection path in `src/meta/strategy.rs`, plus the `src/meta/regex.rs::{is_accelerated,memory_usage,search_with}` behavior it exposes through the default engine family
+  - Inventory ids: `src/meta/regex.rs::func::is_accelerated`, `src/meta/regex.rs::func::memory_usage`, `src/meta/regex.rs::func::search_with`, `src/meta/regex.rs::func::search_captures_with`, `src/meta/regex.rs::func::search_slots_with`
+  - Workflow: extract the vendor-style prefix prefilter for the core engine path, thread it into the PikeVM-backed searches, and account for it in meta acceleration and memory reporting
+  - Red: assert that a non-literal regex with a fast prefix like `Bruce \\w+` reports acceleration by default, that disabling `auto_prefilter` removes that signal, and that an explicit prefilter restores it
+  - Green: `src/regex/automata/meta.cr`, `spec/meta_regex_spec.cr`
+  - Progress: `Meta::Regex` now derives the normal core prefix prefilter for unanchored searches, threads it into the PikeVM-backed core engine path, counts it in `memory_usage`, and uses its fastness to report the same acceleration signal the vendor core strategy exposes
+  - Done when: the focused core-prefilter specs and the full suite are green with core prefix prefilter plumbing active
+
 - [x] Utilities — Search result primitives
   - Upstream scope: `src/util/search.rs::struct::Span`, `src/util/search.rs::struct::Match`, `src/util/search.rs::struct::HalfMatch`, `src/util/search.rs::enum::Anchored`, `src/util/search.rs::enum::MatchKind`
   - Inventory ids: `src/util/search.rs::struct::Span`, `src/util/search.rs::struct::Match`, `src/util/search.rs::struct::HalfMatch`, `src/util/search.rs::enum::Anchored`, `src/util/search.rs::enum::MatchKind`, `src/util/search.rs::func::must`, `src/util/search.rs::func::offset`, `src/util/search.rs::func::pattern`, `src/util/search.rs::func::len`, `src/util/search.rs::func::is_empty`, `src/util/search.rs::method::Anchored.is_anchored`, `src/util/search.rs::method::Span.range`
