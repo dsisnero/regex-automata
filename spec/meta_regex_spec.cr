@@ -183,6 +183,41 @@ describe Regex::Automata::Meta::Regex do
     slots.should eq([0, 8, 0, 5])
   end
 
+  it "uses reverse inner acceleration for inner literal matches" do
+    re = Regex::Automata::Meta::Regex.new("[a-z]+XYZ\\d+")
+    cache = re.create_cache
+    input = Regex::Automata::Input.new("abcXYZ123")
+    slots = [nil, nil] of Int32?
+
+    re.is_accelerated.should be_true
+    re.search_with(cache, input).should eq(Regex::Automata::Match.must(0, 0...9))
+    re.search_half_with(cache, input).should eq(Regex::Automata::HalfMatch.must(0, 9))
+    re.search_slots_with(cache, input, slots).should eq(Regex::Automata::PatternID.new(0))
+    slots.should eq([0, 9])
+  end
+
+  it "reruns explicit captures after reverse inner start discovery" do
+    re = Regex::Automata::Meta::Regex.new("(?P<word>[a-z]+)XYZ\\d+")
+    cache = re.create_cache
+    caps = re.create_captures
+    slots = Array(Int32?).new(caps.slot_len, nil)
+    input = Regex::Automata::Input.new("abcXYZ123")
+
+    re.search_captures_with(cache, input, caps)
+    caps.get_match.should eq(Regex::Automata::Match.must(0, 0...9))
+    caps.get_group_by_name("word").should eq(Regex::Automata::Span.new(0, 3))
+    re.search_slots_with(cache, input, slots).should eq(Regex::Automata::PatternID.new(0))
+    slots.should eq([0, 9, 0, 3])
+  end
+
+  it "does not use reverse inner acceleration when always anchored at the start" do
+    re = Regex::Automata::Meta::Regex.new("^[a-z]+XYZ\\d+")
+    input = Regex::Automata::Input.new("!!abcXYZ123").anchored(Regex::Automata::Anchored::Yes)
+
+    re.is_accelerated.should be_false
+    re.find(input).should be_nil
+  end
+
   it "supports overlapping pattern discovery under MatchKind::All" do
     re = Regex::Automata::Meta::Regex.builder
       .configure(Regex::Automata::Meta::Regex.config.match_kind(Regex::Automata::MatchKind::All))

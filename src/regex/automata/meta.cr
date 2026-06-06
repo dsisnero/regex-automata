@@ -320,6 +320,7 @@ module Regex::Automata::Meta
         .build_from_nfa(nfa)
       literal_prefilter = exact_literal_prefilter(hirs_array, nfa.group_info)
       reverse_suffix_prefilter, reverse_suffix_dfa = build_reverse_suffix_strategy(hirs_array, props_union, literal_prefilter)
+      reverse_inner_prefilter, reverse_inner_dfa = build_reverse_inner_strategy(hirs_array, props_union, literal_prefilter, reverse_suffix_prefilter)
       reverse_anchored_dfa = build_reverse_anchored_dfa(hirs_array, props_union)
       Regex.new(
         @config,
@@ -330,6 +331,8 @@ module Regex::Automata::Meta
         reverse_anchored_dfa,
         reverse_suffix_prefilter,
         reverse_suffix_dfa,
+        reverse_inner_prefilter,
+        reverse_inner_dfa,
         props_union
       )
     rescue ex : ::Regex::Automata::BuildError
@@ -426,6 +429,96 @@ module Regex::Automata::Meta
       {nil, nil}
     end
 
+    private def build_reverse_inner_strategy(
+      hirs : Array(::Regex::Syntax::Hir::Hir),
+      props_union : ::Regex::Syntax::Hir::Properties,
+      literal_prefilter : ::Regex::Automata::Prefilter?,
+      reverse_suffix_prefilter : ::Regex::Automata::Prefilter?,
+    ) : Tuple(::Regex::Automata::Prefilter?, ::Regex::Automata::DFA::DFA?)
+      return {nil, nil} unless @config.get_auto_prefilter
+      return {nil, nil} unless @config.get_dfa
+      return {nil, nil} unless @config.get_match_kind == ::Regex::Automata::MatchKind::LeftmostFirst
+      return {nil, nil} if props_union.look_set_prefix.contains(::Regex::Syntax::Hir::Look::Kind::StartText)
+      return {nil, nil} if @config.get_prefilter.try(&.is_fast)
+      return {nil, nil} if literal_prefilter.try(&.is_fast)
+      return {nil, nil} if reverse_suffix_prefilter.try(&.is_fast)
+      return {nil, nil} unless hirs.size == 1
+
+      concat_prefix, preinner = extract_reverse_inner_strategy(hirs.first)
+      return {nil, nil} unless concat_prefix && preinner
+
+      dfa = build_reverse_dense_dfa([concat_prefix])
+      {preinner, dfa}
+    rescue ex : ::Regex::Automata::BuildError
+      {nil, nil}
+    end
+
+    private def extract_reverse_inner_strategy(
+      hir : ::Regex::Syntax::Hir::Hir,
+    ) : Tuple(::Regex::Syntax::Hir::Hir?, ::Regex::Automata::Prefilter?)
+      concat = reverse_inner_top_concat(hir)
+      return {nil, nil} unless concat
+
+      i = 1
+      while i < concat.size
+        sub_hir = ::Regex::Syntax::Hir::Hir.new(concat[i])
+        pre = reverse_inner_prefilter(sub_hir)
+        if pre && pre.is_fast
+          concat_suffix = ::Regex::Syntax::Hir::Hir.concat(concat[i..])
+          concat_prefix = ::Regex::Syntax::Hir::Hir.concat(concat[0...i])
+          better = reverse_inner_prefilter(concat_suffix)
+          pre = better if better && better.is_fast
+          return {concat_prefix, pre}
+        end
+        i += 1
+      end
+      {nil, nil}
+    end
+
+    private def reverse_inner_prefilter(hir : ::Regex::Syntax::Hir::Hir) : ::Regex::Automata::Prefilter?
+      extractor = ::Regex::Syntax::Hir::LiteralExtraction::Extractor.new
+      extractor.kind(::Regex::Syntax::Hir::LiteralExtraction::ExtractKind::Prefix)
+      prefixes = extractor.extract(hir)
+      prefixes.make_inexact
+      prefixes.optimize_for_prefix_by_preference
+      literals = prefixes.literals
+      return nil unless literals
+
+      ::Regex::Automata::Prefilter.new(::Regex::Automata::MatchKind::LeftmostFirst, literals.map(&.bytes))
+    end
+
+    private def reverse_inner_top_concat(hir : ::Regex::Syntax::Hir::Hir) : Array(::Regex::Syntax::Hir::Node)?
+      current = hir.node
+      loop do
+        case current
+        when ::Regex::Syntax::Hir::Capture
+          current = current.sub
+        when ::Regex::Syntax::Hir::Concat
+          flattened = ::Regex::Syntax::Hir::Hir.concat(current.children.map { |child| reverse_inner_flatten(child) })
+          kind = flattened.into_kind
+          return kind.children if kind.is_a?(::Regex::Syntax::Hir::Concat)
+          return nil
+        else
+          return nil
+        end
+      end
+    end
+
+    private def reverse_inner_flatten(node : ::Regex::Syntax::Hir::Node) : ::Regex::Syntax::Hir::Node
+      case node
+      when ::Regex::Syntax::Hir::Capture
+        reverse_inner_flatten(node.sub)
+      when ::Regex::Syntax::Hir::Alternation
+        ::Regex::Syntax::Hir::Hir.alternation(node.children.map { |child| reverse_inner_flatten(child) }).node
+      when ::Regex::Syntax::Hir::Concat
+        ::Regex::Syntax::Hir::Hir.concat(node.children.map { |child| reverse_inner_flatten(child) }).node
+      when ::Regex::Syntax::Hir::Repetition
+        ::Regex::Syntax::Hir::Hir.repetition(reverse_inner_flatten(node.sub), node.min, node.max, node.greedy?).node
+      else
+        node
+      end
+    end
+
     private def build_reverse_dense_dfa(
       hirs : Array(::Regex::Syntax::Hir::Hir),
     ) : ::Regex::Automata::DFA::DFA
@@ -467,6 +560,8 @@ module Regex::Automata::Meta
     @reverse_anchored_dfa : ::Regex::Automata::DFA::DFA?
     @reverse_suffix_prefilter : ::Regex::Automata::Prefilter?
     @reverse_suffix_dfa : ::Regex::Automata::DFA::DFA?
+    @reverse_inner_prefilter : ::Regex::Automata::Prefilter?
+    @reverse_inner_dfa : ::Regex::Automata::DFA::DFA?
     @always_anchored_start : Bool
     @always_anchored_end : Bool
 
@@ -479,6 +574,8 @@ module Regex::Automata::Meta
       @reverse_anchored_dfa : ::Regex::Automata::DFA::DFA? = nil,
       @reverse_suffix_prefilter : ::Regex::Automata::Prefilter? = nil,
       @reverse_suffix_dfa : ::Regex::Automata::DFA::DFA? = nil,
+      @reverse_inner_prefilter : ::Regex::Automata::Prefilter? = nil,
+      @reverse_inner_dfa : ::Regex::Automata::DFA::DFA? = nil,
       props_union : ::Regex::Syntax::Hir::Properties = ::Regex::Syntax::Hir::Properties.union([] of ::Regex::Syntax::Hir::Properties),
     )
       @group_info = @nfa.group_info
@@ -530,11 +627,16 @@ module Regex::Automata::Meta
         (@literal_prefilter.try(&.memory_usage) || 0) +
         (@reverse_anchored_dfa.try(&.memory_usage) || 0) +
         (@reverse_suffix_prefilter.try(&.memory_usage) || 0) +
-        (@reverse_suffix_dfa.try(&.memory_usage) || 0)
+        (@reverse_suffix_dfa.try(&.memory_usage) || 0) +
+        (@reverse_inner_prefilter.try(&.memory_usage) || 0) +
+        (@reverse_inner_dfa.try(&.memory_usage) || 0)
     end
 
     def is_accelerated : Bool
-      !@literal_prefilter.nil? || !@reverse_anchored_dfa.nil? || @reverse_suffix_prefilter.try(&.is_fast) == true
+      !@literal_prefilter.nil? ||
+        !@reverse_anchored_dfa.nil? ||
+        @reverse_suffix_prefilter.try(&.is_fast) == true ||
+        @reverse_inner_prefilter.try(&.is_fast) == true
     end
 
     def byte_classes : Bool
@@ -594,6 +696,9 @@ module Regex::Automata::Meta
       if suffix_match = reverse_suffix_search(cache, input)
         return suffix_match
       end
+      if inner_match = reverse_inner_search(cache, input)
+        return inner_match
+      end
       @pikevm.find(cache.raw_cache, input)
     end
 
@@ -622,6 +727,10 @@ module Regex::Automata::Meta
         search_captures_from_match(cache, input, caps, suffix_match)
         return
       end
+      if inner_match = reverse_inner_search(cache, input)
+        search_captures_from_match(cache, input, caps, inner_match)
+        return
+      end
       if @literal_prefilter
         caps.clear
         return
@@ -644,6 +753,9 @@ module Regex::Automata::Meta
       if suffix_match = reverse_suffix_search(cache, input)
         return search_slots_from_match(cache, input, slots, suffix_match)
       end
+      if inner_match = reverse_inner_search(cache, input)
+        return search_slots_from_match(cache, input, slots, inner_match)
+      end
       clear_slots(slots) if @literal_prefilter
       @pikevm.search_slots(cache.raw_cache, input, slots)
     end
@@ -662,6 +774,9 @@ module Regex::Automata::Meta
       end
       if suffix_match = reverse_suffix_search(cache, input)
         return search_slots_from_match(cache, input, slots, suffix_match)
+      end
+      if inner_match = reverse_inner_search(cache, input)
+        return search_slots_from_match(cache, input, slots, inner_match)
       end
       clear_slots(slots) if @literal_prefilter
       @pikevm.search_slots(cache.raw_cache, input, slots)
@@ -811,6 +926,39 @@ module Regex::Automata::Meta
 
         span = ::Regex::Automata::Span.new(next_start, span.end)
         min_start = litmatch.end
+      end
+      nil
+    end
+
+    private def reverse_inner_search(cache : Cache, input : ::Regex::Automata::Input) : ::Regex::Automata::Match?
+      prefilter = @reverse_inner_prefilter
+      dfa = @reverse_inner_dfa
+      return nil unless prefilter && dfa
+      return nil if input.anchored.is_anchored
+
+      span = ::Regex::Automata::Span.new(input.start, input.end)
+      loop do
+        litmatch = prefilter.find(input.haystack, span)
+        return nil unless litmatch
+
+        revinput = input.clone
+          .span(input.start...litmatch.start)
+          .anchored(::Regex::Automata::Anchored::Yes)
+        if start_match = reverse_match_from_dfa(dfa, revinput)
+          scoped = input.clone
+            .span(start_match.start...input.end)
+            .anchored(::Regex::Automata::Anchored::Pattern, start_match.pattern)
+          if match = @pikevm.find(cache.raw_cache, scoped)
+            return match
+          end
+        end
+
+        break if span.start >= span.end
+
+        next_start = litmatch.start + 1
+        break if next_start > span.end
+
+        span = ::Regex::Automata::Span.new(next_start, span.end)
       end
       nil
     end

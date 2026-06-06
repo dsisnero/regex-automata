@@ -170,6 +170,15 @@ For every unchecked top-level item:
   - Progress: `Meta::Regex` now builds a fast longest-common-suffix prefilter plus reverse dense DFA for eligible unanchored regexes, uses reverse start discovery to recover the leftmost start, reruns a forward pattern-anchored engine to preserve greedy match ends, and reuses the same capture/slot fallback path for explicit groups; `Prefilter#is_fast` now treats a single substring needle as fast to match the vendor memmem-style strategy gate
   - Done when: the focused reverse-suffix specs and the full suite are green with the suffix prefilter and reverse dense DFA path active
 
+- [x] Meta reverse inner strategy
+  - Upstream scope: `src/meta/strategy.rs::ReverseInner` and `src/meta/reverse_inner.rs`, plus the inner-literal `src/meta/regex.rs::{is_accelerated,search_with,search_half_with,search_captures_with,search_slots_with,memory_usage}` behavior it exposes
+  - Inventory ids: `src/meta/regex.rs::func::is_accelerated`, `src/meta/regex.rs::func::search_with`, `src/meta/regex.rs::func::search_half_with`, `src/meta/regex.rs::func::search_captures_with`, `src/meta/regex.rs::func::search_slots_with`, `src/meta/regex.rs::func::memory_usage`
+  - Workflow: extract a fast inner literal from a top-level concatenation, build a reverse dense DFA for the prefix before that literal, and confirm candidate matches with the existing forward engine
+  - Red: assert vendor-shaped acceleration for an inner-literal pattern like `[a-z]+XYZ\\d+`, full-match and half-match recovery through reverse prefix start discovery, explicit-capture reruns after inner-literal discovery, and the anchored-start skip condition
+  - Green: `src/regex/automata/meta.cr`, `spec/meta_regex_spec.cr`
+  - Progress: `Meta::Regex` now extracts a fast inner literal from eligible top-level concatenations, builds a reverse dense DFA for the prefix before that literal, discovers candidate starts from the inner literal, and confirms final match bounds with the existing forward PikeVM path before reusing the normal capture and slot fallback machinery
+  - Done when: the focused reverse-inner specs and the full suite are green with the inner-literal prefilter plus reverse prefix DFA path active
+
 - [x] Utilities — Search result primitives
   - Upstream scope: `src/util/search.rs::struct::Span`, `src/util/search.rs::struct::Match`, `src/util/search.rs::struct::HalfMatch`, `src/util/search.rs::enum::Anchored`, `src/util/search.rs::enum::MatchKind`
   - Inventory ids: `src/util/search.rs::struct::Span`, `src/util/search.rs::struct::Match`, `src/util/search.rs::struct::HalfMatch`, `src/util/search.rs::enum::Anchored`, `src/util/search.rs::enum::MatchKind`, `src/util/search.rs::func::must`, `src/util/search.rs::func::offset`, `src/util/search.rs::func::pattern`, `src/util/search.rs::func::len`, `src/util/search.rs::func::is_empty`, `src/util/search.rs::method::Anchored.is_anchored`, `src/util/search.rs::method::Span.range`
