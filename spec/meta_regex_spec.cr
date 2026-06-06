@@ -1,5 +1,9 @@
 require "./spec_helper"
 
+private def large_literal_alternation(count : Int32) : String
+  Array.new(count) { |i| "tok#{i.to_s.rjust(4, '0')}" }.join("|")
+end
+
 describe Regex::Automata::Meta::Regex do
   it "default" do
     re = Regex::Automata::Meta::Regex.builder.build_many(["foo[0-9]+", "bar"] of String)
@@ -111,6 +115,31 @@ describe Regex::Automata::Meta::Regex do
   it "matches the vendor acceleration signal for simple literals" do
     Regex::Automata::Meta::Regex.new("foo").is_accelerated.should be_true
     Regex::Automata::Meta::Regex.new("\\w").is_accelerated.should be_false
+  end
+
+  it "uses the large alternation literal bypass when heuristic extraction gives up" do
+    pattern = large_literal_alternation(1000)
+    re = Regex::Automata::Meta::Regex.new(pattern)
+    cache = re.create_cache
+    input = Regex::Automata::Input.new("xxtok0777yy")
+    slots = [nil, nil] of Int32?
+
+    re.is_accelerated.should be_true
+    re.memory_usage.should be > re.pikevm.memory_usage
+    re.search_with(cache, input).should eq(Regex::Automata::Match.must(0, 2...9))
+    re.search_half_with(cache, input).should eq(Regex::Automata::HalfMatch.must(0, 9))
+    re.search_slots_with(cache, input, slots).should eq(Regex::Automata::PatternID.new(0))
+    slots.should eq([2, 9])
+  end
+
+  it "disables the large alternation literal bypass when auto prefilters are off" do
+    pattern = large_literal_alternation(1000)
+    re = Regex::Automata::Meta::Regex.builder
+      .configure(Regex::Automata::Meta::Regex.config.auto_prefilter(false))
+      .build(pattern)
+
+    re.is_accelerated.should be_false
+    re.find("xxtok0777yy").should eq(Regex::Automata::Match.must(0, 2...9))
   end
 
   it "uses automatic core prefilters for non-literal meta regexes" do

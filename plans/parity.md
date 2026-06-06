@@ -206,6 +206,15 @@ For every unchecked top-level item:
   - Progress: `Meta::StopAt` now ports the forward dense-DFA stop-position helper, reverse-inner keeps a dedicated forward confirmation DFA, and failed forward confirmations now advance a proven stop boundary instead of blindly retrying every later inner literal candidate with PikeVM
   - Done when: the focused stop-position specs and the full suite are green with reverse-inner using the forward stop guard
 
+- [x] Meta large alternation literal bypass
+  - Upstream scope: the alternation-literal bypass in `src/meta/literal.rs` and `src/meta/strategy.rs::{from_alternation_literals,is_accelerated}`
+  - Inventory ids: `src/meta/regex.rs::func::is_accelerated`, `src/meta/regex.rs::func::memory_usage`, `src/meta/regex.rs::func::search_with`, `src/meta/regex.rs::func::search_half_with`, `src/meta/regex.rs::func::search_slots_with`
+  - Workflow: when heuristic exact-literal extraction gives up on a single large alternation of plain literals, extract the literals directly from the HIR shape and reuse the direct literal strategy path
+  - Red: assert that a generated large alternation like `lit0|lit1|...|lit999` still reports acceleration and finds matches through the literal bypass, while `auto_prefilter(false)` disables that shortcut
+  - Green: `src/regex/automata/meta.cr`, `spec/meta_regex_spec.cr`
+  - Progress: `Meta::Regex` now falls back to a direct alternation-literal extractor when heuristic exact-literal extraction gives up on a single plain-literal alternation, preserving the vendor acceleration signal and direct literal search path for large generated alternations
+  - Done when: the focused large-alternation specs and the full suite are green with the alternation-literal bypass active
+
 - [x] Utilities — Search result primitives
   - Upstream scope: `src/util/search.rs::struct::Span`, `src/util/search.rs::struct::Match`, `src/util/search.rs::struct::HalfMatch`, `src/util/search.rs::enum::Anchored`, `src/util/search.rs::enum::MatchKind`
   - Inventory ids: `src/util/search.rs::struct::Span`, `src/util/search.rs::struct::Match`, `src/util/search.rs::struct::HalfMatch`, `src/util/search.rs::enum::Anchored`, `src/util/search.rs::enum::MatchKind`, `src/util/search.rs::func::must`, `src/util/search.rs::func::offset`, `src/util/search.rs::func::pattern`, `src/util/search.rs::func::len`, `src/util/search.rs::func::is_empty`, `src/util/search.rs::method::Anchored.is_anchored`, `src/util/search.rs::method::Span.range`

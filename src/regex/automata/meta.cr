@@ -372,15 +372,81 @@ module Regex::Automata::Meta
       extractor = ::Regex::Syntax::Hir::LiteralExtraction::Extractor.new
       extractor.kind(::Regex::Syntax::Hir::LiteralExtraction::ExtractKind::Prefix)
       prefixes = extractor.extract(hir)
-      return nil unless prefixes.finite? && prefixes.exact?
+      if prefixes.finite? && prefixes.exact?
+        literals = prefixes.literals
+        return nil unless literals && !literals.empty?
 
-      literals = prefixes.literals
-      return nil unless literals && !literals.empty?
+        return ::Regex::Automata::Prefilter.new(
+          @config.get_match_kind,
+          literals.map(&.bytes)
+        )
+      end
 
-      ::Regex::Automata::Prefilter.new(
-        @config.get_match_kind,
-        literals.map(&.bytes)
-      )
+      alternation_literal_prefilter(hir)
+    end
+
+    private def alternation_literal_prefilter(
+      hir : ::Regex::Syntax::Hir::Hir,
+    ) : ::Regex::Automata::Prefilter?
+      return nil unless @config.get_match_kind == ::Regex::Automata::MatchKind::LeftmostFirst
+      return nil unless hir.properties.alternation_literal?
+
+      literals = extract_alternation_literals(hir.node)
+      return nil unless literals
+      return nil if literals.size < 2
+
+      ::Regex::Automata::Prefilter.new(@config.get_match_kind, literals)
+    end
+
+    private def extract_alternation_literals(
+      node : ::Regex::Syntax::Hir::Node,
+    ) : Array(Bytes)?
+      case node
+      when ::Regex::Syntax::Hir::Literal
+        literal = node.bytes
+        return nil if literal.empty?
+        [literal]
+      when ::Regex::Syntax::Hir::Concat
+        bytes = Bytes.empty
+        node.children.each do |child|
+          part = extract_literal_term(child)
+          return nil unless part
+          bytes = bytes + part
+        end
+        return nil if bytes.empty?
+        [bytes]
+      when ::Regex::Syntax::Hir::Alternation
+        literals = [] of Bytes
+        node.children.each do |child|
+          parts = extract_alternation_literals(child)
+          return nil unless parts
+          literals.concat(parts)
+        end
+        literals
+      else
+        nil
+      end
+    end
+
+    private def extract_literal_term(
+      node : ::Regex::Syntax::Hir::Node,
+    ) : Bytes?
+      case node
+      when ::Regex::Syntax::Hir::Literal
+        bytes = node.bytes
+        bytes.empty? ? nil : bytes
+      when ::Regex::Syntax::Hir::Concat
+        parts = [] of UInt8
+        node.children.each do |child|
+          bytes = extract_literal_term(child)
+          return nil unless bytes
+          parts.concat(bytes)
+        end
+        return nil if parts.empty?
+        Bytes.new(parts.size) { |i| parts[i] }
+      else
+        nil
+      end
     end
 
     private def build_core_prefilter(
