@@ -197,6 +197,15 @@ For every unchecked top-level item:
   - Progress: `Meta::Limited` now ports the vendor bounded reverse dense-DFA helper, surfaces retry-fail versus retry-quadratic outcomes, and drives reverse-suffix plus reverse-inner start discovery so those strategies stop trusting truncated reverse starts that cannot be proven correct
   - Done when: the bounded reverse helper specs and the full suite are green with reverse-suffix and reverse-inner using the limited reverse guard
 
+- [x] Meta forward stop-position guard
+  - Upstream scope: the dense-DFA forward stop-position helper in `src/meta/stopat.rs`, plus the reverse-inner path in `src/meta/strategy.rs` that consumes it
+  - Inventory ids: `src/meta/regex.rs::func::search_with`, `src/meta/regex.rs::func::search_half_with`, `src/meta/regex.rs::func::search_captures_with`, `src/meta/regex.rs::func::search_slots_with`
+  - Workflow: port the forward dense-DFA stop-position helper, build a forward confirmation DFA for reverse-inner, and stop rescanning already-proven-dead suffixes after a failed forward confirmation
+  - Red: assert that a forward anchored scan like `\\d+XYZ\\d+` over `123XYZabc` reports the stop offset instead of pretending there is no useful termination point, and that reverse-inner keeps using that offset to avoid re-trusting later inner literals before the previous forward stop
+  - Green: `src/regex/automata/meta_stopat.cr`, `src/regex/automata/meta.cr`, focused stop-position specs
+  - Progress: `Meta::StopAt` now ports the forward dense-DFA stop-position helper, reverse-inner keeps a dedicated forward confirmation DFA, and failed forward confirmations now advance a proven stop boundary instead of blindly retrying every later inner literal candidate with PikeVM
+  - Done when: the focused stop-position specs and the full suite are green with reverse-inner using the forward stop guard
+
 - [x] Utilities — Search result primitives
   - Upstream scope: `src/util/search.rs::struct::Span`, `src/util/search.rs::struct::Match`, `src/util/search.rs::struct::HalfMatch`, `src/util/search.rs::enum::Anchored`, `src/util/search.rs::enum::MatchKind`
   - Inventory ids: `src/util/search.rs::struct::Span`, `src/util/search.rs::struct::Match`, `src/util/search.rs::struct::HalfMatch`, `src/util/search.rs::enum::Anchored`, `src/util/search.rs::enum::MatchKind`, `src/util/search.rs::func::must`, `src/util/search.rs::func::offset`, `src/util/search.rs::func::pattern`, `src/util/search.rs::func::len`, `src/util/search.rs::func::is_empty`, `src/util/search.rs::method::Anchored.is_anchored`, `src/util/search.rs::method::Span.range`

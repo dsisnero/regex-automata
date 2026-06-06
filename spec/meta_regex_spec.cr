@@ -244,6 +244,15 @@ describe Regex::Automata::Meta::Regex do
     slots.should eq([0, 9, 0, 3])
   end
 
+  it "continues reverse inner search after a failed forward confirmation" do
+    re = Regex::Automata::Meta::Regex.new("\\d+XYZ\\d+")
+    cache = re.create_cache
+    input = Regex::Automata::Input.new("123XYZabc999XYZ456")
+
+    re.search_with(cache, input).should eq(Regex::Automata::Match.must(0, 9...18))
+    re.search_half_with(cache, input).should eq(Regex::Automata::HalfMatch.must(0, 18))
+  end
+
   it "does not use reverse inner acceleration when always anchored at the start" do
     re = Regex::Automata::Meta::Regex.new("^[a-z]+XYZ\\d+")
     input = Regex::Automata::Input.new("!!abcXYZ123").anchored(Regex::Automata::Anchored::Yes)
