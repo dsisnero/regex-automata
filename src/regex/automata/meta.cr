@@ -1,5 +1,6 @@
 require "./meta_error"
 require "./captures"
+require "./dfa"
 require "./nfa"
 require "./pikevm"
 require "./pool"
@@ -302,6 +303,7 @@ module Regex::Automata::Meta
 
     def build_many_from_hir(hirs : Enumerable(::Regex::Syntax::Hir::Hir)) : Regex
       hirs_array = hirs.to_a
+      props_union = ::Regex::Syntax::Hir::Properties.union(hirs_array.map(&.properties))
       compile_config = ::Regex::Automata::HirCompilerConfig.new(
         utf8: effective_syntax_config.get_utf8,
         nfa_size_limit: @config.get_nfa_size_limit,
@@ -317,7 +319,8 @@ module Regex::Automata::Meta
         .configure(pike_config)
         .build_from_nfa(nfa)
       literal_prefilter = exact_literal_prefilter(hirs_array, nfa.group_info)
-      Regex.new(@config, effective_syntax_config, nfa, pikevm, literal_prefilter)
+      reverse_anchored_dfa = build_reverse_anchored_dfa(hirs_array, props_union)
+      Regex.new(@config, effective_syntax_config, nfa, pikevm, literal_prefilter, reverse_anchored_dfa, props_union)
     rescue ex : ::Regex::Automata::BuildError
       if ex.is_size_limit_exceeded && (limit = @config.get_nfa_size_limit)
         raise BuildError.size_limit(limit, ex)
@@ -360,6 +363,41 @@ module Regex::Automata::Meta
         literals.map(&.bytes)
       )
     end
+
+    private def build_reverse_anchored_dfa(
+      hirs : Array(::Regex::Syntax::Hir::Hir),
+      props_union : ::Regex::Syntax::Hir::Properties,
+    ) : ::Regex::Automata::DFA::DFA?
+      return nil unless @config.get_dfa
+      return nil unless props_union.look_set_suffix.contains(::Regex::Syntax::Hir::Look::Kind::EndText)
+      return nil if props_union.look_set_prefix.contains(::Regex::Syntax::Hir::Look::Kind::StartText)
+
+      reverse_compile_config = ::Regex::Automata::HirCompilerConfig.new(
+        utf8: effective_syntax_config.get_utf8,
+        reverse: true,
+        nfa_size_limit: @config.get_nfa_size_limit,
+        which_captures: ::Regex::Automata::NFA::WhichCaptures::None,
+        look_matcher: ::Regex::Automata::LookMatcher.new(@config.get_line_terminator),
+        unanchored_prefix: false
+      )
+      nfa_rev = ::Regex::Automata::HirCompiler.new(reverse_compile_config, effective_syntax_config).build_many_from_hir(hirs)
+
+      size_limit = @config.get_dfa_size_limit.try { |limit| limit // 2 }
+      dfa_config = ::Regex::Automata::Config.new
+        .match_kind(::Regex::Automata::MatchKind::All)
+        .prefilter(nil)
+        .accelerate(false)
+        .start_kind(::Regex::Automata::StartKind::Anchored)
+        .starts_for_each_pattern(false)
+        .byte_classes(@config.get_byte_classes)
+        .unicode_word_boundary(true)
+        .specialize_start_states(false)
+        .determinize_size_limit(size_limit)
+        .dfa_size_limit(size_limit)
+      ::Regex::Automata::DFA::Builder.from_nfa(nfa_rev, dfa_config).build
+    rescue ex : ::Regex::Automata::BuildError
+      nil
+    end
   end
 
   class Regex
@@ -371,6 +409,9 @@ module Regex::Automata::Meta
     @config : Config
     @static_captures_len : Int32?
     @literal_prefilter : ::Regex::Automata::Prefilter?
+    @reverse_anchored_dfa : ::Regex::Automata::DFA::DFA?
+    @always_anchored_start : Bool
+    @always_anchored_end : Bool
 
     def initialize(
       @config : Config,
@@ -378,9 +419,13 @@ module Regex::Automata::Meta
       @nfa : ::Regex::Automata::NFA::NFA,
       @pikevm : ::Regex::Automata::NFA::PikeVM,
       @literal_prefilter : ::Regex::Automata::Prefilter? = nil,
+      @reverse_anchored_dfa : ::Regex::Automata::DFA::DFA? = nil,
+      props_union : ::Regex::Syntax::Hir::Properties = ::Regex::Syntax::Hir::Properties.union([] of ::Regex::Syntax::Hir::Properties),
     )
       @group_info = @nfa.group_info
       @static_captures_len = compute_static_captures_len
+      @always_anchored_start = props_union.look_set_prefix.contains(::Regex::Syntax::Hir::Look::Kind::StartText)
+      @always_anchored_end = props_union.look_set_suffix.contains(::Regex::Syntax::Hir::Look::Kind::EndText)
     end
 
     def self.new(pattern : String) : Regex
@@ -422,11 +467,13 @@ module Regex::Automata::Meta
     end
 
     def memory_usage : Int32
-      @pikevm.memory_usage + (@literal_prefilter.try(&.memory_usage) || 0)
+      @pikevm.memory_usage +
+        (@literal_prefilter.try(&.memory_usage) || 0) +
+        (@reverse_anchored_dfa.try(&.memory_usage) || 0)
     end
 
     def is_accelerated : Bool
-      !@literal_prefilter.nil?
+      !@literal_prefilter.nil? || !@reverse_anchored_dfa.nil?
     end
 
     def byte_classes : Bool
@@ -476,6 +523,10 @@ module Regex::Automata::Meta
     end
 
     def search_with(cache : Cache, input : ::Regex::Automata::Input) : ::Regex::Automata::Match?
+      return nil if impossible_input?(input)
+      if reverse_match = reverse_anchored_search(input)
+        return reverse_match
+      end
       if literal = literal_search(input)
         return literal
       end
@@ -483,10 +534,22 @@ module Regex::Automata::Meta
     end
 
     def search_half_with(cache : Cache, input : ::Regex::Automata::Input) : ::Regex::Automata::HalfMatch?
+      return nil if impossible_input?(input)
+      if reverse_match = reverse_anchored_search(input)
+        return ::Regex::Automata::HalfMatch.new(reverse_match.pattern, input.end)
+      end
       search_with(cache, input).try { |match| ::Regex::Automata::HalfMatch.new(match.pattern, match.end) }
     end
 
     def search_captures_with(cache : Cache, input : ::Regex::Automata::Input, caps : ::Regex::Automata::Captures) : Nil
+      if impossible_input?(input)
+        caps.clear
+        return
+      end
+      if reverse_match = reverse_anchored_search(input)
+        search_captures_from_match(cache, input, caps, reverse_match)
+        return
+      end
       if literal = literal_search(input)
         set_match_captures(caps, literal)
         return
@@ -499,6 +562,13 @@ module Regex::Automata::Meta
     end
 
     def search_slots_with(cache : Cache, input : ::Regex::Automata::Input, slots : Array(::Regex::Automata::NonMaxUsize?)) : ::Regex::Automata::PatternID?
+      if impossible_input?(input)
+        clear_slots(slots)
+        return nil
+      end
+      if reverse_match = reverse_anchored_search(input)
+        return search_slots_from_match(cache, input, slots, reverse_match)
+      end
       if literal = literal_search(input)
         set_match_slots(slots, literal)
         return literal.pattern
@@ -508,6 +578,13 @@ module Regex::Automata::Meta
     end
 
     def search_slots_with(cache : Cache, input : ::Regex::Automata::Input, slots : Array(Int32?)) : ::Regex::Automata::PatternID?
+      if impossible_input?(input)
+        clear_slots(slots)
+        return nil
+      end
+      if reverse_match = reverse_anchored_search(input)
+        return search_slots_from_match(cache, input, slots, reverse_match)
+      end
       if literal = literal_search(input)
         set_match_slots(slots, literal)
         return literal.pattern
@@ -517,6 +594,10 @@ module Regex::Automata::Meta
     end
 
     def which_overlapping_matches_with(cache : Cache, input : ::Regex::Automata::Input, patset : ::Regex::Automata::PatternSet) : Nil
+      if impossible_input?(input)
+        patset.clear
+        return
+      end
       if @literal_prefilter
         patset.clear
         if literal_search(input)
@@ -600,6 +681,85 @@ module Regex::Automata::Meta
       return nil unless candidate
 
       ::Regex::Automata::Match.new(::Regex::Automata::PatternID.new(0), candidate.start, candidate.end)
+    end
+
+    private def impossible_input?(input : ::Regex::Automata::Input) : Bool
+      return true if @always_anchored_start && input.start > 0
+      return true if @always_anchored_end && input.end < input.haystack.size
+
+      false
+    end
+
+    private def reverse_anchored_search(input : ::Regex::Automata::Input) : ::Regex::Automata::Match?
+      dfa = @reverse_anchored_dfa
+      return nil unless dfa
+      return nil if input.anchored.is_anchored
+
+      slice = input.haystack[input.start, input.end - input.start]
+      result = dfa.try_search_rev(slice)
+      return nil unless result.is_a?(Tuple(Int32, Array(::Regex::Automata::PatternID)))
+
+      start_offset, pattern_ids = result
+      pattern_id = pattern_ids.first?
+      return nil unless pattern_id
+
+      ::Regex::Automata::Match.new(pattern_id, input.start + start_offset, input.end)
+    end
+
+    private def search_captures_from_match(
+      cache : Cache,
+      input : ::Regex::Automata::Input,
+      caps : ::Regex::Automata::Captures,
+      match : ::Regex::Automata::Match,
+    ) : Nil
+      if capture_search_needed?(caps.slot_len)
+        scoped = input.clone
+          .span(match.start...match.end)
+          .anchored(::Regex::Automata::Anchored::Pattern, match.pattern)
+        @pikevm.search(cache.raw_cache, scoped, caps)
+      else
+        set_match_captures(caps, match)
+      end
+    end
+
+    private def search_slots_from_match(
+      cache : Cache,
+      input : ::Regex::Automata::Input,
+      slots : Array(::Regex::Automata::NonMaxUsize?),
+      match : ::Regex::Automata::Match,
+    ) : ::Regex::Automata::PatternID?
+      if capture_search_needed?(slots.size)
+        clear_slots(slots)
+        scoped = input.clone
+          .span(match.start...match.end)
+          .anchored(::Regex::Automata::Anchored::Pattern, match.pattern)
+        @pikevm.search_slots(cache.raw_cache, scoped, slots)
+      else
+        set_match_slots(slots, match)
+        match.pattern
+      end
+    end
+
+    private def search_slots_from_match(
+      cache : Cache,
+      input : ::Regex::Automata::Input,
+      slots : Array(Int32?),
+      match : ::Regex::Automata::Match,
+    ) : ::Regex::Automata::PatternID?
+      if capture_search_needed?(slots.size)
+        clear_slots(slots)
+        scoped = input.clone
+          .span(match.start...match.end)
+          .anchored(::Regex::Automata::Anchored::Pattern, match.pattern)
+        @pikevm.search_slots(cache.raw_cache, scoped, slots)
+      else
+        set_match_slots(slots, match)
+        match.pattern
+      end
+    end
+
+    private def capture_search_needed?(slot_len : Int32) : Bool
+      slot_len > @group_info.implicit_slot_len
     end
 
     private def set_match_captures(caps : ::Regex::Automata::Captures, match : ::Regex::Automata::Match) : Nil

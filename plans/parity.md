@@ -152,6 +152,15 @@ For every unchecked top-level item:
   - Progress: `Meta::Regex` now detects exact single-pattern literal languages eligible for the upstream `Pre` strategy class, reports `is_accelerated` accordingly, and routes cache-backed match, half-match, captures, slot, and overlapping-pattern queries through literal search before falling back to PikeVM
   - Done when: simple literal meta regexes behave as accelerated searchers under the focused Crystal specs and the full suite
 
+- [x] Meta reverse anchored DFA strategy
+  - Upstream scope: `src/meta/strategy.rs::ReverseAnchored`, plus the reverse-anchored `src/meta/regex.rs::{is_accelerated,search_with,search_half_with,search_slots_with,memory_usage}` behavior it exposes
+  - Inventory ids: `src/meta/regex.rs::func::is_accelerated`, `src/meta/regex.rs::func::search_with`, `src/meta/regex.rs::func::search_half_with`, `src/meta/regex.rs::func::search_slots_with`, `src/meta/regex.rs::func::memory_usage`
+  - Workflow: add the next concrete meta composition path by routing always-end-anchored, not-always-start-anchored regexes through a reverse dense DFA on unanchored searches
+  - Red: assert the vendor acceleration signal, reverse half-match end-offset behavior, implicit-slot filling, anchored-input fallback, and memory accounting for `foo$`-style regexes
+  - Green: `src/regex/automata/meta.cr`, `spec/meta_regex_spec.cr`
+  - Progress: `Meta::Regex` now builds an optional reverse dense DFA for always-end-anchored, not-always-start-anchored regexes, treats impossible end-anchor spans as no-match in the wrapper, and routes unanchored match, half-match, capture, and slot searches through reverse start discovery with PikeVM fallback for explicit captures
+  - Done when: the focused reverse-anchored meta specs and the full suite are green with the dense reverse DFA path active
+
 - [x] Utilities — Search result primitives
   - Upstream scope: `src/util/search.rs::struct::Span`, `src/util/search.rs::struct::Match`, `src/util/search.rs::struct::HalfMatch`, `src/util/search.rs::enum::Anchored`, `src/util/search.rs::enum::MatchKind`
   - Inventory ids: `src/util/search.rs::struct::Span`, `src/util/search.rs::struct::Match`, `src/util/search.rs::struct::HalfMatch`, `src/util/search.rs::enum::Anchored`, `src/util/search.rs::enum::MatchKind`, `src/util/search.rs::func::must`, `src/util/search.rs::func::offset`, `src/util/search.rs::func::pattern`, `src/util/search.rs::func::len`, `src/util/search.rs::func::is_empty`, `src/util/search.rs::method::Anchored.is_anchored`, `src/util/search.rs::method::Span.range`

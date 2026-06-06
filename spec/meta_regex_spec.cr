@@ -113,6 +113,49 @@ describe Regex::Automata::Meta::Regex do
     Regex::Automata::Meta::Regex.new("\\w").is_accelerated.should be_false
   end
 
+  it "uses reverse anchored acceleration for end-anchored regexes" do
+    re = Regex::Automata::Meta::Regex.new("foo$")
+    cache = re.create_cache
+    input = Regex::Automata::Input.new("xxfoo")
+    slots = [nil, nil] of Int32?
+
+    re.is_accelerated.should be_true
+    re.memory_usage.should be > re.pikevm.memory_usage
+    re.search_with(cache, input).should eq(Regex::Automata::Match.must(0, 2...5))
+    re.search_half_with(cache, input).should eq(Regex::Automata::HalfMatch.must(0, 5))
+    re.search_slots_with(cache, input, slots).should eq(Regex::Automata::PatternID.new(0))
+    slots.should eq([2, 5])
+  end
+
+  it "reruns capture searches after reverse anchored start discovery" do
+    re = Regex::Automata::Meta::Regex.new("(?P<word>foo)$")
+    cache = re.create_cache
+    caps = re.create_captures
+    slots = Array(Int32?).new(caps.slot_len, nil)
+    input = Regex::Automata::Input.new("xxfoo")
+
+    re.search_captures_with(cache, input, caps)
+    caps.get_match.should eq(Regex::Automata::Match.must(0, 2...5))
+    caps.get_group_by_name("word").should eq(Regex::Automata::Span.new(2, 5))
+    re.search_slots_with(cache, input, slots).should eq(Regex::Automata::PatternID.new(0))
+    slots.should eq([2, 5, 2, 5])
+  end
+
+  it "does not use reverse anchored acceleration when also anchored at the start" do
+    re = Regex::Automata::Meta::Regex.new("^foo$")
+    input = Regex::Automata::Input.new("xxfoo").anchored(Regex::Automata::Anchored::Yes)
+
+    re.is_accelerated.should be_false
+    re.find(input).should be_nil
+  end
+
+  it "treats end-anchored regexes as impossible before the haystack end" do
+    re = Regex::Automata::Meta::Regex.new("foo$")
+    input = Regex::Automata::Input.new("xxfoo!").span(0...5)
+
+    re.find(input).should be_nil
+  end
+
   it "supports overlapping pattern discovery under MatchKind::All" do
     re = Regex::Automata::Meta::Regex.builder
       .configure(Regex::Automata::Meta::Regex.config.match_kind(Regex::Automata::MatchKind::All))
