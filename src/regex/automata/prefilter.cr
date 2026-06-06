@@ -19,7 +19,7 @@ module Regex::Automata
 
       max_needle_len = bytes.max_of(&.size).to_i32
       memory_usage = bytes.sum(&.size).to_i32
-      is_fast = bytes.size <= 3 && bytes.all? { |needle| needle.size == 1 }
+      is_fast = bytes.size == 1 || (bytes.size <= 3 && bytes.all? { |needle| needle.size == 1 })
       prefilter = allocate
       prefilter.initialize(kind, bytes, max_needle_len, memory_usage, is_fast)
       prefilter

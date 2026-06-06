@@ -161,6 +161,15 @@ For every unchecked top-level item:
   - Progress: `Meta::Regex` now builds an optional reverse dense DFA for always-end-anchored, not-always-start-anchored regexes, treats impossible end-anchor spans as no-match in the wrapper, and routes unanchored match, half-match, capture, and slot searches through reverse start discovery with PikeVM fallback for explicit captures
   - Done when: the focused reverse-anchored meta specs and the full suite are green with the dense reverse DFA path active
 
+- [x] Meta reverse suffix strategy
+  - Upstream scope: `src/meta/strategy.rs::ReverseSuffix`, plus the suffix-driven `src/meta/regex.rs::{is_accelerated,search_with,search_half_with,search_slots_with,memory_usage}` behavior it exposes
+  - Inventory ids: `src/meta/regex.rs::func::is_accelerated`, `src/meta/regex.rs::func::search_with`, `src/meta/regex.rs::func::search_half_with`, `src/meta/regex.rs::func::search_captures_with`, `src/meta/regex.rs::func::search_slots_with`, `src/meta/regex.rs::func::memory_usage`
+  - Workflow: add the next concrete meta composition path by scanning for a fast longest-common suffix, using a reverse dense DFA to recover the match start, and rerunning a forward engine to recover the true greedy end
+  - Red: assert vendor-shaped acceleration for `[a-z]+ing`, greedy half-match behavior on `tingling`, explicit-capture reruns after suffix discovery, and the single-substring prefilter fastness this strategy depends on
+  - Green: `src/regex/automata/meta.cr`, `src/regex/automata/prefilter.cr`, `spec/meta_regex_spec.cr`, `spec/prefilter_spec.cr`
+  - Progress: `Meta::Regex` now builds a fast longest-common-suffix prefilter plus reverse dense DFA for eligible unanchored regexes, uses reverse start discovery to recover the leftmost start, reruns a forward pattern-anchored engine to preserve greedy match ends, and reuses the same capture/slot fallback path for explicit groups; `Prefilter#is_fast` now treats a single substring needle as fast to match the vendor memmem-style strategy gate
+  - Done when: the focused reverse-suffix specs and the full suite are green with the suffix prefilter and reverse dense DFA path active
+
 - [x] Utilities — Search result primitives
   - Upstream scope: `src/util/search.rs::struct::Span`, `src/util/search.rs::struct::Match`, `src/util/search.rs::struct::HalfMatch`, `src/util/search.rs::enum::Anchored`, `src/util/search.rs::enum::MatchKind`
   - Inventory ids: `src/util/search.rs::struct::Span`, `src/util/search.rs::struct::Match`, `src/util/search.rs::struct::HalfMatch`, `src/util/search.rs::enum::Anchored`, `src/util/search.rs::enum::MatchKind`, `src/util/search.rs::func::must`, `src/util/search.rs::func::offset`, `src/util/search.rs::func::pattern`, `src/util/search.rs::func::len`, `src/util/search.rs::func::is_empty`, `src/util/search.rs::method::Anchored.is_anchored`, `src/util/search.rs::method::Span.range`

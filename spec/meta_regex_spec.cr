@@ -156,6 +156,33 @@ describe Regex::Automata::Meta::Regex do
     re.find(input).should be_nil
   end
 
+  it "uses reverse suffix acceleration for greedy suffix matches" do
+    re = Regex::Automata::Meta::Regex.new("[a-z]+ing")
+    cache = re.create_cache
+    input = Regex::Automata::Input.new("tingling")
+    slots = [nil, nil] of Int32?
+
+    re.is_accelerated.should be_true
+    re.search_with(cache, input).should eq(Regex::Automata::Match.must(0, 0...8))
+    re.search_half_with(cache, input).should eq(Regex::Automata::HalfMatch.must(0, 8))
+    re.search_slots_with(cache, input, slots).should eq(Regex::Automata::PatternID.new(0))
+    slots.should eq([0, 8])
+  end
+
+  it "reruns explicit captures after reverse suffix start discovery" do
+    re = Regex::Automata::Meta::Regex.new("(?P<word>[a-z]+)ing")
+    cache = re.create_cache
+    caps = re.create_captures
+    slots = Array(Int32?).new(caps.slot_len, nil)
+    input = Regex::Automata::Input.new("tingling")
+
+    re.search_captures_with(cache, input, caps)
+    caps.get_match.should eq(Regex::Automata::Match.must(0, 0...8))
+    caps.get_group_by_name("word").should eq(Regex::Automata::Span.new(0, 5))
+    re.search_slots_with(cache, input, slots).should eq(Regex::Automata::PatternID.new(0))
+    slots.should eq([0, 8, 0, 5])
+  end
+
   it "supports overlapping pattern discovery under MatchKind::All" do
     re = Regex::Automata::Meta::Regex.builder
       .configure(Regex::Automata::Meta::Regex.config.match_kind(Regex::Automata::MatchKind::All))

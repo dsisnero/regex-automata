@@ -94,4 +94,13 @@ describe Regex::Automata::Prefilter do
     ).not_nil!
     slow.is_fast.should be_false
   end
+
+  it "treats a single substring needle as fast" do
+    pre = Regex::Automata::Prefilter.new(
+      Regex::Automata::MatchKind::All,
+      ["ing"]
+    ).not_nil!
+
+    pre.is_fast.should be_true
+  end
 end
