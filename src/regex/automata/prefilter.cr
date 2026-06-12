@@ -7,6 +7,7 @@ module Regex::Automata
   class Prefilter
     getter kind : MatchKind
     getter max_needle_len : Int32
+    getter needles : Array(Bytes)
 
     @needles : Array(Bytes)
     @is_fast : Bool

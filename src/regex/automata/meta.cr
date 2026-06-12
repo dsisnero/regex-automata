@@ -321,7 +321,7 @@ module Regex::Automata::Meta
       pikevm = ::Regex::Automata::NFA::PikeVM::Builder.new
         .configure(pike_config)
         .build_from_nfa(nfa)
-      literal_prefilter = exact_literal_prefilter(hirs_array, nfa.group_info)
+      literal_prefilter, literal_pattern_ids = exact_literal_strategy(hirs_array, nfa.group_info)
       reverse_suffix_prefilter, reverse_suffix_dfa = build_reverse_suffix_strategy(hirs_array, props_union, core_prefilter, literal_prefilter)
       reverse_inner_prefilter, reverse_inner_dfa, reverse_inner_forward_dfa = build_reverse_inner_strategy(hirs_array, props_union, core_prefilter, literal_prefilter, reverse_suffix_prefilter)
       reverse_anchored_dfa = build_reverse_anchored_dfa(hirs_array, props_union)
@@ -332,6 +332,7 @@ module Regex::Automata::Meta
         pikevm,
         core_prefilter,
         literal_prefilter,
+        literal_pattern_ids,
         reverse_anchored_dfa,
         reverse_suffix_prefilter,
         reverse_suffix_dfa,
@@ -360,15 +361,37 @@ module Regex::Automata::Meta
       @syntax_config.line_terminator(@config.get_line_terminator)
     end
 
-    private def exact_literal_prefilter(hirs : Array(::Regex::Syntax::Hir::Hir), group_info : ::Regex::Automata::GroupInfo) : ::Regex::Automata::Prefilter?
-      return nil unless @config.get_auto_prefilter
-      return nil if @config.get_prefilter
-      return nil unless hirs.size == 1
-      return nil unless group_info.explicit_slot_len == 0
+    private def exact_literal_strategy(
+      hirs : Array(::Regex::Syntax::Hir::Hir),
+      group_info : ::Regex::Automata::GroupInfo,
+    ) : {::Regex::Automata::Prefilter?, Array(::Regex::Automata::PatternID)?}
+      return {nil, nil} unless @config.get_auto_prefilter
+      return {nil, nil} if @config.get_prefilter
+      return {nil, nil} unless group_info.explicit_slot_len == 0
+      return {nil, nil} if hirs.size > 1 && @config.get_match_kind != ::Regex::Automata::MatchKind::LeftmostFirst
 
-      hir = hirs.first
-      return nil unless hir.properties.look_set.empty?
+      literals = [] of Bytes
+      pattern_ids = [] of ::Regex::Automata::PatternID
+      hirs.each_with_index do |hir, index|
+        return {nil, nil} unless hir.properties.look_set.empty?
 
+        exact_literals = exact_literals_for_hir(hir)
+        return {nil, nil} unless exact_literals
+
+        pid = ::Regex::Automata::PatternID.new(index.to_i32)
+        exact_literals.each do |literal|
+          literals << literal
+          pattern_ids << pid
+        end
+      end
+      return {nil, nil} if literals.empty?
+
+      {::Regex::Automata::Prefilter.new(@config.get_match_kind, literals), pattern_ids}
+    end
+
+    private def exact_literals_for_hir(
+      hir : ::Regex::Syntax::Hir::Hir,
+    ) : Array(Bytes)?
       extractor = ::Regex::Syntax::Hir::LiteralExtraction::Extractor.new
       extractor.kind(::Regex::Syntax::Hir::LiteralExtraction::ExtractKind::Prefix)
       prefixes = extractor.extract(hir)
@@ -376,26 +399,24 @@ module Regex::Automata::Meta
         literals = prefixes.literals
         return nil unless literals && !literals.empty?
 
-        return ::Regex::Automata::Prefilter.new(
-          @config.get_match_kind,
-          literals.map(&.bytes)
-        )
+        return literals.map do |literal|
+          Bytes.new(literal.bytes.size) { |i| literal.bytes[i] }
+        end
       end
 
-      alternation_literal_prefilter(hir)
+      alternation_literals(hir)
     end
 
-    private def alternation_literal_prefilter(
+    private def alternation_literals(
       hir : ::Regex::Syntax::Hir::Hir,
-    ) : ::Regex::Automata::Prefilter?
-      return nil unless @config.get_match_kind == ::Regex::Automata::MatchKind::LeftmostFirst
+    ) : Array(Bytes)?
       return nil unless hir.properties.alternation_literal?
 
       literals = extract_alternation_literals(hir.node)
       return nil unless literals
-      return nil if literals.size < 2
+      return nil if literals.empty?
 
-      ::Regex::Automata::Prefilter.new(@config.get_match_kind, literals)
+      literals
     end
 
     private def extract_alternation_literals(
@@ -659,6 +680,7 @@ module Regex::Automata::Meta
     @static_captures_len : Int32?
     @core_prefilter : ::Regex::Automata::Prefilter?
     @literal_prefilter : ::Regex::Automata::Prefilter?
+    @literal_pattern_ids : Array(::Regex::Automata::PatternID)?
     @reverse_anchored_dfa : ::Regex::Automata::DFA::DFA?
     @reverse_suffix_prefilter : ::Regex::Automata::Prefilter?
     @reverse_suffix_dfa : ::Regex::Automata::DFA::DFA?
@@ -675,6 +697,7 @@ module Regex::Automata::Meta
       @pikevm : ::Regex::Automata::NFA::PikeVM,
       @core_prefilter : ::Regex::Automata::Prefilter? = nil,
       @literal_prefilter : ::Regex::Automata::Prefilter? = nil,
+      @literal_pattern_ids : Array(::Regex::Automata::PatternID)? = nil,
       @reverse_anchored_dfa : ::Regex::Automata::DFA::DFA? = nil,
       @reverse_suffix_prefilter : ::Regex::Automata::Prefilter? = nil,
       @reverse_suffix_dfa : ::Regex::Automata::DFA::DFA? = nil,
@@ -741,7 +764,7 @@ module Regex::Automata::Meta
 
     def is_accelerated : Bool
       @core_prefilter.try(&.is_fast) == true ||
-        !@literal_prefilter.nil? ||
+        literal_strategy? ||
         !@reverse_anchored_dfa.nil? ||
         @reverse_suffix_prefilter.try(&.is_fast) == true ||
         @reverse_inner_prefilter.try(&.is_fast) == true
@@ -839,7 +862,7 @@ module Regex::Automata::Meta
         search_captures_from_match(cache, input, caps, inner_match)
         return
       end
-      if @literal_prefilter
+      if literal_strategy?
         caps.clear
         return
       end
@@ -864,7 +887,7 @@ module Regex::Automata::Meta
       if inner_match = reverse_inner_search(cache, input)
         return search_slots_from_match(cache, input, slots, inner_match)
       end
-      clear_slots(slots) if @literal_prefilter
+      clear_slots(slots) if literal_strategy?
       @pikevm.search_slots(cache.raw_cache, input, slots)
     end
 
@@ -886,7 +909,7 @@ module Regex::Automata::Meta
       if inner_match = reverse_inner_search(cache, input)
         return search_slots_from_match(cache, input, slots, inner_match)
       end
-      clear_slots(slots) if @literal_prefilter
+      clear_slots(slots) if literal_strategy?
       @pikevm.search_slots(cache.raw_cache, input, slots)
     end
 
@@ -895,11 +918,8 @@ module Regex::Automata::Meta
         patset.clear
         return
       end
-      if @literal_prefilter
-        patset.clear
-        if literal_search(input)
-          patset.insert(::Regex::Automata::PatternID.new(0))
-        end
+      if literal_strategy?
+        literal_overlapping_matches(input, patset)
         return
       end
       @pikevm.which_overlapping_matches(cache.raw_cache, input, patset)
@@ -960,24 +980,160 @@ module Regex::Automata::Meta
     end
 
     private def literal_search(input : ::Regex::Automata::Input) : ::Regex::Automata::Match?
-      prefilter = @literal_prefilter
-      return nil unless prefilter
-
-      span = ::Regex::Automata::Span.new(input.start, input.end)
-      candidate = case input.anchored
-                  when ::Regex::Automata::Anchored::No
-                    prefilter.find(input.haystack, span)
-                  when ::Regex::Automata::Anchored::Yes
-                    prefilter.prefix(input.haystack, span)
-                  when ::Regex::Automata::Anchored::Pattern
-                    return nil unless input.pattern == ::Regex::Automata::PatternID.new(0)
-                    prefilter.prefix(input.haystack, span)
-                  else
-                    nil
-                  end
+      candidate = literal_search_candidate(input)
       return nil unless candidate
 
-      ::Regex::Automata::Match.new(::Regex::Automata::PatternID.new(0), candidate.start, candidate.end)
+      pattern_ids = @literal_pattern_ids.not_nil!
+      ::Regex::Automata::Match.new(pattern_ids[candidate[0]], candidate[1].start, candidate[1].end)
+    end
+
+    private def literal_strategy? : Bool
+      !@literal_prefilter.nil? && !@literal_pattern_ids.nil?
+    end
+
+    private def literal_search_candidate(
+      input : ::Regex::Automata::Input,
+    ) : Tuple(Int32, ::Regex::Automata::Span)?
+      prefilter = @literal_prefilter
+      pattern_ids = @literal_pattern_ids
+      return nil unless prefilter && pattern_ids
+
+      needles = prefilter.needles
+      span = ::Regex::Automata::Span.new(input.start, input.end)
+      case input.anchored
+      when ::Regex::Automata::Anchored::No
+        literal_find_candidate(input.haystack, span, needles, pattern_ids, nil)
+      when ::Regex::Automata::Anchored::Yes
+        literal_prefix_candidate(input.haystack, span, needles, pattern_ids, nil)
+      when ::Regex::Automata::Anchored::Pattern
+        pattern = input.pattern
+        return nil unless pattern
+        literal_prefix_candidate(input.haystack, span, needles, pattern_ids, pattern)
+      else
+        nil
+      end
+    end
+
+    private def literal_find_candidate(
+      haystack : Bytes,
+      span : ::Regex::Automata::Span,
+      needles : Array(Bytes),
+      pattern_ids : Array(::Regex::Automata::PatternID),
+      target_pattern : ::Regex::Automata::PatternID?,
+    ) : Tuple(Int32, ::Regex::Automata::Span)?
+      best_span = nil.as(::Regex::Automata::Span?)
+      best_index = Int32::MAX
+      needles.each_with_index do |needle, index|
+        next if target_pattern && pattern_ids[index] != target_pattern
+        next unless start = literal_find_needle(haystack, needle, span)
+
+        candidate = ::Regex::Automata::Span.new(start, start + needle.size)
+        if better_literal_match?(candidate, index.to_i32, best_span, best_index)
+          best_span = candidate
+          best_index = index.to_i32
+        end
+      end
+      return nil unless best_span
+
+      {best_index, best_span}
+    end
+
+    private def literal_prefix_candidate(
+      haystack : Bytes,
+      span : ::Regex::Automata::Span,
+      needles : Array(Bytes),
+      pattern_ids : Array(::Regex::Automata::PatternID),
+      target_pattern : ::Regex::Automata::PatternID?,
+    ) : Tuple(Int32, ::Regex::Automata::Span)?
+      best_index = Int32::MAX
+      best_span = nil.as(::Regex::Automata::Span?)
+      needles.each_with_index do |needle, index|
+        next if target_pattern && pattern_ids[index] != target_pattern
+        next if needle.size > span.length
+        next unless literal_starts_with?(haystack, span.start, needle)
+
+        candidate = ::Regex::Automata::Span.new(span.start, span.start + needle.size)
+        if better_literal_match?(candidate, index.to_i32, best_span, best_index)
+          best_span = candidate
+          best_index = index.to_i32
+        end
+      end
+      return nil unless best_span
+
+      {best_index, best_span}
+    end
+
+    private def literal_overlapping_matches(
+      input : ::Regex::Automata::Input,
+      patset : ::Regex::Automata::PatternSet,
+    ) : Nil
+      patset.clear
+      candidate = literal_search_candidate(input)
+      return unless candidate
+
+      prefilter = @literal_prefilter.not_nil!
+      pattern_ids = @literal_pattern_ids.not_nil!
+      needles = prefilter.needles
+      match_start = candidate[1].start
+      limit = input.end
+      needles.each_with_index do |needle, index|
+        case input.anchored
+        when ::Regex::Automata::Anchored::Pattern
+          next unless input.pattern == pattern_ids[index]
+        end
+        next unless literal_matches_at?(input.haystack, needle, match_start, limit)
+
+        patset.insert(pattern_ids[index])
+      end
+    end
+
+    private def better_literal_match?(
+      candidate : ::Regex::Automata::Span,
+      index : Int32,
+      current : ::Regex::Automata::Span?,
+      current_index : Int32,
+    ) : Bool
+      return true unless current
+      return true if candidate.start < current.start
+      return false if candidate.start > current.start
+
+      index < current_index
+    end
+
+    private def literal_find_needle(
+      haystack : Bytes,
+      needle : Bytes,
+      span : ::Regex::Automata::Span,
+    ) : Int32?
+      limit = span.end - needle.size
+      at = span.start
+      while at <= limit
+        return at if literal_starts_with?(haystack, at, needle)
+        at += 1
+      end
+      nil
+    end
+
+    private def literal_matches_at?(
+      haystack : Bytes,
+      needle : Bytes,
+      offset : Int32,
+      limit : Int32,
+    ) : Bool
+      return false if offset < 0 || offset + needle.size > limit
+
+      literal_starts_with?(haystack, offset, needle)
+    end
+
+    private def literal_starts_with?(haystack : Bytes, offset : Int32, needle : Bytes) : Bool
+      return false if offset < 0 || offset + needle.size > haystack.size
+
+      i = 0
+      while i < needle.size
+        return false if haystack[offset + i] != needle[i]
+        i += 1
+      end
+      true
     end
 
     private def impossible_input?(input : ::Regex::Automata::Input) : Bool
@@ -1170,10 +1326,14 @@ module Regex::Automata::Meta
       caps.clear
       caps.set_pattern(match.pattern)
       slots = caps.slots_mut
-      return if slots.size < 2
+      slot_pair = @group_info.slots(match.pattern, 0)
+      return unless slot_pair
 
-      slots[0] = match.start
-      slots[1] = match.end
+      slot_start, slot_end = slot_pair
+      return if slot_end >= slots.size
+
+      slots[slot_start] = match.start
+      slots[slot_end] = match.end
     end
 
     private def clear_slots(slots : Array(::Regex::Automata::NonMaxUsize?)) : Nil
@@ -1186,18 +1346,26 @@ module Regex::Automata::Meta
 
     private def set_match_slots(slots : Array(::Regex::Automata::NonMaxUsize?), match : ::Regex::Automata::Match) : Nil
       clear_slots(slots)
-      return if slots.size < 2
+      slot_pair = @group_info.slots(match.pattern, 0)
+      return unless slot_pair
 
-      slots[0] = ::Regex::Automata::NonMaxUsize.new(match.start)
-      slots[1] = ::Regex::Automata::NonMaxUsize.new(match.end)
+      slot_start, slot_end = slot_pair
+      return if slot_end >= slots.size
+
+      slots[slot_start] = ::Regex::Automata::NonMaxUsize.new(match.start)
+      slots[slot_end] = ::Regex::Automata::NonMaxUsize.new(match.end)
     end
 
     private def set_match_slots(slots : Array(Int32?), match : ::Regex::Automata::Match) : Nil
       clear_slots(slots)
-      return if slots.size < 2
+      slot_pair = @group_info.slots(match.pattern, 0)
+      return unless slot_pair
 
-      slots[0] = match.start
-      slots[1] = match.end
+      slot_start, slot_end = slot_pair
+      return if slot_end >= slots.size
+
+      slots[slot_start] = match.start
+      slots[slot_end] = match.end
     end
   end
 

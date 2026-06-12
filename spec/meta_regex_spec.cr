@@ -142,6 +142,45 @@ describe Regex::Automata::Meta::Regex do
     re.find("xxtok0777yy").should eq(Regex::Automata::Match.must(0, 2...9))
   end
 
+  it "uses the literal fast path for exact multi-pattern literal sets" do
+    re = Regex::Automata::Meta::Regex.builder.build_many(["foo", "bar", "foobar"] of String)
+    cache = re.create_cache
+    caps = re.create_captures
+    slots = Array(Int32?).new(caps.slot_len, nil)
+    patset = Regex::Automata::PatternSet.new(re.pattern_len)
+
+    re.is_accelerated.should be_true
+    re.search_with(cache, Regex::Automata::Input.new("xxbaryy")).should eq(
+      Regex::Automata::Match.must(1, 2...5)
+    )
+    re.search_half_with(cache, Regex::Automata::Input.new("xxbaryy")).should eq(
+      Regex::Automata::HalfMatch.must(1, 5)
+    )
+    re.search_captures_with(cache, Regex::Automata::Input.new("xxbaryy"), caps)
+    caps.get_match.should eq(Regex::Automata::Match.must(1, 2...5))
+    re.search_slots_with(cache, Regex::Automata::Input.new("xxbaryy"), slots).should eq(
+      Regex::Automata::PatternID.new(1)
+    )
+    slots.should eq([nil, nil, 2, 5, nil, nil])
+
+    re.search_with(
+      cache,
+      Regex::Automata::Input.new("foobar").anchored(
+        Regex::Automata::Anchored::Pattern,
+        Regex::Automata::PatternID.new(2)
+      )
+    ).should eq(Regex::Automata::Match.must(2, 0...6))
+
+    re.which_overlapping_matches_with(
+      cache,
+      Regex::Automata::Input.new("xxfoobar").span(2...8).anchored(Regex::Automata::Anchored::Yes),
+      patset
+    )
+    patset.contains(Regex::Automata::PatternID.new(0)).should be_true
+    patset.contains(Regex::Automata::PatternID.new(1)).should be_false
+    patset.contains(Regex::Automata::PatternID.new(2)).should be_true
+  end
+
   it "uses automatic core prefilters for non-literal meta regexes" do
     re = Regex::Automata::Meta::Regex.new("Bruce \\w+")
 

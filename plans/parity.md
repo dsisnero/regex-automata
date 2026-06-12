@@ -215,6 +215,15 @@ For every unchecked top-level item:
   - Progress: `Meta::Regex` now falls back to a direct alternation-literal extractor when heuristic exact-literal extraction gives up on a single plain-literal alternation, preserving the vendor acceleration signal and direct literal search path for large generated alternations
   - Done when: the focused large-alternation specs and the full suite are green with the alternation-literal bypass active
 
+- [x] Meta multi-pattern exact literal bypass
+  - Upstream scope: the exact-literal short-circuit in `src/meta/strategy.rs::Pre::from_prefixes`, extended to the Crystal meta wrapper's broader literal-only surface for multi-pattern leftmost-first searches
+  - Inventory ids: `src/meta/regex.rs::func::is_accelerated`, `src/meta/regex.rs::func::search_with`, `src/meta/regex.rs::func::search_half_with`, `src/meta/regex.rs::func::search_captures_with`, `src/meta/regex.rs::func::search_slots_with`, `src/meta/regex.rs::func::which_overlapping_matches_with`
+  - Workflow: extract exact literals for each pattern, preserve pattern-order tie-breaking at a shared start offset, and let Meta bypass PikeVM directly for leftmost-first multi-pattern literal sets
+  - Red: assert that `build_many(["foo", "bar", "foobar"])` reports acceleration, returns the correct pattern IDs for direct searches and anchored pattern searches, and reports all overlapping literal patterns that match at the same anchored start
+  - Green: `src/regex/automata/meta.cr`, `spec/meta_regex_spec.cr`
+  - Progress: `Meta::Regex` now carries pattern IDs alongside the exact-literal prefilter, short-circuits leftmost-first multi-pattern literal searches directly, respects anchored pattern searches, and reports overlapping literal patterns at the chosen start offset without falling back to PikeVM
+  - Done when: the focused multi-pattern literal specs and the full suite are green with correct pattern IDs and overlapping results coming from the literal bypass
+
 - [x] Utilities — Search result primitives
   - Upstream scope: `src/util/search.rs::struct::Span`, `src/util/search.rs::struct::Match`, `src/util/search.rs::struct::HalfMatch`, `src/util/search.rs::enum::Anchored`, `src/util/search.rs::enum::MatchKind`
   - Inventory ids: `src/util/search.rs::struct::Span`, `src/util/search.rs::struct::Match`, `src/util/search.rs::struct::HalfMatch`, `src/util/search.rs::enum::Anchored`, `src/util/search.rs::enum::MatchKind`, `src/util/search.rs::func::must`, `src/util/search.rs::func::offset`, `src/util/search.rs::func::pattern`, `src/util/search.rs::func::len`, `src/util/search.rs::func::is_empty`, `src/util/search.rs::method::Anchored.is_anchored`, `src/util/search.rs::method::Span.range`
