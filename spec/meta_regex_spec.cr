@@ -393,6 +393,35 @@ describe Regex::Automata::Meta::Regex do
     re.find("\x00foo\x00").should eq(Regex::Automata::Match.must(0, 1...4))
   end
 
+  it "ignores builder syntax settings when building from hir" do
+    hir = Regex::Syntax::Hir::Hir.dot(Regex::Syntax::Hir::Dot::AnyChar)
+    re = Regex::Automata::Meta::Regex.builder
+      .syntax(Regex::Automata::Syntax::Config.new.utf8(false))
+      .build_from_hir(hir)
+
+    re.nfa.is_utf8.should be_true
+    re.find("☃").should eq(Regex::Automata::Match.must(0, 0...3))
+  end
+
+  it "builds many regexes directly from hir" do
+    hir1 = Regex::Syntax::Hir::Hir.concat([
+      Regex::Syntax::Hir::Hir.look(Regex::Syntax::Hir::Look::Kind::StartCRLF),
+      Regex::Syntax::Hir::Hir.literal("foo".to_slice),
+      Regex::Syntax::Hir::Hir.look(Regex::Syntax::Hir::Look::Kind::EndCRLF),
+    ])
+    hir2 = Regex::Syntax::Hir::Hir.concat([
+      Regex::Syntax::Hir::Hir.look(Regex::Syntax::Hir::Look::Kind::StartCRLF),
+      Regex::Syntax::Hir::Hir.literal("bar".to_slice),
+      Regex::Syntax::Hir::Hir.look(Regex::Syntax::Hir::Look::Kind::EndCRLF),
+    ])
+    re = Regex::Automata::Meta::Regex.builder.build_many_from_hir([hir1, hir2])
+
+    re.find_iter("\r\nfoo\r\nbar").to_a.should eq([
+      Regex::Automata::Match.must(0, 2...5),
+      Regex::Automata::Match.must(1, 7...10),
+    ])
+  end
+
   it "iterates captures and split spans" do
     re = Regex::Automata::Meta::Regex.new("foo(?P<num>[0-9]+)")
 

@@ -306,13 +306,14 @@ module Regex::Automata::Meta
     def build_many_from_hir(hirs : Enumerable(::Regex::Syntax::Hir::Hir)) : Regex
       hirs_array = hirs.to_a
       props_union = ::Regex::Syntax::Hir::Properties.union(hirs_array.map(&.properties))
+      hir_syntax_config = ::Regex::Automata::Syntax::Config.new
       compile_config = ::Regex::Automata::HirCompilerConfig.new(
-        utf8: effective_syntax_config.get_utf8,
+        utf8: props_union.utf8?,
         nfa_size_limit: @config.get_nfa_size_limit,
         which_captures: effective_which_captures,
         look_matcher: ::Regex::Automata::LookMatcher.new(@config.get_line_terminator)
       )
-      nfa = ::Regex::Automata::HirCompiler.new(compile_config, effective_syntax_config).build_many_from_hir(hirs_array)
+      nfa = ::Regex::Automata::HirCompiler.new(compile_config, hir_syntax_config).build_many_from_hir(hirs_array)
       core_prefilter = build_core_prefilter(hirs_array, props_union)
       pike_config = ::Regex::Automata::NFA::PikeVM::Config.new
         .match_kind(@config.get_match_kind)
@@ -327,7 +328,7 @@ module Regex::Automata::Meta
       reverse_anchored_dfa = build_reverse_anchored_dfa(hirs_array, props_union)
       Regex.new(
         @config,
-        effective_syntax_config,
+        hir_syntax_config,
         nfa,
         pikevm,
         core_prefilter,
@@ -644,15 +645,16 @@ module Regex::Automata::Meta
       *,
       reverse : Bool,
     ) : ::Regex::Automata::DFA::DFA
+      props_union = ::Regex::Syntax::Hir::Properties.union(hirs.map(&.properties))
       compile_config = ::Regex::Automata::HirCompilerConfig.new(
-        utf8: effective_syntax_config.get_utf8,
+        utf8: props_union.utf8?,
         reverse: reverse,
         nfa_size_limit: @config.get_nfa_size_limit,
         which_captures: ::Regex::Automata::NFA::WhichCaptures::None,
         look_matcher: ::Regex::Automata::LookMatcher.new(@config.get_line_terminator),
         unanchored_prefix: false
       )
-      nfa = ::Regex::Automata::HirCompiler.new(compile_config, effective_syntax_config).build_many_from_hir(hirs)
+      nfa = ::Regex::Automata::HirCompiler.new(compile_config, ::Regex::Automata::Syntax::Config.new).build_many_from_hir(hirs)
 
       size_limit = @config.get_dfa_size_limit.try { |limit| limit // 2 }
       dfa_config = ::Regex::Automata::Config.new

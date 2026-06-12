@@ -233,6 +233,16 @@ For every unchecked top-level item:
   - Progress: `Meta::Regex` now matches the vendor accumulation contract for overlapping pattern discovery by leaving `PatternSet` contents untouched on impossible inputs and only inserting new matches in the literal-bypass path
   - Done when: the focused overlapping-match preservation specs and the full suite are green with Meta matching the vendor `PatternSet` accumulation contract
 
+- [x] Meta HIR builder syntax isolation
+  - Upstream scope: `src/meta/regex.rs::{build_from_hir,build_many_from_hir}` and the documented contract that builder syntax settings are ignored when the caller provides HIR directly
+  - Inventory ids: `src/meta/regex.rs::func::build_from_hir`, `src/meta/regex.rs::func::build_many_from_hir`, `src/meta/regex.rs::func::syntax`
+  - Workflow: derive UTF-8 compilation behavior from the provided HIR properties instead of the builder syntax config, and keep the direct-HIR builder examples asserted explicitly
+  - Red: assert that `syntax(Config.new.utf8(false)).build_from_hir(Hir.dot(AnyChar))` still produces a UTF-8 NFA and matches a snowman as one scalar, and that `build_many_from_hir` matches the vendor CRLF look-around example directly
+  - Green: `src/regex/automata/meta.cr`, `spec/meta_regex_spec.cr`
+  - Progress: `Meta::Regex` now derives direct-HIR UTF-8 compilation from the supplied HIR properties instead of the builder syntax config, and the vendor single-HIR plus multi-HIR examples are asserted directly
+  - Done when: the focused HIR-builder specs and the full suite are green with builder syntax ignored for direct HIR compilation
+  - Done when: the focused HIR-builder specs and the full suite are green with builder syntax ignored for direct HIR compilation
+
 - [x] Utilities — Search result primitives
   - Upstream scope: `src/util/search.rs::struct::Span`, `src/util/search.rs::struct::Match`, `src/util/search.rs::struct::HalfMatch`, `src/util/search.rs::enum::Anchored`, `src/util/search.rs::enum::MatchKind`
   - Inventory ids: `src/util/search.rs::struct::Span`, `src/util/search.rs::struct::Match`, `src/util/search.rs::struct::HalfMatch`, `src/util/search.rs::enum::Anchored`, `src/util/search.rs::enum::MatchKind`, `src/util/search.rs::func::must`, `src/util/search.rs::func::offset`, `src/util/search.rs::func::pattern`, `src/util/search.rs::func::len`, `src/util/search.rs::func::is_empty`, `src/util/search.rs::method::Anchored.is_anchored`, `src/util/search.rs::method::Span.range`
