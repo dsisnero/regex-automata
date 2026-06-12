@@ -422,6 +422,65 @@ describe Regex::Automata::Meta::Regex do
     ])
   end
 
+  it "treats zero patterns as a regex that never matches" do
+    re = Regex::Automata::Meta::Regex.builder.build_many([] of String)
+
+    re.pattern_len.should eq(0)
+    re.find("").should be_nil
+  end
+
+  it "reports vendor capture counts for single patterns" do
+    len = ->(pattern : String) { Regex::Automata::Meta::Regex.new(pattern).captures_len }
+
+    len.call("a").should eq(1)
+    len.call("(a)").should eq(2)
+    len.call("(a)|(b)").should eq(3)
+    len.call("(a)(b)|(c)(d)").should eq(5)
+    len.call("(a)|b").should eq(2)
+    len.call("a|(b)").should eq(2)
+    len.call("(b)*").should eq(2)
+    len.call("(b)+").should eq(2)
+  end
+
+  it "reports vendor capture counts for multiple patterns" do
+    len = ->(patterns : Array(String)) { Regex::Automata::Meta::Regex.new_many(patterns).captures_len }
+
+    len.call(["a", "b"] of String).should eq(2)
+    len.call(["(a)", "(b)"] of String).should eq(4)
+    len.call(["(a)|(b)", "(c)|(d)"] of String).should eq(6)
+    len.call(["(a)(b)|(c)(d)", "(x)(y)"] of String).should eq(8)
+    len.call(["(a)", "b"] of String).should eq(3)
+    len.call(["a", "(b)"] of String).should eq(3)
+    len.call(["(a)", "(b)*"] of String).should eq(4)
+    len.call(["(a)+", "(b)+"] of String).should eq(4)
+  end
+
+  it "reports vendor static capture counts for single patterns" do
+    len = ->(pattern : String) { Regex::Automata::Meta::Regex.new(pattern).static_captures_len }
+
+    len.call("a").should eq(1)
+    len.call("(a)").should eq(2)
+    len.call("(a)|(b)").should eq(2)
+    len.call("(a)(b)|(c)(d)").should eq(3)
+    len.call("(a)|b").should be_nil
+    len.call("a|(b)").should be_nil
+    len.call("(b)*").should be_nil
+    len.call("(b)+").should eq(2)
+  end
+
+  it "reports vendor static capture counts for multiple patterns" do
+    len = ->(patterns : Array(String)) { Regex::Automata::Meta::Regex.new_many(patterns).static_captures_len }
+
+    len.call(["a", "b"] of String).should eq(1)
+    len.call(["(a)", "(b)"] of String).should eq(2)
+    len.call(["(a)|(b)", "(c)|(d)"] of String).should eq(2)
+    len.call(["(a)(b)|(c)(d)", "(x)(y)"] of String).should eq(3)
+    len.call(["(a)", "b"] of String).should be_nil
+    len.call(["a", "(b)"] of String).should be_nil
+    len.call(["(a)", "(b)*"] of String).should be_nil
+    len.call(["(a)+", "(b)+"] of String).should eq(2)
+  end
+
   it "iterates captures and split spans" do
     re = Regex::Automata::Meta::Regex.new("foo(?P<num>[0-9]+)")
 

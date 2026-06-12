@@ -709,7 +709,7 @@ module Regex::Automata::Meta
       props_union : ::Regex::Syntax::Hir::Properties = ::Regex::Syntax::Hir::Properties.union([] of ::Regex::Syntax::Hir::Properties),
     )
       @group_info = @nfa.group_info
-      @static_captures_len = compute_static_captures_len
+      @static_captures_len = props_union.static_explicit_captures_len.try { |len| len + 1 }
       @always_anchored_start = props_union.look_set_prefix.contains(::Regex::Syntax::Hir::Look::Kind::StartText)
       @always_anchored_end = props_union.look_set_suffix.contains(::Regex::Syntax::Hir::Look::Kind::EndText)
     end
@@ -964,18 +964,6 @@ module Regex::Automata::Meta
 
     private def normalize_input(haystack : Bytes) : ::Regex::Automata::Input
       ::Regex::Automata::Input.new(haystack)
-    end
-
-    private def compute_static_captures_len : Int32?
-      return nil if pattern_len <= 0
-
-      expected = @group_info.group_len(::Regex::Automata::PatternID.new(0))
-      pid = 1
-      while pid < pattern_len
-        return nil if @group_info.group_len(::Regex::Automata::PatternID.new(pid)) != expected
-        pid += 1
-      end
-      expected
     end
 
     private def literal_search(input : ::Regex::Automata::Input) : ::Regex::Automata::Match?

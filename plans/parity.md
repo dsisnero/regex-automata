@@ -241,6 +241,15 @@ For every unchecked top-level item:
   - Green: `src/regex/automata/meta.cr`, `spec/meta_regex_spec.cr`
   - Progress: `Meta::Regex` now derives direct-HIR UTF-8 compilation from the supplied HIR properties instead of the builder syntax config, and the vendor single-HIR plus multi-HIR examples are asserted directly
   - Done when: the focused HIR-builder specs and the full suite are green with builder syntax ignored for direct HIR compilation
+
+- [x] Meta regex cardinality helpers
+  - Upstream scope: `src/meta/regex.rs::{build_many,pattern_len,captures_len,static_captures_len}` and the documented zero-pattern plus capture-cardinality examples
+  - Inventory ids: `src/meta/regex.rs::func::build`, `src/meta/regex.rs::func::pattern_len`, `src/meta/regex.rs::func::captures_len`, `src/meta/regex.rs::func::static_captures_len`
+  - Workflow: assert the vendor zero-pattern builder contract directly and port the capture-count / static-capture-count example matrix for single- and multi-pattern regexes
+  - Red: assert that `build_many([])` never matches and reports `pattern_len == 0`, then port the vendor `captures_len` and `static_captures_len` example cases exactly
+  - Green: `spec/meta_regex_spec.cr`
+  - Progress: the vendor zero-pattern builder contract and the capture-count / static-capture-count example matrices are now asserted directly, and `static_captures_len` now matches upstream by deriving from HIR static explicit-capture semantics instead of `GroupInfo` shape
+  - Done when: the focused cardinality helper specs and the full suite are green against the vendor example matrix
   - Done when: the focused HIR-builder specs and the full suite are green with builder syntax ignored for direct HIR compilation
 
 - [x] Utilities — Search result primitives
