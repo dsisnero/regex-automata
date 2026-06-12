@@ -345,6 +345,35 @@ describe Regex::Automata::Meta::Regex do
     ])
   end
 
+  it "preserves existing overlapping pattern ids on impossible inputs" do
+    re = Regex::Automata::Meta::Regex.new("^foo$")
+    patset = Regex::Automata::PatternSet.new(re.pattern_len)
+    patset.insert(Regex::Automata::PatternID.new(0))
+
+    re.which_overlapping_matches(Regex::Automata::Input.new("xxfoo").span(1...5), patset)
+
+    patset.iter.to_a.should eq([Regex::Automata::PatternID.new(0)])
+  end
+
+  it "accumulates literal overlapping matches without clearing the pattern set" do
+    re = Regex::Automata::Meta::Regex.builder.build_many(["foo", "foobar"] of String)
+    cache = re.create_cache
+    patset = Regex::Automata::PatternSet.new(re.pattern_len + 1)
+    patset.insert(Regex::Automata::PatternID.new(2))
+
+    re.which_overlapping_matches_with(
+      cache,
+      Regex::Automata::Input.new("xxfoobar").span(2...8).anchored(Regex::Automata::Anchored::Yes),
+      patset
+    )
+
+    patset.iter.to_a.should eq([
+      Regex::Automata::PatternID.new(0),
+      Regex::Automata::PatternID.new(1),
+      Regex::Automata::PatternID.new(2),
+    ])
+  end
+
   it "honors utf8_empty(false) for empty matches inside a codepoint" do
     re = Regex::Automata::Meta::Regex.builder
       .configure(Regex::Automata::Meta::Regex.config.utf8_empty(false))

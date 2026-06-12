@@ -914,10 +914,7 @@ module Regex::Automata::Meta
     end
 
     def which_overlapping_matches_with(cache : Cache, input : ::Regex::Automata::Input, patset : ::Regex::Automata::PatternSet) : Nil
-      if impossible_input?(input)
-        patset.clear
-        return
-      end
+      return if impossible_input?(input)
       if literal_strategy?
         literal_overlapping_matches(input, patset)
         return
@@ -1067,7 +1064,6 @@ module Regex::Automata::Meta
       input : ::Regex::Automata::Input,
       patset : ::Regex::Automata::PatternSet,
     ) : Nil
-      patset.clear
       candidate = literal_search_candidate(input)
       return unless candidate
 

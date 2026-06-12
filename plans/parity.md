@@ -224,6 +224,15 @@ For every unchecked top-level item:
   - Progress: `Meta::Regex` now carries pattern IDs alongside the exact-literal prefilter, short-circuits leftmost-first multi-pattern literal searches directly, respects anchored pattern searches, and reports overlapping literal patterns at the chosen start offset without falling back to PikeVM
   - Done when: the focused multi-pattern literal specs and the full suite are green with correct pattern IDs and overlapping results coming from the literal bypass
 
+- [x] Meta overlapping pattern-set preservation
+  - Upstream scope: `src/meta/regex.rs::{which_overlapping_matches,which_overlapping_matches_with}` and the strategy-layer `which_overlapping_matches` contract in `src/meta/strategy.rs`
+  - Inventory ids: `src/meta/regex.rs::func::which_overlapping_matches_with`
+  - Workflow: preserve the caller's existing `PatternSet` contents on impossible inputs and literal-strategy searches, only inserting newly matching pattern IDs instead of clearing the set
+  - Red: assert that overlapping-match searches keep a pre-seeded pattern ID when the input is impossible, and that literal-bypass overlapping searches accumulate matches into an already-populated `PatternSet`
+  - Green: `src/regex/automata/meta.cr`, `spec/meta_regex_spec.cr`
+  - Progress: `Meta::Regex` now matches the vendor accumulation contract for overlapping pattern discovery by leaving `PatternSet` contents untouched on impossible inputs and only inserting new matches in the literal-bypass path
+  - Done when: the focused overlapping-match preservation specs and the full suite are green with Meta matching the vendor `PatternSet` accumulation contract
+
 - [x] Utilities — Search result primitives
   - Upstream scope: `src/util/search.rs::struct::Span`, `src/util/search.rs::struct::Match`, `src/util/search.rs::struct::HalfMatch`, `src/util/search.rs::enum::Anchored`, `src/util/search.rs::enum::MatchKind`
   - Inventory ids: `src/util/search.rs::struct::Span`, `src/util/search.rs::struct::Match`, `src/util/search.rs::struct::HalfMatch`, `src/util/search.rs::enum::Anchored`, `src/util/search.rs::enum::MatchKind`, `src/util/search.rs::func::must`, `src/util/search.rs::func::offset`, `src/util/search.rs::func::pattern`, `src/util/search.rs::func::len`, `src/util/search.rs::func::is_empty`, `src/util/search.rs::method::Anchored.is_anchored`, `src/util/search.rs::method::Span.range`
