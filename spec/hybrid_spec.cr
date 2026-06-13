@@ -252,6 +252,13 @@ describe Regex::Automata::Hybrid::DFA do
     dfa.try_search_fwd(cache, Regex::Automata::Input.new("abcxyz")).should eq(
       Regex::Automata::MatchError.quit('x'.ord.to_u8, 3)
     )
+    dfa.try_search_overlapping_fwd(
+      cache,
+      Regex::Automata::Input.new("abcxyz"),
+      Regex::Automata::Hybrid::OverlappingState.start
+    ).should eq(
+      Regex::Automata::MatchError.quit('x'.ord.to_u8, 3)
+    )
 
     rev = Regex::Automata::Hybrid::Builder.new
       .configure(Regex::Automata::Hybrid::DFA.config.quit('x'.ord.to_u8, true))

@@ -134,6 +134,124 @@ For every unchecked top-level item:
   - Progress: `src/regex/automata/meta.cr` and `src/regex/automata/meta_error.cr` now expose the vendor-shaped meta builder/config/cache/search API over the existing Thompson NFA and PikeVM machinery, including syntax-error pattern reporting, configurable line terminators, UTF-8 empty-match control, overlapping pattern discovery, capture iteration, and split helpers proven by `spec/meta_regex_spec.cr`
   - Done when: meta engine build/search/strategy parity is demonstrated
 
+- [x] Hybrid and Meta vendor self-test cleanup
+  - Upstream scope: `src/hybrid/dfa.rs::test::heuristic_unicode_reverse`, `tests/hybrid/api.rs::test::quit_fwd`, `src/meta/regex.rs::test::regression_suffix_literal_count`
+  - Inventory ids: `src/hybrid/dfa.rs::test::heuristic_unicode_reverse`, `tests/hybrid/api.rs::test::quit_fwd`, `src/meta/regex.rs::test::regression_suffix_literal_count`
+  - Workflow: tighten the direct Crystal specs where broad feature coverage existed but the exact upstream regression/self-test cases were not asserted explicitly
+  - Red: add the exact overlapping-quit and suffix-literal regression expectations from vendor
+  - Green: `spec/hybrid_spec.cr`, `spec/meta_regex_spec.cr`
+  - Progress: the hybrid quit-byte spec now asserts the upstream overlapping forward quit path directly, and the meta suite now carries the vendor's `tingling` suffix-literal-count regression explicitly instead of relying on broader iterator coverage
+  - Done when: the explicit vendor self-test cases pass under the focused Crystal specs and the full suite
+
+- [x] Meta literal strategy fast path
+  - Upstream scope: literal-only strategy selection in `src/meta/strategy.rs`, plus `src/meta/regex.rs::is_accelerated`, cache-backed search helpers, and exact-literal preference behavior
+  - Inventory ids: `src/meta/regex.rs::func::is_accelerated`, `src/meta/regex.rs::func::search_with`, `src/meta/regex.rs::func::search_half_with`, `src/meta/regex.rs::func::search_captures_with`, `src/meta/regex.rs::func::search_slots_with`, `src/meta/regex.rs::func::which_overlapping_matches_with`
+  - Workflow: add the first real meta composition path beyond the PikeVM-only wrapper by short-circuiting exact single-pattern literal languages through literal search
+  - Red: assert the vendor acceleration signal for simple literals and drive the explicit cache-backed literal search APIs through the fast path
+  - Green: `src/regex/automata/meta.cr`, `spec/meta_regex_spec.cr`
+  - Progress: `Meta::Regex` now detects exact single-pattern literal languages eligible for the upstream `Pre` strategy class, reports `is_accelerated` accordingly, and routes cache-backed match, half-match, captures, slot, and overlapping-pattern queries through literal search before falling back to PikeVM
+  - Done when: simple literal meta regexes behave as accelerated searchers under the focused Crystal specs and the full suite
+
+- [x] Meta reverse anchored DFA strategy
+  - Upstream scope: `src/meta/strategy.rs::ReverseAnchored`, plus the reverse-anchored `src/meta/regex.rs::{is_accelerated,search_with,search_half_with,search_slots_with,memory_usage}` behavior it exposes
+  - Inventory ids: `src/meta/regex.rs::func::is_accelerated`, `src/meta/regex.rs::func::search_with`, `src/meta/regex.rs::func::search_half_with`, `src/meta/regex.rs::func::search_slots_with`, `src/meta/regex.rs::func::memory_usage`
+  - Workflow: add the next concrete meta composition path by routing always-end-anchored, not-always-start-anchored regexes through a reverse dense DFA on unanchored searches
+  - Red: assert the vendor acceleration signal, reverse half-match end-offset behavior, implicit-slot filling, anchored-input fallback, and memory accounting for `foo$`-style regexes
+  - Green: `src/regex/automata/meta.cr`, `spec/meta_regex_spec.cr`
+  - Progress: `Meta::Regex` now builds an optional reverse dense DFA for always-end-anchored, not-always-start-anchored regexes, treats impossible end-anchor spans as no-match in the wrapper, and routes unanchored match, half-match, capture, and slot searches through reverse start discovery with PikeVM fallback for explicit captures
+  - Done when: the focused reverse-anchored meta specs and the full suite are green with the dense reverse DFA path active
+
+- [x] Meta reverse suffix strategy
+  - Upstream scope: `src/meta/strategy.rs::ReverseSuffix`, plus the suffix-driven `src/meta/regex.rs::{is_accelerated,search_with,search_half_with,search_slots_with,memory_usage}` behavior it exposes
+  - Inventory ids: `src/meta/regex.rs::func::is_accelerated`, `src/meta/regex.rs::func::search_with`, `src/meta/regex.rs::func::search_half_with`, `src/meta/regex.rs::func::search_captures_with`, `src/meta/regex.rs::func::search_slots_with`, `src/meta/regex.rs::func::memory_usage`
+  - Workflow: add the next concrete meta composition path by scanning for a fast longest-common suffix, using a reverse dense DFA to recover the match start, and rerunning a forward engine to recover the true greedy end
+  - Red: assert vendor-shaped acceleration for `[a-z]+ing`, greedy half-match behavior on `tingling`, explicit-capture reruns after suffix discovery, and the single-substring prefilter fastness this strategy depends on
+  - Green: `src/regex/automata/meta.cr`, `src/regex/automata/prefilter.cr`, `spec/meta_regex_spec.cr`, `spec/prefilter_spec.cr`
+  - Progress: `Meta::Regex` now builds a fast longest-common-suffix prefilter plus reverse dense DFA for eligible unanchored regexes, uses reverse start discovery to recover the leftmost start, reruns a forward pattern-anchored engine to preserve greedy match ends, and reuses the same capture/slot fallback path for explicit groups; `Prefilter#is_fast` now treats a single substring needle as fast to match the vendor memmem-style strategy gate
+  - Done when: the focused reverse-suffix specs and the full suite are green with the suffix prefilter and reverse dense DFA path active
+
+- [x] Meta reverse inner strategy
+  - Upstream scope: `src/meta/strategy.rs::ReverseInner` and `src/meta/reverse_inner.rs`, plus the inner-literal `src/meta/regex.rs::{is_accelerated,search_with,search_half_with,search_captures_with,search_slots_with,memory_usage}` behavior it exposes
+  - Inventory ids: `src/meta/regex.rs::func::is_accelerated`, `src/meta/regex.rs::func::search_with`, `src/meta/regex.rs::func::search_half_with`, `src/meta/regex.rs::func::search_captures_with`, `src/meta/regex.rs::func::search_slots_with`, `src/meta/regex.rs::func::memory_usage`
+  - Workflow: extract a fast inner literal from a top-level concatenation, build a reverse dense DFA for the prefix before that literal, and confirm candidate matches with the existing forward engine
+  - Red: assert vendor-shaped acceleration for an inner-literal pattern like `[a-z]+XYZ\\d+`, full-match and half-match recovery through reverse prefix start discovery, explicit-capture reruns after inner-literal discovery, and the anchored-start skip condition
+  - Green: `src/regex/automata/meta.cr`, `spec/meta_regex_spec.cr`
+  - Progress: `Meta::Regex` now extracts a fast inner literal from eligible top-level concatenations, builds a reverse dense DFA for the prefix before that literal, discovers candidate starts from the inner literal, and confirms final match bounds with the existing forward PikeVM path before reusing the normal capture and slot fallback machinery
+  - Done when: the focused reverse-inner specs and the full suite are green with the inner-literal prefilter plus reverse prefix DFA path active
+
+- [x] Meta core prefilter plumbing
+  - Upstream scope: the core prefilter selection path in `src/meta/strategy.rs`, plus the `src/meta/regex.rs::{is_accelerated,memory_usage,search_with}` behavior it exposes through the default engine family
+  - Inventory ids: `src/meta/regex.rs::func::is_accelerated`, `src/meta/regex.rs::func::memory_usage`, `src/meta/regex.rs::func::search_with`, `src/meta/regex.rs::func::search_captures_with`, `src/meta/regex.rs::func::search_slots_with`
+  - Workflow: extract the vendor-style prefix prefilter for the core engine path, thread it into the PikeVM-backed searches, and account for it in meta acceleration and memory reporting
+  - Red: assert that a non-literal regex with a fast prefix like `Bruce \\w+` reports acceleration by default, that disabling `auto_prefilter` removes that signal, and that an explicit prefilter restores it
+  - Green: `src/regex/automata/meta.cr`, `spec/meta_regex_spec.cr`
+  - Progress: `Meta::Regex` now derives the normal core prefix prefilter for unanchored searches, threads it into the PikeVM-backed core engine path, counts it in `memory_usage`, and uses its fastness to report the same acceleration signal the vendor core strategy exposes
+  - Done when: the focused core-prefilter specs and the full suite are green with core prefix prefilter plumbing active
+
+- [x] Meta reverse limited guard
+  - Upstream scope: the dense-DFA bounded reverse-search behavior in `src/meta/limited.rs`, plus the reverse-suffix and reverse-inner start-discovery paths in `src/meta/strategy.rs` that consume it
+  - Inventory ids: `src/meta/regex.rs::func::search_with`, `src/meta/regex.rs::func::search_half_with`, `src/meta/regex.rs::func::search_captures_with`, `src/meta/regex.rs::func::search_slots_with`
+  - Workflow: port the bounded reverse dense-DFA helper that rejects truncated false-positive starts and thread it into the reverse-suffix and reverse-inner strategies before forward confirmation
+  - Red: assert that a truncated reverse search like `[0-9]*foo` over `123foo` with a bounded start returns a quadratic-guard retry instead of a bogus start, and that a bounded reverse search still returns a real start when the start is provable
+  - Green: `src/regex/automata/meta_error.cr`, `src/regex/automata/meta_limited.cr`, `src/regex/automata/meta.cr`, focused meta guard specs
+  - Progress: `Meta::Limited` now ports the vendor bounded reverse dense-DFA helper, surfaces retry-fail versus retry-quadratic outcomes, and drives reverse-suffix plus reverse-inner start discovery so those strategies stop trusting truncated reverse starts that cannot be proven correct
+  - Done when: the bounded reverse helper specs and the full suite are green with reverse-suffix and reverse-inner using the limited reverse guard
+
+- [x] Meta forward stop-position guard
+  - Upstream scope: the dense-DFA forward stop-position helper in `src/meta/stopat.rs`, plus the reverse-inner path in `src/meta/strategy.rs` that consumes it
+  - Inventory ids: `src/meta/regex.rs::func::search_with`, `src/meta/regex.rs::func::search_half_with`, `src/meta/regex.rs::func::search_captures_with`, `src/meta/regex.rs::func::search_slots_with`
+  - Workflow: port the forward dense-DFA stop-position helper, build a forward confirmation DFA for reverse-inner, and stop rescanning already-proven-dead suffixes after a failed forward confirmation
+  - Red: assert that a forward anchored scan like `\\d+XYZ\\d+` over `123XYZabc` reports the stop offset instead of pretending there is no useful termination point, and that reverse-inner keeps using that offset to avoid re-trusting later inner literals before the previous forward stop
+  - Green: `src/regex/automata/meta_stopat.cr`, `src/regex/automata/meta.cr`, focused stop-position specs
+  - Progress: `Meta::StopAt` now ports the forward dense-DFA stop-position helper, reverse-inner keeps a dedicated forward confirmation DFA, and failed forward confirmations now advance a proven stop boundary instead of blindly retrying every later inner literal candidate with PikeVM
+  - Done when: the focused stop-position specs and the full suite are green with reverse-inner using the forward stop guard
+
+- [x] Meta large alternation literal bypass
+  - Upstream scope: the alternation-literal bypass in `src/meta/literal.rs` and `src/meta/strategy.rs::{from_alternation_literals,is_accelerated}`
+  - Inventory ids: `src/meta/regex.rs::func::is_accelerated`, `src/meta/regex.rs::func::memory_usage`, `src/meta/regex.rs::func::search_with`, `src/meta/regex.rs::func::search_half_with`, `src/meta/regex.rs::func::search_slots_with`
+  - Workflow: when heuristic exact-literal extraction gives up on a single large alternation of plain literals, extract the literals directly from the HIR shape and reuse the direct literal strategy path
+  - Red: assert that a generated large alternation like `lit0|lit1|...|lit999` still reports acceleration and finds matches through the literal bypass, while `auto_prefilter(false)` disables that shortcut
+  - Green: `src/regex/automata/meta.cr`, `spec/meta_regex_spec.cr`
+  - Progress: `Meta::Regex` now falls back to a direct alternation-literal extractor when heuristic exact-literal extraction gives up on a single plain-literal alternation, preserving the vendor acceleration signal and direct literal search path for large generated alternations
+  - Done when: the focused large-alternation specs and the full suite are green with the alternation-literal bypass active
+
+- [x] Meta multi-pattern exact literal bypass
+  - Upstream scope: the exact-literal short-circuit in `src/meta/strategy.rs::Pre::from_prefixes`, extended to the Crystal meta wrapper's broader literal-only surface for multi-pattern leftmost-first searches
+  - Inventory ids: `src/meta/regex.rs::func::is_accelerated`, `src/meta/regex.rs::func::search_with`, `src/meta/regex.rs::func::search_half_with`, `src/meta/regex.rs::func::search_captures_with`, `src/meta/regex.rs::func::search_slots_with`, `src/meta/regex.rs::func::which_overlapping_matches_with`
+  - Workflow: extract exact literals for each pattern, preserve pattern-order tie-breaking at a shared start offset, and let Meta bypass PikeVM directly for leftmost-first multi-pattern literal sets
+  - Red: assert that `build_many(["foo", "bar", "foobar"])` reports acceleration, returns the correct pattern IDs for direct searches and anchored pattern searches, and reports all overlapping literal patterns that match at the same anchored start
+  - Green: `src/regex/automata/meta.cr`, `spec/meta_regex_spec.cr`
+  - Progress: `Meta::Regex` now carries pattern IDs alongside the exact-literal prefilter, short-circuits leftmost-first multi-pattern literal searches directly, respects anchored pattern searches, and reports overlapping literal patterns at the chosen start offset without falling back to PikeVM
+  - Done when: the focused multi-pattern literal specs and the full suite are green with correct pattern IDs and overlapping results coming from the literal bypass
+
+- [x] Meta overlapping pattern-set preservation
+  - Upstream scope: `src/meta/regex.rs::{which_overlapping_matches,which_overlapping_matches_with}` and the strategy-layer `which_overlapping_matches` contract in `src/meta/strategy.rs`
+  - Inventory ids: `src/meta/regex.rs::func::which_overlapping_matches_with`
+  - Workflow: preserve the caller's existing `PatternSet` contents on impossible inputs and literal-strategy searches, only inserting newly matching pattern IDs instead of clearing the set
+  - Red: assert that overlapping-match searches keep a pre-seeded pattern ID when the input is impossible, and that literal-bypass overlapping searches accumulate matches into an already-populated `PatternSet`
+  - Green: `src/regex/automata/meta.cr`, `spec/meta_regex_spec.cr`
+  - Progress: `Meta::Regex` now matches the vendor accumulation contract for overlapping pattern discovery by leaving `PatternSet` contents untouched on impossible inputs and only inserting new matches in the literal-bypass path
+  - Done when: the focused overlapping-match preservation specs and the full suite are green with Meta matching the vendor `PatternSet` accumulation contract
+
+- [x] Meta HIR builder syntax isolation
+  - Upstream scope: `src/meta/regex.rs::{build_from_hir,build_many_from_hir}` and the documented contract that builder syntax settings are ignored when the caller provides HIR directly
+  - Inventory ids: `src/meta/regex.rs::func::build_from_hir`, `src/meta/regex.rs::func::build_many_from_hir`, `src/meta/regex.rs::func::syntax`
+  - Workflow: derive UTF-8 compilation behavior from the provided HIR properties instead of the builder syntax config, and keep the direct-HIR builder examples asserted explicitly
+  - Red: assert that `syntax(Config.new.utf8(false)).build_from_hir(Hir.dot(AnyChar))` still produces a UTF-8 NFA and matches a snowman as one scalar, and that `build_many_from_hir` matches the vendor CRLF look-around example directly
+  - Green: `src/regex/automata/meta.cr`, `spec/meta_regex_spec.cr`
+  - Progress: `Meta::Regex` now derives direct-HIR UTF-8 compilation from the supplied HIR properties instead of the builder syntax config, and the vendor single-HIR plus multi-HIR examples are asserted directly
+  - Done when: the focused HIR-builder specs and the full suite are green with builder syntax ignored for direct HIR compilation
+
+- [x] Meta regex cardinality helpers
+  - Upstream scope: `src/meta/regex.rs::{build_many,pattern_len,captures_len,static_captures_len}` and the documented zero-pattern plus capture-cardinality examples
+  - Inventory ids: `src/meta/regex.rs::func::build`, `src/meta/regex.rs::func::pattern_len`, `src/meta/regex.rs::func::captures_len`, `src/meta/regex.rs::func::static_captures_len`
+  - Workflow: assert the vendor zero-pattern builder contract directly and port the capture-count / static-capture-count example matrix for single- and multi-pattern regexes
+  - Red: assert that `build_many([])` never matches and reports `pattern_len == 0`, then port the vendor `captures_len` and `static_captures_len` example cases exactly
+  - Green: `spec/meta_regex_spec.cr`
+  - Progress: the vendor zero-pattern builder contract and the capture-count / static-capture-count example matrices are now asserted directly, and `static_captures_len` now matches upstream by deriving from HIR static explicit-capture semantics instead of `GroupInfo` shape
+  - Done when: the focused cardinality helper specs and the full suite are green against the vendor example matrix
+  - Done when: the focused HIR-builder specs and the full suite are green with builder syntax ignored for direct HIR compilation
+
 - [x] Utilities — Search result primitives
   - Upstream scope: `src/util/search.rs::struct::Span`, `src/util/search.rs::struct::Match`, `src/util/search.rs::struct::HalfMatch`, `src/util/search.rs::enum::Anchored`, `src/util/search.rs::enum::MatchKind`
   - Inventory ids: `src/util/search.rs::struct::Span`, `src/util/search.rs::struct::Match`, `src/util/search.rs::struct::HalfMatch`, `src/util/search.rs::enum::Anchored`, `src/util/search.rs::enum::MatchKind`, `src/util/search.rs::func::must`, `src/util/search.rs::func::offset`, `src/util/search.rs::func::pattern`, `src/util/search.rs::func::len`, `src/util/search.rs::func::is_empty`, `src/util/search.rs::method::Anchored.is_anchored`, `src/util/search.rs::method::Span.range`

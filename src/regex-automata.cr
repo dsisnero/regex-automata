@@ -33,7 +33,7 @@ require "./regex/automata/match_states"
 require "./regex/automata/start_table"
 
 module Regex::Automata
-  VERSION = "0.1.0"
+  VERSION = "0.1.1"
 
   # Deterministic Finite Automaton and hybrid compatibility API
 end
