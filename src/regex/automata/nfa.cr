@@ -566,57 +566,49 @@ module Regex::Automata::NFA
         end
       end
 
-      if @reverse
-        return build_reverse_unicode_sequences(sequences, pattern_id)
-      end
-
-      # Build alternation of all sequences
       if sequences.empty?
         fail_id = add_state(Fail.new)
         match_id = add_state(Match.new(pattern_id))
         ThompsonRef.new(fail_id, match_id)
-      elsif sequences.size == 1
-        # Single sequence - build concatenation
-        build_utf8_sequence(sequences.first, pattern_id)
       else
-        # Multiple sequences - build alternation
-        refs = sequences.map { |seq| build_utf8_sequence(seq, pattern_id) }
-        # Build binary alternation tree
-        result = refs.first
-        refs[1..].each do |next_ref|
-          result = build_alternation(result, next_ref, pattern_id)
-        end
-        result
+        paths = sequences.map(&.ranges)
+        paths = paths.map(&.reverse) if @reverse
+        build_unicode_sequence_trie(paths, pattern_id)
       end
     end
 
-    private def build_reverse_unicode_sequences(sequences : Array(::Regex::Automata::Utf8Sequence), pattern_id : PatternID) : ThompsonRef
-      if sequences.empty?
-        match_id = add_state(Match.new(pattern_id))
-        return ThompsonRef.new(match_id, match_id)
-      end
-
-      cache = {} of Tuple(Int32, UInt8, UInt8) => StateID
-      union_start = add_state(Union.new([] of StateID))
+    # Construct a prefix trie instead of one alternation branch per UTF-8
+    # sequence. Unicode properties such as `\w` contain thousands of ranges;
+    # a binary alternation causes each DFA closure to revisit every branch.
+    private def build_unicode_sequence_trie(paths : Array(Array(::Regex::Automata::Utf8Range)), pattern_id : PatternID) : ThompsonRef
       match_end = add_state(Match.new(pattern_id))
 
-      sequences.each do |seq|
-        state_id = match_end
-        seq.ranges.reverse_each do |range|
-          key = {state_id.to_i, range.start, range.end}
-          if cached = cache[key]?
-            state_id = cached
-            next
-          end
-
-          trans = Transition.new(range.start, range.end, state_id)
-          state_id = add_state(ByteRange.new(trans))
-          cache[key] = state_id
+      build_node = uninitialized Proc(Array(Array(::Regex::Automata::Utf8Range)), Int32, StateID, StateID)
+      build_node = ->(node_paths : Array(Array(::Regex::Automata::Utf8Range)), depth : Int32, terminal : StateID) do
+        grouped = {} of Tuple(UInt8, UInt8) => Array(Array(::Regex::Automata::Utf8Range))
+        node_paths.each do |path|
+          range = path[depth]
+          grouped[{range.start, range.end}] ||= [] of Array(::Regex::Automata::Utf8Range)
+          grouped[{range.start, range.end}] << path
         end
-        update_transition_target(union_start, state_id)
+
+        transitions = grouped.map do |(bounds, child_paths)|
+          target = if child_paths.all? { |path| path.size == depth + 1 }
+                     terminal
+                   else
+                     build_node.call(child_paths, depth + 1, terminal)
+                   end
+          Transition.new(bounds[0], bounds[1], target)
+        end
+
+        if transitions.size == 1
+          add_state(ByteRange.new(transitions.first))
+        else
+          add_state(Sparse.new(transitions))
+        end
       end
 
-      ThompsonRef.new(union_start, match_end)
+      ThompsonRef.new(build_node.call(paths, 0, match_end), match_end)
     end
 
     # Build a single UTF-8 sequence (concatenation of byte ranges)
@@ -1342,6 +1334,22 @@ module Regex::Automata::NFA
       end
 
       result
+    end
+
+    # Visit transitions from a state for a byte without allocating a set.
+    # Determinization invokes this in its inner loop, where allocating a set
+    # per NFA state and byte class is especially costly for Unicode classes.
+    def each_transition(state_id : StateID, byte : UInt8, &block : StateID ->) : Nil
+      state = @states[state_id.to_i]
+
+      case state
+      when ByteRange
+        yield state.trans.next if state.trans.matches?(byte)
+      when Sparse
+        state.transitions.each do |transition|
+          yield transition.next if transition.matches?(byte)
+        end
+      end
     end
 
     private def compute_has_capture : Bool

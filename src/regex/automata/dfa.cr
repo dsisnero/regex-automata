@@ -1601,8 +1601,6 @@ module Regex::Automata::DFA
       # Create byte classes with quit bytes in separate classes
       @byte_classes = case byte_classes
                       when ByteClasses
-                        # If we already have byte classes, we need to ensure quit bytes are separate
-                        # For now, just use the provided classes
                         byte_classes
                       when Int32
                         if @quitset.empty?
@@ -1898,8 +1896,7 @@ module Regex::Automata::DFA
 
           next_set.clear
           effective_nfa_set.each do |nfa_id|
-            transitions = nfa.transitions(nfa_id, byte)
-            transitions.each do |next_nfa_id|
+            nfa.each_transition(nfa_id, byte) do |next_nfa_id|
               next_set.add(next_nfa_id)
             end
           end
@@ -2219,14 +2216,9 @@ module Regex::Automata::DFA
     end
 
     private def is_quit_byte_class?(byte_class : Int32) : Bool
-      # Check if this byte class contains any quit bytes
-      # Since we're using ByteClasses.with_quitset, all quit bytes should be in class 0
-      # But we should check more carefully
       return false if @quitset.empty?
 
-      # For now, assume quit bytes are in class 0
-      # This is true if we're using ByteClasses.with_quitset
-      byte_class == 0
+      @quitset.contains(@byte_classes.representative(byte_class))
     end
 
     private def look_from_nfa_kind(kind : NFA::Look::Kind) : LookSet
