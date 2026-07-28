@@ -77,7 +77,7 @@ describe Regex::Automata::Hybrid::Config do
     nfa = Regex::Automata::HirCompiler.new(
       Regex::Automata::NFA::NFA.config.captures(false),
       syntax
-    ).compile_multi([hir])
+    ).build_many_from_hir([hir])
     config = Regex::Automata::Hybrid::Config.new
     min_cache = config.get_minimum_cache_capacity(nfa)
 

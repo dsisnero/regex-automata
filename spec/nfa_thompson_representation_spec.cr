@@ -128,6 +128,61 @@ describe "Thompson NFA representation parity" do
     compiler.build_from_hir(unicode_hir).states.should eq([nfa_fail, nfa_match(0)])
   end
 
+  it "ports exact vendor Unicode class compiler states" do
+    nfa_build("[α-δ]").states.should eq([
+      nfa_range(0xB1_u8, 0xB4_u8, 2),
+      nfa_byte(0xCE_u8, 0),
+      nfa_match(0),
+    ])
+
+    nfa_build("[α-δ🤙-🤞]").states.should eq([
+      nfa_range(0xB1_u8, 0xB4_u8, 5),
+      nfa_range(0x99_u8, 0x9E_u8, 5),
+      nfa_byte(0xA4_u8, 1),
+      nfa_byte(0x9F_u8, 2),
+      nfa_sparse([
+        {0xCE_u8, 0xCE_u8, 0},
+        {0xF0_u8, 0xF0_u8, 3},
+      ]),
+      nfa_match(0),
+    ])
+
+    nfa_build("[a-z☃]").states.should eq([
+      nfa_byte(0x83_u8, 3),
+      nfa_byte(0x98_u8, 0),
+      nfa_sparse([
+        {'a'.ord.to_u8, 'z'.ord.to_u8, 3},
+        {0xE2_u8, 0xE2_u8, 1},
+      ]),
+      nfa_match(0),
+    ])
+  end
+
+  it "ports exact reverse Unicode class lowering without shrink" do
+    nfa_build("[\\u1000\\u2000\\u3000]", reverse: true, shrink: false).states.should eq([
+      Regex::Automata::NFA::Union.new([nfa_sid(3), nfa_sid(6), nfa_sid(9)]),
+      nfa_byte(0xE1_u8, 10),
+      nfa_byte(0x80_u8, 1),
+      nfa_byte(0x80_u8, 2),
+      nfa_byte(0xE2_u8, 10),
+      nfa_byte(0x80_u8, 4),
+      nfa_byte(0x80_u8, 5),
+      nfa_byte(0xE3_u8, 10),
+      nfa_byte(0x80_u8, 7),
+      nfa_byte(0x80_u8, 8),
+      nfa_match(0),
+    ])
+  end
+
+  it "uses the reverse shrink path instead of reusing reverse suffix caching" do
+    shrink_false = nfa_build("[\\u1000\\u2000\\u3000]", reverse: true, shrink: false)
+    shrink_true = nfa_build("[\\u1000\\u2000\\u3000]", reverse: true, shrink: true)
+
+    shrink_true.states.should_not eq(shrink_false.states)
+    shrink_true.states.any?(&.is_a?(Regex::Automata::NFA::Union)).should be_false
+    shrink_true.states.size.should be < shrink_false.states.size
+  end
+
   it "exposes transition, sparse-transition and epsilon helpers" do
     transition = Regex::Automata::NFA::Transition.new('b'.ord.to_u8, 'd'.ord.to_u8, nfa_sid(7))
     haystack = Bytes['a'.ord.to_u8, 'c'.ord.to_u8, 'z'.ord.to_u8]
@@ -158,6 +213,25 @@ describe "Thompson NFA representation parity" do
     nfa_cap(1, 0, 0, 0).is_epsilon.should be_true
     nfa_match(0).is_epsilon.should be_false
     nfa_fail.is_epsilon.should be_false
+  end
+
+  it "does not follow match states through epsilon closure" do
+    states = [
+      Regex::Automata::NFA::Match.new(nfa_pid(0), nfa_sid(1)),
+      nfa_byte('a'.ord.to_u8, 2),
+      nfa_match(1),
+    ] of Regex::Automata::NFA::State
+    nfa = Regex::Automata::NFA::NFA.new(
+      states,
+      nfa_sid(0),
+      nfa_sid(0),
+      [nfa_sid(0)],
+      true
+    )
+
+    nfa.epsilon_closure_with_look(Set{nfa_sid(0)}, Regex::Automata::LookSet.new).should eq(
+      Set{nfa_sid(0)}
+    )
   end
 
   it "computes byte classes and memory usage from the final graph" do

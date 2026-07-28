@@ -42,7 +42,7 @@ For every unchecked top-level item:
   - Workflow: finish builder/config/start-state/search behavior as one coherent engine feature instead of landing isolated helpers
   - Red: port the remaining builder, anchored/unanchored start-state, reverse-search, overlapping-search, and `MatchKind::All` parity specs needed to prove the engine surface
   - Green: `src/regex/automata/dfa.cr`, `src/regex/automata/automaton.cr`, `src/regex/automata/accel.cr`, `src/regex/automata/special.cr`, `src/regex/automata/start_config.cr`, `src/regex/automata/start_table.cr`
-  - Progress: config aliases, Unicode boundary handling, metadata accessors, dense roundtrip helpers, reverse overlap, vendor-style `MatchKind::All` aggregation, accelerator APIs, syntax configuration, prefilter attachment, and size-limit signaling are now ported and covered
+  - Progress: config aliases, Unicode boundary handling, metadata accessors, dense roundtrip helpers, reverse overlap, vendor-style `MatchKind::All` aggregation, leftmost-first forward-search ordering, start-state acceptance, synthetic quit-state classification, accelerator APIs, syntax configuration, prefilter attachment, and size-limit signaling are now ported and covered
   - Done when: dense DFA engine semantics match upstream on the intended builder/search/start-state parity suite and the covered rows are ready for one commit-sized checkpoint
 
 - [x] Dense DFA regex wrapper parity
@@ -51,7 +51,7 @@ For every unchecked top-level item:
   - Workflow: close the wrapper as a user-facing feature, including the iterator/search contracts it exposes, before moving on
   - Red: port empty-match iteration, UTF-8 iteration, always-anchored, reverse-wrapper, and builder-validation parity specs before adding more surface area
   - Green: `src/regex/automata/dfa_regex.cr`, `src/regex/automata/dfa.cr`, `src/regex/automata/hir_compiler.cr`, `src/regex/automata/nfa.cr`
-  - Progress: ranged `try_search`, reverse-start recovery, empty-match iteration, UTF-8-safe iterator behavior, dense/syntax builder aliases, and sparse wrapper constructors are now covered
+  - Progress: ranged `try_search`, reverse-start recovery, empty-match iteration, UTF-8-safe iterator behavior, dense/syntax builder aliases, sparse wrapper constructors, and shared unanchored leftmost-start scanning across dense and sparse regex wrappers are now covered
   - Done when: the wrapper stops relying on a custom simplified searcher, richer look-around behavior matches Rust, and the covered rows are strong enough for a dedicated commit
 
 - [x] Dense DFA compile pipeline and wire format parity
@@ -60,7 +60,7 @@ For every unchecked top-level item:
   - Workflow: treat determinization, minimization, remapping, and validation-order behavior as one compiler/wire-format feature instead of dripping out serializer nits
   - Red: port determinization/minimization/serialization specs, including validation-order and size-limit behavior, before calling this feature done
   - Green: `src/regex/automata/dfa.cr`, `src/regex/automata/dfa_util.cr`, `src/regex/automata/transition_table.cr`, `src/regex/automata/wire.cr`
-  - Progress: constructor aliases, always/never round trips, endianness-aware round trips, buffer-write helpers, determinization scratch-limit failures, dense minimization, and deserialize validation-order hardening are now covered; `to_sparse` is deferred to the Sparse DFA feature because there is still no sparse engine implementation
+  - Progress: constructor aliases, always/never round trips, endianness-aware round trips, buffer-write helpers, premultiplied state-id round trips, determinization scratch-limit failures, dense minimization, and deserialize validation-order hardening are now covered; `to_sparse` is deferred to the Sparse DFA feature because there is still no sparse engine implementation
   - Done when: dense DFA transformation and wire-format parity specs are green and the remaining compiler/validation rows can be committed as one feature
 
 - [x] Sparse DFA
@@ -69,7 +69,7 @@ For every unchecked top-level item:
   - Workflow: deliver sparse build/search/serialization as a complete engine feature, not as piecemeal type stubs
   - Red: port sparse DFA API and serialization specs
   - Green: new sparse DFA implementation files under `src/regex/automata/`
-  - Progress: sparse constructors, dense-to-sparse conversion, metadata accessors, prefilter attachment, wrapper serialization helpers, heuristic Unicode quit behavior, and sparse regex convenience builders are now covered
+  - Progress: sparse constructors, dense-to-sparse conversion, metadata accessors, prefilter attachment, wrapper serialization helpers, heuristic Unicode quit behavior, sparse regex convenience builders, and dense-backed leftmost-start search parity are now covered
   - Done when: sparse DFA build, query, and serialization parity is demonstrated
 
 - [x] One-pass DFA
@@ -95,7 +95,7 @@ For every unchecked top-level item:
   - Workflow: finish byte-class analysis, memory/reporting helpers, builder internals, and trie/map representation behavior as a second Thompson NFA milestone
   - Red: port the remaining representation/builder parity specs after the public/compiler API is stable
   - Green: `src/regex/automata/nfa.cr`, `src/regex/automata/hir_compiler.cr`
-  - Progress: final Thompson NFAs now drop builder-only goto placeholders before publication, compute real byte classes and memory usage from the final graph, and expose the Rust-style transition/sparse/state helper behavior through focused parity specs
+  - Progress: final Thompson NFAs now drop builder-only goto placeholders before publication, compute real byte classes and memory usage from the final graph, expose the Rust-style transition/sparse/state helper behavior through focused parity specs, and port the vendored Unicode class compiler split across forward `Utf8Compiler`, reverse suffix caching, and reverse range-trie shrinking
   - Done when: the remaining Thompson NFA representation and builder rows for this family are `ported` or `skipped`
 
 - [x] PikeVM search engine

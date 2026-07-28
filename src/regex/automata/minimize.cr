@@ -50,7 +50,7 @@ module Regex::Automata::DFA
                else
                  :normal
                end
-        transitions = state.next.map { |id| part_of[id.to_i] }
+        transitions = state.next.map { |id| part_of[logical_state_index(id)] }
         key = {
           kind,
           state.match,
@@ -59,7 +59,7 @@ module Regex::Automata::DFA
           state.is_from_word?,
           state.is_half_crlf?,
           transitions,
-          part_of[state.eoi_next.to_i],
+          part_of[logical_state_index(state.eoi_next)],
         }
         (grouped[key] ||= [] of Int32) << index
       end
@@ -92,8 +92,8 @@ module Regex::Automata::DFA
         old_index = group.first
         representative = @dfa.states[old_index]
         state = representative.dup(StateID.new(new_index))
-        state.next = representative.next.map { |id| StateID.new(old_to_new[id.to_i]) }
-        state.eoi_next = StateID.new(old_to_new[representative.eoi_next.to_i])
+        state.next = representative.next.map { |id| StateID.new(old_to_new[logical_state_index(id)]) }
+        state.eoi_next = StateID.new(old_to_new[logical_state_index(representative.eoi_next)])
         new_states << state
         new_accelerators[new_index] = @dfa.accelerators[old_index]
       end

@@ -84,7 +84,7 @@ src/dfa/dense.rs::method::OwnedDFA.new	method	ported	src/regex/automata/dfa.cr:D
 src/dfa/dense.rs::struct::BuildError	struct	ported	src/regex/automata/errors.cr:BuildError	ported from Rust
 src/dfa/dense.rs::struct::Builder	struct	ported	src/regex/automata/dfa.cr:Builder;spec/dfa_dense_spec.cr	dense builder construction/configuration/thompson workflows, syntax configuration, prefilter attachment, size-limit signaling, minimization, and sparse conversion are ported
 src/dfa/dense.rs::struct::Config	struct	ported	src/regex/automata/config.cr:Config;spec/dfa_dense_spec.cr	core dense config setters/getters, prefilter attachment, and compile-pipeline controls are ported
-src/dfa/dense.rs::struct::DFA	struct	ported	src/regex/automata/dfa.cr:DFA;spec/dfa_dense_spec.cr;spec/dfa_api_spec.cr;spec/dfa_sparse_spec.cr	core dense construction, metadata, serialization helpers, overlap APIs, prefilter aliases, minimization, wire validation, and sparse conversion are ported
+src/dfa/dense.rs::struct::DFA	struct	ported	src/regex/automata/dfa.cr:DFA;spec/dfa_dense_spec.cr;spec/dfa_api_spec.cr;spec/dfa_sparse_spec.cr	core dense construction, metadata, leftmost-first search semantics, serialization helpers, overlap APIs, prefilter aliases, minimization, wire validation, and sparse conversion are ported
 src/dfa/dense.rs::test::errors_with_unicode_word_boundary	test	ported	src/regex/automata/hir_compiler.cr;src/regex/automata/nfa.cr;src/regex/automata/dfa.cr;spec/dfa_dense_spec.cr	preserved ASCII-vs-Unicode word-boundary distinction and reject Unicode boundaries unless heuristic DFA support is enabled
 src/dfa/dense.rs::test::heuristic_unicode_reverse	test	ported	src/regex/automata/hir_compiler.cr;src/regex/automata/nfa.cr;src/regex/automata/dfa.cr;spec/dfa_dense_spec.cr	heuristic Unicode reverse searches now auto-quit on non-ASCII bytes while preserving reverse boundary semantics on ASCII spans
 src/dfa/dense.rs::test::regression_validation_order	test	ported	covered by deserialize validation-order regression around malformed start-state IDs before universal-start computation	manual
@@ -161,7 +161,7 @@ src/dfa/regex.rs::func::pattern_len	func	ported	src/regex/automata/dfa_regex.cr:
 src/dfa/regex.rs::func::reverse	func	ported	src/regex/automata/dfa_regex.cr::Regex#reverse;spec/dfa_regex_spec.cr	-
 src/dfa/regex.rs::func::syntax	func	ported	src/regex/automata/dfa_regex.cr::RegexBuilder#syntax;spec/dfa_regex_spec.cr	ported syntax-configuration alias for the DFA regex wrapper
 src/dfa/regex.rs::func::thompson	func	ported	src/regex/automata/dfa_regex.cr::RegexBuilder#thompson	renamed builder surface to RegexBuilder to avoid collision with DFA::Builder
-src/dfa/regex.rs::func::try_search	func	ported	src/regex/automata/dfa_regex.cr::Regex#try_search;spec/dfa_regex_spec.cr	ported dense wrapper search with reverse-start recovery, ranged input support, and UTF-8-safe empty-match iteration behavior
+src/dfa/regex.rs::func::try_search	func	ported	src/regex/automata/dfa_regex.cr::Regex#try_search;spec/dfa_regex_spec.cr	ported wrapper search with reverse-start recovery, ranged input support, shared dense/sparse unanchored leftmost-start scanning, and UTF-8-safe empty-match iteration behavior
 src/dfa/regex.rs::method::Builder.new	method	ported	src/regex/automata/dfa_regex.cr::RegexBuilder#initialize	renamed Builder to RegexBuilder to avoid collision with DFA::Builder
 src/dfa/regex.rs::method::Regex.builder	method	ported	src/regex/automata/dfa_regex.cr::Regex.builder;spec/dfa_regex_spec.cr	-
 src/dfa/regex.rs::method::Regex.forward	method	ported	src/regex/automata/dfa_regex.cr::Regex#forward;spec/dfa_regex_spec.cr	-
@@ -192,7 +192,7 @@ src/dfa/sparse.rs::method::DFA.always_match	method	ported	src/regex/automata/spa
 src/dfa/sparse.rs::method::DFA.from_bytes	method	ported	src/regex/automata/sparse.cr:Sparse::DFA.from_bytes;spec/dfa_sparse_spec.cr	ported sparse class deserializer
 src/dfa/sparse.rs::method::DFA.new	method	ported	src/regex/automata/sparse.cr:Sparse::DFA.new;spec/dfa_sparse_spec.cr	ported sparse class constructor
 src/dfa/sparse.rs::method::DFA.set_prefilter	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#set_prefilter;spec/dfa_sparse_spec.cr	ported sparse prefilter mutator
-src/dfa/sparse.rs::struct::DFA	struct	ported	src/regex/automata/sparse.cr:Sparse::DFA;spec/dfa_sparse_spec.cr	ported sparse DFA compatibility engine with build/search/serialization coverage over dense-backed conversion
+src/dfa/sparse.rs::struct::DFA	struct	ported	src/regex/automata/sparse.cr:Sparse::DFA;spec/dfa_sparse_spec.cr	ported sparse DFA compatibility engine with build/search/serialization coverage over dense-backed conversion, including regex-wrapper leftmost-start parity
 src/dfa/sparse.rs::test::heuristic_unicode_forward	test	ported	spec/dfa_sparse_spec.cr	ported sparse forward heuristic Unicode quit-byte behavior through dense-to-sparse conversion
 src/dfa/sparse.rs::test::heuristic_unicode_reverse	test	ported	spec/dfa_sparse_spec.cr	ported sparse reverse heuristic Unicode quit-byte behavior through dense-to-sparse conversion
 src/dfa/start.rs::enum::StartKind	enum	ported	src/regex/automata/search.cr::StartKind;spec/dfa_dense_spec.cr;spec/dfa_api_spec.cr	ported dense start-kind enum with anchored, unanchored, and both modes exercised through builder and start-state specs
@@ -485,14 +485,14 @@ src/nfa/thompson/compiler.rs::test::compile_captures_all	test	skipped	spec/nfa_t
 src/nfa/thompson/compiler.rs::test::compile_captures_implicit	test	ported	spec/nfa_thompson_representation_spec.cr	ported exact implicit-capture Thompson state-shape parity
 src/nfa/thompson/compiler.rs::test::compile_captures_none	test	ported	spec/nfa_thompson_representation_spec.cr	ported exact capture-free Thompson state-shape parity
 src/nfa/thompson/compiler.rs::test::compile_class_ascii	test	ported	spec/nfa_thompson_representation_spec.cr	ported exact ASCII class state-shape parity, including ASCII-only Unicode HIR lowering
-src/nfa/thompson/compiler.rs::test::compile_class_unicode	test	skipped	spec/nfa_thompson_representation_spec.cr	Crystal preserves Unicode class matching but does not port Rust's exact range-trie suffix-sharing layout.
+src/nfa/thompson/compiler.rs::test::compile_class_unicode	test	ported	spec/nfa_thompson_representation_spec.cr	ported exact vendor Unicode class Thompson state-shape parity for forward UTF-8 compilation
 src/nfa/thompson/compiler.rs::test::compile_empty	test	ported	spec/nfa_thompson_representation_spec.cr	ported exact empty-pattern Thompson state-shape parity
 src/nfa/thompson/compiler.rs::test::compile_group	test	skipped	spec/nfa_thompson_representation_spec.cr	Crystal preserves grouped repetition semantics but allocates repetition states in a different order than Rust's builder.
 src/nfa/thompson/compiler.rs::test::compile_literal	test	ported	spec/nfa_thompson_representation_spec.cr	ported exact literal Thompson state-shape parity
 src/nfa/thompson/compiler.rs::test::compile_many_start_pattern	test	ported	spec/nfa_thompson_spec.cr	ported exact multi-pattern start-state parity for the public Thompson compiler surface
 src/nfa/thompson/compiler.rs::test::compile_no_reverse_unanchored_prefix_with_end_anchor	test	skipped	spec/nfa_thompson_spec.cr	Crystal's current regex-syntax lowering maps `$` to text-anchor HIR kinds, so the exact Rust reverse end-anchor state shape is not reproducible here.
 src/nfa/thompson/compiler.rs::test::compile_no_unanchored_prefix_with_start_anchor	test	skipped	spec/nfa_thompson_spec.cr	Crystal's current regex-syntax lowering maps `^` to text-anchor HIR kinds, so the exact Rust line-anchor state shape is not reproducible here.
-src/nfa/thompson/compiler.rs::test::compile_non_binary_union	test	skipped	spec/nfa_thompson_representation_spec.cr	Crystal preserves reverse Unicode class behavior without porting Rust's exact range-trie factored non-binary union layout.
+src/nfa/thompson/compiler.rs::test::compile_non_binary_union	test	ported	spec/nfa_thompson_representation_spec.cr	ported exact reverse Unicode class state-shape parity for the non-shrunk suffix-cache path
 src/nfa/thompson/compiler.rs::test::compile_repetition	test	skipped	spec/nfa_thompson_representation_spec.cr	Crystal preserves repetition semantics but not Rust's exact union-first state ordering for optional and plus construction.
 src/nfa/thompson/compiler.rs::test::compile_unanchored_prefix	test	ported	spec/nfa_thompson_spec.cr	ported exact unanchored-prefix state-shape parity for the public Thompson compiler surface
 src/nfa/thompson/compiler.rs::test::compile_yes_reverse_unanchored_prefix_with_start_anchor	test	skipped	spec/nfa_thompson_spec.cr	Crystal's current regex-syntax lowering maps `^` to text-anchor HIR kinds, so the exact Rust reverse anchored-prefix state shape is not reproducible here.
@@ -593,14 +593,14 @@ src/nfa/thompson/pikevm.rs::struct::CapturesMatches	struct	ported	src/regex/auto
 src/nfa/thompson/pikevm.rs::struct::Config	struct	ported	src/regex/automata/pikevm.cr;spec/pikevm_spec.cr	ported PikeVM configuration surface
 src/nfa/thompson/pikevm.rs::struct::FindMatches	struct	ported	src/regex/automata/pikevm.cr;spec/pikevm_spec.cr	ported PikeVM match iterator surface
 src/nfa/thompson/pikevm.rs::struct::PikeVM	struct	ported	src/regex/automata/pikevm.cr;spec/pikevm_spec.cr	ported PikeVM search engine surface
-src/nfa/thompson/range_trie.rs::func::add_empty	func	skipped	src/regex/automata/hir_compiler.cr	Crystal does not port Rust's internal Unicode range-trie builder as a standalone type; Unicode class compilation emits the final graph directly.
-src/nfa/thompson/range_trie.rs::func::clear	func	skipped	src/regex/automata/hir_compiler.cr	Crystal does not port Rust's internal Unicode range-trie builder as a standalone type; Unicode class compilation emits the final graph directly.
-src/nfa/thompson/range_trie.rs::func::insert	func	skipped	src/regex/automata/hir_compiler.cr	Crystal does not port Rust's internal Unicode range-trie builder as a standalone type; Unicode class compilation emits the final graph directly.
-src/nfa/thompson/range_trie.rs::func::new	func	skipped	src/regex/automata/hir_compiler.cr	Crystal does not port Rust's internal Unicode range-trie builder as a standalone type; Unicode class compilation emits the final graph directly.
-src/nfa/thompson/range_trie.rs::method::RangeTrie.new	method	skipped	src/regex/automata/hir_compiler.cr	Crystal does not port Rust's internal Unicode range-trie builder as a standalone type; Unicode class compilation emits the final graph directly.
-src/nfa/thompson/range_trie.rs::struct::RangeTrie	struct	skipped	src/regex/automata/hir_compiler.cr	Crystal does not port Rust's internal Unicode range-trie builder as a standalone type; Unicode class compilation emits the final graph directly.
-src/nfa/thompson/range_trie.rs::test::no_splits	test	skipped	src/regex/automata/hir_compiler.cr	Crystal does not port Rust's internal Unicode range-trie builder as a standalone type; Unicode class compilation emits the final graph directly.
-src/nfa/thompson/range_trie.rs::test::splits	test	skipped	src/regex/automata/hir_compiler.cr	Crystal does not port Rust's internal Unicode range-trie builder as a standalone type; Unicode class compilation emits the final graph directly.
+src/nfa/thompson/range_trie.rs::func::add_empty	func	ported	src/regex/automata/nfa.cr	ported the internal range-trie state allocator used by reverse Unicode NFA shrinking
+src/nfa/thompson/range_trie.rs::func::clear	func	ported	src/regex/automata/nfa.cr	ported the internal range-trie reset path used before reverse Unicode trie compilation
+src/nfa/thompson/range_trie.rs::func::insert	func	ported	src/regex/automata/nfa.cr;spec/nfa_thompson_representation_spec.cr	ported the reverse Unicode range-trie insertion/splitting algorithm that normalizes overlapping reversed UTF-8 ranges
+src/nfa/thompson/range_trie.rs::func::new	func	ported	src/regex/automata/nfa.cr	ported the internal range-trie constructor for reverse Unicode shrinking
+src/nfa/thompson/range_trie.rs::method::RangeTrie.new	method	ported	src/regex/automata/nfa.cr	ported the internal range-trie constructor for reverse Unicode shrinking
+src/nfa/thompson/range_trie.rs::struct::RangeTrie	struct	ported	src/regex/automata/nfa.cr;spec/nfa_thompson_representation_spec.cr	ported the internal range-trie used by reverse Unicode `shrink(true)` compilation
+src/nfa/thompson/range_trie.rs::test::no_splits	test	ported	spec/nfa_thompson_representation_spec.cr	reverse Unicode shrink coverage now exercises the no-overlap and normalization path through the ported range trie
+src/nfa/thompson/range_trie.rs::test::splits	test	ported	spec/nfa_thompson_representation_spec.cr	reverse Unicode shrink coverage now exercises the overlap-splitting path through the ported range trie
 src/util/alphabet.rs::func::alphabet_len	func	ported	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	ported byte-class alphabet length semantics including the EOI sentinel
 src/util/alphabet.rs::func::as_eoi	func	ported	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	ported Unit EOI extraction
 src/util/alphabet.rs::func::as_u8	func	ported	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	ported Unit byte extraction

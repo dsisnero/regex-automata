@@ -157,7 +157,7 @@ module Regex::Automata
     def initialize(config : HirCompilerConfig = HirCompilerConfig.new, syntax_config : Regex::Automata::Syntax::Config = Regex::Automata::Syntax::Config.new)
       @config = config
       @syntax_config = syntax_config
-      @builder = NFA::Builder.new(utf8: config.utf8, reverse: config.reverse)
+      @builder = NFA::Builder.new(utf8: config.utf8, reverse: config.reverse, shrink: config.shrink)
       @pattern_id = PatternID.new(0)
       @group_info = GroupInfo.empty
     end
@@ -420,22 +420,30 @@ module Regex::Automata
                NFA::Look::Kind::EndLF
              when Regex::Syntax::Hir::Look::Kind::EndCRLF
                NFA::Look::Kind::EndCRLF
-             when Regex::Syntax::Hir::Look::Kind::WordAscii,
-                  Regex::Syntax::Hir::Look::Kind::WordStartAscii,
-                  Regex::Syntax::Hir::Look::Kind::WordEndAscii,
-                  Regex::Syntax::Hir::Look::Kind::WordStartHalfAscii,
-                  Regex::Syntax::Hir::Look::Kind::WordEndHalfAscii
+             when Regex::Syntax::Hir::Look::Kind::WordAscii
                NFA::Look::Kind::WordBoundaryAscii
-             when Regex::Syntax::Hir::Look::Kind::WordUnicode,
-                  Regex::Syntax::Hir::Look::Kind::WordStartUnicode,
-                  Regex::Syntax::Hir::Look::Kind::WordEndUnicode,
-                  Regex::Syntax::Hir::Look::Kind::WordStartHalfUnicode,
-                  Regex::Syntax::Hir::Look::Kind::WordEndHalfUnicode
+             when Regex::Syntax::Hir::Look::Kind::WordUnicode
                NFA::Look::Kind::WordBoundaryUnicode
              when Regex::Syntax::Hir::Look::Kind::WordAsciiNegate
                NFA::Look::Kind::NonWordBoundaryAscii
              when Regex::Syntax::Hir::Look::Kind::WordUnicodeNegate
                NFA::Look::Kind::NonWordBoundaryUnicode
+             when Regex::Syntax::Hir::Look::Kind::WordStartAscii
+               NFA::Look::Kind::WordStartAscii
+             when Regex::Syntax::Hir::Look::Kind::WordEndAscii
+               NFA::Look::Kind::WordEndAscii
+             when Regex::Syntax::Hir::Look::Kind::WordStartUnicode
+               NFA::Look::Kind::WordStartUnicode
+             when Regex::Syntax::Hir::Look::Kind::WordEndUnicode
+               NFA::Look::Kind::WordEndUnicode
+             when Regex::Syntax::Hir::Look::Kind::WordStartHalfAscii
+               NFA::Look::Kind::WordStartHalfAscii
+             when Regex::Syntax::Hir::Look::Kind::WordEndHalfAscii
+               NFA::Look::Kind::WordEndHalfAscii
+             when Regex::Syntax::Hir::Look::Kind::WordStartHalfUnicode
+               NFA::Look::Kind::WordStartHalfUnicode
+             when Regex::Syntax::Hir::Look::Kind::WordEndHalfUnicode
+               NFA::Look::Kind::WordEndHalfUnicode
              when Regex::Syntax::Hir::Look::Kind::StartText
                NFA::Look::Kind::StartText
              when Regex::Syntax::Hir::Look::Kind::EndText
@@ -470,6 +478,22 @@ module Regex::Automata
         NFA::Look::Kind::StartText
       when NFA::Look::Kind::EndTextWithNewline
         NFA::Look::Kind::StartText
+      when NFA::Look::Kind::WordStartAscii
+        NFA::Look::Kind::WordEndAscii
+      when NFA::Look::Kind::WordEndAscii
+        NFA::Look::Kind::WordStartAscii
+      when NFA::Look::Kind::WordStartUnicode
+        NFA::Look::Kind::WordEndUnicode
+      when NFA::Look::Kind::WordEndUnicode
+        NFA::Look::Kind::WordStartUnicode
+      when NFA::Look::Kind::WordStartHalfAscii
+        NFA::Look::Kind::WordEndHalfAscii
+      when NFA::Look::Kind::WordEndHalfAscii
+        NFA::Look::Kind::WordStartHalfAscii
+      when NFA::Look::Kind::WordStartHalfUnicode
+        NFA::Look::Kind::WordEndHalfUnicode
+      when NFA::Look::Kind::WordEndHalfUnicode
+        NFA::Look::Kind::WordStartHalfUnicode
       else
         kind
       end
@@ -508,7 +532,7 @@ module Regex::Automata
     end
 
     private def reset_builder : Nil
-      @builder = NFA::Builder.new(utf8: @config.utf8, reverse: @config.reverse)
+      @builder = NFA::Builder.new(utf8: @config.utf8, reverse: @config.reverse, shrink: @config.shrink)
       @builder.set_look_matcher(@config.look_matcher)
     end
 

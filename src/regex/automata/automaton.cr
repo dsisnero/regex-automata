@@ -189,13 +189,19 @@ module Regex::Automata
 
       current_state = start_state.as(StateID)
       last_match : HalfMatch? = nil
+      if is_match_state?(current_state)
+        last_match = HalfMatch.new(match_pattern(current_state, 0), input.start)
+        return last_match if input.get_earliest
+      end
       at = input.start
 
       while at < input.end
         next_state = next_state(current_state, input.haystack[at])
         return last_match || MatchError.quit(input.haystack[at], at) if is_quit_state?(next_state)
+        if last_match && input.get_anchored == Anchored::No && is_start_state?(next_state)
+          return last_match
+        end
         break if is_dead_state?(next_state)
-
         current_state = next_state
         if is_match_state?(current_state)
           last_match = HalfMatch.new(match_pattern(current_state, 0), at)

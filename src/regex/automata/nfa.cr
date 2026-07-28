@@ -121,9 +121,17 @@ module Regex::Automata::NFA
       NonWordBoundaryAscii   # (?-u:\B)
       WordBoundaryUnicode    # \b
       NonWordBoundaryUnicode # \B
-      StartText              # \A
-      EndText                # \z
-      EndTextWithNewline     # \Z
+      WordStartAscii
+      WordEndAscii
+      WordStartUnicode
+      WordEndUnicode
+      WordStartHalfAscii
+      WordEndHalfAscii
+      WordStartHalfUnicode
+      WordEndHalfUnicode
+      StartText          # \A
+      EndText            # \z
+      EndTextWithNewline # \Z
     end
 
     getter kind : Kind
@@ -221,6 +229,412 @@ module Regex::Automata::NFA
     end
   end
 
+  private struct Utf8LastTransition
+    getter start : UInt8
+    getter end : UInt8
+
+    def initialize(@start : UInt8, @end : UInt8)
+    end
+  end
+
+  private class Utf8Node
+    getter trans : Array(Transition)
+    property last : Utf8LastTransition?
+
+    def initialize(@trans : Array(Transition) = [] of Transition, @last : Utf8LastTransition? = nil)
+    end
+
+    def set_last_transition(next_id : StateID) : Nil
+      if last = @last
+        @trans << Transition.new(last.start, last.end, next_id)
+        @last = nil
+      end
+    end
+  end
+
+  private class Utf8CompilerState
+    getter compiled : Hash(Array(Tuple(UInt8, UInt8, Int32)), StateID)
+    getter uncompiled : Array(Utf8Node)
+
+    def initialize
+      @compiled = {} of Array(Tuple(UInt8, UInt8, Int32)) => StateID
+      @uncompiled = [] of Utf8Node
+    end
+
+    def clear : Nil
+      @compiled.clear
+      @uncompiled.clear
+    end
+  end
+
+  private enum RangeTrieSplitKind
+    Old
+    New
+    Both
+  end
+
+  private struct RangeTrieSplitRange
+    getter kind : RangeTrieSplitKind
+    getter range : ::Regex::Automata::Utf8Range
+
+    def initialize(@kind : RangeTrieSplitKind, @range : ::Regex::Automata::Utf8Range)
+    end
+  end
+
+  private struct RangeTrieTransition
+    getter range : ::Regex::Automata::Utf8Range
+    getter next_id : Int32
+
+    def initialize(@range : ::Regex::Automata::Utf8Range, @next_id : Int32)
+    end
+  end
+
+  private class RangeTrieState
+    getter transitions : Array(RangeTrieTransition)
+
+    def initialize
+      @transitions = [] of RangeTrieTransition
+    end
+
+    def clear : Nil
+      @transitions.clear
+    end
+
+    def find(range : ::Regex::Automata::Utf8Range) : Int32
+      left = 0
+      right = @transitions.size
+      while left < right
+        mid = (left + right) // 2
+        if range.start <= @transitions[mid].range.end
+          right = mid
+        else
+          left = mid + 1
+        end
+      end
+      left.to_i32
+    end
+  end
+
+  private struct RangeTrieSplit
+    getter partitions : Array(RangeTrieSplitRange)
+
+    def initialize(@partitions : Array(RangeTrieSplitRange))
+    end
+
+    private def self.range(start_byte : UInt8, end_byte : UInt8) : ::Regex::Automata::Utf8Range
+      ::Regex::Automata::Utf8Range.new(start_byte, end_byte)
+    end
+
+    private def self.old(start_byte : UInt8, end_byte : UInt8) : RangeTrieSplitRange
+      RangeTrieSplitRange.new(RangeTrieSplitKind::Old, range(start_byte, end_byte))
+    end
+
+    private def self.new_part(start_byte : UInt8, end_byte : UInt8) : RangeTrieSplitRange
+      RangeTrieSplitRange.new(RangeTrieSplitKind::New, range(start_byte, end_byte))
+    end
+
+    private def self.both(start_byte : UInt8, end_byte : UInt8) : RangeTrieSplitRange
+      RangeTrieSplitRange.new(RangeTrieSplitKind::Both, range(start_byte, end_byte))
+    end
+
+    def self.build(old_range : ::Regex::Automata::Utf8Range, new_range : ::Regex::Automata::Utf8Range) : RangeTrieSplit?
+      a = old_range.start
+      b = old_range.end
+      x = new_range.start
+      y = new_range.end
+
+      if b < x || y < a
+        nil
+      elsif a == x && b == y
+        new([both(a, b)])
+      elsif a == x && b < y
+        new([both(a, b), new_part((b + 1).to_u8, y)])
+      elsif b == y && a > x
+        new([new_part(x, (a - 1).to_u8), both(a, b)])
+      elsif x == a && y < b
+        new([both(x, y), old((y + 1).to_u8, b)])
+      elsif y == b && x > a
+        new([old(a, (x - 1).to_u8), both(x, y)])
+      elsif a > x && b < y
+        new([new_part(x, (a - 1).to_u8), both(a, b), new_part((b + 1).to_u8, y)])
+      elsif x > a && y < b
+        new([old(a, (x - 1).to_u8), both(x, y), old((y + 1).to_u8, b)])
+      elsif b == x && a < y
+        new([old(a, (b - 1).to_u8), both(b, b), new_part((b + 1).to_u8, y)])
+      elsif y == a && x < b
+        new([new_part(x, (y - 1).to_u8), both(y, y), old((y + 1).to_u8, b)])
+      elsif b > x && b < y
+        new([old(a, (x - 1).to_u8), both(x, b), new_part((b + 1).to_u8, y)])
+      elsif y > a && y < b
+        new([new_part(x, (a - 1).to_u8), both(a, y), old((y + 1).to_u8, b)])
+      else
+        raise "unreachable range trie split"
+      end
+    end
+  end
+
+  private class RangeTrie
+    FINAL = 0
+    ROOT  = 1
+
+    @states : Array(RangeTrieState)
+
+    def initialize
+      @states = [] of RangeTrieState
+      clear
+    end
+
+    def clear : Nil
+      @states = [RangeTrieState.new, RangeTrieState.new]
+    end
+
+    def insert(ranges : Array(::Regex::Automata::Utf8Range)) : Nil
+      raise "expected non-empty UTF-8 ranges" if ranges.empty?
+      raise "expected at most four UTF-8 ranges" if ranges.size > 4
+
+      stack = [{ROOT, ranges}] of Tuple(Int32, Array(::Regex::Automata::Utf8Range))
+      until stack.empty?
+        state_id, pending = stack.pop
+        new_range = pending.first
+        rest = pending.size == 1 ? [] of ::Regex::Automata::Utf8Range : pending[1..]
+        index = state(state_id).find(new_range)
+
+        if index == state(state_id).transitions.size
+          add_transition(state_id, new_range, push_pending(stack, rest))
+          next
+        end
+
+        loop do
+          old_transition = state(state_id).transitions[index]
+          if split = RangeTrieSplit.build(old_transition.range, new_range)
+            parts = split.partitions
+            if parts.size == 1
+              stack << {old_transition.next_id, rest} unless rest.empty?
+              break
+            end
+
+            first = true
+            repeat_overlap = false
+            overlap_range = new_range
+
+            parts.each_with_index do |part, part_index|
+              target_id = nil.as(Int32?)
+              case part.kind
+              when RangeTrieSplitKind::Old
+                target_id = duplicate(old_transition.next_id)
+              when RangeTrieSplitKind::New
+                transitions = state(state_id).transitions
+                if part_index + 1 == parts.size &&
+                   index < transitions.size &&
+                   intersects(part.range, transitions[index].range)
+                  overlap_range = part.range
+                  repeat_overlap = true
+                  break
+                end
+                target_id = push_pending(stack, rest)
+              when RangeTrieSplitKind::Both
+                stack << {old_transition.next_id, rest} unless rest.empty?
+                target_id = old_transition.next_id
+              end
+              next unless target_id
+              target = target_id.not_nil!
+
+              if first
+                set_transition_at(index, state_id, part.range, target)
+                first = false
+              else
+                add_transition_at(index, state_id, part.range, target)
+              end
+              index += 1
+            end
+
+            if repeat_overlap
+              new_range = overlap_range
+              next
+            end
+            break
+          else
+            add_transition_at(index, state_id, new_range, push_pending(stack, rest))
+            break
+          end
+        end
+      end
+    end
+
+    def each(&block : Array(::Regex::Automata::Utf8Range) ->) : Nil
+      stack = [{ROOT, 0}] of Tuple(Int32, Int32)
+      ranges = [] of ::Regex::Automata::Utf8Range
+
+      until stack.empty?
+        state_id, transition_index = stack.pop
+        loop do
+          transitions = state(state_id).transitions
+          if transition_index >= transitions.size
+            ranges.pop?
+            break
+          end
+
+          transition = transitions[transition_index]
+          ranges << transition.range
+          if transition.next_id == FINAL
+            yield ranges.dup
+            ranges.pop
+            transition_index += 1
+          else
+            stack << {state_id, transition_index + 1}
+            state_id = transition.next_id
+            transition_index = 0
+          end
+        end
+      end
+    end
+
+    private def push_pending(stack : Array(Tuple(Int32, Array(::Regex::Automata::Utf8Range))), ranges : Array(::Regex::Automata::Utf8Range)) : Int32
+      if ranges.empty?
+        FINAL
+      else
+        next_id = add_empty
+        stack << {next_id, ranges}
+        next_id
+      end
+    end
+
+    private def duplicate(old_id : Int32) : Int32
+      return FINAL if old_id == FINAL
+
+      new_id = add_empty
+      stack = [{old_id, new_id}] of Tuple(Int32, Int32)
+      until stack.empty?
+        current_old, current_new = stack.pop
+        state(current_old).transitions.each do |transition|
+          if transition.next_id == FINAL
+            add_transition(current_new, transition.range, FINAL)
+          else
+            child_new = add_empty
+            add_transition(current_new, transition.range, child_new)
+            stack << {transition.next_id, child_new}
+          end
+        end
+      end
+      new_id
+    end
+
+    private def add_empty : Int32
+      @states << RangeTrieState.new
+      (@states.size - 1).to_i32
+    end
+
+    private def add_transition(from_id : Int32, range : ::Regex::Automata::Utf8Range, next_id : Int32) : Nil
+      state(from_id).transitions << RangeTrieTransition.new(range, next_id)
+    end
+
+    private def add_transition_at(index : Int32, from_id : Int32, range : ::Regex::Automata::Utf8Range, next_id : Int32) : Nil
+      state(from_id).transitions.insert(index, RangeTrieTransition.new(range, next_id))
+    end
+
+    private def set_transition_at(index : Int32, from_id : Int32, range : ::Regex::Automata::Utf8Range, next_id : Int32) : Nil
+      state(from_id).transitions[index] = RangeTrieTransition.new(range, next_id)
+    end
+
+    private def state(id : Int32) : RangeTrieState
+      @states[id]
+    end
+
+    private def intersects(left : ::Regex::Automata::Utf8Range, right : ::Regex::Automata::Utf8Range) : Bool
+      !(left.end < right.start || right.end < left.start)
+    end
+  end
+
+  private class Utf8Compiler
+    @state : Utf8CompilerState
+    getter target : StateID
+
+    def initialize(@builder : Builder)
+      @state = Utf8CompilerState.new
+      @target = @builder.add_state(Empty.new(StateID.new(0)))
+      @state.clear
+      add_empty
+    end
+
+    def add(ranges : Array(::Regex::Automata::Utf8Range)) : Nil
+      prefix_len = 0
+      max = Math.min(ranges.size, @state.uncompiled.size)
+      while prefix_len < max
+        node = @state.uncompiled[prefix_len]
+        last = node.last
+        break unless last && last.start == ranges[prefix_len].start && last.end == ranges[prefix_len].end
+        prefix_len += 1
+      end
+      raise "expected non-empty UTF-8 suffix" unless prefix_len < ranges.size
+
+      compile_from(prefix_len)
+      add_suffix(ranges[prefix_len..])
+    end
+
+    def finish : ThompsonRef
+      compile_from(0)
+      start_id = compile(pop_root)
+      ThompsonRef.new(start_id, @target)
+    end
+
+    private def compile_from(from : Int32) : Nil
+      next_id = @target
+      while from + 1 < @state.uncompiled.size
+        next_id = compile(pop_freeze(next_id))
+      end
+      top_last_freeze(next_id)
+    end
+
+    private def compile(node : Array(Transition)) : StateID
+      key = node.map { |transition| {transition.start, transition.end, transition.next.to_i} }
+      if compiled_id = @state.compiled[key]?
+        return compiled_id
+      end
+
+      state = if node.size == 1
+                ByteRange.new(node.first).as(State)
+              else
+                Sparse.new(node).as(State)
+              end
+      id = @builder.add_state(state)
+      @state.compiled[key] = id
+      id
+    end
+
+    private def add_suffix(ranges : Array(::Regex::Automata::Utf8Range)) : Nil
+      raise "expected non-empty UTF-8 suffix" if ranges.empty?
+
+      last_index = @state.uncompiled.size - 1
+      raise "expected pending transition slot" if @state.uncompiled[last_index].last
+      @state.uncompiled[last_index].last = Utf8LastTransition.new(ranges[0].start, ranges[0].end)
+      ranges[1..].each do |range|
+        @state.uncompiled << Utf8Node.new(last: Utf8LastTransition.new(range.start, range.end))
+      end
+    end
+
+    private def add_empty : Nil
+      @state.uncompiled << Utf8Node.new
+    end
+
+    private def pop_freeze(next_id : StateID) : Array(Transition)
+      node = @state.uncompiled.pop || raise "expected an uncompiled UTF-8 node"
+      node.set_last_transition(next_id)
+      node.trans
+    end
+
+    private def pop_root : Array(Transition)
+      raise "expected a single UTF-8 root node" unless @state.uncompiled.size == 1
+      raise "expected a fully frozen UTF-8 root" if @state.uncompiled.first.last
+      (@state.uncompiled.pop || raise "expected a UTF-8 root node").trans
+    end
+
+    private def top_last_freeze(next_id : StateID) : Nil
+      last_index = @state.uncompiled.size - 1
+      raise "expected an uncompiled UTF-8 node" if last_index < 0
+      @state.uncompiled[last_index].set_last_transition(next_id)
+    end
+  end
+
   # Thompson NFA builder
   class Builder
     @states : Array(State)
@@ -229,15 +643,17 @@ module Regex::Automata::NFA
     @start_pattern : Array(StateID)
     @utf8 : Bool
     @reverse : Bool
+    @shrink : Bool
     @look_matcher : Regex::Automata::LookMatcher
 
-    def initialize(utf8 : Bool = true, reverse : Bool = false)
+    def initialize(utf8 : Bool = true, reverse : Bool = false, shrink : Bool = false)
       @states = [] of State
       @start_anchored = StateID.new(0)
       @start_unanchored = StateID.new(0)
       @start_pattern = [] of StateID
       @utf8 = utf8
       @reverse = reverse
+      @shrink = shrink
       @look_matcher = Regex::Automata::LookMatcher.new
     end
 
@@ -555,68 +971,74 @@ module Regex::Automata::NFA
         return build_unicode_class(complement, false, pattern_id)
       end
 
-      # Convert each Unicode range to UTF-8 sequences
-      sequences = [] of ::Regex::Automata::Utf8Sequence
-      ranges.each do |range|
-        start_char = range.begin.chr
-        end_char = range.end.chr
-        utf8_seq = ::Regex::Automata::Utf8Sequences.new(start_char, end_char)
-        while seq = utf8_seq.next
-          sequences << seq
-        end
-      end
-
-      if @reverse
-        return build_reverse_unicode_sequences(sequences, pattern_id)
-      end
-
-      # Build alternation of all sequences
-      if sequences.empty?
+      if ranges.empty?
         fail_id = add_state(Fail.new)
         match_id = add_state(Match.new(pattern_id))
         ThompsonRef.new(fail_id, match_id)
-      elsif sequences.size == 1
-        # Single sequence - build concatenation
-        build_utf8_sequence(sequences.first, pattern_id)
-      else
-        # Multiple sequences - build alternation
-        refs = sequences.map { |seq| build_utf8_sequence(seq, pattern_id) }
-        # Build binary alternation tree
-        result = refs.first
-        refs[1..].each do |next_ref|
-          result = build_alternation(result, next_ref, pattern_id)
+      elsif @reverse
+        if @shrink
+          build_reverse_unicode_ranges_with_trie(ranges)
+        else
+          build_reverse_unicode_ranges_with_suffix(ranges)
         end
-        result
+      else
+        build_unicode_ranges_with_utf8_compiler(ranges)
       end
     end
 
-    private def build_reverse_unicode_sequences(sequences : Array(::Regex::Automata::Utf8Sequence), pattern_id : PatternID) : ThompsonRef
-      if sequences.empty?
-        match_id = add_state(Match.new(pattern_id))
-        return ThompsonRef.new(match_id, match_id)
+    private def build_unicode_ranges_with_utf8_compiler(ranges : Array(Range(UInt32, UInt32))) : ThompsonRef
+      compiler = Utf8Compiler.new(self)
+      ranges.each do |range|
+        utf8_seq = ::Regex::Automata::Utf8Sequences.new(range.begin.chr, range.end.chr)
+        while seq = utf8_seq.next
+          compiler.add(seq.ranges)
+        end
       end
+      compiler.finish
+    end
 
+    private def build_reverse_unicode_ranges_with_suffix(ranges : Array(Range(UInt32, UInt32))) : ThompsonRef
       cache = {} of Tuple(Int32, UInt8, UInt8) => StateID
       union_start = add_state(Union.new([] of StateID))
-      match_end = add_state(Match.new(pattern_id))
+      target = add_state(Empty.new(StateID.new(0)))
 
-      sequences.each do |seq|
-        state_id = match_end
-        seq.ranges.reverse_each do |range|
-          key = {state_id.to_i, range.start, range.end}
-          if cached = cache[key]?
-            state_id = cached
-            next
+      ranges.each do |range|
+        utf8_seq = ::Regex::Automata::Utf8Sequences.new(range.begin.chr, range.end.chr)
+        while seq = utf8_seq.next
+          state_id = target
+          seq.ranges.each do |seq_range|
+            key = {state_id.to_i, seq_range.start, seq_range.end}
+            if cached = cache[key]?
+              state_id = cached
+              next
+            end
+
+            trans = Transition.new(seq_range.start, seq_range.end, state_id)
+            state_id = add_state(ByteRange.new(trans))
+            cache[key] = state_id
           end
 
-          trans = Transition.new(range.start, range.end, state_id)
-          state_id = add_state(ByteRange.new(trans))
-          cache[key] = state_id
+          update_transition_target(union_start, state_id)
         end
-        update_transition_target(union_start, state_id)
       end
 
-      ThompsonRef.new(union_start, match_end)
+      ThompsonRef.new(union_start, target)
+    end
+
+    private def build_reverse_unicode_ranges_with_trie(ranges : Array(Range(UInt32, UInt32))) : ThompsonRef
+      trie = RangeTrie.new
+      ranges.each do |range|
+        utf8_seq = ::Regex::Automata::Utf8Sequences.new(range.begin.chr, range.end.chr)
+        while seq = utf8_seq.next
+          trie.insert(seq.ranges.reverse)
+        end
+      end
+
+      compiler = Utf8Compiler.new(self)
+      trie.each do |ranges|
+        compiler.add(ranges)
+      end
+      compiler.finish
     end
 
     # Build a single UTF-8 sequence (concatenation of byte ranges)
@@ -1221,13 +1643,8 @@ module Regex::Automata::NFA
             stack.push(next_id)
           end
         when Match
-          # Match states have optional epsilon transition via next
-          if next_id = state.next
-            unless closure.includes?(next_id)
-              closure.add(next_id)
-              stack.push(next_id)
-            end
-          end
+          # Vendor determinization treats match states as terminal in epsilon
+          # closure. Delayed match metadata is handled by the DFA builder.
         when Fail, ByteRange, Sparse
           # No epsilon transitions
         end
@@ -1282,13 +1699,33 @@ module Regex::Automata::NFA
                                 when Look::Kind::EndCRLF
                                   look_have.includes?(Regex::Automata::Look::EndCRLF)
                                 when Look::Kind::WordBoundaryAscii
-                                  look_have.includes?(Regex::Automata::Look::WordAscii)
+                                  look_have.includes?(Regex::Automata::Look::WordAscii) ||
+                                    look_have.includes?(Regex::Automata::Look::WordStartAscii) ||
+                                    look_have.includes?(Regex::Automata::Look::WordEndAscii)
                                 when Look::Kind::NonWordBoundaryAscii
                                   look_have.includes?(Regex::Automata::Look::WordAsciiNegate)
                                 when Look::Kind::WordBoundaryUnicode
-                                  look_have.includes?(Regex::Automata::Look::WordUnicode)
+                                  look_have.includes?(Regex::Automata::Look::WordUnicode) ||
+                                    look_have.includes?(Regex::Automata::Look::WordStartUnicode) ||
+                                    look_have.includes?(Regex::Automata::Look::WordEndUnicode)
                                 when Look::Kind::NonWordBoundaryUnicode
                                   look_have.includes?(Regex::Automata::Look::WordUnicodeNegate)
+                                when Look::Kind::WordStartAscii
+                                  look_have.includes?(Regex::Automata::Look::WordStartAscii)
+                                when Look::Kind::WordEndAscii
+                                  look_have.includes?(Regex::Automata::Look::WordEndAscii)
+                                when Look::Kind::WordStartUnicode
+                                  look_have.includes?(Regex::Automata::Look::WordStartUnicode)
+                                when Look::Kind::WordEndUnicode
+                                  look_have.includes?(Regex::Automata::Look::WordEndUnicode)
+                                when Look::Kind::WordStartHalfAscii
+                                  look_have.includes?(Regex::Automata::Look::WordStartHalfAscii)
+                                when Look::Kind::WordEndHalfAscii
+                                  look_have.includes?(Regex::Automata::Look::WordEndHalfAscii)
+                                when Look::Kind::WordStartHalfUnicode
+                                  look_have.includes?(Regex::Automata::Look::WordStartHalfUnicode)
+                                when Look::Kind::WordEndHalfUnicode
+                                  look_have.includes?(Regex::Automata::Look::WordEndHalfUnicode)
                                 when Look::Kind::StartText
                                   look_have.includes?(Regex::Automata::Look::Start)
                                 when Look::Kind::EndText, Look::Kind::EndTextWithNewline
@@ -1312,19 +1749,95 @@ module Regex::Automata::NFA
             stack.push(next_id)
           end
         when Match
-          # Match states have optional epsilon transition via next
-          if next_id = state.next
-            unless closure.includes?(next_id)
-              closure.add(next_id)
-              stack.push(next_id)
-            end
-          end
+          # Vendor determinization treats match states as terminal in epsilon
+          # closure. Delayed match metadata is handled by the DFA builder.
         when Fail, ByteRange, Sparse
           # No epsilon transitions
         end
       end
 
       closure
+    end
+
+    def epsilon_closure_with_look_ordered(states : Enumerable(StateID), look_have : Regex::Automata::LookSet) : Array(StateID)
+      ordered = [] of StateID
+      seen = Set(StateID).new
+      stack = [] of StateID
+
+      states.to_a.reverse_each do |state_id|
+        stack << state_id
+      end
+
+      until stack.empty?
+        state_id = stack.pop
+        next unless seen.add?(state_id)
+
+        ordered << state_id
+        state = @states[state_id.to_i]
+
+        case state
+        when Empty
+          stack << state.next
+        when Union
+          state.alternates.reverse_each do |alt_id|
+            stack << alt_id
+          end
+        when BinaryUnion
+          stack << state.alt2
+          stack << state.alt1
+        when Look
+          look_kind_satisfied = case state.kind
+                                when Look::Kind::StartLF
+                                  look_have.includes?(Regex::Automata::Look::StartLF)
+                                when Look::Kind::EndLF
+                                  look_have.includes?(Regex::Automata::Look::EndLF)
+                                when Look::Kind::StartCRLF
+                                  look_have.includes?(Regex::Automata::Look::StartCRLF)
+                                when Look::Kind::EndCRLF
+                                  look_have.includes?(Regex::Automata::Look::EndCRLF)
+                                when Look::Kind::WordBoundaryAscii
+                                  look_have.includes?(Regex::Automata::Look::WordAscii) ||
+                                    look_have.includes?(Regex::Automata::Look::WordStartAscii) ||
+                                    look_have.includes?(Regex::Automata::Look::WordEndAscii)
+                                when Look::Kind::NonWordBoundaryAscii
+                                  look_have.includes?(Regex::Automata::Look::WordAsciiNegate)
+                                when Look::Kind::WordBoundaryUnicode
+                                  look_have.includes?(Regex::Automata::Look::WordUnicode) ||
+                                    look_have.includes?(Regex::Automata::Look::WordStartUnicode) ||
+                                    look_have.includes?(Regex::Automata::Look::WordEndUnicode)
+                                when Look::Kind::NonWordBoundaryUnicode
+                                  look_have.includes?(Regex::Automata::Look::WordUnicodeNegate)
+                                when Look::Kind::WordStartAscii
+                                  look_have.includes?(Regex::Automata::Look::WordStartAscii)
+                                when Look::Kind::WordEndAscii
+                                  look_have.includes?(Regex::Automata::Look::WordEndAscii)
+                                when Look::Kind::WordStartUnicode
+                                  look_have.includes?(Regex::Automata::Look::WordStartUnicode)
+                                when Look::Kind::WordEndUnicode
+                                  look_have.includes?(Regex::Automata::Look::WordEndUnicode)
+                                when Look::Kind::WordStartHalfAscii
+                                  look_have.includes?(Regex::Automata::Look::WordStartHalfAscii)
+                                when Look::Kind::WordEndHalfAscii
+                                  look_have.includes?(Regex::Automata::Look::WordEndHalfAscii)
+                                when Look::Kind::WordStartHalfUnicode
+                                  look_have.includes?(Regex::Automata::Look::WordStartHalfUnicode)
+                                when Look::Kind::WordEndHalfUnicode
+                                  look_have.includes?(Regex::Automata::Look::WordEndHalfUnicode)
+                                when Look::Kind::StartText
+                                  look_have.includes?(Regex::Automata::Look::Start)
+                                when Look::Kind::EndText, Look::Kind::EndTextWithNewline
+                                  look_have.includes?(Regex::Automata::Look::End)
+                                else
+                                  false
+                                end
+          stack << state.next if look_kind_satisfied
+        when Capture
+          stack << state.next
+        when Match, Fail, ByteRange, Sparse
+        end
+      end
+
+      ordered
     end
 
     # Get transitions from a state for a given byte
@@ -1473,6 +1986,22 @@ module Regex::Automata::NFA
         Regex::Automata::LookSet.singleton(Regex::Automata::Look::WordUnicode)
       when Look::Kind::NonWordBoundaryUnicode
         Regex::Automata::LookSet.singleton(Regex::Automata::Look::WordUnicodeNegate)
+      when Look::Kind::WordStartAscii
+        Regex::Automata::LookSet.singleton(Regex::Automata::Look::WordStartAscii)
+      when Look::Kind::WordEndAscii
+        Regex::Automata::LookSet.singleton(Regex::Automata::Look::WordEndAscii)
+      when Look::Kind::WordStartUnicode
+        Regex::Automata::LookSet.singleton(Regex::Automata::Look::WordStartUnicode)
+      when Look::Kind::WordEndUnicode
+        Regex::Automata::LookSet.singleton(Regex::Automata::Look::WordEndUnicode)
+      when Look::Kind::WordStartHalfAscii
+        Regex::Automata::LookSet.singleton(Regex::Automata::Look::WordStartHalfAscii)
+      when Look::Kind::WordEndHalfAscii
+        Regex::Automata::LookSet.singleton(Regex::Automata::Look::WordEndHalfAscii)
+      when Look::Kind::WordStartHalfUnicode
+        Regex::Automata::LookSet.singleton(Regex::Automata::Look::WordStartHalfUnicode)
+      when Look::Kind::WordEndHalfUnicode
+        Regex::Automata::LookSet.singleton(Regex::Automata::Look::WordEndHalfUnicode)
       when Look::Kind::StartText
         Regex::Automata::LookSet.singleton(Regex::Automata::Look::Start)
       when Look::Kind::EndText

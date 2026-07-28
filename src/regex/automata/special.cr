@@ -82,11 +82,11 @@ module Regex::Automata
       Special.new(
         max: DEAD_STATE_ID,
         quit_id: DEAD_STATE_ID,
-        min_match: DEAD_STATE_ID,
+        min_match: StateID::MAX,
         max_match: DEAD_STATE_ID,
-        min_accel: DEAD_STATE_ID,
+        min_accel: StateID::MAX,
         max_accel: DEAD_STATE_ID,
-        min_start: DEAD_STATE_ID,
+        min_start: StateID::MAX,
         max_start: DEAD_STATE_ID
       )
     end
@@ -215,7 +215,7 @@ module Regex::Automata
       @max = candidates.max? || DEAD_STATE_ID
 
       # Reset start state range to empty
-      @min_start = DEAD_STATE_ID
+      @min_start = StateID::MAX
       @max_start = DEAD_STATE_ID
     end
 

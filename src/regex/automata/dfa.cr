@@ -39,10 +39,11 @@ module Regex::Automata::DFA
     getter id : StateID
     property next : Array(StateID)    # indexed by byte class
     property match : Array(PatternID) # empty if not accepting
-    getter look_need : LookSet        # look-around assertions present in this state
-    getter look_have : LookSet        # look-around assertions satisfied at this state
-    getter? is_from_word : Bool       # whether previous byte was a word byte (for word boundaries)
-    getter? is_half_crlf : Bool       # whether we're in a half-CRLF state (for CRLF anchors)
+    property accepting_override : Bool?
+    getter look_need : LookSet  # look-around assertions present in this state
+    getter look_have : LookSet  # look-around assertions satisfied at this state
+    getter? is_from_word : Bool # whether previous byte was a word byte (for word boundaries)
+    getter? is_half_crlf : Bool # whether we're in a half-CRLF state (for CRLF anchors)
     property eoi_next : StateID
 
     def initialize(@id : StateID, byte_classes : Int32, @look_need : LookSet = LookSet.new, @look_have : LookSet = LookSet.new, @is_from_word : Bool = false, @is_half_crlf : Bool = false)
@@ -56,6 +57,7 @@ module Regex::Automata::DFA
       state = State.new(new_id, @next.size, @look_need, @look_have, @is_from_word, @is_half_crlf)
       state.next.replace(@next.dup)
       state.match.replace(@match.dup)
+      state.accepting_override = @accepting_override
       state.eoi_next = @eoi_next
       state
     end
@@ -73,7 +75,7 @@ module Regex::Automata::DFA
     end
 
     def accepting? : Bool
-      !@match.empty?
+      @accepting_override || !@match.empty?
     end
   end
 
@@ -127,6 +129,20 @@ module Regex::Automata::DFA
         @start_anchored = @tt.not_nil!.to_state_id(@start_anchored.to_i)
       end
 
+      # Keep the materialized state graph in the same premultiplied ID space
+      # that the public DFA API exposes when a dense transition table exists.
+      @states = normalize_states_for_transition_table(@states, @tt.not_nil!)
+      @flags = DFAFlags.new(
+        premultiplied: true,
+        has_empty: @flags.has_empty,
+        has_byte_classes: @flags.has_byte_classes,
+        is_anchored: @flags.is_anchored,
+        is_leftmost: @flags.is_leftmost,
+        is_utf8: @flags.is_utf8,
+        is_always_start_anchored: @flags.is_always_start_anchored,
+        has_prefilter: @flags.has_prefilter
+      )
+
       @st = start_table || StartTable.new(
         @flags.is_anchored ? StartKind::Anchored : StartKind::Both,
         @start_unanchored,
@@ -142,6 +158,15 @@ module Regex::Automata::DFA
       end
       @ms = MatchStates.from_states(@states, @tt)
       @special = build_special
+    end
+
+    private def normalize_states_for_transition_table(states : Array(State), tt : TransitionTable) : Array(State)
+      states.map_with_index do |state, index|
+        normalized = state.dup(tt.to_state_id(index))
+        normalized.next = state.next.map { |id| tt.to_state_id(id.to_i) }
+        normalized.eoi_next = tt.to_state_id(state.eoi_next.to_i)
+        normalized
+      end
     end
 
     # Create a new DFA from a pattern string using default configuration
@@ -191,14 +216,28 @@ module Regex::Automata::DFA
     def self.build_transition_table(states : Array(State), byte_classifier : ByteClasses) : TransitionTable
       stride2 = compute_stride2(byte_classifier)
       tt = TransitionTable.new(byte_classifier, stride2, states.size)
+      states_are_premultiplied = states.each_with_index.any? do |state, index|
+        state.id == tt.to_state_id(index) && state.id != StateID.new(index)
+      end
+
       states.each_with_index do |state, idx|
         state_id = tt.to_state_id(idx)
 
         state.next.each_with_index do |next_id, byte_class|
-          tt.set_transition_by_class(state_id, byte_class, tt.to_state_id(next_id.to_i))
+          target = if states_are_premultiplied
+                     next_id
+                   else
+                     tt.to_state_id(next_id.to_i)
+                   end
+          tt.set_transition_by_class(state_id, byte_class, target)
         end
 
-        tt.set_eoi_transition(state_id, tt.to_state_id(state.eoi_next.to_i))
+        eoi_target = if states_are_premultiplied
+                       state.eoi_next
+                     else
+                       tt.to_state_id(state.eoi_next.to_i)
+                     end
+        tt.set_eoi_transition(state_id, eoi_target)
       end
       tt
     end
@@ -322,18 +361,33 @@ module Regex::Automata::DFA
       end
 
       if start_unanchored.to_i >= 0
-        start_unanchored = StateID.new(start_unanchored.to_i >> stride2)
-        validate_serialized_state_id!(start_unanchored, state_count, "unanchored start state")
+        start_unanchored = deserialize_serialized_state_id!(
+          start_unanchored,
+          state_count,
+          stride2,
+          flags.premultiplied,
+          "unanchored start state"
+        )
       end
       if start_anchored.to_i >= 0
-        start_anchored = StateID.new(start_anchored.to_i >> stride2)
-        validate_serialized_state_id!(start_anchored, state_count, "anchored start state")
+        start_anchored = deserialize_serialized_state_id!(
+          start_anchored,
+          state_count,
+          stride2,
+          flags.premultiplied,
+          "anchored start state"
+        )
       end
       if start_table
         start_table = start_table.remap do |id|
-          remapped = StateID.new(id.to_i >> stride2)
-          validate_serialized_state_id!(remapped, state_count, "start table state")
-          remapped
+          next id if id.to_i < 0
+          deserialize_serialized_state_id!(
+            id,
+            state_count,
+            stride2,
+            flags.premultiplied,
+            "start table state"
+          )
         end
       end
 
@@ -343,9 +397,14 @@ module Regex::Automata::DFA
         # Read state ID
         ensure_bytes_available(slice, offset, 4, "state id")
         id_unsigned = read_u32(slice, offset, endianness)
-        id = StateID.new(unsigned_to_signed(id_unsigned))
+        id = deserialize_serialized_state_id!(
+          StateID.new(unsigned_to_signed(id_unsigned)),
+          state_count,
+          stride2,
+          flags.premultiplied,
+          "state id"
+        )
         offset += 4
-        validate_serialized_state_id!(id, state_count, "state id")
 
         # Read transitions
         ensure_bytes_available(slice, offset, 4, "transition count")
@@ -358,9 +417,13 @@ module Regex::Automata::DFA
         next_states = Array.new(trans_count) do
           next_id_unsigned = read_u32(slice, offset, endianness)
           offset += 4
-          next_id = StateID.new(unsigned_to_signed(next_id_unsigned))
-          validate_serialized_state_id!(next_id, state_count, "transition state")
-          next_id
+          deserialize_serialized_state_id!(
+            StateID.new(unsigned_to_signed(next_id_unsigned)),
+            state_count,
+            stride2,
+            flags.premultiplied,
+            "transition state"
+          )
         end
 
         # Read match patterns
@@ -384,9 +447,14 @@ module Regex::Automata::DFA
         is_half_crlf = slice[offset] != 0
         offset += 1
         eoi_next_unsigned = read_u32(slice, offset, endianness)
-        eoi_next = StateID.new(unsigned_to_signed(eoi_next_unsigned))
+        eoi_next = deserialize_serialized_state_id!(
+          StateID.new(unsigned_to_signed(eoi_next_unsigned)),
+          state_count,
+          stride2,
+          flags.premultiplied,
+          "EOI transition state"
+        )
         offset += 4
-        validate_serialized_state_id!(eoi_next, state_count, "EOI transition state")
 
         # Create state
         state = State.new(id, trans_count, look_need, look_have, is_from_word, is_half_crlf)
@@ -787,6 +855,21 @@ module Regex::Automata::DFA
       end
     end
 
+    private def self.deserialize_serialized_state_id!(id : StateID, state_count : Int32, stride2 : Int32, premultiplied : Bool, what : String) : StateID
+      if premultiplied
+        mask = (1 << stride2) - 1
+        if id.to_i >= 0 && (id.to_i & mask) != 0
+          raise DeserializeError.new("invalid #{what}: #{id.to_i}")
+        end
+        remapped = StateID.new(id.to_i >> stride2)
+        validate_serialized_state_id!(remapped, state_count, what)
+        remapped
+      else
+        validate_serialized_state_id!(id, state_count, what)
+        id
+      end
+    end
+
     def self.compute_universal_start(states : Array(State), start_states : Hash(Start, StateID)) : StateID?
       ids = start_states.values.uniq
       return nil if ids.empty?
@@ -996,6 +1079,9 @@ module Regex::Automata::DFA
       last_match : Tuple(Int32, Array(PatternID))? = nil
       start_state_id = search_start_state
       current_state_id = start_state_id
+      if is_match_state?(current_state_id)
+        last_match = {0, state_matches(current_state_id)}
+      end
 
       idx = 0
       size = slice.size
@@ -1030,6 +1116,9 @@ module Regex::Automata::DFA
       last_match : Tuple(Int32, Array(PatternID))? = nil
       start_state_id = search_start_state
       current_state_id = start_state_id
+      if is_match_state?(current_state_id)
+        last_match = {0, state_matches(current_state_id)}
+      end
 
       idx = 0
       size = slice.size
@@ -1466,11 +1555,9 @@ module Regex::Automata::DFA
 
     private def build_special : Special
       special = Special.new
-      special.set_quit_id(if tt = @tt
-        tt.to_state_id(QUIT_STATE_ID.to_i)
-      else
-        QUIT_STATE_ID
-      end)
+      if quit_id = synthetic_quit_state_id
+        special.set_quit_id(quit_id)
+      end
 
       @states.each_with_index do |state, index|
         state_id = if tt = @tt
@@ -1484,6 +1571,21 @@ module Regex::Automata::DFA
         special.add_accel(state_id) unless @accelerators[index].empty?
       end
       special
+    end
+
+    private def synthetic_quit_state_id : StateID?
+      return nil if @states.size <= QUIT_STATE_ID.to_i
+
+      candidate = @states[QUIT_STATE_ID.to_i]
+      return nil if candidate.accepting?
+      return nil unless candidate.eoi_next == DEAD_STATE_ID
+      return nil unless candidate.next.all? { |next_id| next_id == DEAD_STATE_ID }
+
+      if tt = @tt
+        tt.to_state_id(QUIT_STATE_ID.to_i)
+      else
+        QUIT_STATE_ID
+      end
     end
   end
 
@@ -1566,9 +1668,19 @@ module Regex::Automata::DFA
           next unless state.is_a?(NFA::Look)
 
           case state.kind
-          when NFA::Look::Kind::WordBoundaryAscii, NFA::Look::Kind::NonWordBoundaryAscii
+          when NFA::Look::Kind::WordBoundaryAscii,
+               NFA::Look::Kind::NonWordBoundaryAscii,
+               NFA::Look::Kind::WordStartAscii,
+               NFA::Look::Kind::WordEndAscii,
+               NFA::Look::Kind::WordStartHalfAscii,
+               NFA::Look::Kind::WordEndHalfAscii
             @nfa_has_word = true
-          when NFA::Look::Kind::WordBoundaryUnicode, NFA::Look::Kind::NonWordBoundaryUnicode
+          when NFA::Look::Kind::WordBoundaryUnicode,
+               NFA::Look::Kind::NonWordBoundaryUnicode,
+               NFA::Look::Kind::WordStartUnicode,
+               NFA::Look::Kind::WordEndUnicode,
+               NFA::Look::Kind::WordStartHalfUnicode,
+               NFA::Look::Kind::WordEndHalfUnicode
             @nfa_has_word = true
             @nfa_has_unicode_word = true
           when NFA::Look::Kind::StartLF,
@@ -1632,7 +1744,7 @@ module Regex::Automata::DFA
       hir = syntax_parser.parse(pattern)
 
       # Compile HIR to NFA
-      nfa = @hir_compiler.compile(hir)
+      nfa = @hir_compiler.build_from_hir(hir)
 
       # Build DFA from NFA
       Builder.from_nfa(nfa, @config).build
@@ -1648,7 +1760,7 @@ module Regex::Automata::DFA
       end
 
       # Compile HIRs to NFA
-      nfa = @hir_compiler.compile_multi(hirs)
+      nfa = @hir_compiler.build_many_from_hir(hirs)
 
       # Build DFA from NFA
       Builder.from_nfa(nfa, @config).build
@@ -1796,14 +1908,11 @@ module Regex::Automata::DFA
       queue = [] of StateID
       processed = Set(StateID).new
 
-      if unanchored_start_id
-        queue << unanchored_start_id
-        processed.add(unanchored_start_id)
-      end
+      (unanchored_start_states.values + anchored_start_states.values).each do |start_id|
+        next if processed.includes?(start_id)
 
-      if anchored_start_id && anchored_start_id != unanchored_start_id && !processed.includes?(anchored_start_id)
-        queue << anchored_start_id
-        processed.add(anchored_start_id)
+        queue << start_id
+        processed.add(start_id)
       end
 
       pattern_start_states.each_value do |starts|
@@ -1854,23 +1963,29 @@ module Regex::Automata::DFA
           end
 
           if @nfa_has_word
-            if is_from_word != ::Regex::Automata.is_word_byte(byte)
-              current_look_have = current_look_have.insert(Look::WordAscii).remove(Look::WordAsciiNegate)
-              if @nfa_has_unicode_word
-                current_look_have = current_look_have.insert(Look::WordUnicode).remove(Look::WordUnicodeNegate)
-              end
+            if is_from_word == ::Regex::Automata.is_word_byte(byte)
+              current_look_have = current_look_have.insert(Look::WordAsciiNegate)
+              current_look_have = current_look_have.insert(Look::WordUnicodeNegate) if @nfa_has_unicode_word
             else
-              current_look_have = current_look_have.remove(Look::WordAscii).insert(Look::WordAsciiNegate)
-              if @nfa_has_unicode_word
-                current_look_have = current_look_have.remove(Look::WordUnicode).insert(Look::WordUnicodeNegate)
-              end
+              current_look_have = current_look_have.insert(Look::WordAscii)
+              current_look_have = current_look_have.insert(Look::WordUnicode) if @nfa_has_unicode_word
+            end
+
+            unless ::Regex::Automata.is_word_byte(byte)
+              current_look_have = current_look_have.insert(Look::WordEndHalfAscii)
+              current_look_have = current_look_have.insert(Look::WordEndHalfUnicode) if @nfa_has_unicode_word
+            end
+
+            if is_from_word && !::Regex::Automata.is_word_byte(byte)
+              current_look_have = current_look_have.insert(Look::WordEndAscii)
+              current_look_have = current_look_have.insert(Look::WordEndUnicode) if @nfa_has_unicode_word
+            elsif !is_from_word && ::Regex::Automata.is_word_byte(byte)
+              current_look_have = current_look_have.insert(Look::WordStartAscii)
+              current_look_have = current_look_have.insert(Look::WordStartUnicode) if @nfa_has_unicode_word
             end
           end
 
-          # Update satisfied look mask for the next position
-          # Start assertions (^, \A) are only true at position 0
-          # After consuming a byte, we're no longer at start
-          next_look_have = look_have.remove(Look::StartLF).remove(Look::Start).remove(Look::StartCRLF)
+          next_look_have = LookSet.new
 
           # Start of line assertions are true after a line terminator.
           if byte == '\n'.ord.to_u8
@@ -1880,32 +1995,55 @@ module Regex::Automata::DFA
             end
           end
 
-          # Word boundary assertions are computed per transition.
-          next_look_have = next_look_have.remove(Look::WordAscii).remove(Look::WordAsciiNegate)
-          if @nfa_has_unicode_word
-            next_look_have = next_look_have.remove(Look::WordUnicode).remove(Look::WordUnicodeNegate)
+          if @nfa_has_word && !::Regex::Automata.is_word_byte(byte)
+            next_look_have = next_look_have.insert(Look::WordStartHalfAscii)
+            next_look_have = next_look_have.insert(Look::WordStartHalfUnicode) if @nfa_has_unicode_word
           end
-
-          # Determine next is_from_word flag (for word boundary detection)
-          next_is_from_word = @nfa_has_word && ::Regex::Automata.is_word_byte(byte)
-          next_is_half_crlf = @nfa_has_crlf && byte == '\r'.ord.to_u8
 
           # Recompute the closure for every transition so that contextual
           # assertions like word boundaries and line anchors are evaluated from
           # the current byte boundary instead of only when a coarse look_need
           # summary happens to detect it.
-          effective_nfa_set = nfa.epsilon_closure_with_look(nfa_set, current_look_have)
+          effective_nfa_ids = nfa.epsilon_closure_with_look_ordered(nfa_set, current_look_have)
+          next_matches = [] of PatternID
 
+          saw_leftmost_match = false
           next_set.clear
-          effective_nfa_set.each do |nfa_id|
-            transitions = nfa.transitions(nfa_id, byte)
-            transitions.each do |next_nfa_id|
-              next_set.add(next_nfa_id)
+          effective_nfa_ids.each do |nfa_id|
+            case nfa_state = nfa.state(nfa_id)
+            when NFA::Union,
+                 NFA::BinaryUnion,
+                 NFA::Fail,
+                 NFA::Look,
+                 NFA::Capture,
+                 NFA::Empty
+              break if saw_leftmost_match && @config.match_kind != MatchKind::All
+            when NFA::Match
+              pattern_id = nfa_state.pattern_id
+              idx = next_matches.bsearch_index { |pid| pid >= pattern_id } || next_matches.size
+              if idx == next_matches.size || next_matches[idx] != pattern_id
+                next_matches.insert(idx, pattern_id)
+              end
+              saw_leftmost_match = true
+            when NFA::ByteRange
+              break if saw_leftmost_match && @config.match_kind != MatchKind::All
+              if nfa_state.trans.matches_byte(byte)
+                next_set.add(nfa_state.trans.next)
+              end
+            when NFA::Sparse
+              break if saw_leftmost_match && @config.match_kind != MatchKind::All
+              nfa_state.transitions.each do |transition|
+                if transition.matches_byte(byte)
+                  next_set.add(transition.next)
+                end
+              end
             end
           end
 
           # Compute next set closure (needed for both quit check and regular transition)
           next_set_closure = nfa.epsilon_closure_with_look(next_set, next_look_have)
+          next_is_from_word = !next_set_closure.empty? && @nfa_has_word && ::Regex::Automata.is_word_byte(byte)
+          next_is_half_crlf = !next_set_closure.empty? && @nfa_has_crlf && byte == '\r'.ord.to_u8
 
           # Check for quit bytes first (they overrule regex matching)
           if !@quitset.empty? && is_quit_byte_class?(byte_class)
@@ -1916,12 +2054,11 @@ module Regex::Automata::DFA
             end
             @transition_table.set_transition_by_class(@transition_table.to_state_id(dfa_id.to_i), byte_class, @transition_table.to_state_id(QUIT_STATE_ID.to_i))
           else
-            delayed_matches = collect_matches(effective_nfa_set)
-            if !next_set_closure.empty? || !delayed_matches.empty?
-              key = {next_set_closure, next_look_have, next_is_from_word, next_is_half_crlf, delayed_matches}
+            if !next_set_closure.empty? || !next_matches.empty?
+              key = {next_set_closure, next_look_have, next_is_from_word, next_is_half_crlf, next_matches}
               next_id = @state_map[key]?
               if next_id.nil?
-                next_id = add_dfa_state(next_set, next_look_have, next_is_from_word, next_is_half_crlf, delayed_matches)
+                next_id = add_dfa_state(next_set, next_look_have, next_is_from_word, next_is_half_crlf, next_matches)
                 unless processed.includes?(next_id)
                   queue << next_id
                   processed.add(next_id)
@@ -1952,6 +2089,8 @@ module Regex::Automata::DFA
       # Compute EOI transitions for each DFA state.
       initial_size = @dfa_state_count
       (0...initial_size).each do |idx|
+        next if idx == DEAD_STATE_ID.to_i || idx == QUIT_STATE_ID.to_i
+
         meta = @dfa_state_metas[idx]?
         next unless meta
         nfa_set = meta.nfa_set
@@ -1977,7 +2116,7 @@ module Regex::Automata::DFA
           end
         end
 
-        delayed_matches = collect_matches(nfa.epsilon_closure_with_look(nfa_set, eoi_look_have))
+        delayed_matches = collect_matches(nfa.epsilon_closure_with_look_ordered(nfa_set, eoi_look_have))
         eoi_id = add_dfa_state(nfa_set, eoi_look_have, is_from_word, false, delayed_matches)
         @transition_table.set_eoi_transition(@transition_table.to_state_id(idx), @transition_table.to_state_id(eoi_id.to_i))
       end
@@ -2010,10 +2149,10 @@ module Regex::Automata::DFA
         accelerators
       )
       @dfa_state_count = @dfa_state_metas.size
-      @dfa_states = materialize_states_from_metadata(@dfa_state_metas, @transition_table)
+      start_ids = (unanchored_start_states.values + anchored_start_states.values + pattern_start_states.values.flat_map(&.values)).to_set
+      @dfa_states = materialize_states_from_metadata(@dfa_state_metas, @transition_table, start_ids)
       patch_contextual_start_transitions(@transition_table, unanchored_start_states)
-      patch_contextual_start_transitions(@transition_table, anchored_start_states)
-      @dfa_states = materialize_states_from_metadata(@dfa_state_metas, @transition_table)
+      @dfa_states = materialize_states_from_metadata(@dfa_state_metas, @transition_table, start_ids)
 
       # Create DFA flags from config
       flags = DFAFlags.new(
@@ -2022,7 +2161,8 @@ module Regex::Automata::DFA
         is_utf8: nfa.utf8?,
         is_leftmost: @config.match_kind == MatchKind::LeftmostFirst,
         is_anchored: @config.start_kind == StartKind::Anchored,
-        is_always_start_anchored: nfa.start_anchored == nfa.start_unanchored
+        is_always_start_anchored: @config.start_kind == StartKind::Anchored ||
+                                  nfa.start_anchored == nfa.start_unanchored
       )
       st = StartTable.new(
         @config.start_kind,
@@ -2082,25 +2222,34 @@ module Regex::Automata::DFA
       start_set = Set{nfa_start}
       starts = {} of Start => StateID
 
-      text_look_have, text_is_from_word = start_look_have_for(Start::Text)
-      text_start = add_dfa_state(start_set, text_look_have, text_is_from_word, false, [] of PatternID)
-      Start.each do |start_kind|
-        starts[start_kind] = text_start
+      prefix_look = @nfa.not_nil!.look_set_prefix_any
+
+      non_word_look_have, non_word_is_from_word = start_look_have_for(Start::NonWordByte)
+      non_word_start = add_dfa_state(start_set, non_word_look_have, non_word_is_from_word, false, [] of PatternID)
+      starts[Start::NonWordByte] = non_word_start
+
+      if prefix_look.contains_word
+        word_look_have, word_is_from_word = start_look_have_for(Start::WordByte)
+        starts[Start::WordByte] = add_dfa_state(start_set, word_look_have, word_is_from_word, false, [] of PatternID)
+      else
+        starts[Start::WordByte] = non_word_start
       end
 
-      if @nfa_has_crlf
-        {Start::LineLF, Start::LineCR}.each do |start_kind|
+      if prefix_look.contains_anchor
+        {
+          Start::Text,
+          Start::LineLF,
+          Start::LineCR,
+          Start::CustomLineTerminator,
+        }.each do |start_kind|
           look_have, is_from_word = start_look_have_for(start_kind)
           starts[start_kind] = add_dfa_state(start_set, look_have, is_from_word, false, [] of PatternID)
         end
-      end
-
-      if @nfa_has_word
-        {Start::NonWordByte, Start::WordByte}.each do |start_kind|
-          look_have, is_from_word = start_look_have_for(start_kind)
-          starts[start_kind] = add_dfa_state(start_set, look_have, is_from_word, false, [] of PatternID)
-        end
-        starts[Start::CustomLineTerminator] = starts[Start::NonWordByte]
+      else
+        starts[Start::Text] = non_word_start
+        starts[Start::LineLF] = non_word_start
+        starts[Start::LineCR] = non_word_start
+        starts[Start::CustomLineTerminator] = non_word_start
       end
 
       starts
@@ -2138,18 +2287,30 @@ module Regex::Automata::DFA
       when Start::Text
         look_have = look_have.insert(Look::Start).insert(Look::StartLF)
         look_have = look_have.insert(Look::StartCRLF) if @nfa_has_crlf
+        if @nfa_has_word
+          look_have = look_have.insert(Look::WordStartHalfAscii)
+          look_have = look_have.insert(Look::WordStartHalfUnicode) if @nfa_has_unicode_word
+        end
       when Start::LineLF
         look_have = look_have.insert(Look::StartLF)
         look_have = look_have.insert(Look::StartCRLF) if @nfa_has_crlf
+        if @nfa_has_word
+          look_have = look_have.insert(Look::WordStartHalfAscii)
+          look_have = look_have.insert(Look::WordStartHalfUnicode) if @nfa_has_unicode_word
+        end
       when Start::LineCR
         look_have = look_have.insert(Look::StartCRLF) if @nfa_has_crlf
+        if @nfa_has_word
+          look_have = look_have.insert(Look::WordStartHalfAscii)
+          look_have = look_have.insert(Look::WordStartHalfUnicode) if @nfa_has_unicode_word
+        end
       when Start::WordByte
         is_from_word = true
-        look_have = look_have.insert(Look::WordAscii)
-        look_have = look_have.insert(Look::WordUnicode) if @nfa_has_unicode_word
       when Start::NonWordByte, Start::CustomLineTerminator
-        look_have = look_have.insert(Look::WordAsciiNegate)
-        look_have = look_have.insert(Look::WordUnicodeNegate) if @nfa_has_unicode_word
+        if @nfa_has_word
+          look_have = look_have.insert(Look::WordStartHalfAscii)
+          look_have = look_have.insert(Look::WordStartHalfUnicode) if @nfa_has_unicode_word
+        end
       end
       {look_have, is_from_word}
     end
@@ -2159,8 +2320,9 @@ module Regex::Automata::DFA
       nfa = @nfa.not_nil!
 
       # First compute epsilon closure with the given satisfied look conditions
-      closure = nfa.epsilon_closure_with_look(nfa_set, look_have)
-      state_matches = matches || collect_matches(closure)
+      closure_ids = nfa.epsilon_closure_with_look_ordered(nfa_set, look_have)
+      closure = closure_ids.to_set
+      state_matches = matches || collect_matches(closure_ids)
 
       # Check if we already have a DFA state for this (closure, look_have, delayed matches)
       key = {closure, look_have, is_from_word, is_half_crlf, state_matches}
@@ -2200,19 +2362,24 @@ module Regex::Automata::DFA
       dfa_id
     end
 
-    private def collect_matches(closure : Set(StateID)) : Array(PatternID)
+    private def collect_matches(closure : Enumerable(StateID)) : Array(PatternID)
       raise "No NFA configured" unless @nfa
       nfa = @nfa.not_nil!
 
       matches = [] of PatternID
+      saw_leftmost_match = false
       closure.each do |nfa_id|
         nfa_state = nfa.states[nfa_id.to_i]
-        next unless nfa_state.is_a?(NFA::Match)
-        next unless nfa_state.next.nil?
+        if nfa_state.is_a?(NFA::Match)
+          next unless nfa_state.next.nil?
 
-        idx = matches.bsearch_index { |pid| pid >= nfa_state.pattern_id } || matches.size
-        if idx == matches.size || matches[idx] != nfa_state.pattern_id
-          matches.insert(idx, nfa_state.pattern_id)
+          idx = matches.bsearch_index { |pid| pid >= nfa_state.pattern_id } || matches.size
+          if idx == matches.size || matches[idx] != nfa_state.pattern_id
+            matches.insert(idx, nfa_state.pattern_id)
+          end
+          saw_leftmost_match = true
+        elsif saw_leftmost_match && @config.match_kind != MatchKind::All
+          break
         end
       end
       matches
@@ -2240,13 +2407,37 @@ module Regex::Automata::DFA
       when NFA::Look::Kind::EndCRLF
         LookSet.from_look(Look::EndCRLF)
       when NFA::Look::Kind::WordBoundaryAscii
-        LookSet.from_look(Look::WordAscii)
+        LookSet.new(
+          Look::WordAscii.as_repr |
+          Look::WordStartAscii.as_repr |
+          Look::WordEndAscii.as_repr
+        )
       when NFA::Look::Kind::NonWordBoundaryAscii
         LookSet.from_look(Look::WordAsciiNegate)
       when NFA::Look::Kind::WordBoundaryUnicode
-        LookSet.from_look(Look::WordUnicode)
+        LookSet.new(
+          Look::WordUnicode.as_repr |
+          Look::WordStartUnicode.as_repr |
+          Look::WordEndUnicode.as_repr
+        )
       when NFA::Look::Kind::NonWordBoundaryUnicode
         LookSet.from_look(Look::WordUnicodeNegate)
+      when NFA::Look::Kind::WordStartAscii
+        LookSet.from_look(Look::WordStartAscii)
+      when NFA::Look::Kind::WordEndAscii
+        LookSet.from_look(Look::WordEndAscii)
+      when NFA::Look::Kind::WordStartUnicode
+        LookSet.from_look(Look::WordStartUnicode)
+      when NFA::Look::Kind::WordEndUnicode
+        LookSet.from_look(Look::WordEndUnicode)
+      when NFA::Look::Kind::WordStartHalfAscii
+        LookSet.from_look(Look::WordStartHalfAscii)
+      when NFA::Look::Kind::WordEndHalfAscii
+        LookSet.from_look(Look::WordEndHalfAscii)
+      when NFA::Look::Kind::WordStartHalfUnicode
+        LookSet.from_look(Look::WordStartHalfUnicode)
+      when NFA::Look::Kind::WordEndHalfUnicode
+        LookSet.from_look(Look::WordEndHalfUnicode)
       when NFA::Look::Kind::StartText
         LookSet.from_look(Look::Start)
       when NFA::Look::Kind::EndText, NFA::Look::Kind::EndTextWithNewline
@@ -2471,15 +2662,20 @@ module Regex::Automata::DFA
       state
     end
 
-    private def materialize_states_from_metadata(metas : Array(StateMeta), tt : TransitionTable) : Array(State)
+    private def materialize_states_from_metadata(metas : Array(StateMeta), tt : TransitionTable, start_ids : Set(StateID)) : Array(State)
       states = Array(State).new(metas.size)
       metas.each_with_index do |meta, index|
-        state = build_state_shell(StateID.new(index), meta)
         tt_id = tt.to_state_id(index)
+        state = build_state_shell(StateID.new(index), meta)
         state.next = Array.new(tt.classes.alphabet_len - 1) do |byte_class|
           StateID.new(tt.to_index(tt.next_state_by_class(tt_id, byte_class)))
         end
         state.eoi_next = StateID.new(tt.to_index(tt.next_eoi_state(tt_id)))
+
+        if state.match.empty?
+          eoi_meta = metas[state.eoi_next.to_i]
+          state.accepting_override = true unless eoi_meta.matches.empty?
+        end
         states << state
       end
       states

@@ -948,10 +948,9 @@ module Regex::Automata::Hybrid
   end
 
   class DFA
-    getter dense : ::Regex::Automata::DFA::DFA
-
     @config : Config
     @nfa : ::Regex::Automata::NFA::NFA
+    @dense : ::Regex::Automata::DFA::DFA?
     @start_map : ::Regex::Automata::StartByteMap
     @classes : ::Regex::Automata::ByteClasses
     @quitset : ::Regex::Automata::ByteSet
@@ -960,11 +959,11 @@ module Regex::Automata::Hybrid
     def initialize(
       @config : Config,
       @nfa : ::Regex::Automata::NFA::NFA,
-      @dense : ::Regex::Automata::DFA::DFA,
       @start_map : ::Regex::Automata::StartByteMap,
       @classes : ::Regex::Automata::ByteClasses,
       @quitset : ::Regex::Automata::ByteSet,
       @cache_capacity : Int32,
+      @dense : ::Regex::Automata::DFA::DFA? = nil,
     )
     end
 
@@ -1006,6 +1005,12 @@ module Regex::Automata::Hybrid
 
     def get_nfa : ::Regex::Automata::NFA::NFA
       @nfa
+    end
+
+    def dense : ::Regex::Automata::DFA::DFA
+      @dense ||= ::Regex::Automata::DFA::Builder
+        .from_nfa(@nfa, @config.to_dense_config)
+        .build
     end
 
     def get_prefilter : ::Regex::Automata::Prefilter?
@@ -1593,7 +1598,7 @@ module Regex::Automata::Hybrid
       nfa = ::Regex::Automata::HirCompiler.new(
         @thompson_config.captures(false),
         @syntax_config
-      ).compile_multi(hirs)
+      ).build_many_from_hir(hirs)
       build_from_nfa(nfa)
     rescue ex : BuildError
       raise ex
@@ -1625,11 +1630,8 @@ module Regex::Automata::Hybrid
         raise BuildError.insufficient_state_id_capacity(err)
       end
 
-      dense = ::Regex::Automata::DFA::Builder
-        .from_nfa(nfa, effective_config.to_dense_config)
-        .build
       start_map = ::Regex::Automata::StartByteMap.new(nfa.look_matcher)
-      DFA.new(effective_config, nfa, dense, start_map, classes, quitset, effective_config.get_cache_capacity)
+      DFA.new(effective_config, nfa, start_map, classes, quitset, effective_config.get_cache_capacity, nil)
     end
 
     private def minimum_lazy_state_id(
@@ -1741,37 +1743,41 @@ module Regex::Automata::Hybrid
     end
 
     def try_search(cache : RegexCache, input : ::Regex::Automata::Input) : ::Regex::Automata::Match? | ::Regex::Automata::MatchError
-      search = input.clone
+      end_match = @forward.try_search_fwd(cache.forward, input)
+      return end_match if end_match.is_a?(::Regex::Automata::MatchError)
+      end_half = end_match.as?(::Regex::Automata::HalfMatch)
+      return nil unless end_half
 
-      loop do
-        end_match = @forward.try_search_fwd(cache.forward, search)
-        return end_match if end_match.is_a?(::Regex::Automata::MatchError)
-        end_half = end_match.as?(::Regex::Automata::HalfMatch)
-        return nil unless end_half
+      end_pos = end_half.offset
+      pattern = end_half.pattern
+      if input.start == end_pos
+        return ::Regex::Automata::Match.new(pattern, end_pos, end_pos)
+      end
 
-        end_pos = end_half.offset
-        pattern = end_half.pattern
-        match = if search.start == end_pos
-                  ::Regex::Automata::Match.new(pattern, end_pos, end_pos)
-                elsif search.get_anchored != ::Regex::Automata::Anchored::No
-                  ::Regex::Automata::Match.new(pattern, search.start, end_pos)
-                else
-                  revsearch = search.clone
-                    .span(search.start...end_pos)
-                    .anchored(::Regex::Automata::Anchored::Yes)
-                    .earliest(false)
-                  start_match = @reverse.try_search_rev(cache.reverse, revsearch)
-                  return start_match if start_match.is_a?(::Regex::Automata::MatchError)
-                  start_half = start_match.as?(::Regex::Automata::HalfMatch)
-                  return nil unless start_half
-                  ::Regex::Automata::Match.new(pattern, start_half.offset, end_pos)
-                end
+      if is_anchored?(input)
+        return ::Regex::Automata::Match.new(pattern, input.start, end_pos)
+      end
 
-        return match unless match.empty? && @forward.get_nfa.is_utf8 && !search.is_char_boundary(match.start)
-        return nil if search.get_anchored != ::Regex::Automata::Anchored::No
+      revsearch = input.clone
+        .span(input.start...end_pos)
+        .anchored(::Regex::Automata::Anchored::Yes)
+        .earliest(false)
+      start_match = @reverse.try_search_rev(cache.reverse, revsearch)
+      return start_match if start_match.is_a?(::Regex::Automata::MatchError)
+      start_half = start_match.as?(::Regex::Automata::HalfMatch)
+      raise "reverse search must match if forward search does" unless start_half
 
-        search.set_start(search.start + 1)
-        return nil if search.is_done
+      ::Regex::Automata::Match.new(pattern, start_half.offset, end_pos)
+    end
+
+    private def is_anchored?(input : ::Regex::Automata::Input) : Bool
+      case input.get_anchored
+      when ::Regex::Automata::Anchored::No
+        @forward.get_nfa.is_always_start_anchored
+      when ::Regex::Automata::Anchored::Yes, ::Regex::Automata::Anchored::Pattern
+        true
+      else
+        false
       end
     end
 
