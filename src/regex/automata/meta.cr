@@ -504,6 +504,7 @@ module Regex::Automata::Meta
     ) : Tuple(::Regex::Automata::Prefilter?, ::Regex::Automata::DFA::DFA?)
       return {nil, nil} unless @config.get_auto_prefilter
       return {nil, nil} unless @config.get_dfa
+      return {nil, nil} unless @config.get_match_kind == ::Regex::Automata::MatchKind::LeftmostFirst
       return {nil, nil} if props_union.look_set_prefix.contains(::Regex::Syntax::Hir::Look::Kind::StartText)
       return {nil, nil} if core_prefilter.try(&.is_fast)
       return {nil, nil} if literal_prefilter.try(&.is_fast)
@@ -514,13 +515,7 @@ module Regex::Automata::Meta
       hirs.each do |hir|
         suffixes.union(extractor.extract(hir))
       end
-      case @config.get_match_kind
-      when ::Regex::Automata::MatchKind::All
-        suffixes.sort
-        suffixes.dedup
-      when ::Regex::Automata::MatchKind::LeftmostFirst
-        suffixes.optimize_for_suffix_by_preference
-      end
+      suffixes.optimize_for_suffix_by_preference
 
       lcs = suffixes.longest_common_suffix
       return {nil, nil} unless lcs && !lcs.empty?

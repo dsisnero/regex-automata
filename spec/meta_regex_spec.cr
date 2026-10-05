@@ -271,6 +271,15 @@ describe Regex::Automata::Meta::Regex do
     slots.should eq([0, 8])
   end
 
+  it "does not use reverse suffix acceleration for MatchKind::All" do
+    re = Regex::Automata::Meta::Regex.builder
+      .configure(Regex::Automata::Meta::Regex.config.match_kind(Regex::Automata::MatchKind::All))
+      .build("[a-z]+ing")
+
+    re.is_accelerated.should be_false
+    re.find("tingling").should eq(Regex::Automata::Match.must(0, 0...8))
+  end
+
   it "reruns explicit captures after reverse suffix start discovery" do
     re = Regex::Automata::Meta::Regex.new("(?P<word>[a-z]+)ing")
     cache = re.create_cache

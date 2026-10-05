@@ -56,6 +56,7 @@ For every unchecked top-level item:
   - Workflow: re-evaluate the existing completed Meta milestones against the new reusable reverse-suffix engine, literal suffix stripping, revised inner-literal extraction, strategy naming/selection, and the prohibition on reverse-suffix optimization for non-leftmost-first matching.
   - Red: port the failed reverse suffix/inner optimization regressions, fixed-length-prefix and suffix-stripping matrices, `MatchKind::All` exclusion, and the new engine-choice assertions without relying on implementation-only logging.
   - Green: `src/regex/automata/meta*.cr`, `spec/meta_regex_spec.cr`, and dedicated reverse strategy specs.
+  - Progress: reverse-suffix construction now rejects `MatchKind::All`, matching the vendor's leftmost-first-only contract; the public acceleration signal and match result are covered. The remaining suffix/inner literal-boundary proofs still need direct porting before this feature can close.
   - Done when: reverse strategies match the refreshed vendor selection and fallback behavior, including failure/retry boundaries, and all former Meta completion claims are reconfirmed against the new revision.
 
 - [ ] Thompson and pool configuration refresh
