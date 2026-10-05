@@ -284,4 +284,19 @@ describe "DFA::Dense" do
       Regex::Automata::DFA::DFA.from_bytes(bytes)
     end
   end
+
+  it "rejects serialized start states that point to a match state" do
+    dfa = Regex::Automata::DFA::DFA.new("abc")
+    bytes = dfa.to_bytes_little_endian[0].dup
+    match_id = dfa.states.find(&.accepting?).not_nil!.id.to_i.to_u32
+
+    # The format writes the two compatibility starts followed by six
+    # unanchored and six anchored start-table entries.
+    (20...76).step(4) { |offset| write_u32_le(bytes, offset, match_id) }
+
+    error = expect_raises(Regex::Automata::DeserializeError) do
+      Regex::Automata::DFA::DFA.from_bytes(bytes)
+    end
+    error.message.not_nil!.should contain("start states cannot be match states")
+  end
 end

@@ -464,6 +464,8 @@ module Regex::Automata::DFA
         states << state
       end
 
+      validate_start_states!(start_unanchored, start_anchored, start_table, states)
+
       if st = start_table
         start_table = StartTable.new(
           st.kind,
@@ -504,6 +506,27 @@ module Regex::Automata::DFA
       dfa = DFA.new(states, nil, start_unanchored, byte_classes_obj, start_anchored, accelerators, nil, quitset, flags, start_table)
 
       {dfa, offset}
+    end
+
+    # Start states are used by the search routines before consuming a byte.
+    # A match state here would violate their delayed-match invariant and can
+    # cause a malformed serialized DFA to report an incorrect match.
+    private def self.validate_start_states!(unanchored : StateID, anchored : StateID, table : StartTable?, states : Array(State)) : Nil
+      ids = [unanchored, anchored]
+      if table
+        ids << table.unanchored
+        ids << table.anchored
+        ids.concat(table.unanchored_states.values)
+        ids.concat(table.anchored_states.values)
+        table.pattern_states.each_value { |start_states| ids.concat(start_states.values) }
+      end
+
+      ids.each do |id|
+        next if id.to_i < 0
+        if states.any? { |state| state.id == id && state.accepting? }
+          raise DeserializeError.new("start states cannot be match states")
+        end
+      end
     end
 
     private def self.read_u32(slice : Bytes, offset : Int32, endianness : Symbol) : UInt32
