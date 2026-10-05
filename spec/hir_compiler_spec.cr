@@ -1,6 +1,6 @@
 require "./spec_helper"
 require "regex-syntax"
-require "../../regex-automata/src/regex/automata/dfa"
+require "../src/regex/automata/dfa"
 
 describe Regex::Automata::HirCompiler do
   it "compiles literal" do

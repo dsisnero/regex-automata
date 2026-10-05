@@ -63,6 +63,15 @@ For every unchecked top-level item:
   - Progress: constructor aliases, always/never round trips, endianness-aware round trips, buffer-write helpers, premultiplied state-id round trips, determinization scratch-limit failures, dense minimization, and deserialize validation-order hardening are now covered; `to_sparse` is deferred to the Sparse DFA feature because there is still no sparse engine implementation
   - Done when: dense DFA transformation and wire-format parity specs are green and the remaining compiler/validation rows can be committed as one feature
 
+- [ ] Dense DFA transformation ID-space and EOI parity
+  - Upstream scope: `src/dfa/dense.rs::{remap,remap_state,truncate_states,set_start_state,swap_states}`, `src/dfa/minimize.rs`, and the dense-DFA transition-table/start-table invariants they mutate
+  - Inventory ids: `src/dfa/dense.rs::*` transformation helpers and `src/dfa/minimize.rs::*`
+  - Workflow: treat every DFA transformation as a whole-machine remap. State IDs stored in the flat transition table, materialized state graph, EOI edges, start table, special-state metadata, match-state map, accelerators, and serialization must remain in the same premultiplied ID space.
+  - Red: port the vendor minimization/remapping cases and add transformation matrix coverage for regular transitions plus EOI-only matches, unanchored/anchored/per-pattern starts, dead and quit states, acceleration metadata, repeated byte-class reduction, and serialize/deserialize after each transformation.
+  - Green: `src/regex/automata/dfa.cr`, `src/regex/automata/minimize.cr`, `src/regex/automata/transition_table.cr`, `src/regex/automata/start_table.cr`, and focused transformation specs.
+  - Known risk: the unmerged `codex/fix-dfa-transforms` patch was written for the older logical-ID materialization. Do not merge it directly: reconcile its EOI/dead-state assertions with the current premultiplied-ID representation and prove the merged behavior against vendor tests.
+  - Done when: transformed DFAs preserve vendor search results and metadata across all ID-bearing structures, all transformed forms serialize and round-trip correctly, and the transformation inventory rows are backed by focused upstream-parity specs.
+
 - [x] Sparse DFA
   - Upstream scope: `src/dfa/sparse.rs`
   - Inventory ids: `src/dfa/sparse.rs::*`
