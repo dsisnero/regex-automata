@@ -823,17 +823,24 @@ module Regex::Automata::DFA
     # Remove dead states (unreachable or can't reach accept state)
     def remove_dead_states : DFA
       # Forward reachable from start
-      forward = Set{@start_unanchored}
-      stack = [@start_unanchored]
+      # Materialized states use ordinary indices, not the table's strided IDs.
+      table = @tt
+      start_unanchored = table ? StateID.new(table.to_index(@start_unanchored)) : @start_unanchored
+      start_anchored = table ? StateID.new(table.to_index(@start_anchored)) : @start_anchored
+      start_table = table ? @st.remap { |id| StateID.new(table.to_index(id)) } : @st
+      roots = Set{start_unanchored, start_anchored}
+      start_table.remap do |id|
+        roots.add(id)
+        id
+      end
+      forward = roots.dup
+      stack = roots.to_a
       while !stack.empty?
         state_id = stack.pop
         state_idx = state_id.to_i
-        if tt = @tt
-          state_idx = tt.to_index(state_id)
-        end
         current_state = @states[state_idx]
-        current_state.next.each do |next_id|
-          if !is_terminal_state?(next_id) && !forward.includes?(next_id)
+        (current_state.next + [current_state.eoi_next]).each do |next_id|
+          if !forward.includes?(next_id)
             forward.add(next_id)
             stack.push(next_id)
           end
@@ -845,15 +852,8 @@ module Regex::Automata::DFA
       # Build reverse transitions
       reverse = Array(Set(StateID)).new(@states.size) { Set(StateID).new }
       @states.each_with_index do |state, i|
-        state.next.each do |next_id|
-          if !is_terminal_state?(next_id)
-            next_index = if tt = @tt
-                           tt.to_index(next_id)
-                         else
-                           next_id.to_i
-                         end
-            reverse[next_index].add(state.id)
-          end
+        (state.next + [state.eoi_next]).each do |next_id|
+          reverse[next_id.to_i].add(StateID.new(i))
         end
       end
 
@@ -870,11 +870,7 @@ module Regex::Automata::DFA
       # BFS from accepting states
       while !stack.empty?
         state_id = stack.pop
-        state_idx = if tt = @tt
-                      tt.to_index(state_id)
-                    else
-                      state_id.to_i
-                    end
+        state_idx = state_id.to_i
         reverse[state_idx].each do |prev_id|
           unless backward.includes?(prev_id)
             backward.add(prev_id)
@@ -885,6 +881,9 @@ module Regex::Automata::DFA
 
       # Live states = intersection
       live = forward & backward
+      # Dead and quit must keep their reserved indices even if not live.
+      live.add(DEAD_STATE_ID)
+      live.add(QUIT_STATE_ID)
       return self if live.size == @states.size
 
       # Create mapping from old to new state IDs
@@ -895,9 +894,6 @@ module Regex::Automata::DFA
         old_to_new[old_id] = new_id
         # Create copy of state with new ID
         state_idx = old_id.to_i
-        if tt = @tt
-          state_idx = tt.to_index(old_id)
-        end
         old_state = @states[state_idx]
         new_state = old_state.dup(new_id)
         new_states << new_state
@@ -908,19 +904,22 @@ module Regex::Automata::DFA
         state.next.each_with_index do |next_id, i|
           if old_to_new.has_key?(next_id)
             state.next[i] = old_to_new[next_id]
-          elsif is_quit_state?(next_id)
+          elsif next_id == QUIT_STATE_ID
             state.next[i] = QUIT_STATE_ID
           else
             state.next[i] = DEAD_STATE_ID
           end
         end
+        state.eoi_next = old_to_new[state.eoi_next]? || DEAD_STATE_ID
       end
 
       # Update start state
-      new_start_unanchored = old_to_new[@start_unanchored]? || StateID.new(0)
-      new_start_anchored = old_to_new[@start_anchored]? || new_start_unanchored
+      new_start_unanchored = old_to_new[start_unanchored]? || DEAD_STATE_ID
+      new_start_anchored = old_to_new[start_anchored]? || DEAD_STATE_ID
+      remapped_starts = start_table.remap { |id| old_to_new[id]? || DEAD_STATE_ID }
 
-      DFA.new(new_states, nil, new_start_unanchored, @byte_classifier, new_start_anchored)
+      DFA.new(new_states, nil, new_start_unanchored, @byte_classifier, new_start_anchored,
+        nil, @prefilter, @quitset, @flags, remapped_starts)
     end
 
     # Reduce byte classes using equivalence analysis
@@ -937,20 +936,12 @@ module Regex::Automata::DFA
           state.is_half_crlf?
         )
         reduced.match = state.match.dup
-        reduced.eoi_next = if tt = @tt
-                             StateID.new(tt.to_index(state.eoi_next))
-                           else
-                             state.eoi_next
-                           end
+        reduced.eoi_next = state.eoi_next
 
         class_count.times do |klass|
           representative = byte_classes.representative(klass)
           old_class = @byte_classifier[representative]
-          reduced.next[klass] = if tt = @tt
-                                  StateID.new(tt.to_index(state.next[old_class]))
-                                else
-                                  state.next[old_class]
-                                end
+          reduced.next[klass] = state.next[old_class]
         end
         reduced
       end.to_a
