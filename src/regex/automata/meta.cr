@@ -535,8 +535,10 @@ module Regex::Automata::Meta
 
       lcs = suffixes.longest_common_suffix
       return {nil, nil} unless lcs && !lcs.empty?
+      suffix = Bytes.new(lcs.size) { |index| lcs[index] }
+      return {nil, nil} unless reverse_suffix_has_no_earlier_match?(hirs, suffix)
 
-      pre = ::Regex::Automata::Prefilter.new(@config.get_match_kind, [lcs])
+      pre = ::Regex::Automata::Prefilter.new(@config.get_match_kind, [suffix])
       return {nil, nil} unless pre && pre.is_fast
 
       dfa = build_reverse_dense_dfa(hirs)
@@ -545,6 +547,118 @@ module Regex::Automata::Meta
       {pre, dfa}
     rescue ex : ::Regex::Automata::BuildError
       {nil, nil}
+    end
+
+    # A reverse suffix search begins at the first candidate literal it sees.
+    # It is only safe when that candidate cannot conceal an earlier match.
+    # This ports the vendor's fixed-length and internal-literal proofs. The
+    # disjoint-class-separator proof is intentionally handled separately
+    # below as it needs richer Unicode-class intersection support.
+    private def reverse_suffix_has_no_earlier_match?(hirs : Array(::Regex::Syntax::Hir::Hir), suffix : Bytes) : Bool
+      return false unless hirs.size == 1
+
+      prefix = strip_literal_suffix(hirs.first, suffix)
+      return false unless prefix
+      return true if hir_has_fixed_length?(prefix)
+
+      !hir_can_contain_literal?(prefix, suffix)
+    end
+
+    private def strip_literal_suffix(hir : ::Regex::Syntax::Hir::Hir, suffix : Bytes) : ::Regex::Syntax::Hir::Hir?
+      result = strip_literal_suffix_at(hir, suffix, suffix.size)
+      return nil unless result
+      prefix, cursor = result
+      cursor == 0 ? prefix : nil
+    end
+
+    private def strip_literal_suffix_at(hir : ::Regex::Syntax::Hir::Hir, suffix : Bytes, cursor : Int32) : Tuple(::Regex::Syntax::Hir::Hir, Int32)?
+      return {hir, 0} if cursor == 0
+
+      case node = hir.node
+      when ::Regex::Syntax::Hir::Literal
+        bytes = node.bytes
+        len = 0
+        while len < bytes.size && len < cursor && bytes[bytes.size - len - 1] == suffix[cursor - len - 1]
+          len += 1
+        end
+        return nil if len == 0 || (len < bytes.size && len < cursor)
+
+        {::Regex::Syntax::Hir::Hir.literal(bytes[0, bytes.size - len]), cursor - len}
+      when ::Regex::Syntax::Hir::Capture
+        strip_literal_suffix_at(::Regex::Syntax::Hir::Hir.new(node.sub), suffix, cursor)
+      when ::Regex::Syntax::Hir::Concat
+        children = node.children.dup
+        remaining = cursor
+        (children.size - 1).downto(0) do |index|
+          stripped = strip_literal_suffix_at(::Regex::Syntax::Hir::Hir.new(children[index]), suffix, remaining)
+          return nil unless stripped
+          replacement, after = stripped
+          return nil if after == remaining
+          children[index] = replacement.node
+          remaining = after
+          break if remaining == 0
+        end
+        {::Regex::Syntax::Hir::Hir.concat(children), remaining}
+      when ::Regex::Syntax::Hir::Repetition
+        strip_repetition_literal_suffix(node, suffix, cursor)
+      else
+        nil
+      end
+    end
+
+    private def strip_repetition_literal_suffix(rep : ::Regex::Syntax::Hir::Repetition, suffix : Bytes, cursor : Int32) : Tuple(::Regex::Syntax::Hir::Hir, Int32)?
+      min = rep.min
+      max = rep.max
+      remaining = cursor
+      tail = [] of ::Regex::Syntax::Hir::Node
+      while remaining > 0
+        return nil if min == 0_u32
+        before = remaining
+        stripped = strip_literal_suffix_at(::Regex::Syntax::Hir::Hir.new(rep.sub), suffix, remaining)
+        return nil unless stripped
+        remainder, after = stripped
+        return nil if after == before
+        min -= 1_u32
+        max = max.try { |value| value - 1_u32 }
+        tail << remainder.node unless remainder.node.is_a?(::Regex::Syntax::Hir::Empty)
+        remaining = after
+      end
+
+      nodes = [] of ::Regex::Syntax::Hir::Node
+      rest = ::Regex::Syntax::Hir::Hir.repetition(rep.sub, min, max, greedy: rep.greedy?)
+      nodes << rest.node unless rest.node.is_a?(::Regex::Syntax::Hir::Empty)
+      nodes.concat(tail.reverse)
+      {::Regex::Syntax::Hir::Hir.concat(nodes), 0}
+    end
+
+    private def hir_has_fixed_length?(hir : ::Regex::Syntax::Hir::Hir) : Bool
+      min = hir.minimum_len
+      max = hir.maximum_len
+      !min.nil? && min == max
+    end
+
+    private def hir_can_contain_literal?(hir : ::Regex::Syntax::Hir::Hir, literal : Bytes) : Bool
+      literal.empty? || literal.all? { |byte| hir_can_consume_byte?(hir.node, byte) }
+    end
+
+    private def hir_can_consume_byte?(node : ::Regex::Syntax::Hir::Node, byte : UInt8) : Bool
+      case node
+      when ::Regex::Syntax::Hir::Empty, ::Regex::Syntax::Hir::Look
+        false
+      when ::Regex::Syntax::Hir::Literal
+        node.bytes.includes?(byte)
+      when ::Regex::Syntax::Hir::CharClass
+        node.ranges.any? { |range| range.begin <= byte && byte <= range.end }
+      when ::Regex::Syntax::Hir::UnicodeClass
+        return true if byte > 0x7F_u8
+        node.ranges.any? { |range| range.begin <= byte.to_u32 && byte.to_u32 <= range.end }
+      when ::Regex::Syntax::Hir::Repetition, ::Regex::Syntax::Hir::Capture
+        hir_can_consume_byte?(node.sub, byte)
+      when ::Regex::Syntax::Hir::Concat, ::Regex::Syntax::Hir::Alternation
+        node.children.any? { |child| hir_can_consume_byte?(child, byte) }
+      else
+        false
+      end
     end
 
     private def build_reverse_inner_strategy(

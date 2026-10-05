@@ -90,6 +90,7 @@ src/dfa/dense.rs::test::heuristic_unicode_reverse	test	ported	src/regex/automata
 src/dfa/dense.rs::test::regression_validation_order	test	ported	covered by deserialize validation-order regression around malformed start-state IDs before universal-start computation	manual
 src/dfa/dense.rs::test::regression_start_state_not_match	test	ported	src/regex/automata/dfa.cr;spec/dfa_dense_spec.cr	rejects serialized dense start-table entries that point at accepting states	vendor 72d650c
 src/meta/strategy.rs::test::reverse_suffix_rejects_non_leftmost_first	test	ported	src/regex/automata/meta.cr;spec/meta_regex_spec.cr	reverse-suffix construction is limited to leftmost-first matching	vendor 72d650c
+src/meta/reverse_suffix.rs::func::has_no_earlier_match	func	partial	src/regex/automata/meta.cr	ported fixed-length and internal-literal proofs; disjoint-class-separator proof remains	vendor 72d650c
 src/util/pool.rs::func::with_capacity	func	ported	src/regex/automata/pool.cr;spec/pool_spec.cr	bounded retained-value capacity; differs from Rust cache-line sharding	vendor 72d650c
 src/dfa/dense.rs::test::roundtrip_always_match	test	ported	spec/dfa_dense_spec.cr	ported dense always-match serialization roundtrip parity spec
 src/dfa/dense.rs::test::roundtrip_never_match	test	ported	spec/dfa_dense_spec.cr	ported dense never-match serialization roundtrip parity spec

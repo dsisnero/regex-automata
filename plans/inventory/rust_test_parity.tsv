@@ -20,6 +20,7 @@ src/dfa/sparse.rs::test::regression_start_state_not_match	ported	spec/dfa_dense_
 src/hybrid/dfa.rs::test::heuristic_unicode_reverse	missing	-	baseline
 src/meta/regex.rs::test::regression_suffix_literal_count	missing	-	baseline
 src/meta/strategy.rs::test::reverse_suffix_rejects_non_leftmost_first	ported	spec/meta_regex_spec.cr	reverse-suffix acceleration is disabled for MatchKind::All while ordinary matching remains correct	vendor 72d650c
+src/meta/strategy.rs::test::reverse_suffix_rejects_unsafe_overlap	partial	spec/meta_regex_spec.cr	literal-suffix stripping and internal-literal safety proof are ported; strategy-internal selection is not publicly observable in this port	vendor 72d650c
 src/nfa/thompson/backtrack.rs::test::max_haystack_len_overflow	missing	-	baseline
 src/nfa/thompson/builder.rs::test::state_has_small_size	partial	spec/nfa_thompson_representation_spec.cr	Rust memory-layout assertions have no stable Crystal equivalent; the representation feature is covered through direct graph and helper specs instead.
 src/nfa/thompson/compiler.rs::test::compile_alternation	partial	spec/nfa_thompson_representation_spec.cr	alternation semantics are covered, but Crystal does not port Rust's exact trie-factored alternation layout and state ordering

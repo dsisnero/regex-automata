@@ -266,17 +266,23 @@ describe Regex::Automata::Meta::Regex do
     re.find(input).should be_nil
   end
 
-  it "uses reverse suffix acceleration for greedy suffix matches" do
+  it "preserves leftmost results when an earlier suffix can occur in its prefix" do
     re = Regex::Automata::Meta::Regex.new("[a-z]+ing")
     cache = re.create_cache
     input = Regex::Automata::Input.new("tingling")
     slots = [nil, nil] of Int32?
 
-    re.is_accelerated.should be_true
     re.search_with(cache, input).should eq(Regex::Automata::Match.must(0, 0...8))
     re.search_half_with(cache, input).should eq(Regex::Automata::HalfMatch.must(0, 8))
     re.search_slots_with(cache, input, slots).should eq(Regex::Automata::PatternID.new(0))
     slots.should eq([0, 8])
+  end
+
+  it "uses reverse suffix acceleration after a fixed-length prefix" do
+    re = Regex::Automata::Meta::Regex.new("[a-z]shing")
+
+    re.is_accelerated.should be_true
+    re.find("fshing").should eq(Regex::Automata::Match.must(0, 0...6))
   end
 
   it "does not use reverse suffix acceleration for MatchKind::All" do
