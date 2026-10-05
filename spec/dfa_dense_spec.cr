@@ -133,6 +133,25 @@ describe "DFA::Dense" do
     dfa.flags.has_prefilter.should be_false
   end
 
+  it "preserves a pending leftmost match when a prefilter finds a later candidate" do
+    prefilter = Regex::Automata::Prefilter.new(
+      Regex::Automata::MatchKind::LeftmostFirst,
+      ["ab", "c"]
+    ).not_nil!
+    dfa = Regex::Automata::DFA::Builder.new
+      .configure(
+        Regex::Automata::DFA::DFA.config
+          .prefilter(prefilter)
+          .starts_for_each_pattern(true)
+      )
+      .build("(?:ab|c)*c")
+    input = Regex::Automata::Input.new("cabac")
+    expected = Regex::Automata::HalfMatch.must(0, 1)
+
+    dfa.try_search_fwd(input).should eq(expected)
+    dfa.to_sparse.try_search_fwd(input).should eq(expected)
+  end
+
   it "reports DFA size-limit failures through BuildError" do
     error = expect_raises(Regex::Automata::BuildError) do
       Regex::Automata::DFA::Builder.new

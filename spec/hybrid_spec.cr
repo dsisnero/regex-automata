@@ -243,6 +243,31 @@ describe Regex::Automata::Hybrid::DFA do
     patset.iter.to_a.should eq([Regex::Automata::PatternID.new(0)])
   end
 
+  it "preserves a pending leftmost match when a prefilter reaches a tagged start state" do
+    prefilter = Regex::Automata::Prefilter.new(
+      Regex::Automata::MatchKind::LeftmostFirst,
+      ["ab", "c"]
+    ).not_nil!
+    dfa = Regex::Automata::Hybrid::Builder.new
+      .configure(
+        Regex::Automata::Hybrid::DFA.config
+          .prefilter(prefilter)
+          .starts_for_each_pattern(true)
+      )
+      .build("(?:ab|c)*c")
+    cache = dfa.create_cache
+    haystack = "cabac"
+    expected = Regex::Automata::HalfMatch.must(0, 1)
+
+    # This pre-populates the anchored start state so the later equivalent
+    # state is tagged, matching the vendor regression's cache setup.
+    dfa.try_search_fwd(
+      cache,
+      Regex::Automata::Input.new(haystack).anchored(Regex::Automata::Anchored::Yes)
+    ).should eq(expected)
+    dfa.try_search_fwd(cache, Regex::Automata::Input.new(haystack)).should eq(expected)
+  end
+
   it "supports quit bytes and implicit unicode word boundary enabling" do
     dfa = Regex::Automata::Hybrid::Builder.new
       .configure(Regex::Automata::Hybrid::DFA.config.quit('x'.ord.to_u8, true))

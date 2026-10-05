@@ -88,6 +88,7 @@ src/dfa/dense.rs::struct::DFA	struct	ported	src/regex/automata/dfa.cr:DFA;spec/d
 src/dfa/dense.rs::test::errors_with_unicode_word_boundary	test	ported	src/regex/automata/hir_compiler.cr;src/regex/automata/nfa.cr;src/regex/automata/dfa.cr;spec/dfa_dense_spec.cr	preserved ASCII-vs-Unicode word-boundary distinction and reject Unicode boundaries unless heuristic DFA support is enabled
 src/dfa/dense.rs::test::heuristic_unicode_reverse	test	ported	src/regex/automata/hir_compiler.cr;src/regex/automata/nfa.cr;src/regex/automata/dfa.cr;spec/dfa_dense_spec.cr	heuristic Unicode reverse searches now auto-quit on non-ASCII bytes while preserving reverse boundary semantics on ASCII spans
 src/dfa/dense.rs::test::regression_validation_order	test	ported	covered by deserialize validation-order regression around malformed start-state IDs before universal-start computation	manual
+src/dfa/dense.rs::test::regression_start_state_not_match	test	ported	src/regex/automata/dfa.cr;spec/dfa_dense_spec.cr	rejects serialized dense start-table entries that point at accepting states	vendor 72d650c
 src/dfa/dense.rs::test::roundtrip_always_match	test	ported	spec/dfa_dense_spec.cr	ported dense always-match serialization roundtrip parity spec
 src/dfa/dense.rs::test::roundtrip_never_match	test	ported	spec/dfa_dense_spec.cr	ported dense never-match serialization roundtrip parity spec
 src/dfa/determinize.rs::func::determinize_size_limit	func	ported	configured via dense config and enforced during DFA state construction in dfa.cr	manual

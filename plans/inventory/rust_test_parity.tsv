@@ -3,6 +3,7 @@ src/dfa/automaton.rs::test::object_safe	ported	spec/automaton_spec.cr	ported abs
 src/dfa/dense.rs::test::errors_with_unicode_word_boundary	ported	spec/dfa_dense_spec.cr	preserved ASCII-vs-Unicode word-boundary distinction and reject Unicode boundaries unless heuristic DFA support is enabled
 src/dfa/dense.rs::test::heuristic_unicode_reverse	ported	spec/dfa_dense_spec.cr	heuristic Unicode reverse searches now auto-quit on non-ASCII bytes while preserving reverse boundary semantics on ASCII spans
 src/dfa/dense.rs::test::regression_validation_order	ported	spec/dfa_dense_spec.cr	validates malformed serialized start-state IDs before universal-start inspection	manual
+src/dfa/dense.rs::test::regression_start_state_not_match	ported	spec/dfa_dense_spec.cr	rejects serialized dense start-table entries that point at an accepting state	vendor 72d650c
 src/dfa/dense.rs::test::roundtrip_always_match	ported	spec/dfa_dense_spec.cr	ported dense always-match serialization roundtrip parity spec
 src/dfa/dense.rs::test::roundtrip_never_match	ported	spec/dfa_dense_spec.cr	ported dense never-match serialization roundtrip parity spec
 src/dfa/onepass.rs::test::assertions	missing	-	baseline
@@ -15,6 +16,7 @@ src/dfa/onepass.rs::test::is_one_pass	missing	-	baseline
 src/dfa/onepass.rs::test::max_slots	missing	-	baseline
 src/dfa/sparse.rs::test::heuristic_unicode_forward	ported	spec/dfa_sparse_spec.cr	ported sparse forward heuristic Unicode quit-byte parity
 src/dfa/sparse.rs::test::heuristic_unicode_reverse	ported	spec/dfa_sparse_spec.cr	ported sparse reverse heuristic Unicode quit-byte parity
+src/dfa/sparse.rs::test::regression_start_state_not_match	ported	spec/dfa_dense_spec.cr	sparse deserialization delegates to the validated dense payload in this port	vendor 72d650c
 src/hybrid/dfa.rs::test::heuristic_unicode_reverse	missing	-	baseline
 src/meta/regex.rs::test::regression_suffix_literal_count	missing	-	baseline
 src/nfa/thompson/backtrack.rs::test::max_haystack_len_overflow	missing	-	baseline
@@ -101,6 +103,7 @@ tests/dfa/onepass/suite.rs::test::default	missing	-	baseline
 tests/dfa/onepass/suite.rs::test::no_byte_classes	missing	-	baseline
 tests/dfa/onepass/suite.rs::test::starts_for_each_pattern	missing	-	baseline
 tests/dfa/regression.rs::test::minimize_sets_correct_match_states	missing	-	baseline
+tests/dfa/regression.rs::test::prefilter_does_not_skip_pending_match	ported	spec/dfa_dense_spec.cr	preserves the vendor pending leftmost match for dense and sparse searches	vendor 72d650c
 tests/dfa/suite.rs::test::minimized_default	missing	-	baseline
 tests/dfa/suite.rs::test::minimized_no_byte_class	missing	-	baseline
 tests/dfa/suite.rs::test::serialization_unminimized_default	missing	-	baseline
@@ -124,6 +127,7 @@ tests/fuzz/sparse.rs::test::transition_to_invalid_but_valid_state	missing	-	base
 tests/gen/dense/mod.rs::test::multi_pattern_v2	missing	-	baseline
 tests/gen/sparse/mod.rs::test::multi_pattern_v2	missing	-	baseline
 tests/hybrid/api.rs::test::quit_fwd	missing	-	baseline
+tests/hybrid/api.rs::test::prefilter_does_not_skip_pending_match	ported	spec/hybrid_spec.cr	ports the tagged-start cache setup and preserves the pending leftmost match	vendor 72d650c
 tests/hybrid/api.rs::test::quit_panics	missing	-	baseline
 tests/hybrid/api.rs::test::quit_rev	missing	-	baseline
 tests/hybrid/api.rs::test::too_many_cache_resets_cause_quit	missing	-	baseline

@@ -48,6 +48,7 @@ For every unchecked top-level item:
   - Workflow: preserve a pending leftmost match while a prefilter sees a later candidate; only use prefilter restart while no match is pending. Reject dense and sparse deserialization when any start-table entry is a match state.
   - Red: port `regression_start_state_not_match`, the dense/hybrid pending-match prefilter regressions, and the updated hybrid quit/empty-search cases. Cover both serialized and in-memory start tables, plus dense, sparse, and hybrid searchers.
   - Green: `src/regex/automata/{dfa,automaton,hybrid,sparse}.cr`, deserialization/start-table specs, and focused search regressions.
+  - Progress: dense deserialization now rejects every compatibility, contextual, and per-pattern start-table entry that points to an accepting state. The refreshed dense/sparse and hybrid pending-match prefilter regressions are represented with the vendor's tagged-start cache setup; existing Crystal searchers preserve the pending leftmost result.
   - Done when: leftmost-first results cannot be skipped by prefilter restart, invalid serialized start states fail before search, and the new vendor regression suite is represented in Crystal.
 
 - [ ] Meta reverse strategy refresh — suffix, inner literal, and engine selection
