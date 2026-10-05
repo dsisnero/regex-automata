@@ -16,6 +16,14 @@ describe Regex::Automata::Meta::Regex do
     caps.get_match.should eq(Regex::Automata::Match.must(1, 0...3))
   end
 
+  it "preserves pool-capacity configuration through builder overwrite" do
+    base = Regex::Automata::Meta::Regex.config.pool_capacity(3)
+    merged = base.overwrite(Regex::Automata::Meta::Regex.config.pool_capacity(0))
+
+    base.get_pool_capacity.should eq(3)
+    merged.get_pool_capacity.should eq(1)
+  end
+
   it "no_dfa" do
     re = Regex::Automata::Meta::Regex.builder
       .configure(Regex::Automata::Meta::Regex.config.dfa(false))

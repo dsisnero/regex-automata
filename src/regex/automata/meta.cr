@@ -48,6 +48,7 @@ module Regex::Automata::Meta
     @backtrack : Bool?
     @byte_classes : Bool?
     @line_terminator : UInt8?
+    @pool_capacity : Int32?
 
     def initialize(
       *,
@@ -68,6 +69,7 @@ module Regex::Automata::Meta
       @backtrack : Bool? = nil,
       @byte_classes : Bool? = nil,
       @line_terminator : UInt8? = nil,
+      @pool_capacity : Int32? = nil,
     )
     end
 
@@ -135,6 +137,13 @@ module Regex::Automata::Meta
       copy(line_terminator: byte)
     end
 
+    # Sets the number of reusable cache slots used by pool-aware consumers.
+    # This port's Meta API exposes explicit caches, so it is primarily for
+    # callers that construct `Pool(Cache)` themselves.
+    def pool_capacity(capacity : Int32) : Config
+      copy(pool_capacity: capacity)
+    end
+
     def get_match_kind : ::Regex::Automata::MatchKind
       @match_kind || ::Regex::Automata::MatchKind::LeftmostFirst
     end
@@ -199,6 +208,10 @@ module Regex::Automata::Meta
       @line_terminator || '\n'.ord.to_u8
     end
 
+    def get_pool_capacity : Int32
+      Math.max(1, @pool_capacity || 8)
+    end
+
     def overwrite(other : Config) : Config
       Config.new(
         match_kind: other.@match_kind.nil? ? @match_kind : other.@match_kind,
@@ -217,7 +230,8 @@ module Regex::Automata::Meta
         onepass: other.@onepass.nil? ? @onepass : other.@onepass,
         backtrack: other.@backtrack.nil? ? @backtrack : other.@backtrack,
         byte_classes: other.@byte_classes.nil? ? @byte_classes : other.@byte_classes,
-        line_terminator: other.@line_terminator.nil? ? @line_terminator : other.@line_terminator
+        line_terminator: other.@line_terminator.nil? ? @line_terminator : other.@line_terminator,
+        pool_capacity: other.@pool_capacity.nil? ? @pool_capacity : other.@pool_capacity
       )
     end
 
@@ -240,6 +254,7 @@ module Regex::Automata::Meta
       backtrack : Bool? = @backtrack,
       byte_classes : Bool? = @byte_classes,
       line_terminator : UInt8? = @line_terminator,
+      pool_capacity : Int32? = @pool_capacity,
     ) : Config
       Config.new(
         match_kind: match_kind,
@@ -258,7 +273,8 @@ module Regex::Automata::Meta
         onepass: onepass,
         backtrack: backtrack,
         byte_classes: byte_classes,
-        line_terminator: line_terminator
+        line_terminator: line_terminator,
+        pool_capacity: pool_capacity
       )
     end
   end

@@ -3,10 +3,16 @@ module Regex::Automata
     @create : Proc(T)
     @mutex : Mutex
     @stack : Array(T)
+    @capacity : Int32
 
-    def initialize(&@create : -> T)
+    def initialize(capacity : Int32 = 8, &@create : -> T)
       @mutex = Mutex.new
       @stack = [] of T
+      @capacity = Math.max(1, capacity)
+    end
+
+    def self.with_capacity(capacity : Int32, &create : -> T) : Pool(T)
+      new(capacity, &create)
     end
 
     def get : PoolGuard(T)
@@ -19,7 +25,7 @@ module Regex::Automata
 
     protected def put_value(value : T) : Nil
       @mutex.synchronize do
-        @stack << value
+        @stack << value if @stack.size < @capacity
       end
     end
   end

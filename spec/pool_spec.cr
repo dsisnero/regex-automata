@@ -56,4 +56,23 @@ describe Regex::Automata::Pool(Array(Char)) do
 
     calls.should eq(2)
   end
+
+  it "caps retained values at the configured capacity" do
+    calls = 0
+    pool = Regex::Automata::Pool(Int32).with_capacity(1) do
+      calls += 1
+      calls
+    end
+
+    first = pool.get
+    second = pool.get
+    first.put
+    second.put
+
+    third = pool.get
+    fourth = pool.get
+    third.put
+    fourth.put
+    calls.should eq(3)
+  end
 end

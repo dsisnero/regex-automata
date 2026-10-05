@@ -64,6 +64,7 @@ For every unchecked top-level item:
   - Workflow: reconcile the shared Thompson-config refactor and configurable pool stack limit with Crystal's existing compiler/cache configuration model; port observable API changes and document Rust-only concurrency/layout differences.
   - Red: add configuration round-trip and cache-capacity tests, and rerun the affected prefilter/look/search primitive matrices against the refreshed semantics.
   - Green: `src/regex/automata/{config,hir_compiler,nfa,pikevm,pool,prefilter,look,search}.cr` plus focused specs.
+  - Progress: `Pool.with_capacity` now bounds retained reusable values, and Meta `Config#pool_capacity` supports setter/getter/overwrite with a minimum of one. Crystal's Meta APIs use caller-owned explicit caches instead of Rust's hidden convenience cache pool, so the default remains the documented local capacity of eight rather than querying system parallelism.
   - Done when: the new configuration knobs and changed observable behavior are either ported and tested or explicitly recorded as intentional divergence.
 
 - [x] Dense DFA core engine parity

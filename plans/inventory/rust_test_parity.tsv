@@ -77,6 +77,7 @@ src/util/look.rs::test::look_set	ported	spec/look_spec.cr	ported upstream look-s
 src/util/look.rs::test::look_set_debug	ported	spec/look_spec.cr	ported upstream look-set debug parity
 src/util/look.rs::test::look_set_iter	ported	spec/look_spec.cr	ported upstream look-set iterator parity
 src/util/pool.rs::test::oibits	partial	spec/pool_spec.cr	Rust auto-trait assertions have no direct Crystal equivalent; mutex-backed pool and guard behavior are covered directly
+src/util/pool.rs::func::with_capacity	ported	spec/pool_spec.cr	bounded retained-value behavior is covered; Crystal has no cache-line sharding equivalent	vendor 72d650c
 src/util/pool.rs::test::thread_owner_distinct	ported	spec/pool_spec.cr	ported distinct-outstanding-guard parity so simultaneous gets mutate independent values
 src/util/pool.rs::test::thread_owner_optimization	partial	spec/pool_spec.cr	Rust's std-only owner-thread optimization is an implementation detail and is not present in the Crystal mutex-backed pool
 src/util/pool.rs::test::thread_owner_send_drop	partial	spec/pool_spec.cr	Rust cross-thread guard-drop behavior depends on owner-thread optimization and `Drop`, which have no direct Crystal equivalent
