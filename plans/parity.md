@@ -61,7 +61,7 @@
 
 - [ ] Prefilter algorithms and search contracts
   - Scope: `src/util/prefilter/{mod,aho_corasick,byteset,memchr,memmem,teddy}.rs`.
-  - Work: generic `find`/prefix construction plus dense-DFA and hybrid forward/overlapping integration now preserve bounded candidates, pending leftmost matches, and context-sensitive start-state restarts. PikeVM already applies candidates in regular and overlapping NFA loops; the bounded backtracker delegates that behavior only after its capacity guard, with both paths covered. Still port or explicitly classify actual strategy selection (`aho_corasick`, byteset, memchr, memmem, teddy), false-positive and diagnostic/memory contracts, then prove Meta integration before closing this feature.
+  - Work: generic `find`/prefix construction plus dense-DFA and hybrid forward/overlapping integration now preserve bounded candidates, pending leftmost matches, and context-sensitive start-state restarts. PikeVM already applies candidates in regular and overlapping NFA loops; the bounded backtracker delegates that behavior only after its capacity guard, with both paths covered. Meta routes core candidates through PikeVM and covers automatic/explicit/literal/reverse strategy admission. Still port or explicitly classify actual strategy selection (`aho_corasick`, byteset, memchr, memmem, teddy) and false-positive, diagnostic, and memory contracts before closing this feature.
 
 - [ ] Thompson NFA construction, representation, and compiler
   - Scope: `src/nfa/thompson/{nfa,builder,compiler,literal_trie,range_trie,map,error}.rs`.
