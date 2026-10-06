@@ -1422,64 +1422,64 @@ src/util/alphabet.rs::method::Unit.is_word_byte	method	missing	-	auto-generated
 src/util/alphabet.rs::method::Unit.u8	method	missing	-	auto-generated
 src/util/captures.rs::method::Captures.all	method	missing	-	auto-generated
 src/util/captures.rs::method::Captures.clear	method	missing	-	auto-generated
-src/util/captures.rs::method::Captures.empty	method	missing	-	auto-generated
+src/util/captures.rs::method::Captures.empty	method	ported	src/regex/automata/captures.cr:Captures.empty;spec/captures_spec.cr	Pattern-only capture storage matches upstream.
 src/util/captures.rs::method::Captures.extract	method	partial	src/regex/automata/captures.cr:Captures#extract;spec/captures_spec.cr	Preserves extraction and failure behavior; Crystal takes runtime group_count instead of Rust's const-generic array length.
 src/util/captures.rs::method::Captures.extract_bytes	method	partial	src/regex/automata/captures.cr:Captures#extract_bytes;spec/captures_spec.cr	Preserves byte extraction and failure behavior; Crystal takes runtime group_count instead of Rust's const-generic array length.
-src/util/captures.rs::method::Captures.fmt	method	missing	-	auto-generated
-src/util/captures.rs::method::Captures.get_group	method	missing	-	auto-generated
-src/util/captures.rs::method::Captures.get_group_by_name	method	missing	-	auto-generated
-src/util/captures.rs::method::Captures.get_match	method	missing	-	auto-generated
-src/util/captures.rs::method::Captures.group_info	method	missing	-	auto-generated
-src/util/captures.rs::method::Captures.group_len	method	missing	-	auto-generated
-src/util/captures.rs::method::Captures.interpolate_bytes	method	missing	-	auto-generated
-src/util/captures.rs::method::Captures.interpolate_bytes_into	method	missing	-	auto-generated
-src/util/captures.rs::method::Captures.interpolate_string	method	missing	-	auto-generated
-src/util/captures.rs::method::Captures.interpolate_string_into	method	missing	-	auto-generated
-src/util/captures.rs::method::Captures.is_match	method	missing	-	auto-generated
-src/util/captures.rs::method::Captures.iter	method	missing	-	auto-generated
-src/util/captures.rs::method::Captures.matches	method	missing	-	auto-generated
-src/util/captures.rs::method::Captures.pattern	method	missing	-	auto-generated
-src/util/captures.rs::method::Captures.set_pattern	method	missing	-	auto-generated
-src/util/captures.rs::method::Captures.slots	method	missing	-	auto-generated
-src/util/captures.rs::method::Captures.slots_mut	method	missing	-	auto-generated
-src/util/captures.rs::method::CapturesDebugMap<'a>.fmt	method	missing	-	auto-generated
-src/util/captures.rs::method::CapturesPatternIter<'a>.count	method	missing	-	auto-generated
-src/util/captures.rs::method::CapturesPatternIter<'a>.next	method	missing	-	auto-generated
-src/util/captures.rs::method::CapturesPatternIter<'a>.size_hint	method	missing	-	auto-generated
-src/util/captures.rs::method::GroupInfo.all_group_len	method	missing	-	auto-generated
-src/util/captures.rs::method::GroupInfo.all_names	method	missing	-	auto-generated
-src/util/captures.rs::method::GroupInfo.empty	method	missing	-	auto-generated
-src/util/captures.rs::method::GroupInfo.explicit_slot_len	method	missing	-	auto-generated
-src/util/captures.rs::method::GroupInfo.group_len	method	missing	-	auto-generated
-src/util/captures.rs::method::GroupInfo.implicit_slot_len	method	missing	-	auto-generated
-src/util/captures.rs::method::GroupInfo.memory_usage	method	missing	-	auto-generated
-src/util/captures.rs::method::GroupInfo.new	method	missing	-	auto-generated
-src/util/captures.rs::method::GroupInfo.pattern_len	method	missing	-	auto-generated
-src/util/captures.rs::method::GroupInfo.pattern_names	method	missing	-	auto-generated
-src/util/captures.rs::method::GroupInfo.slot	method	missing	-	auto-generated
-src/util/captures.rs::method::GroupInfo.slot_len	method	missing	-	auto-generated
-src/util/captures.rs::method::GroupInfo.slots	method	missing	-	auto-generated
-src/util/captures.rs::method::GroupInfo.to_index	method	missing	-	auto-generated
-src/util/captures.rs::method::GroupInfo.to_name	method	missing	-	auto-generated
-src/util/captures.rs::method::GroupInfoAllNames<'a>.next	method	missing	-	auto-generated
-src/util/captures.rs::method::GroupInfoError.duplicate	method	missing	-	auto-generated
-src/util/captures.rs::method::GroupInfoError.first_must_be_unnamed	method	missing	-	auto-generated
-src/util/captures.rs::method::GroupInfoError.fmt	method	missing	-	auto-generated
-src/util/captures.rs::method::GroupInfoError.missing_groups	method	missing	-	auto-generated
-src/util/captures.rs::method::GroupInfoError.source	method	missing	-	auto-generated
-src/util/captures.rs::method::GroupInfoError.too_many_groups	method	missing	-	auto-generated
-src/util/captures.rs::method::GroupInfoError.too_many_patterns	method	missing	-	auto-generated
-src/util/captures.rs::method::GroupInfoInner.add_explicit_group	method	missing	-	auto-generated
-src/util/captures.rs::method::GroupInfoInner.add_first_group	method	missing	-	auto-generated
-src/util/captures.rs::method::GroupInfoInner.fixup_slot_ranges	method	missing	-	auto-generated
-src/util/captures.rs::method::GroupInfoInner.group_len	method	missing	-	auto-generated
-src/util/captures.rs::method::GroupInfoInner.pattern_len	method	missing	-	auto-generated
-src/util/captures.rs::method::GroupInfoInner.small_slot_len	method	missing	-	auto-generated
-src/util/captures.rs::method::GroupInfoPatternNames<'a>.count	method	missing	-	auto-generated
-src/util/captures.rs::method::GroupInfoPatternNames<'a>.next	method	missing	-	auto-generated
-src/util/captures.rs::method::GroupInfoPatternNames<'a>.size_hint	method	missing	-	auto-generated
-src/util/captures.rs::method::GroupInfoPatternNames<'static>.empty	method	missing	-	auto-generated
-src/util/captures.rs::method::Key<'a>.fmt	method	missing	-	auto-generated
+src/util/captures.rs::method::Captures.fmt	method	intentional_divergence	src/regex/automata/captures.cr	Rust Debug formatting has no Crystal public equivalent.
+src/util/captures.rs::method::Captures.get_group	method	ported	src/regex/automata/captures.cr:Captures#get_group;spec/captures_spec.cr	Participating capture lookup is covered.
+src/util/captures.rs::method::Captures.get_group_by_name	method	ported	src/regex/automata/captures.cr:Captures#get_group_by_name;spec/captures_spec.cr	Named capture lookup is covered.
+src/util/captures.rs::method::Captures.get_match	method	ported	src/regex/automata/captures.cr:Captures#get_match;spec/captures_spec.cr	Overall-match lookup is covered.
+src/util/captures.rs::method::Captures.group_info	method	ported	src/regex/automata/captures.cr:Captures#group_info	Crystal getter exposes the associated metadata.
+src/util/captures.rs::method::Captures.group_len	method	ported	src/regex/automata/captures.cr:Captures#group_len;spec/captures_spec.cr	Returns zero when no pattern has matched.
+src/util/captures.rs::method::Captures.interpolate_bytes	method	ported	src/regex/automata/captures.cr:Captures#interpolate_bytes;spec/captures_spec.cr	Byte replacement interpolation is covered.
+src/util/captures.rs::method::Captures.interpolate_bytes_into	method	ported	src/regex/automata/captures.cr:Captures#interpolate_bytes_into;spec/captures_spec.cr	Appends byte replacement output to caller storage.
+src/util/captures.rs::method::Captures.interpolate_string	method	ported	src/regex/automata/captures.cr:Captures#interpolate_string;spec/captures_spec.cr	String replacement interpolation is covered.
+src/util/captures.rs::method::Captures.interpolate_string_into	method	ported	src/regex/automata/captures.cr:Captures#interpolate_string_into;spec/captures_spec.cr	Appends string replacement output to caller storage.
+src/util/captures.rs::method::Captures.is_match	method	ported	src/regex/automata/captures.cr:Captures#is_match;spec/captures_spec.cr	Match-state predicate is covered.
+src/util/captures.rs::method::Captures.iter	method	ported	src/regex/automata/captures.cr:Captures#iter;spec/captures_spec.cr	Yields group spans in group order.
+src/util/captures.rs::method::Captures.matches	method	ported	src/regex/automata/captures.cr:Captures.matches;spec/captures_spec.cr	Whole-match-only storage is covered.
+src/util/captures.rs::method::Captures.pattern	method	ported	src/regex/automata/captures.cr:Captures#pattern;spec/captures_spec.cr	Matched pattern ID is covered.
+src/util/captures.rs::method::Captures.set_pattern	method	ported	src/regex/automata/captures.cr:Captures#set_pattern;spec/captures_spec.cr	Engine-facing pattern assignment is covered.
+src/util/captures.rs::method::Captures.slots	method	ported	src/regex/automata/captures.cr:Captures#slots;spec/captures_spec.cr	Slot inspection is exposed by a getter.
+src/util/captures.rs::method::Captures.slots_mut	method	ported	src/regex/automata/captures.cr:Captures#slots_mut;spec/captures_spec.cr	Engine-facing mutable slots are covered.
+src/util/captures.rs::method::CapturesDebugMap<'a>.fmt	method	intentional_divergence	src/regex/automata/captures.cr	Rust Debug-only adapter has no Crystal public equivalent.
+src/util/captures.rs::method::CapturesPatternIter<'a>.count	method	intentional_divergence	src/regex/automata/captures.cr:CapturesPatternIter	Crystal Iterator does not expose Rust's consuming count override.
+src/util/captures.rs::method::CapturesPatternIter<'a>.next	method	ported	src/regex/automata/captures.cr:CapturesPatternIter#next;spec/captures_spec.cr	Group-span iteration is covered.
+src/util/captures.rs::method::CapturesPatternIter<'a>.size_hint	method	intentional_divergence	src/regex/automata/captures.cr:CapturesPatternIter	Crystal Iterator does not expose Rust size hints.
+src/util/captures.rs::method::GroupInfo.all_group_len	method	ported	src/regex/automata/captures.cr:GroupInfo#all_group_len;spec/captures_spec.cr	Total capture-group count is covered.
+src/util/captures.rs::method::GroupInfo.all_names	method	ported	src/regex/automata/captures.cr:GroupInfo#all_names;spec/captures_spec.cr	All-pattern name iteration is covered.
+src/util/captures.rs::method::GroupInfo.empty	method	ported	src/regex/automata/captures.cr:GroupInfo.empty;spec/captures_spec.cr	Empty metadata behavior is covered.
+src/util/captures.rs::method::GroupInfo.explicit_slot_len	method	ported	src/regex/automata/captures.cr:GroupInfo#explicit_slot_len;spec/captures_spec.cr	Explicit-slot count is covered.
+src/util/captures.rs::method::GroupInfo.group_len	method	ported	src/regex/automata/captures.cr:GroupInfo#group_len;spec/captures_spec.cr	Valid and invalid pattern IDs are covered.
+src/util/captures.rs::method::GroupInfo.implicit_slot_len	method	ported	src/regex/automata/captures.cr:GroupInfo#implicit_slot_len;spec/captures_spec.cr	Implicit-slot count is covered.
+src/util/captures.rs::method::GroupInfo.memory_usage	method	partial	src/regex/automata/captures.cr:GroupInfo#memory_usage	Provides a Crystal allocation estimate, not Rust's exact layout accounting.
+src/util/captures.rs::method::GroupInfo.new	method	ported	src/regex/automata/captures.cr:GroupInfo#initialize;spec/captures_spec.cr	Invariant validation and slot allocation are covered.
+src/util/captures.rs::method::GroupInfo.pattern_len	method	ported	src/regex/automata/captures.cr:GroupInfo#pattern_len;spec/captures_spec.cr	Pattern count is covered.
+src/util/captures.rs::method::GroupInfo.pattern_names	method	ported	src/regex/automata/captures.cr:GroupInfo#pattern_names;spec/captures_spec.cr	Valid and invalid metadata iteration is covered.
+src/util/captures.rs::method::GroupInfo.slot	method	ported	src/regex/automata/captures.cr:GroupInfo#slot;spec/captures_spec.cr	Valid and invalid slot lookups are covered.
+src/util/captures.rs::method::GroupInfo.slot_len	method	ported	src/regex/automata/captures.cr:GroupInfo#slot_len;spec/captures_spec.cr	Total slot count is covered.
+src/util/captures.rs::method::GroupInfo.slots	method	ported	src/regex/automata/captures.cr:GroupInfo#slots;spec/captures_spec.cr	Slot-pair lookup is covered.
+src/util/captures.rs::method::GroupInfo.to_index	method	ported	src/regex/automata/captures.cr:GroupInfo#to_index;spec/captures_spec.cr	Name lookup is covered.
+src/util/captures.rs::method::GroupInfo.to_name	method	ported	src/regex/automata/captures.cr:GroupInfo#to_name;spec/captures_spec.cr	Index lookup is covered.
+src/util/captures.rs::method::GroupInfoAllNames<'a>.next	method	ported	src/regex/automata/captures.cr:GroupInfoAllNames#next;spec/captures_spec.cr	All-name iteration is covered.
+src/util/captures.rs::method::GroupInfoError.duplicate	method	ported	src/regex/automata/captures.cr:GroupInfo#validate!;spec/captures_spec.cr	Duplicate-name error is covered.
+src/util/captures.rs::method::GroupInfoError.first_must_be_unnamed	method	ported	src/regex/automata/captures.cr:GroupInfo#validate!;spec/captures_spec.cr	Implicit-group-name error is covered.
+src/util/captures.rs::method::GroupInfoError.fmt	method	ported	src/regex/automata/captures.cr:GroupInfo#validate!;spec/captures_spec.cr	Crystal Error messages preserve upstream Display text for represented cases.
+src/util/captures.rs::method::GroupInfoError.missing_groups	method	ported	src/regex/automata/captures.cr:GroupInfo#validate!;spec/captures_spec.cr	Missing-group error is covered.
+src/util/captures.rs::method::GroupInfoError.source	method	intentional_divergence	src/regex/automata/captures.cr	Crystal Error has no Rust std::error source-chain API.
+src/util/captures.rs::method::GroupInfoError.too_many_groups	method	intentional_divergence	src/regex/automata/captures.cr	Crystal array and Int32 limits fail before Rust SmallIndex overflow can be modeled.
+src/util/captures.rs::method::GroupInfoError.too_many_patterns	method	intentional_divergence	src/regex/automata/captures.cr	Crystal array and Int32 limits fail before Rust PatternID overflow can be modeled.
+src/util/captures.rs::method::GroupInfoInner.add_explicit_group	method	ported	src/regex/automata/captures.cr:GroupInfo#build_indexes!;spec/captures_spec.cr	Equivalent index and slot construction is covered.
+src/util/captures.rs::method::GroupInfoInner.add_first_group	method	ported	src/regex/automata/captures.cr:GroupInfo#build_slot_table!;spec/captures_spec.cr	Equivalent implicit-slot construction is covered.
+src/util/captures.rs::method::GroupInfoInner.fixup_slot_ranges	method	ported	src/regex/automata/captures.cr:GroupInfo#build_slot_table!;spec/captures_spec.cr	Equivalent cross-pattern slot ordering is covered.
+src/util/captures.rs::method::GroupInfoInner.group_len	method	ported	src/regex/automata/captures.cr:GroupInfo#group_len;spec/captures_spec.cr	Equivalent public behavior is covered.
+src/util/captures.rs::method::GroupInfoInner.pattern_len	method	ported	src/regex/automata/captures.cr:GroupInfo#pattern_len;spec/captures_spec.cr	Equivalent public behavior is covered.
+src/util/captures.rs::method::GroupInfoInner.small_slot_len	method	ported	src/regex/automata/captures.cr:GroupInfo#slot_len;spec/captures_spec.cr	Equivalent public behavior is covered.
+src/util/captures.rs::method::GroupInfoPatternNames<'a>.count	method	intentional_divergence	src/regex/automata/captures.cr:GroupInfoPatternNames	Crystal Iterator does not expose Rust's consuming count override.
+src/util/captures.rs::method::GroupInfoPatternNames<'a>.next	method	ported	src/regex/automata/captures.cr:GroupInfoPatternNames#next;spec/captures_spec.cr	Pattern-name iteration is covered.
+src/util/captures.rs::method::GroupInfoPatternNames<'a>.size_hint	method	intentional_divergence	src/regex/automata/captures.cr:GroupInfoPatternNames	Crystal Iterator does not expose Rust size hints.
+src/util/captures.rs::method::GroupInfoPatternNames<'static>.empty	method	ported	src/regex/automata/captures.cr:GroupInfoPatternNames.empty	Empty iterator behavior is represented.
+src/util/captures.rs::method::Key<'a>.fmt	method	intentional_divergence	src/regex/automata/captures.cr	Rust Debug-only helper has no Crystal public equivalent.
 src/util/determinize/state.rs::method::Repr<'a>.encoded_pattern_len	method	missing	-	auto-generated
 src/util/determinize/state.rs::method::Repr<'a>.fmt	method	missing	-	auto-generated
 src/util/determinize/state.rs::method::Repr<'a>.has_pattern_ids	method	missing	-	auto-generated

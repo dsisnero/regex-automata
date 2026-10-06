@@ -64,6 +64,32 @@ describe Regex::Automata::GroupInfo do
       ])
     end
   end
+
+  it "handles empty and invalid pattern metadata without raising" do
+    empty = Regex::Automata::GroupInfo.empty
+    invalid = Regex::Automata::PatternID.new(99)
+
+    empty.pattern_len.should eq(0)
+    empty.all_group_len.should eq(0)
+    empty.slot_len.should eq(0)
+    empty.implicit_slot_len.should eq(0)
+    empty.explicit_slot_len.should eq(0)
+    empty.group_len(invalid).should eq(0)
+    empty.to_index(invalid, "missing").should be_nil
+    empty.to_name(invalid, 0).should be_nil
+    empty.pattern_names(invalid).to_a.should be_empty
+    empty.all_names.to_a.should be_empty
+    empty.slot(invalid, 0).should be_nil
+    empty.slots(invalid, 0).should be_nil
+
+    info = Regex::Automata::GroupInfo.new([[nil, "name"] of String?])
+    info.group_len(invalid).should eq(0)
+    info.to_index(invalid, "name").should be_nil
+    info.to_name(invalid, 1).should be_nil
+    info.pattern_names(invalid).to_a.should be_empty
+    info.slot(invalid, 0).should be_nil
+    info.slots(invalid, 0).should be_nil
+  end
 end
 
 describe Regex::Automata::Captures do
