@@ -66,6 +66,18 @@ describe Regex::Automata::Syntax do
     hir.minimum_len.should eq(1)
   end
 
+  it "parses many patterns with default and explicit configurations" do
+    Regex::Automata::Syntax.parse_many(["a", "b+"]).size.should eq(2)
+
+    hirs = Regex::Automata::Syntax.parse_many_with(
+      ["a*", "b+"],
+      Regex::Automata::Syntax::Config.new.swap_greed(true)
+    )
+    hirs.each do |hir|
+      hir.node.as(Regex::Syntax::Hir::Repetition).greedy?.should be_false
+    end
+  end
+
   it "parses with explicit CRLF and multiline settings" do
     hir = Regex::Automata::Syntax.parse_with(
       "^[a-z]+$",

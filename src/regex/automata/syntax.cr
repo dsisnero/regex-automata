@@ -275,5 +275,16 @@ module Regex::Automata
       config.apply(builder)
       builder.build.parse(pattern)
     end
+
+    def self.parse_many(patterns : Enumerable(String)) : Array(::Regex::Syntax::Hir::Hir)
+      parse_many_with(patterns, Config.new)
+    end
+
+    def self.parse_many_with(patterns : Enumerable(String), config : Config) : Array(::Regex::Syntax::Hir::Hir)
+      builder = ::Regex::Syntax::ParserBuilder.new
+      config.apply(builder)
+      parser = builder.build
+      patterns.map { |pattern| parser.parse(pattern) }.to_a
+    end
   end
 end
