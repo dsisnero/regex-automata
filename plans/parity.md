@@ -39,9 +39,9 @@
   - Scope: `src/util/search.rs::{MatchError,MatchErrorKind}`.
   - Done: every structured kind, constructor, payload, equality, and unsupported-anchor context is covered. Rust Debug formatting remains a documented Crystal-native divergence.
 
-- [ ] Pattern sets and generic search iteration
+- [x] Pattern sets and generic search iteration
   - Scope: `src/util/search.rs::{PatternSet,PatternSetIter}` and `src/util/iter.rs`.
-  - Work: prove capacity/error limits, forward/reverse iterator exhaustion, collection ordering, empty-match handling, fallible/infallible iterator conversion, and retained input behavior.
+  - Done: capacity/error limits, ordering, forward/reverse exhaustion, empty-match handling, fallible/infallible conversion, capture snapshots, error propagation, and retained input are covered. Rust Debug and size-hint protocols are documented Crystal-native divergences.
 
 - [ ] Capture slots and interpolation
   - Scope: `src/util/captures.rs` and `src/util/interpolate.rs`.

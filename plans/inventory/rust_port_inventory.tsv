@@ -1569,33 +1569,33 @@ src/util/int.rs::method::usize.as_u64	method	missing	-	auto-generated
 src/util/int.rs::method::usize.as_u8	method	missing	-	auto-generated
 src/util/interpolate.rs::method::Ref<'a>.from	method	missing	-	auto-generated
 src/util/interpolate.rs::method::Ref<'static>.from	method	missing	-	auto-generated
-src/util/iter.rs::method::CapturesIter<'h, F>.next	method	missing	-	auto-generated
-src/util/iter.rs::method::HalfMatchesIter<'h, F>.input	method	missing	-	auto-generated
-src/util/iter.rs::method::HalfMatchesIter<'h, F>.next	method	missing	-	auto-generated
-src/util/iter.rs::method::MatchesIter<'h, F>.input	method	missing	-	auto-generated
-src/util/iter.rs::method::MatchesIter<'h, F>.next	method	missing	-	auto-generated
-src/util/iter.rs::method::Searcher<'h>.advance	method	missing	-	auto-generated
-src/util/iter.rs::method::Searcher<'h>.advance_half	method	missing	-	auto-generated
-src/util/iter.rs::method::Searcher<'h>.handle_overlapping_empty_half_match	method	missing	-	auto-generated
-src/util/iter.rs::method::Searcher<'h>.handle_overlapping_empty_match	method	missing	-	auto-generated
-src/util/iter.rs::method::Searcher<'h>.input	method	missing	-	auto-generated
-src/util/iter.rs::method::Searcher<'h>.into_captures_iter	method	missing	-	auto-generated
-src/util/iter.rs::method::Searcher<'h>.into_half_matches_iter	method	missing	-	auto-generated
-src/util/iter.rs::method::Searcher<'h>.into_matches_iter	method	missing	-	auto-generated
-src/util/iter.rs::method::Searcher<'h>.new	method	missing	-	auto-generated
-src/util/iter.rs::method::Searcher<'h>.try_advance	method	missing	-	auto-generated
-src/util/iter.rs::method::Searcher<'h>.try_advance_half	method	missing	-	auto-generated
-src/util/iter.rs::method::TryCapturesIter<'h, F>.fmt	method	missing	-	auto-generated
-src/util/iter.rs::method::TryCapturesIter<'h, F>.infallible	method	missing	-	auto-generated
-src/util/iter.rs::method::TryCapturesIter<'h, F>.next	method	missing	-	auto-generated
-src/util/iter.rs::method::TryHalfMatchesIter<'h, F>.fmt	method	missing	-	auto-generated
-src/util/iter.rs::method::TryHalfMatchesIter<'h, F>.infallible	method	missing	-	auto-generated
-src/util/iter.rs::method::TryHalfMatchesIter<'h, F>.input	method	missing	-	auto-generated
-src/util/iter.rs::method::TryHalfMatchesIter<'h, F>.next	method	missing	-	auto-generated
-src/util/iter.rs::method::TryMatchesIter<'h, F>.fmt	method	missing	-	auto-generated
-src/util/iter.rs::method::TryMatchesIter<'h, F>.infallible	method	missing	-	auto-generated
-src/util/iter.rs::method::TryMatchesIter<'h, F>.input	method	missing	-	auto-generated
-src/util/iter.rs::method::TryMatchesIter<'h, F>.next	method	missing	-	auto-generated
+src/util/iter.rs::method::CapturesIter<'h, F>.next	method	ported	src/regex/automata/search.cr:CapturesIter#next;spec/searcher_spec.cr	covered
+src/util/iter.rs::method::HalfMatchesIter<'h, F>.input	method	ported	src/regex/automata/search.cr:HalfMatchesIter#input;spec/searcher_spec.cr	covered
+src/util/iter.rs::method::HalfMatchesIter<'h, F>.next	method	ported	src/regex/automata/search.cr:HalfMatchesIter#next;spec/searcher_spec.cr	covered
+src/util/iter.rs::method::MatchesIter<'h, F>.input	method	ported	src/regex/automata/search.cr:MatchesIter#input;spec/searcher_spec.cr	covered
+src/util/iter.rs::method::MatchesIter<'h, F>.next	method	ported	src/regex/automata/search.cr:MatchesIter#next;spec/searcher_spec.cr	covered
+src/util/iter.rs::method::Searcher<'h>.advance	method	ported	src/regex/automata/search.cr:Searcher#advance;spec/searcher_spec.cr	covered
+src/util/iter.rs::method::Searcher<'h>.advance_half	method	ported	src/regex/automata/search.cr:Searcher#advance_half;spec/searcher_spec.cr	covered
+src/util/iter.rs::method::Searcher<'h>.handle_overlapping_empty_half_match	method	ported	src/regex/automata/search.cr:Searcher#try_advance_half;spec/searcher_spec.cr	empty-match behavior covered
+src/util/iter.rs::method::Searcher<'h>.handle_overlapping_empty_match	method	ported	src/regex/automata/search.cr:Searcher#try_advance;spec/searcher_spec.cr	empty-match behavior covered
+src/util/iter.rs::method::Searcher<'h>.input	method	ported	src/regex/automata/search.cr:Searcher#input;spec/searcher_spec.cr	covered
+src/util/iter.rs::method::Searcher<'h>.into_captures_iter	method	ported	src/regex/automata/search.cr:Searcher#into_captures_iter;spec/searcher_spec.cr	covered
+src/util/iter.rs::method::Searcher<'h>.into_half_matches_iter	method	ported	src/regex/automata/search.cr:Searcher#into_half_matches_iter;spec/searcher_spec.cr	covered
+src/util/iter.rs::method::Searcher<'h>.into_matches_iter	method	ported	src/regex/automata/search.cr:Searcher#into_matches_iter;spec/searcher_spec.cr	covered
+src/util/iter.rs::method::Searcher<'h>.new	method	ported	src/regex/automata/search.cr:Searcher#initialize;spec/searcher_spec.cr	covered
+src/util/iter.rs::method::Searcher<'h>.try_advance	method	ported	src/regex/automata/search.cr:Searcher#try_advance;spec/searcher_spec.cr	covered
+src/util/iter.rs::method::Searcher<'h>.try_advance_half	method	ported	src/regex/automata/search.cr:Searcher#try_advance_half;spec/searcher_spec.cr	covered
+src/util/iter.rs::method::TryCapturesIter<'h, F>.fmt	method	intentional_divergence	src/regex/automata/search.cr:TryCapturesIter	Rust Debug formatting has no stable Crystal API counterpart.
+src/util/iter.rs::method::TryCapturesIter<'h, F>.infallible	method	ported	src/regex/automata/search.cr:TryCapturesIter#infallible;spec/searcher_spec.cr	covered
+src/util/iter.rs::method::TryCapturesIter<'h, F>.next	method	ported	src/regex/automata/search.cr:TryCapturesIter#next;spec/searcher_spec.cr	covered
+src/util/iter.rs::method::TryHalfMatchesIter<'h, F>.fmt	method	intentional_divergence	src/regex/automata/search.cr:TryHalfMatchesIter	Rust Debug formatting has no stable Crystal API counterpart.
+src/util/iter.rs::method::TryHalfMatchesIter<'h, F>.infallible	method	ported	src/regex/automata/search.cr:TryHalfMatchesIter#infallible;spec/searcher_spec.cr	covered
+src/util/iter.rs::method::TryHalfMatchesIter<'h, F>.input	method	ported	src/regex/automata/search.cr:TryHalfMatchesIter#input;spec/searcher_spec.cr	covered
+src/util/iter.rs::method::TryHalfMatchesIter<'h, F>.next	method	ported	src/regex/automata/search.cr:TryHalfMatchesIter#next;spec/searcher_spec.cr	covered
+src/util/iter.rs::method::TryMatchesIter<'h, F>.fmt	method	intentional_divergence	src/regex/automata/search.cr:TryMatchesIter	Rust Debug formatting has no stable Crystal API counterpart.
+src/util/iter.rs::method::TryMatchesIter<'h, F>.infallible	method	ported	src/regex/automata/search.cr:TryMatchesIter#infallible;spec/searcher_spec.cr	covered
+src/util/iter.rs::method::TryMatchesIter<'h, F>.input	method	ported	src/regex/automata/search.cr:TryMatchesIter#input;spec/searcher_spec.cr	covered
+src/util/iter.rs::method::TryMatchesIter<'h, F>.next	method	ported	src/regex/automata/search.cr:TryMatchesIter#next;spec/searcher_spec.cr	covered
 src/util/lazy.rs::const::LAZY_STATE_BUSY	const	missing	-	auto-generated
 src/util/lazy.rs::const::LAZY_STATE_DONE	const	missing	-	auto-generated
 src/util/lazy.rs::const::LAZY_STATE_INIT	const	missing	-	auto-generated
@@ -1826,20 +1826,20 @@ src/util/search.rs::method::MatchError.new	method	ported	src/regex/automata/erro
 src/util/search.rs::method::MatchError.quit	method	ported	src/regex/automata/errors.cr:MatchError.quit;spec/match_error_spec.cr	Structured quit payload is covered.
 src/util/search.rs::method::MatchError.unsupported_anchored	method	ported	src/regex/automata/errors.cr:MatchError.unsupported_anchored;spec/match_error_spec.cr	All anchored-mode messages and PatternID context are covered.
 src/util/search.rs::method::MatchKind.continue_past_first_match	method	missing	-	auto-generated
-src/util/search.rs::method::PatternSet.capacity	method	missing	-	auto-generated
-src/util/search.rs::method::PatternSet.clear	method	missing	-	auto-generated
-src/util/search.rs::method::PatternSet.contains	method	missing	-	auto-generated
-src/util/search.rs::method::PatternSet.insert	method	missing	-	auto-generated
-src/util/search.rs::method::PatternSet.is_empty	method	missing	-	auto-generated
-src/util/search.rs::method::PatternSet.is_full	method	missing	-	auto-generated
-src/util/search.rs::method::PatternSet.iter	method	missing	-	auto-generated
-src/util/search.rs::method::PatternSet.len	method	missing	-	auto-generated
-src/util/search.rs::method::PatternSet.new	method	missing	-	auto-generated
-src/util/search.rs::method::PatternSet.try_insert	method	missing	-	auto-generated
-src/util/search.rs::method::PatternSetInsertError.fmt	method	missing	-	auto-generated
-src/util/search.rs::method::PatternSetIter<'a>.next	method	missing	-	auto-generated
-src/util/search.rs::method::PatternSetIter<'a>.next_back	method	missing	-	auto-generated
-src/util/search.rs::method::PatternSetIter<'a>.size_hint	method	missing	-	auto-generated
+src/util/search.rs::method::PatternSet.capacity	method	ported	src/regex/automata/search.cr:PatternSet#capacity;spec/pattern_set_spec.cr	covered
+src/util/search.rs::method::PatternSet.clear	method	ported	src/regex/automata/search.cr:PatternSet#clear;spec/pattern_set_spec.cr	covered
+src/util/search.rs::method::PatternSet.contains	method	ported	src/regex/automata/search.cr:PatternSet#contains;spec/pattern_set_spec.cr	covered
+src/util/search.rs::method::PatternSet.insert	method	ported	src/regex/automata/search.cr:PatternSet#insert;spec/pattern_set_spec.cr	covered
+src/util/search.rs::method::PatternSet.is_empty	method	ported	src/regex/automata/search.cr:PatternSet#is_empty;spec/pattern_set_spec.cr	covered
+src/util/search.rs::method::PatternSet.is_full	method	ported	src/regex/automata/search.cr:PatternSet#is_full;spec/pattern_set_spec.cr	covered
+src/util/search.rs::method::PatternSet.iter	method	ported	src/regex/automata/search.cr:PatternSet#iter;spec/pattern_set_spec.cr	covered
+src/util/search.rs::method::PatternSet.len	method	ported	src/regex/automata/search.cr:PatternSet#len;spec/pattern_set_spec.cr	covered
+src/util/search.rs::method::PatternSet.new	method	ported	src/regex/automata/search.cr:PatternSet#initialize;spec/pattern_set_spec.cr	covered
+src/util/search.rs::method::PatternSet.try_insert	method	ported	src/regex/automata/search.cr:PatternSet#try_insert;spec/pattern_set_spec.cr	covered
+src/util/search.rs::method::PatternSetInsertError.fmt	method	ported	src/regex/automata/search.cr:PatternSetInsertError;spec/pattern_set_spec.cr	message covered
+src/util/search.rs::method::PatternSetIter<'a>.next	method	ported	src/regex/automata/search.cr:PatternSetIter#next;spec/pattern_set_spec.cr	covered
+src/util/search.rs::method::PatternSetIter<'a>.next_back	method	ported	src/regex/automata/search.cr:PatternSetIter#next_back;spec/pattern_set_spec.cr	covered
+src/util/search.rs::method::PatternSetIter<'a>.size_hint	method	intentional_divergence	src/regex/automata/search.cr:PatternSetIter	Crystal Iterator has no Rust size_hint contract.
 src/util/search.rs::method::Range<usize>.eq	method	missing	-	auto-generated
 src/util/search.rs::method::Range<usize>.from	method	missing	-	auto-generated
 src/util/search.rs::method::Span.contains	method	ported	src/regex/automata/search.cr:Span#contains;spec/search_primitives_spec.cr	Preserves vendor inclusive-end containment behavior.

@@ -153,4 +153,28 @@ describe Regex::Automata::Searcher do
     it.next.not_nil!.get_match.should eq(Regex::Automata::Match.must(0, 3...4))
     it.next.should be_nil
   end
+
+  it "preserves input when a fallible search returns an error" do
+    input = Regex::Automata::Input.new("abba")
+    searcher = Regex::Automata::Searcher.new(input)
+    error = Regex::Automata::MatchError.gave_up(0)
+
+    searcher.try_advance { |_| error }.should eq(error)
+    searcher.input.start.should eq(0)
+  end
+
+  it "retains its configured input through fallible iterator wrappers" do
+    input = Regex::Automata::Input.new("abba").span(1...4)
+    error = Regex::Automata::MatchError.gave_up(1)
+
+    matches = Regex::Automata::Searcher.new(input)
+      .into_matches_iter { |_| error }
+    matches.input.get_range.should eq(1...4)
+    matches.next.should eq(error)
+
+    half_matches = Regex::Automata::Searcher.new(input)
+      .into_half_matches_iter { |_| error }
+    half_matches.input.get_range.should eq(1...4)
+    half_matches.next.should eq(error)
+  end
 end
