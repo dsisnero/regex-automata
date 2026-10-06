@@ -51,9 +51,9 @@
   - Scope: `src/util/start.rs`.
   - Done: forward/reverse `Input` configuration, look-behind selection, anchor builders, every start classification, custom line terminators, and exact 256-byte wire read/write error behavior are covered. Rust Debug formatting is a documented Crystal-native divergence.
 
-- [ ] Look-around assertions
+- [x] Look-around assertions
   - Scope: `src/util/look.rs`.
-  - Work: prove all line, CRLF, ASCII/Unicode word, half-boundary, set algebra, repr/wire, and invalid Unicode-boundary paths against Rust's tests.
+  - Done: line/CRLF anchors, ASCII and Unicode word/half-boundary behavior, assertion-set algebra and representation, Unicode availability, and assertion-sensitive byte classes are covered. Crystal has one optimized dispatch path in place of Rust's inline duplicates; debug formatting differs only in its wrapper syntax.
 
 - [ ] Utility data structures, syntax, Unicode, and wire helpers
   - Scope: `src/util/{alphabet,determinize,escape,int,interpolate,lazy,memchr,pool,primitives,sparse_set,syntax,utf8,wire}.rs` and `src/util/unicode_data/**`.

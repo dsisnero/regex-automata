@@ -1606,70 +1606,70 @@ src/util/lazy.rs::method::Lazy<T, F>.fmt	method	missing	-	auto-generated
 src/util/lazy.rs::method::Lazy<T, F>.get	method	missing	-	auto-generated
 src/util/lazy.rs::method::Lazy<T, F>.new	method	missing	-	auto-generated
 src/util/lazy.rs::method::Lazy<T, F>.poll	method	missing	-	auto-generated
-src/util/look.rs::method::Look.as_char	method	missing	-	auto-generated
-src/util/look.rs::method::Look.as_repr	method	missing	-	auto-generated
-src/util/look.rs::method::Look.from_repr	method	missing	-	auto-generated
-src/util/look.rs::method::Look.reversed	method	missing	-	auto-generated
-src/util/look.rs::method::LookMatcher.add_to_byteset	method	missing	-	auto-generated
-src/util/look.rs::method::LookMatcher.default	method	missing	-	auto-generated
-src/util/look.rs::method::LookMatcher.get_line_terminator	method	missing	-	auto-generated
-src/util/look.rs::method::LookMatcher.is_end	method	missing	-	auto-generated
-src/util/look.rs::method::LookMatcher.is_end_crlf	method	missing	-	auto-generated
-src/util/look.rs::method::LookMatcher.is_end_lf	method	missing	-	auto-generated
-src/util/look.rs::method::LookMatcher.is_start	method	missing	-	auto-generated
-src/util/look.rs::method::LookMatcher.is_start_crlf	method	missing	-	auto-generated
-src/util/look.rs::method::LookMatcher.is_start_lf	method	missing	-	auto-generated
-src/util/look.rs::method::LookMatcher.is_word_ascii	method	missing	-	auto-generated
-src/util/look.rs::method::LookMatcher.is_word_ascii_negate	method	missing	-	auto-generated
-src/util/look.rs::method::LookMatcher.is_word_end_ascii	method	missing	-	auto-generated
-src/util/look.rs::method::LookMatcher.is_word_end_half_ascii	method	missing	-	auto-generated
-src/util/look.rs::method::LookMatcher.is_word_end_half_unicode	method	missing	-	auto-generated
-src/util/look.rs::method::LookMatcher.is_word_end_unicode	method	missing	-	auto-generated
-src/util/look.rs::method::LookMatcher.is_word_start_ascii	method	missing	-	auto-generated
-src/util/look.rs::method::LookMatcher.is_word_start_half_ascii	method	missing	-	auto-generated
-src/util/look.rs::method::LookMatcher.is_word_start_half_unicode	method	missing	-	auto-generated
-src/util/look.rs::method::LookMatcher.is_word_start_unicode	method	missing	-	auto-generated
-src/util/look.rs::method::LookMatcher.is_word_unicode	method	missing	-	auto-generated
-src/util/look.rs::method::LookMatcher.is_word_unicode_negate	method	missing	-	auto-generated
-src/util/look.rs::method::LookMatcher.matches	method	missing	-	auto-generated
-src/util/look.rs::method::LookMatcher.matches_inline	method	missing	-	auto-generated
-src/util/look.rs::method::LookMatcher.matches_set	method	missing	-	auto-generated
-src/util/look.rs::method::LookMatcher.matches_set_inline	method	missing	-	auto-generated
-src/util/look.rs::method::LookMatcher.new	method	missing	-	auto-generated
-src/util/look.rs::method::LookMatcher.set_line_terminator	method	missing	-	auto-generated
-src/util/look.rs::method::LookSet.available	method	missing	-	auto-generated
-src/util/look.rs::method::LookSet.contains	method	missing	-	auto-generated
-src/util/look.rs::method::LookSet.contains_anchor	method	missing	-	auto-generated
-src/util/look.rs::method::LookSet.contains_anchor_crlf	method	missing	-	auto-generated
-src/util/look.rs::method::LookSet.contains_anchor_haystack	method	missing	-	auto-generated
-src/util/look.rs::method::LookSet.contains_anchor_lf	method	missing	-	auto-generated
-src/util/look.rs::method::LookSet.contains_anchor_line	method	missing	-	auto-generated
-src/util/look.rs::method::LookSet.contains_word	method	missing	-	auto-generated
-src/util/look.rs::method::LookSet.contains_word_ascii	method	missing	-	auto-generated
-src/util/look.rs::method::LookSet.contains_word_unicode	method	missing	-	auto-generated
-src/util/look.rs::method::LookSet.empty	method	missing	-	auto-generated
-src/util/look.rs::method::LookSet.fmt	method	missing	-	auto-generated
-src/util/look.rs::method::LookSet.full	method	missing	-	auto-generated
-src/util/look.rs::method::LookSet.insert	method	missing	-	auto-generated
-src/util/look.rs::method::LookSet.intersect	method	missing	-	auto-generated
-src/util/look.rs::method::LookSet.is_empty	method	missing	-	auto-generated
-src/util/look.rs::method::LookSet.iter	method	missing	-	auto-generated
-src/util/look.rs::method::LookSet.len	method	missing	-	auto-generated
-src/util/look.rs::method::LookSet.read_repr	method	missing	-	auto-generated
-src/util/look.rs::method::LookSet.remove	method	missing	-	auto-generated
-src/util/look.rs::method::LookSet.set_insert	method	missing	-	auto-generated
-src/util/look.rs::method::LookSet.set_intersect	method	missing	-	auto-generated
-src/util/look.rs::method::LookSet.set_remove	method	missing	-	auto-generated
-src/util/look.rs::method::LookSet.set_subtract	method	missing	-	auto-generated
-src/util/look.rs::method::LookSet.set_union	method	missing	-	auto-generated
-src/util/look.rs::method::LookSet.singleton	method	missing	-	auto-generated
-src/util/look.rs::method::LookSet.subtract	method	missing	-	auto-generated
-src/util/look.rs::method::LookSet.union	method	missing	-	auto-generated
-src/util/look.rs::method::LookSet.write_repr	method	missing	-	auto-generated
-src/util/look.rs::method::LookSetIter.next	method	missing	-	auto-generated
-src/util/look.rs::method::UnicodeWordBoundaryError.check	method	missing	-	auto-generated
-src/util/look.rs::method::UnicodeWordBoundaryError.fmt	method	missing	-	auto-generated
-src/util/look.rs::method::UnicodeWordBoundaryError.new	method	missing	-	auto-generated
+src/util/look.rs::method::Look.as_char	method	ported	src/regex/automata/look.cr:Look#as_char;spec/look_spec.cr	Debug glyph mapping is covered.
+src/util/look.rs::method::Look.as_repr	method	ported	src/regex/automata/look.cr:Look#as_repr;spec/look_spec.cr	Stable bit representation is covered.
+src/util/look.rs::method::Look.from_repr	method	ported	src/regex/automata/look.cr:Look.from_repr;spec/look_spec.cr	Wire representation decoding is covered.
+src/util/look.rs::method::Look.reversed	method	ported	src/regex/automata/look.cr:Look#reversed;spec/look_spec.cr	Direction reversal is covered.
+src/util/look.rs::method::LookMatcher.add_to_byteset	method	ported	src/regex/automata/look.cr:LookMatcher#add_to_byteset;spec/look_spec.cr	Line and word-sensitive class boundaries are covered.
+src/util/look.rs::method::LookMatcher.default	method	ported	src/regex/automata/look.cr:LookMatcher#initialize	Default initializer uses LF.
+src/util/look.rs::method::LookMatcher.get_line_terminator	method	ported	src/regex/automata/look.cr:LookMatcher#get_line_terminator;spec/look_spec.cr	Configured terminator is covered.
+src/util/look.rs::method::LookMatcher.is_end	method	ported	src/regex/automata/look.cr:LookMatcher#is_end;spec/look_spec.cr	Haystack-end behavior is covered.
+src/util/look.rs::method::LookMatcher.is_end_crlf	method	ported	src/regex/automata/look.cr:LookMatcher#is_end_crlf;spec/look_spec.cr	CRLF end behavior is covered.
+src/util/look.rs::method::LookMatcher.is_end_lf	method	ported	src/regex/automata/look.cr:LookMatcher#is_end_lf;spec/look_spec.cr	Line-feed end behavior is covered.
+src/util/look.rs::method::LookMatcher.is_start	method	ported	src/regex/automata/look.cr:LookMatcher#is_start;spec/look_spec.cr	Haystack-start behavior is covered.
+src/util/look.rs::method::LookMatcher.is_start_crlf	method	ported	src/regex/automata/look.cr:LookMatcher#is_start_crlf;spec/look_spec.cr	CRLF start behavior is covered.
+src/util/look.rs::method::LookMatcher.is_start_lf	method	ported	src/regex/automata/look.cr:LookMatcher#is_start_lf;spec/look_spec.cr	Line-feed start behavior is covered.
+src/util/look.rs::method::LookMatcher.is_word_ascii	method	ported	src/regex/automata/look.cr:LookMatcher#is_word_ascii;spec/look_spec.cr	ASCII word boundaries are covered.
+src/util/look.rs::method::LookMatcher.is_word_ascii_negate	method	ported	src/regex/automata/look.cr:LookMatcher#is_word_ascii_negate;spec/look_spec.cr	Negated ASCII boundaries are covered.
+src/util/look.rs::method::LookMatcher.is_word_end_ascii	method	ported	src/regex/automata/look.cr:LookMatcher#is_word_end_ascii;spec/look_spec.cr	ASCII end boundaries are covered.
+src/util/look.rs::method::LookMatcher.is_word_end_half_ascii	method	ported	src/regex/automata/look.cr:LookMatcher#is_word_end_half_ascii;spec/look_spec.cr	ASCII half boundaries are covered.
+src/util/look.rs::method::LookMatcher.is_word_end_half_unicode	method	ported	src/regex/automata/look.cr:LookMatcher#is_word_end_half_unicode;spec/look_spec.cr	Unicode half boundaries and invalid UTF-8 are covered.
+src/util/look.rs::method::LookMatcher.is_word_end_unicode	method	ported	src/regex/automata/look.cr:LookMatcher#is_word_end_unicode;spec/look_spec.cr	Unicode end boundaries are covered.
+src/util/look.rs::method::LookMatcher.is_word_start_ascii	method	ported	src/regex/automata/look.cr:LookMatcher#is_word_start_ascii;spec/look_spec.cr	ASCII start boundaries are covered.
+src/util/look.rs::method::LookMatcher.is_word_start_half_ascii	method	ported	src/regex/automata/look.cr:LookMatcher#is_word_start_half_ascii;spec/look_spec.cr	ASCII half boundaries are covered.
+src/util/look.rs::method::LookMatcher.is_word_start_half_unicode	method	ported	src/regex/automata/look.cr:LookMatcher#is_word_start_half_unicode;spec/look_spec.cr	Unicode half boundaries and invalid UTF-8 are covered.
+src/util/look.rs::method::LookMatcher.is_word_start_unicode	method	ported	src/regex/automata/look.cr:LookMatcher#is_word_start_unicode;spec/look_spec.cr	Unicode start boundaries are covered.
+src/util/look.rs::method::LookMatcher.is_word_unicode	method	ported	src/regex/automata/look.cr:LookMatcher#is_word_unicode;spec/look_spec.cr	Unicode word boundaries are covered.
+src/util/look.rs::method::LookMatcher.is_word_unicode_negate	method	ported	src/regex/automata/look.cr:LookMatcher#is_word_unicode_negate;spec/look_spec.cr	Negated Unicode boundaries are covered.
+src/util/look.rs::method::LookMatcher.matches	method	ported	src/regex/automata/look.cr:LookMatcher#matches;spec/look_spec.cr	All assertion dispatch behavior is covered.
+src/util/look.rs::method::LookMatcher.matches_inline	method	ported	src/regex/automata/look.cr:LookMatcher#matches	Crystal has one dispatch path rather than a forced-inline duplicate.
+src/util/look.rs::method::LookMatcher.matches_set	method	ported	src/regex/automata/look.cr:LookMatcher#matches_set;spec/look_spec.cr	Conjunctive assertion matching is covered.
+src/util/look.rs::method::LookMatcher.matches_set_inline	method	ported	src/regex/automata/look.cr:LookMatcher#matches_set	Crystal has one dispatch path rather than a forced-inline duplicate.
+src/util/look.rs::method::LookMatcher.new	method	ported	src/regex/automata/look.cr:LookMatcher#initialize;spec/look_spec.cr	Default and custom terminators are covered.
+src/util/look.rs::method::LookMatcher.set_line_terminator	method	ported	src/regex/automata/look.cr:LookMatcher#set_line_terminator;spec/look_spec.cr	Custom terminator mutation is covered.
+src/util/look.rs::method::LookSet.available	method	ported	src/regex/automata/look.cr:LookSet#available;spec/look_spec.cr	Unicode data availability is covered.
+src/util/look.rs::method::LookSet.contains	method	ported	src/regex/automata/look.cr:LookSet#contains;spec/look_spec.cr	Membership is covered.
+src/util/look.rs::method::LookSet.contains_anchor	method	ported	src/regex/automata/look.cr:LookSet#contains_anchor;spec/look_spec.cr	Anchor predicates are covered.
+src/util/look.rs::method::LookSet.contains_anchor_crlf	method	ported	src/regex/automata/look.cr:LookSet#contains_anchor_crlf;spec/look_spec.cr	CRLF anchor predicate is covered.
+src/util/look.rs::method::LookSet.contains_anchor_haystack	method	ported	src/regex/automata/look.cr:LookSet#contains_anchor_haystack;spec/look_spec.cr	Haystack anchor predicate is covered.
+src/util/look.rs::method::LookSet.contains_anchor_lf	method	ported	src/regex/automata/look.cr:LookSet#contains_anchor_lf;spec/look_spec.cr	LF anchor predicate is covered.
+src/util/look.rs::method::LookSet.contains_anchor_line	method	ported	src/regex/automata/look.cr:LookSet#contains_anchor_line;spec/look_spec.cr	Line anchor predicate is covered.
+src/util/look.rs::method::LookSet.contains_word	method	ported	src/regex/automata/look.cr:LookSet#contains_word;spec/look_spec.cr	Word predicate is covered.
+src/util/look.rs::method::LookSet.contains_word_ascii	method	ported	src/regex/automata/look.cr:LookSet#contains_word_ascii;spec/look_spec.cr	ASCII word predicate is covered.
+src/util/look.rs::method::LookSet.contains_word_unicode	method	ported	src/regex/automata/look.cr:LookSet#contains_word_unicode;spec/look_spec.cr	Unicode word predicate is covered.
+src/util/look.rs::method::LookSet.empty	method	ported	src/regex/automata/look.cr:LookSet.empty;spec/look_spec.cr	Empty set is covered.
+src/util/look.rs::method::LookSet.fmt	method	partial	src/regex/automata/look.cr:LookSet#inspect;spec/look_spec.cr	Crystal renders the same glyph sequence but not Rust Debug wrapper syntax.
+src/util/look.rs::method::LookSet.full	method	ported	src/regex/automata/look.cr:LookSet.full;spec/look_spec.cr	All known assertions iterate in order.
+src/util/look.rs::method::LookSet.insert	method	ported	src/regex/automata/look.cr:LookSet#insert;spec/look_spec.cr	Persistent insertion is covered.
+src/util/look.rs::method::LookSet.intersect	method	ported	src/regex/automata/look.cr:LookSet#intersect;spec/look_spec.cr	Intersection is covered.
+src/util/look.rs::method::LookSet.is_empty	method	ported	src/regex/automata/look.cr:LookSet#is_empty;spec/look_spec.cr	Empty predicate is covered.
+src/util/look.rs::method::LookSet.iter	method	ported	src/regex/automata/look.cr:LookSet#iter;spec/look_spec.cr	Known assertions iterate in representation order.
+src/util/look.rs::method::LookSet.len	method	ported	src/regex/automata/look.cr:LookSet#len	Bit population count is implemented.
+src/util/look.rs::method::LookSet.read_repr	method	ported	src/regex/automata/look.cr:LookSet.read_repr;spec/look_spec.cr	Native-endian repr round trip is covered.
+src/util/look.rs::method::LookSet.remove	method	ported	src/regex/automata/look.cr:LookSet#remove;spec/look_spec.cr	Persistent removal is covered.
+src/util/look.rs::method::LookSet.set_insert	method	ported	src/regex/automata/look.cr:LookSet#set_insert;spec/look_spec.cr	Mutable insertion is covered.
+src/util/look.rs::method::LookSet.set_intersect	method	ported	src/regex/automata/look.cr:LookSet#set_intersect;spec/look_spec.cr	Mutable intersection is covered.
+src/util/look.rs::method::LookSet.set_remove	method	ported	src/regex/automata/look.cr:LookSet#set_remove;spec/look_spec.cr	Mutable removal is covered.
+src/util/look.rs::method::LookSet.set_subtract	method	ported	src/regex/automata/look.cr:LookSet#set_subtract;spec/look_spec.cr	Mutable subtraction is covered.
+src/util/look.rs::method::LookSet.set_union	method	ported	src/regex/automata/look.cr:LookSet#set_union;spec/look_spec.cr	Mutable union is covered.
+src/util/look.rs::method::LookSet.singleton	method	ported	src/regex/automata/look.cr:LookSet.singleton;spec/look_spec.cr	Singleton construction is covered.
+src/util/look.rs::method::LookSet.subtract	method	ported	src/regex/automata/look.cr:LookSet#subtract;spec/look_spec.cr	Subtraction is covered.
+src/util/look.rs::method::LookSet.union	method	ported	src/regex/automata/look.cr:LookSet#union;spec/look_spec.cr	Union is covered.
+src/util/look.rs::method::LookSet.write_repr	method	ported	src/regex/automata/look.cr:LookSet#write_repr;spec/look_spec.cr	Native-endian repr round trip is covered.
+src/util/look.rs::method::LookSetIter.next	method	ported	src/regex/automata/look.cr:LookSetIter#next;spec/look_spec.cr	Iteration is covered.
+src/util/look.rs::method::UnicodeWordBoundaryError.check	method	ported	src/regex/automata/look.cr:UnicodeWordBoundaryError.check;spec/look_spec.cr	Crystal ships Unicode word data.
+src/util/look.rs::method::UnicodeWordBoundaryError.fmt	method	ported	src/regex/automata/look.cr:UnicodeWordBoundaryError#initialize	Error text is preserved.
+src/util/look.rs::method::UnicodeWordBoundaryError.new	method	ported	src/regex/automata/look.cr:UnicodeWordBoundaryError#initialize	Constructor is represented.
 src/util/pool.rs::const::MAX_POOL_STACKS	const	missing	-	auto-generated
 src/util/pool.rs::method::Mutex<T>.lock	method	missing	-	auto-generated
 src/util/pool.rs::method::Mutex<T>.new	method	missing	-	auto-generated

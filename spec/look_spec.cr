@@ -255,6 +255,22 @@ describe Regex::Automata::LookMatcher do
     matcher.matches_set(set, "\0a".to_slice, 1).should be_true
     matcher.matches_set(set, " a".to_slice, 1).should be_false
   end
+
+  it "adds look-sensitive byte boundaries to byte classes" do
+    matcher = Regex::Automata::LookMatcher.new('x'.ord.to_u8)
+
+    line_set = Regex::Automata::ByteClassSet.empty
+    matcher.add_to_byteset(Regex::Automata::Look::StartLF, line_set)
+    line_classes = line_set.byte_classes
+    line_classes.get('w'.ord.to_u8).should_not eq(line_classes.get('x'.ord.to_u8))
+    line_classes.get('x'.ord.to_u8).should_not eq(line_classes.get('y'.ord.to_u8))
+
+    word_set = Regex::Automata::ByteClassSet.empty
+    matcher.add_to_byteset(Regex::Automata::Look::WordAscii, word_set)
+    word_classes = word_set.byte_classes
+    word_classes.get('/'.ord.to_u8).should_not eq(word_classes.get('0'.ord.to_u8))
+    word_classes.get('9'.ord.to_u8).should_not eq(word_classes.get(':'.ord.to_u8))
+  end
 end
 
 describe Regex::Automata::LookSet do

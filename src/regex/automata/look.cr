@@ -480,6 +480,30 @@ module Regex::Automata
       true
     end
 
+    # Splits byte equivalence classes at every byte whose look-around
+    # behavior can differ for `look`.
+    def add_to_byteset(look : Look, set : ByteClassSet) : Nil
+      case look
+      when Look::Start, Look::End
+        # Haystack anchors do not depend on a byte value.
+      when Look::StartLF, Look::EndLF
+        set.set_range(@line_terminator, @line_terminator)
+      when Look::StartCRLF, Look::EndCRLF
+        set.set_range('\r'.ord.to_u8, '\r'.ord.to_u8)
+        set.set_range('\n'.ord.to_u8, '\n'.ord.to_u8)
+      else
+        byte = 0_u16
+        while byte <= 255_u16
+          finish = byte + 1_u16
+          while finish <= 255_u16 && Regex::Automata.is_word_byte(byte.to_u8) == Regex::Automata.is_word_byte(finish.to_u8)
+            finish += 1_u16
+          end
+          set.set_range(byte.to_u8, (finish - 1_u16).to_u8)
+          byte = finish
+        end
+      end
+    end
+
     def is_start(_haystack : Bytes, at : Int32) : Bool
       at == 0
     end
