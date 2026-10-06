@@ -86,6 +86,21 @@ describe "DFA::Dense" do
     merged.get_quit('y'.ord.to_u8).should be_false
   end
 
+  it "honors quit bytes with caller-supplied byte classes" do
+    nfa = Regex::Automata::NFA::NFA.new("abc")
+    config = Regex::Automata::DFA::DFA.config.quit('x'.ord.to_u8, true)
+    dfa = Regex::Automata::DFA::Builder.new(
+      config,
+      nfa,
+      nil,
+      Regex::Automata::ByteClasses.identity
+    ).build
+
+    result = dfa.try_search_fwd(Regex::Automata::Input.new("abx"))
+    result.should be_a(Regex::Automata::MatchError)
+    result.as(Regex::Automata::MatchError).quit?.should be_true
+  end
+
   it "exposes builder and config convenience constructors" do
     dfa = Regex::Automata::DFA::DFA.builder
       .configure(Regex::Automata::DFA::DFA.config.start_kind(Regex::Automata::StartKind::Anchored))

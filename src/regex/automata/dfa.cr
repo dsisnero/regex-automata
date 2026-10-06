@@ -2410,14 +2410,12 @@ module Regex::Automata::DFA
     end
 
     private def is_quit_byte_class?(byte_class : Int32) : Bool
-      # Check if this byte class contains any quit bytes
-      # Since we're using ByteClasses.with_quitset, all quit bytes should be in class 0
-      # But we should check more carefully
       return false if @quitset.empty?
 
-      # For now, assume quit bytes are in class 0
-      # This is true if we're using ByteClasses.with_quitset
-      byte_class == 0
+      256.times do |byte|
+        return true if @byte_classes[byte] == byte_class && @quitset.includes?(byte.to_u8)
+      end
+      false
     end
 
     private def look_from_nfa_kind(kind : NFA::Look::Kind) : LookSet
