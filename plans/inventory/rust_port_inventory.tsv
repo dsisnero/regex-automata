@@ -1506,25 +1506,25 @@ src/util/determinize/state.rs::method::ReprVec<'a>.set_is_half_crlf	method	porte
 src/util/determinize/state.rs::method::ReprVec<'a>.set_is_match	method	ported	src/regex/automata/determinize_state.cr:ReprVec#set_is_match;spec/determinize_state_spec.cr	Match flag is used by tested encoding.
 src/util/determinize/state.rs::method::ReprVec<'a>.set_look_have	method	ported	src/regex/automata/determinize_state.cr:ReprVec#set_look_have;spec/determinize_state_spec.cr	Look-set mutation is covered.
 src/util/determinize/state.rs::method::ReprVec<'a>.set_look_need	method	ported	src/regex/automata/determinize_state.cr:ReprVec#set_look_need;spec/determinize_state_spec.cr	Look-set mutation is covered.
-src/util/determinize/state.rs::method::State.borrow	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::State.dead	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::State.fmt	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::State.is_from_word	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::State.is_half_crlf	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::State.is_match	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::State.iter_match_pattern_ids	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::State.iter_nfa_state_ids	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::State.look_have	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::State.look_need	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::State.match_len	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::State.match_pattern	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::State.match_pattern_ids	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::State.memory_usage	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::State.repr	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::StateBuilderEmpty.capacity	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::StateBuilderEmpty.clear	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::StateBuilderEmpty.into_matches	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::StateBuilderEmpty.new	method	missing	-	auto-generated
+src/util/determinize/state.rs::method::State.borrow	method	intentional_divergence	src/regex/automata/determinize_state.cr:State#to_slice	Crystal has no Rust Borrow trait; byte access is explicit.
+src/util/determinize/state.rs::method::State.dead	method	ported	src/regex/automata/determinize_state.cr:State.dead;spec/determinize_state_spec.cr	Dead state construction is implemented.
+src/util/determinize/state.rs::method::State.fmt	method	ported	src/regex/automata/determinize_state.cr:State#inspect	Equivalent representation inspection is implemented.
+src/util/determinize/state.rs::method::State.is_from_word	method	ported	src/regex/automata/determinize_state.cr:State#is_from_word;spec/determinize_state_spec.cr	Flag behavior is covered.
+src/util/determinize/state.rs::method::State.is_half_crlf	method	ported	src/regex/automata/determinize_state.cr:State#is_half_crlf;spec/determinize_state_spec.cr	Flag behavior is covered.
+src/util/determinize/state.rs::method::State.is_match	method	ported	src/regex/automata/determinize_state.cr:State#is_match;spec/determinize_state_spec.cr	Match behavior is covered.
+src/util/determinize/state.rs::method::State.iter_match_pattern_ids	method	ported	src/regex/automata/determinize_state.cr:State#iter_match_pattern_ids;spec/determinize_state_spec.cr	Pattern encoding round trips are covered.
+src/util/determinize/state.rs::method::State.iter_nfa_state_ids	method	ported	src/regex/automata/determinize_state.cr:State#iter_nfa_state_ids;spec/determinize_state_spec.cr	NFA-state encoding round trips are covered.
+src/util/determinize/state.rs::method::State.look_have	method	ported	src/regex/automata/determinize_state.cr:State#look_have;spec/determinize_state_spec.cr	Look-set behavior is covered.
+src/util/determinize/state.rs::method::State.look_need	method	ported	src/regex/automata/determinize_state.cr:State#look_need;spec/determinize_state_spec.cr	Look-set behavior is covered.
+src/util/determinize/state.rs::method::State.match_len	method	ported	src/regex/automata/determinize_state.cr:State#match_len;spec/determinize_state_spec.cr	Pattern counts are covered.
+src/util/determinize/state.rs::method::State.match_pattern	method	ported	src/regex/automata/determinize_state.cr:State#match_pattern;spec/determinize_state_spec.cr	Pattern access is covered.
+src/util/determinize/state.rs::method::State.match_pattern_ids	method	ported	src/regex/automata/determinize_state.cr:State#match_pattern_ids;spec/determinize_state_spec.cr	Pattern IDs are covered.
+src/util/determinize/state.rs::method::State.memory_usage	method	ported	src/regex/automata/determinize_state.cr:State#memory_usage;spec/determinize_state_spec.cr	Byte representation size is covered.
+src/util/determinize/state.rs::method::State.repr	method	ported	src/regex/automata/determinize_state.cr:State#repr	Private read-only representation view is implemented.
+src/util/determinize/state.rs::method::StateBuilderEmpty.capacity	method	ported	src/regex/automata/determinize_state.cr:StateBuilderEmpty#capacity;spec/determinize_state_spec.cr	Retained scratch capacity is covered.
+src/util/determinize/state.rs::method::StateBuilderEmpty.clear	method	ported	src/regex/automata/determinize_state.cr:StateBuilderEmpty#clear	Builder reuse clears the representation.
+src/util/determinize/state.rs::method::StateBuilderEmpty.into_matches	method	ported	src/regex/automata/determinize_state.cr:StateBuilderEmpty#into_matches;spec/determinize_state_spec.cr	Builder phase transition is covered.
+src/util/determinize/state.rs::method::StateBuilderEmpty.new	method	ported	src/regex/automata/determinize_state.cr:StateBuilderEmpty#initialize;spec/determinize_state_spec.cr	Empty construction is covered.
 src/util/determinize/state.rs::method::StateBuilderMatches.add_match_pattern_id	method	missing	-	auto-generated
 src/util/determinize/state.rs::method::StateBuilderMatches.fmt	method	missing	-	auto-generated
 src/util/determinize/state.rs::method::StateBuilderMatches.into_nfa	method	missing	-	auto-generated
