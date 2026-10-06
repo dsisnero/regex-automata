@@ -1887,33 +1887,33 @@ src/util/start.rs::method::StartByteMap.get	method	ported	src/regex/automata/sta
 src/util/start.rs::method::StartByteMap.new	method	ported	src/regex/automata/start_table.cr:StartByteMap.new;spec/start_config_spec.cr	ASCII and custom terminators are covered.
 src/util/start.rs::method::StartByteMap.write_to	method	ported	src/regex/automata/start_table.cr:StartByteMap#write_to;spec/start_config_spec.cr	Wire output and undersized-buffer error are covered.
 src/util/start.rs::method::StartByteMap.write_to_len	method	ported	src/regex/automata/start_table.cr:StartByteMap#write_to_len;spec/start_config_spec.cr	Fixed 256-byte wire size is covered.
-src/util/syntax.rs::method::Config.apply	method	missing	-	auto-generated
-src/util/syntax.rs::method::Config.apply_ast	method	missing	-	auto-generated
-src/util/syntax.rs::method::Config.apply_hir	method	missing	-	auto-generated
-src/util/syntax.rs::method::Config.case_insensitive	method	missing	-	auto-generated
-src/util/syntax.rs::method::Config.crlf	method	missing	-	auto-generated
-src/util/syntax.rs::method::Config.default	method	missing	-	auto-generated
-src/util/syntax.rs::method::Config.dot_matches_new_line	method	missing	-	auto-generated
-src/util/syntax.rs::method::Config.get_case_insensitive	method	missing	-	auto-generated
-src/util/syntax.rs::method::Config.get_crlf	method	missing	-	auto-generated
-src/util/syntax.rs::method::Config.get_dot_matches_new_line	method	missing	-	auto-generated
-src/util/syntax.rs::method::Config.get_ignore_whitespace	method	missing	-	auto-generated
-src/util/syntax.rs::method::Config.get_line_terminator	method	missing	-	auto-generated
-src/util/syntax.rs::method::Config.get_multi_line	method	missing	-	auto-generated
-src/util/syntax.rs::method::Config.get_nest_limit	method	missing	-	auto-generated
-src/util/syntax.rs::method::Config.get_octal	method	missing	-	auto-generated
-src/util/syntax.rs::method::Config.get_swap_greed	method	missing	-	auto-generated
-src/util/syntax.rs::method::Config.get_unicode	method	missing	-	auto-generated
-src/util/syntax.rs::method::Config.get_utf8	method	missing	-	auto-generated
-src/util/syntax.rs::method::Config.ignore_whitespace	method	missing	-	auto-generated
-src/util/syntax.rs::method::Config.line_terminator	method	missing	-	auto-generated
-src/util/syntax.rs::method::Config.multi_line	method	missing	-	auto-generated
-src/util/syntax.rs::method::Config.nest_limit	method	missing	-	auto-generated
-src/util/syntax.rs::method::Config.new	method	missing	-	auto-generated
-src/util/syntax.rs::method::Config.octal	method	missing	-	auto-generated
-src/util/syntax.rs::method::Config.swap_greed	method	missing	-	auto-generated
-src/util/syntax.rs::method::Config.unicode	method	missing	-	auto-generated
-src/util/syntax.rs::method::Config.utf8	method	missing	-	auto-generated
+src/util/syntax.rs::method::Config.apply	method	ported	src/regex/automata/syntax.cr:Config#apply;spec/syntax_spec.cr	Applies every parser setting through regex-syntax's ParserBuilder.
+src/util/syntax.rs::method::Config.apply_ast	method	intentional_divergence	-	Crystal regex-syntax exposes one parser builder rather than Rust's separate AST parser.
+src/util/syntax.rs::method::Config.apply_hir	method	intentional_divergence	-	Crystal regex-syntax exposes one parser builder rather than Rust's separate HIR translator.
+src/util/syntax.rs::method::Config.case_insensitive	method	ported	src/regex/automata/syntax.cr:Config#case_insensitive;spec/syntax_spec.cr	Immutable builder is covered.
+src/util/syntax.rs::method::Config.crlf	method	ported	src/regex/automata/syntax.cr:Config#crlf;spec/syntax_spec.cr	Immutable builder is covered.
+src/util/syntax.rs::method::Config.default	method	ported	src/regex/automata/syntax.cr:Config.new;spec/syntax_spec.cr	Constructor defaults match vendor.
+src/util/syntax.rs::method::Config.dot_matches_new_line	method	ported	src/regex/automata/syntax.cr:Config#dot_matches_new_line;spec/syntax_spec.cr	Immutable builder is covered.
+src/util/syntax.rs::method::Config.get_case_insensitive	method	ported	src/regex/automata/syntax.cr:Config#get_case_insensitive;spec/syntax_spec.cr	Accessor is covered.
+src/util/syntax.rs::method::Config.get_crlf	method	ported	src/regex/automata/syntax.cr:Config#get_crlf;spec/syntax_spec.cr	Accessor is covered.
+src/util/syntax.rs::method::Config.get_dot_matches_new_line	method	ported	src/regex/automata/syntax.cr:Config#get_dot_matches_new_line;spec/syntax_spec.cr	Accessor is covered.
+src/util/syntax.rs::method::Config.get_ignore_whitespace	method	ported	src/regex/automata/syntax.cr:Config#get_ignore_whitespace;spec/syntax_spec.cr	Accessor is covered.
+src/util/syntax.rs::method::Config.get_line_terminator	method	ported	src/regex/automata/syntax.cr:Config#get_line_terminator;spec/syntax_spec.cr	Accessor is covered.
+src/util/syntax.rs::method::Config.get_multi_line	method	ported	src/regex/automata/syntax.cr:Config#get_multi_line;spec/syntax_spec.cr	Accessor is covered.
+src/util/syntax.rs::method::Config.get_nest_limit	method	ported	src/regex/automata/syntax.cr:Config#get_nest_limit;spec/syntax_spec.cr	Accessor is covered.
+src/util/syntax.rs::method::Config.get_octal	method	ported	src/regex/automata/syntax.cr:Config#get_octal;spec/syntax_spec.cr	Accessor is covered.
+src/util/syntax.rs::method::Config.get_swap_greed	method	ported	src/regex/automata/syntax.cr:Config#get_swap_greed;spec/syntax_spec.cr	Accessor is covered.
+src/util/syntax.rs::method::Config.get_unicode	method	ported	src/regex/automata/syntax.cr:Config#get_unicode;spec/syntax_spec.cr	Accessor is covered.
+src/util/syntax.rs::method::Config.get_utf8	method	ported	src/regex/automata/syntax.cr:Config#get_utf8;spec/syntax_spec.cr	Accessor is covered.
+src/util/syntax.rs::method::Config.ignore_whitespace	method	ported	src/regex/automata/syntax.cr:Config#ignore_whitespace;spec/syntax_spec.cr	Immutable builder is covered.
+src/util/syntax.rs::method::Config.line_terminator	method	ported	src/regex/automata/syntax.cr:Config#line_terminator;spec/syntax_spec.cr	Immutable builder is covered.
+src/util/syntax.rs::method::Config.multi_line	method	ported	src/regex/automata/syntax.cr:Config#multi_line;spec/syntax_spec.cr	Immutable builder is covered.
+src/util/syntax.rs::method::Config.nest_limit	method	ported	src/regex/automata/syntax.cr:Config#nest_limit;spec/syntax_spec.cr	Immutable builder is covered.
+src/util/syntax.rs::method::Config.new	method	ported	src/regex/automata/syntax.cr:Config#initialize;spec/syntax_spec.cr	Constructor defaults are covered.
+src/util/syntax.rs::method::Config.octal	method	ported	src/regex/automata/syntax.cr:Config#octal;spec/syntax_spec.cr	Immutable builder is covered.
+src/util/syntax.rs::method::Config.swap_greed	method	ported	src/regex/automata/syntax.cr:Config#swap_greed;spec/syntax_spec.cr	Immutable builder is covered.
+src/util/syntax.rs::method::Config.unicode	method	ported	src/regex/automata/syntax.cr:Config#unicode;spec/syntax_spec.cr	Immutable builder is covered.
+src/util/syntax.rs::method::Config.utf8	method	ported	src/regex/automata/syntax.cr:Config#utf8;spec/syntax_spec.cr	Immutable builder is covered.
 src/util/unicode_data/perl_word.rs::const::PERL_WORD	const	missing	-	auto-generated
 src/util/utf8.rs::const::WORD	const	missing	-	auto-generated
 src/util/wire.rs::method::BE.write_u128	method	missing	-	auto-generated
