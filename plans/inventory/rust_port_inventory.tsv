@@ -82,32 +82,32 @@ src/dfa/dense.rs::method::Builder.default	method	missing	-	auto-generated
 src/dfa/dense.rs::method::Builder.new	method	missing	-	auto-generated
 src/dfa/dense.rs::method::Builder.syntax	method	missing	-	auto-generated
 src/dfa/dense.rs::method::Builder.thompson	method	missing	-	auto-generated
-src/dfa/dense.rs::method::Config.accelerate	method	missing	-	auto-generated
-src/dfa/dense.rs::method::Config.byte_classes	method	missing	-	auto-generated
-src/dfa/dense.rs::method::Config.determinize_size_limit	method	missing	-	auto-generated
-src/dfa/dense.rs::method::Config.dfa_size_limit	method	missing	-	auto-generated
-src/dfa/dense.rs::method::Config.get_accelerate	method	missing	-	auto-generated
-src/dfa/dense.rs::method::Config.get_byte_classes	method	missing	-	auto-generated
-src/dfa/dense.rs::method::Config.get_determinize_size_limit	method	missing	-	auto-generated
-src/dfa/dense.rs::method::Config.get_dfa_size_limit	method	missing	-	auto-generated
-src/dfa/dense.rs::method::Config.get_match_kind	method	missing	-	auto-generated
-src/dfa/dense.rs::method::Config.get_minimize	method	missing	-	auto-generated
+src/dfa/dense.rs::method::Config.accelerate	method	ported	src/regex/automata/config.cr:Config#accelerate;spec/dfa_dense_spec.cr	Configuration setter and default are covered.
+src/dfa/dense.rs::method::Config.byte_classes	method	ported	src/regex/automata/config.cr:Config#byte_classes;spec/dfa_dense_spec.cr	Configuration setter and default are covered.
+src/dfa/dense.rs::method::Config.determinize_size_limit	method	ported	src/regex/automata/config.cr:Config#determinize_size_limit;spec/dfa_dense_spec.cr	Optional limit configuration is covered.
+src/dfa/dense.rs::method::Config.dfa_size_limit	method	ported	src/regex/automata/config.cr:Config#dfa_size_limit;spec/dfa_dense_spec.cr	Optional limit configuration is covered.
+src/dfa/dense.rs::method::Config.get_accelerate	method	ported	src/regex/automata/config.cr:Config#get_accelerate;spec/dfa_dense_spec.cr	Default and overridden value are covered.
+src/dfa/dense.rs::method::Config.get_byte_classes	method	ported	src/regex/automata/config.cr:Config#get_byte_classes;spec/dfa_dense_spec.cr	Default and overridden value are covered.
+src/dfa/dense.rs::method::Config.get_determinize_size_limit	method	ported	src/regex/automata/config.cr:Config#get_determinize_size_limit;spec/dfa_dense_spec.cr	Default and overridden value are covered.
+src/dfa/dense.rs::method::Config.get_dfa_size_limit	method	ported	src/regex/automata/config.cr:Config#get_dfa_size_limit;spec/dfa_dense_spec.cr	Default and overridden value are covered.
+src/dfa/dense.rs::method::Config.get_match_kind	method	ported	src/regex/automata/config.cr:Config#get_match_kind;spec/dfa_dense_spec.cr	Default and overridden value are covered.
+src/dfa/dense.rs::method::Config.get_minimize	method	ported	src/regex/automata/config.cr:Config#get_minimize;spec/dfa_dense_spec.cr	Default and overridden value are covered.
 src/dfa/dense.rs::method::Config.get_prefilter	method	ported	src/regex/automata/config.cr:Config#get_prefilter;spec/dfa_dense_spec.cr	Configured prefilters are attached and covered.
-src/dfa/dense.rs::method::Config.get_quit	method	missing	-	auto-generated
-src/dfa/dense.rs::method::Config.get_specialize_start_states	method	missing	-	auto-generated
-src/dfa/dense.rs::method::Config.get_starts	method	missing	-	auto-generated
-src/dfa/dense.rs::method::Config.get_starts_for_each_pattern	method	missing	-	auto-generated
-src/dfa/dense.rs::method::Config.get_unicode_word_boundary	method	missing	-	auto-generated
-src/dfa/dense.rs::method::Config.match_kind	method	missing	-	auto-generated
-src/dfa/dense.rs::method::Config.minimize	method	missing	-	auto-generated
-src/dfa/dense.rs::method::Config.new	method	missing	-	auto-generated
+src/dfa/dense.rs::method::Config.get_quit	method	ported	src/regex/automata/config.cr:Config#get_quit;spec/dfa_dense_spec.cr	Quit-byte configuration is covered.
+src/dfa/dense.rs::method::Config.get_specialize_start_states	method	ported	src/regex/automata/config.cr:Config#get_specialize_start_states;spec/dfa_dense_spec.cr	Default and overridden value are covered.
+src/dfa/dense.rs::method::Config.get_starts	method	ported	src/regex/automata/config.cr:Config#get_starts;spec/dfa_dense_spec.cr	Default and overridden value are covered.
+src/dfa/dense.rs::method::Config.get_starts_for_each_pattern	method	ported	src/regex/automata/config.cr:Config#get_starts_for_each_pattern;spec/dfa_dense_spec.cr	Default and overridden value are covered.
+src/dfa/dense.rs::method::Config.get_unicode_word_boundary	method	ported	src/regex/automata/config.cr:Config#get_unicode_word_boundary;spec/dfa_dense_spec.cr	Default and overridden value are covered.
+src/dfa/dense.rs::method::Config.match_kind	method	ported	src/regex/automata/config.cr:Config#match_kind;spec/dfa_dense_spec.cr	Configuration setter and default are covered.
+src/dfa/dense.rs::method::Config.minimize	method	ported	src/regex/automata/config.cr:Config#minimize;spec/dfa_dense_spec.cr	Configuration setter and default are covered.
+src/dfa/dense.rs::method::Config.new	method	ported	src/regex/automata/config.cr:Config.new;spec/dfa_dense_spec.cr	Vendored defaults are covered.
 src/dfa/dense.rs::method::Config.overwrite	method	ported	src/regex/automata/config.cr:Config#overwrite;spec/dfa_dense_spec.cr	Override precedence and mutable quit-set isolation are covered.
 src/dfa/dense.rs::method::Config.prefilter	method	ported	src/regex/automata/config.cr:Config#prefilter;spec/dfa_dense_spec.cr	Prefilter configuration and start-state specialization are covered.
-src/dfa/dense.rs::method::Config.quit	method	missing	-	auto-generated
-src/dfa/dense.rs::method::Config.specialize_start_states	method	missing	-	auto-generated
-src/dfa/dense.rs::method::Config.start_kind	method	missing	-	auto-generated
-src/dfa/dense.rs::method::Config.starts_for_each_pattern	method	missing	-	auto-generated
-src/dfa/dense.rs::method::Config.unicode_word_boundary	method	missing	-	auto-generated
+src/dfa/dense.rs::method::Config.quit	method	ported	src/regex/automata/config.cr:Config#quit;spec/dfa_dense_spec.cr	Quit-byte configuration and copy isolation are covered.
+src/dfa/dense.rs::method::Config.specialize_start_states	method	ported	src/regex/automata/config.cr:Config#specialize_start_states;spec/dfa_dense_spec.cr	Configuration setter and default are covered.
+src/dfa/dense.rs::method::Config.start_kind	method	ported	src/regex/automata/config.cr:Config#start_kind;spec/dfa_dense_spec.cr	Configuration setter and default are covered.
+src/dfa/dense.rs::method::Config.starts_for_each_pattern	method	ported	src/regex/automata/config.cr:Config#starts_for_each_pattern;spec/dfa_dense_spec.cr	Configuration setter and default are covered.
+src/dfa/dense.rs::method::Config.unicode_word_boundary	method	ported	src/regex/automata/config.cr:Config#unicode_word_boundary;spec/dfa_dense_spec.cr	Configuration setter and default are covered.
 src/dfa/dense.rs::method::DFA<&'a [u32]>.from_bytes	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<&'a [u32]>.from_bytes_unchecked	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<&'a [u32]>.write_to	method	missing	-	auto-generated
