@@ -2093,7 +2093,7 @@ module Regex::Automata::DFA
               # appropriate contextual start state for the next position so that
               # look-behind sensitive assertions like word boundaries and line
               # anchors can still begin matching later in the haystack.
-              if unanchored_start_lookup.has_key?(dfa_id)
+              if !nfa.is_always_start_anchored && unanchored_start_lookup.has_key?(dfa_id)
                 next_start_kind = StartTable.from_look_behind(byte)
                 next_start_id = unanchored_start_states[next_start_kind]? || unanchored_start_states[Start::Text]
                 @transition_table.set_transition_by_class(
@@ -2173,7 +2173,9 @@ module Regex::Automata::DFA
       @dfa_state_count = @dfa_state_metas.size
       start_ids = (unanchored_start_states.values + anchored_start_states.values + pattern_start_states.values.flat_map(&.values)).to_set
       @dfa_states = materialize_states_from_metadata(@dfa_state_metas, @transition_table, start_ids)
-      patch_contextual_start_transitions(@transition_table, unanchored_start_states)
+      unless nfa.is_always_start_anchored
+        patch_contextual_start_transitions(@transition_table, unanchored_start_states)
+      end
       @dfa_states = materialize_states_from_metadata(@dfa_state_metas, @transition_table, start_ids)
 
       # Create DFA flags from config

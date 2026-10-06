@@ -153,6 +153,15 @@ describe "DFA::Regex" do
     )
   end
 
+  it "does not restart an always-start-anchored DFA after a failed prefix" do
+    re = Regex::Automata::DFA::Regex.new("^foo")
+
+    re.try_search(Regex::Automata::Input.new("foo")).should eq(
+      Regex::Automata::Match.must(0, 0...3)
+    )
+    re.try_search(Regex::Automata::Input.new("xfoo")).should be_nil
+  end
+
   it "handles empty patterns" do
     re = Regex::Automata::DFA::Regex.new("")
     re.should_not be_nil
