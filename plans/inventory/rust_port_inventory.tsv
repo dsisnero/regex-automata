@@ -1731,21 +1731,21 @@ src/util/prefilter/memmem.rs::method::Memmem.memory_usage	method	missing	-	auto-
 src/util/prefilter/memmem.rs::method::Memmem.name	method	missing	-	auto-generated
 src/util/prefilter/memmem.rs::method::Memmem.new	method	missing	-	auto-generated
 src/util/prefilter/memmem.rs::method::Memmem.prefix	method	missing	-	auto-generated
-src/util/prefilter/mod.rs::method::Arc<P>.find	method	missing	-	auto-generated
-src/util/prefilter/mod.rs::method::Arc<P>.is_fast	method	missing	-	auto-generated
-src/util/prefilter/mod.rs::method::Arc<P>.memory_usage	method	missing	-	auto-generated
-src/util/prefilter/mod.rs::method::Arc<P>.name	method	missing	-	auto-generated
-src/util/prefilter/mod.rs::method::Arc<P>.prefix	method	missing	-	auto-generated
-src/util/prefilter/mod.rs::method::Choice.new	method	missing	-	auto-generated
-src/util/prefilter/mod.rs::method::Prefilter.find	method	missing	-	auto-generated
-src/util/prefilter/mod.rs::method::Prefilter.from_choice	method	missing	-	auto-generated
-src/util/prefilter/mod.rs::method::Prefilter.from_hir_prefix	method	missing	-	auto-generated
-src/util/prefilter/mod.rs::method::Prefilter.from_hirs_prefix	method	missing	-	auto-generated
-src/util/prefilter/mod.rs::method::Prefilter.is_fast	method	missing	-	auto-generated
-src/util/prefilter/mod.rs::method::Prefilter.max_needle_len	method	missing	-	auto-generated
-src/util/prefilter/mod.rs::method::Prefilter.memory_usage	method	missing	-	auto-generated
-src/util/prefilter/mod.rs::method::Prefilter.new	method	missing	-	auto-generated
-src/util/prefilter/mod.rs::method::Prefilter.prefix	method	missing	-	auto-generated
+src/util/prefilter/mod.rs::method::Arc<P>.find	method	intentional_divergence	src/regex/automata/prefilter.cr:Prefilter#find	Crystal GC references replace Rust Arc trait-object forwarding.
+src/util/prefilter/mod.rs::method::Arc<P>.is_fast	method	intentional_divergence	src/regex/automata/prefilter.cr:Prefilter#is_fast	Crystal GC references replace Rust Arc trait-object forwarding.
+src/util/prefilter/mod.rs::method::Arc<P>.memory_usage	method	intentional_divergence	src/regex/automata/prefilter.cr:Prefilter#memory_usage	Crystal GC references replace Rust Arc trait-object forwarding.
+src/util/prefilter/mod.rs::method::Arc<P>.name	method	intentional_divergence	-	Rust trait-object diagnostic name has no corresponding Crystal trait object.
+src/util/prefilter/mod.rs::method::Arc<P>.prefix	method	intentional_divergence	src/regex/automata/prefilter.cr:Prefilter#prefix	Crystal GC references replace Rust Arc trait-object forwarding.
+src/util/prefilter/mod.rs::method::Choice.new	method	intentional_divergence	src/regex/automata/prefilter.cr:Prefilter.new	Crystal selects directly without exposing Rust's internal Choice enum.
+src/util/prefilter/mod.rs::method::Prefilter.find	method	ported	src/regex/automata/prefilter.cr:Prefilter#find;spec/prefilter_spec.cr	Bounded candidate search and match ordering are covered.
+src/util/prefilter/mod.rs::method::Prefilter.from_choice	method	intentional_divergence	src/regex/automata/prefilter.cr:Prefilter.new	Crystal has no internal trait-object choice conversion.
+src/util/prefilter/mod.rs::method::Prefilter.from_hir_prefix	method	ported	src/regex/automata/prefilter.cr:Prefilter.from_hir_prefix;spec/prefilter_spec.cr	Literal prefix extraction is covered.
+src/util/prefilter/mod.rs::method::Prefilter.from_hirs_prefix	method	ported	src/regex/automata/prefilter.cr:Prefilter.from_hirs_prefix;spec/prefilter_spec.cr	Multi-HIR prefix extraction is covered.
+src/util/prefilter/mod.rs::method::Prefilter.is_fast	method	ported	src/regex/automata/prefilter.cr:Prefilter#is_fast;spec/prefilter_spec.cr	Fast heuristic is covered.
+src/util/prefilter/mod.rs::method::Prefilter.max_needle_len	method	ported	src/regex/automata/prefilter.cr:Prefilter#max_needle_len;spec/prefilter_spec.cr	Longest literal length is covered.
+src/util/prefilter/mod.rs::method::Prefilter.memory_usage	method	partial	src/regex/automata/prefilter.cr:Prefilter#memory_usage;spec/prefilter_spec.cr	Tracks owned needle bytes; Crystal object-layout accounting differs.
+src/util/prefilter/mod.rs::method::Prefilter.new	method	ported	src/regex/automata/prefilter.cr:Prefilter.new;spec/prefilter_spec.cr	Needle validation and candidate semantics are covered.
+src/util/prefilter/mod.rs::method::Prefilter.prefix	method	ported	src/regex/automata/prefilter.cr:Prefilter#prefix;spec/prefilter_spec.cr	Anchored prefix behavior is covered.
 src/util/prefilter/teddy.rs::method::Teddy.find	method	missing	-	auto-generated
 src/util/prefilter/teddy.rs::method::Teddy.is_fast	method	missing	-	auto-generated
 src/util/prefilter/teddy.rs::method::Teddy.memory_usage	method	missing	-	auto-generated
