@@ -63,17 +63,17 @@ src/dfa/automaton.rs::method::StartError.quit	method	missing	-	auto-generated
 src/dfa/automaton.rs::method::StartError.unsupported_anchored	method	missing	-	auto-generated
 src/dfa/dense.rs::const::LABEL	const	missing	-	auto-generated
 src/dfa/dense.rs::const::VERSION	const	missing	-	auto-generated
-src/dfa/dense.rs::method::BuildError.determinize_exceeded_size_limit	method	missing	-	auto-generated
-src/dfa/dense.rs::method::BuildError.dfa_exceeded_size_limit	method	missing	-	auto-generated
-src/dfa/dense.rs::method::BuildError.fmt	method	missing	-	auto-generated
-src/dfa/dense.rs::method::BuildError.is_size_limit_exceeded	method	missing	-	auto-generated
-src/dfa/dense.rs::method::BuildError.kind	method	missing	-	auto-generated
-src/dfa/dense.rs::method::BuildError.nfa	method	missing	-	auto-generated
-src/dfa/dense.rs::method::BuildError.source	method	missing	-	auto-generated
-src/dfa/dense.rs::method::BuildError.too_many_match_pattern_ids	method	missing	-	auto-generated
-src/dfa/dense.rs::method::BuildError.too_many_start_states	method	missing	-	auto-generated
-src/dfa/dense.rs::method::BuildError.too_many_states	method	missing	-	auto-generated
-src/dfa/dense.rs::method::BuildError.unsupported_dfa_word_boundary_unicode	method	missing	-	auto-generated
+src/dfa/dense.rs::method::BuildError.determinize_exceeded_size_limit	method	partial	src/regex/automata/errors.cr:BuildError;src/regex/automata/dfa.cr	Crystal emits a generic size-limit BuildError rather than a dense-private constructor.
+src/dfa/dense.rs::method::BuildError.dfa_exceeded_size_limit	method	partial	src/regex/automata/errors.cr:BuildError;src/regex/automata/dfa.cr	Crystal emits a generic size-limit BuildError rather than a dense-private constructor.
+src/dfa/dense.rs::method::BuildError.fmt	method	intentional_divergence	src/regex/automata/errors.cr:BuildError	Crystal Exception messages replace Rust Debug formatting.
+src/dfa/dense.rs::method::BuildError.is_size_limit_exceeded	method	ported	src/regex/automata/errors.cr:BuildError#is_size_limit_exceeded;spec/dfa_dense_spec.cr	Size-limit and unsupported-syntax classification is covered.
+src/dfa/dense.rs::method::BuildError.kind	method	intentional_divergence	src/regex/automata/errors.cr:BuildError	Rust's private error-kind enum is represented by Crystal error fields and messages.
+src/dfa/dense.rs::method::BuildError.nfa	method	partial	src/regex/automata/errors.cr:BuildError	Nested NFA build errors are surfaced as generic BuildError messages.
+src/dfa/dense.rs::method::BuildError.source	method	intentional_divergence	src/regex/automata/errors.cr:BuildError	Crystal exceptions do not expose Rust Error::source chaining.
+src/dfa/dense.rs::method::BuildError.too_many_match_pattern_ids	method	partial	src/regex/automata/errors.cr:BuildError	Hard-limit failures use generic BuildError messages.
+src/dfa/dense.rs::method::BuildError.too_many_start_states	method	partial	src/regex/automata/errors.cr:BuildError	Hard-limit failures use generic BuildError messages.
+src/dfa/dense.rs::method::BuildError.too_many_states	method	partial	src/regex/automata/errors.cr:BuildError	Hard-limit failures use generic BuildError messages.
+src/dfa/dense.rs::method::BuildError.unsupported_dfa_word_boundary_unicode	method	partial	src/regex/automata/errors.cr:BuildError;spec/dfa_dense_spec.cr	Unsupported Unicode-boundary builds are classified, without Rust's dense-private constructor.
 src/dfa/dense.rs::method::Builder.build	method	missing	-	auto-generated
 src/dfa/dense.rs::method::Builder.build_from_nfa	method	missing	-	auto-generated
 src/dfa/dense.rs::method::Builder.build_many	method	missing	-	auto-generated
