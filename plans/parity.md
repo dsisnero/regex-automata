@@ -57,7 +57,7 @@
 
 - [ ] Utility data structures, syntax, Unicode, and wire helpers
   - Scope: `src/util/{alphabet,determinize,escape,int,interpolate,lazy,memchr,pool,primitives,sparse_set,syntax,utf8,wire}.rs` and `src/util/unicode_data/**`.
-  - Work: reconcile byte classes, determinization state encoding, integer/range boundaries, escaping, interpolation, lazy/pool semantics, sparse-set behavior, syntax configuration, Unicode word data, endianness, alignment, labels, and serialization errors. Explicitly separate semantic behavior from Rust-only ownership/thread/layout optimizations.
+  - Work: reconcile byte classes, determinization state encoding, integer/range boundaries, escaping, interpolation, lazy/pool semantics, sparse-set behavior, syntax configuration, Unicode word data, endianness, alignment, labels, and serialization errors. Small-index primitive wire conversion and typed decode errors are now covered; Crystal constructor/trait/indexing differences remain explicitly recorded in the ledger. Explicitly separate semantic behavior from Rust-only ownership/thread/layout optimizations.
 
 - [ ] Prefilter algorithms and search contracts
   - Scope: `src/util/prefilter/{mod,aho_corasick,byteset,memchr,memmem,teddy}.rs`.

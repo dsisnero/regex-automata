@@ -4,6 +4,10 @@ module Regex::Automata
 
     def initialize(@attempted : Int64)
     end
+
+    def to_s(io : IO) : Nil
+      io << "failed to create small index from " << @attempted << ", which exceeds " << SmallIndex::MAX.as_u32
+    end
   end
 
   struct SmallIndex
@@ -59,8 +63,22 @@ module Regex::Automata
       @id
     end
 
+    def as_i32 : Int32
+      @id
+    end
+
     def to_i64 : Int64
       @id.to_i64
+    end
+
+    def as_u64 : UInt64
+      @id.to_u64
+    end
+
+    # Crystal's Array indices are Int32 on supported targets. This is the
+    # corresponding safe index representation for a small index.
+    def as_usize : Int32
+      @id
     end
 
     def as_u32 : UInt32
@@ -79,6 +97,18 @@ module Regex::Automata
   end
 
   # Pattern identifiers
+  struct PatternIDError
+    getter attempted : Int64
+
+    def initialize(error : SmallIndexError)
+      @attempted = error.attempted
+    end
+
+    def to_s(io : IO) : Nil
+      io << "failed to create PatternID from " << @attempted << ", which exceeds " << PatternID::MAX.as_u32
+    end
+  end
+
   struct PatternID
     include Comparable(PatternID)
 
@@ -103,11 +133,11 @@ module Regex::Automata
       PatternID.new_unchecked(value_i64.to_i32)
     end
 
-    def self.from_ne_bytes(bytes : Bytes) : PatternID | SmallIndexError
+    def self.from_ne_bytes(bytes : Bytes) : PatternID | PatternIDError
       result = SmallIndex.from_ne_bytes(bytes)
       return PatternID.new_unchecked(result.to_i32) if result.is_a?(SmallIndex)
 
-      result
+      PatternIDError.new(result)
     end
 
     def self.from_ne_bytes_unchecked(bytes : Bytes) : PatternID
@@ -126,8 +156,20 @@ module Regex::Automata
       @id
     end
 
+    def as_i32 : Int32
+      @id
+    end
+
     def to_i64 : Int64
       @id.to_i64
+    end
+
+    def as_u64 : UInt64
+      @id.to_u64
+    end
+
+    def as_usize : Int32
+      @id
     end
 
     def as_u32 : UInt32
@@ -146,6 +188,18 @@ module Regex::Automata
   end
 
   # State identifiers
+  struct StateIDError
+    getter attempted : Int64
+
+    def initialize(error : SmallIndexError)
+      @attempted = error.attempted
+    end
+
+    def to_s(io : IO) : Nil
+      io << "failed to create StateID from " << @attempted << ", which exceeds " << StateID::MAX.as_u32
+    end
+  end
+
   struct StateID
     include Comparable(StateID)
 
@@ -170,11 +224,11 @@ module Regex::Automata
       StateID.new_unchecked(value_i64.to_i32)
     end
 
-    def self.from_ne_bytes(bytes : Bytes) : StateID | SmallIndexError
+    def self.from_ne_bytes(bytes : Bytes) : StateID | StateIDError
       result = SmallIndex.from_ne_bytes(bytes)
       return StateID.new_unchecked(result.to_i32) if result.is_a?(SmallIndex)
 
-      result
+      StateIDError.new(result)
     end
 
     def self.from_ne_bytes_unchecked(bytes : Bytes) : StateID
@@ -193,8 +247,20 @@ module Regex::Automata
       @id
     end
 
+    def as_i32 : Int32
+      @id
+    end
+
     def to_i64 : Int64
       @id.to_i64
+    end
+
+    def as_u64 : UInt64
+      @id.to_u64
+    end
+
+    def as_usize : Int32
+      @id
     end
 
     def as_u32 : UInt32

@@ -1752,34 +1752,34 @@ src/util/prefilter/teddy.rs::method::Teddy.memory_usage	method	missing	-	auto-ge
 src/util/prefilter/teddy.rs::method::Teddy.name	method	missing	-	auto-generated
 src/util/prefilter/teddy.rs::method::Teddy.new	method	missing	-	auto-generated
 src/util/prefilter/teddy.rs::method::Teddy.prefix	method	missing	-	auto-generated
-src/util/primitives.rs::const::LIMIT	const	missing	-	auto-generated
-src/util/primitives.rs::const::MAX	const	missing	-	auto-generated
-src/util/primitives.rs::const::SIZE	const	missing	-	auto-generated
-src/util/primitives.rs::const::ZERO	const	missing	-	auto-generated
-src/util/primitives.rs::method::NonMaxUsize.fmt	method	missing	-	auto-generated
-src/util/primitives.rs::method::NonMaxUsize.get	method	missing	-	auto-generated
-src/util/primitives.rs::method::NonMaxUsize.new	method	missing	-	auto-generated
-src/util/primitives.rs::method::SmallIndex.arbitrary	method	missing	-	auto-generated
-src/util/primitives.rs::method::SmallIndex.as_i32	method	missing	-	auto-generated
-src/util/primitives.rs::method::SmallIndex.as_u32	method	missing	-	auto-generated
-src/util/primitives.rs::method::SmallIndex.as_u64	method	missing	-	auto-generated
-src/util/primitives.rs::method::SmallIndex.as_usize	method	missing	-	auto-generated
-src/util/primitives.rs::method::SmallIndex.from	method	missing	-	auto-generated
-src/util/primitives.rs::method::SmallIndex.from_ne_bytes	method	missing	-	auto-generated
-src/util/primitives.rs::method::SmallIndex.from_ne_bytes_unchecked	method	missing	-	auto-generated
-src/util/primitives.rs::method::SmallIndex.must	method	missing	-	auto-generated
-src/util/primitives.rs::method::SmallIndex.new	method	missing	-	auto-generated
-src/util/primitives.rs::method::SmallIndex.new_unchecked	method	missing	-	auto-generated
-src/util/primitives.rs::method::SmallIndex.one_more	method	missing	-	auto-generated
-src/util/primitives.rs::method::SmallIndex.to_ne_bytes	method	missing	-	auto-generated
-src/util/primitives.rs::method::SmallIndex.try_from	method	missing	-	auto-generated
-src/util/primitives.rs::method::SmallIndexError.attempted	method	missing	-	auto-generated
-src/util/primitives.rs::method::SmallIndexError.fmt	method	missing	-	auto-generated
-src/util/primitives.rs::method::SmallIndexIter.next	method	missing	-	auto-generated
-src/util/primitives.rs::method::Vec<T>.index	method	missing	-	auto-generated
-src/util/primitives.rs::method::Vec<T>.index_mut	method	missing	-	auto-generated
-src/util/primitives.rs::method::[T].index	method	missing	-	auto-generated
-src/util/primitives.rs::method::[T].index_mut	method	missing	-	auto-generated
+src/util/primitives.rs::const::LIMIT	const	ported	src/regex/automata/types.cr:SmallIndex::LIMIT;spec/primitives_spec.cr	The shared limit is exposed and covered with the identifier constants.
+src/util/primitives.rs::const::MAX	const	ported	src/regex/automata/types.cr:SmallIndex::MAX;spec/primitives_spec.cr	The maximum representable small index is preserved.
+src/util/primitives.rs::const::SIZE	const	ported	src/regex/automata/types.cr:SmallIndex::SIZE;spec/primitives_spec.cr	The four-byte wire representation is covered.
+src/util/primitives.rs::const::ZERO	const	ported	src/regex/automata/types.cr:SmallIndex::ZERO;spec/primitives_spec.cr	The zero identifier is exposed by all identifier wrappers.
+src/util/primitives.rs::method::NonMaxUsize.fmt	method	intentional_divergence	src/regex/automata/types.cr:NonMaxUsize#to_s	Crystal does not expose Rust Debug formatting; observable value semantics are preserved.
+src/util/primitives.rs::method::NonMaxUsize.get	method	ported	src/regex/automata/types.cr:NonMaxUsize#get;spec/primitives_spec.cr	Accessor is covered.
+src/util/primitives.rs::method::NonMaxUsize.new	method	ported	src/regex/automata/types.cr:NonMaxUsize.new;spec/primitives_spec.cr	Returns nil for the sentinel maximum; negative Crystal signed values are additionally rejected.
+src/util/primitives.rs::method::SmallIndex.arbitrary	method	skipped	-	Rust quickcheck-only test generator has no runtime API counterpart.
+src/util/primitives.rs::method::SmallIndex.as_i32	method	ported	src/regex/automata/types.cr:SmallIndex#as_i32;spec/primitives_spec.cr	Accessor is covered.
+src/util/primitives.rs::method::SmallIndex.as_u32	method	ported	src/regex/automata/types.cr:SmallIndex#as_u32;spec/primitives_spec.cr	Accessor is covered.
+src/util/primitives.rs::method::SmallIndex.as_u64	method	ported	src/regex/automata/types.cr:SmallIndex#as_u64;spec/primitives_spec.cr	Accessor is covered.
+src/util/primitives.rs::method::SmallIndex.as_usize	method	ported	src/regex/automata/types.cr:SmallIndex#as_usize;spec/primitives_spec.cr	Uses Crystal's supported Int32 array-index representation.
+src/util/primitives.rs::method::SmallIndex.from	method	intentional_divergence	src/regex/automata/types.cr:SmallIndex#initialize	Crystal has constructors rather than Rust From traits.
+src/util/primitives.rs::method::SmallIndex.from_ne_bytes	method	ported	src/regex/automata/types.cr:SmallIndex.from_ne_bytes;spec/primitives_spec.cr	Native-endian checked decoding is covered.
+src/util/primitives.rs::method::SmallIndex.from_ne_bytes_unchecked	method	ported	src/regex/automata/types.cr:SmallIndex.from_ne_bytes_unchecked;spec/primitives_spec.cr	Unchecked native-endian decoding is implemented.
+src/util/primitives.rs::method::SmallIndex.must	method	ported	src/regex/automata/types.cr:SmallIndex.must;spec/primitives_spec.cr	Checked panic-style constructor is implemented.
+src/util/primitives.rs::method::SmallIndex.new	method	partial	src/regex/automata/types.cr:SmallIndex#initialize;SmallIndex.must	Crystal constructors cannot return a Rust-style Result; must provides the checked equivalent while initialize remains compatibility-oriented.
+src/util/primitives.rs::method::SmallIndex.new_unchecked	method	ported	src/regex/automata/types.cr:SmallIndex.new_unchecked	Unchecked constructor is implemented.
+src/util/primitives.rs::method::SmallIndex.one_more	method	ported	src/regex/automata/types.cr:SmallIndex#one_more;spec/primitives_spec.cr	Accessor is covered.
+src/util/primitives.rs::method::SmallIndex.to_ne_bytes	method	ported	src/regex/automata/types.cr:SmallIndex#to_ne_bytes;spec/primitives_spec.cr	Native-endian encoding is covered.
+src/util/primitives.rs::method::SmallIndex.try_from	method	partial	src/regex/automata/types.cr:SmallIndex.must	Checked conversion is exposed through must rather than Rust TryFrom traits.
+src/util/primitives.rs::method::SmallIndexError.attempted	method	ported	src/regex/automata/types.cr:SmallIndexError#attempted;spec/primitives_spec.cr	Accessor is covered.
+src/util/primitives.rs::method::SmallIndexError.fmt	method	ported	src/regex/automata/types.cr:SmallIndexError#to_s;spec/primitives_spec.cr	Error display text is implemented.
+src/util/primitives.rs::method::SmallIndexIter.next	method	intentional_divergence	-	Internal Rust iterator is not exposed by the Crystal port.
+src/util/primitives.rs::method::Vec<T>.index	method	intentional_divergence	-	Crystal Array indexing does not support custom identifier index types.
+src/util/primitives.rs::method::Vec<T>.index_mut	method	intentional_divergence	-	Crystal Array indexing does not support custom identifier index types.
+src/util/primitives.rs::method::[T].index	method	intentional_divergence	-	Crystal Slice indexing does not support custom identifier index types.
+src/util/primitives.rs::method::[T].index_mut	method	intentional_divergence	-	Crystal Slice indexing does not support custom identifier index types.
 src/util/search.rs::method::Anchored.is_anchored	method	ported	src/regex/automata/search.cr:Anchored#is_anchored;spec/search_primitives_spec.cr	Anchored predicate is covered.
 src/util/search.rs::method::Anchored.pattern	method	intentional_divergence	src/regex/automata/search.cr:Input#pattern;spec/search_input_spec.cr	Crystal enums cannot carry the Rust PatternID payload; Input stores it separately and preserves it through clone.
 src/util/search.rs::method::Bad.as_ref	method	missing	-	auto-generated
