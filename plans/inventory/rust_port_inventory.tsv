@@ -113,34 +113,34 @@ src/dfa/dense.rs::method::DFA<&'a [u32]>.from_bytes_unchecked	method	missing	-	a
 src/dfa/dense.rs::method::DFA<&'a [u32]>.write_to	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<&[u32]>.builder	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<&[u32]>.config	method	missing	-	auto-generated
-src/dfa/dense.rs::method::DFA<T>.accelerator	method	missing	-	auto-generated
+src/dfa/dense.rs::method::DFA<T>.accelerator	method	ported	src/regex/automata/dfa.cr:DFA#accelerator;spec/dfa_api_spec.cr	Crystal exposes accelerator bytes for a state.
 src/dfa/dense.rs::method::DFA<T>.accelerator_index	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<T>.accels	method	missing	-	auto-generated
-src/dfa/dense.rs::method::DFA<T>.alphabet_len	method	missing	-	auto-generated
-src/dfa/dense.rs::method::DFA<T>.as_ref	method	missing	-	auto-generated
-src/dfa/dense.rs::method::DFA<T>.byte_classes	method	missing	-	auto-generated
-src/dfa/dense.rs::method::DFA<T>.flags	method	missing	-	auto-generated
+src/dfa/dense.rs::method::DFA<T>.alphabet_len	method	ported	src/regex/automata/dfa.cr:DFA#alphabet_len;spec/dfa_dense_spec.cr	Crystal reports the transition-table alphabet length.
+src/dfa/dense.rs::method::DFA<T>.as_ref	method	intentional_divergence	src/regex/automata/dfa.cr:DFA#as_ref;spec/dfa_dense_spec.cr	Crystal objects are GC-managed; borrowed DFA view is the same object.
+src/dfa/dense.rs::method::DFA<T>.byte_classes	method	ported	src/regex/automata/dfa.cr:DFA#byte_classifier;spec/dfa_dense_spec.cr	Crystal exposes the byte-class map as byte_classifier.
+src/dfa/dense.rs::method::DFA<T>.flags	method	ported	src/regex/automata/dfa.cr:DFA#flags	Crystal exposes DFAFlags as a getter.
 src/dfa/dense.rs::method::DFA<T>.fmt	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<T>.get_prefilter	method	ported	src/regex/automata/dfa.cr:DFA#get_prefilter;spec/dfa_dense_spec.cr	Accessor behavior is covered.
-src/dfa/dense.rs::method::DFA<T>.has_empty	method	missing	-	auto-generated
-src/dfa/dense.rs::method::DFA<T>.is_accel_state	method	missing	-	auto-generated
-src/dfa/dense.rs::method::DFA<T>.is_always_start_anchored	method	missing	-	auto-generated
-src/dfa/dense.rs::method::DFA<T>.is_dead_state	method	missing	-	auto-generated
-src/dfa/dense.rs::method::DFA<T>.is_match_state	method	missing	-	auto-generated
-src/dfa/dense.rs::method::DFA<T>.is_quit_state	method	missing	-	auto-generated
-src/dfa/dense.rs::method::DFA<T>.is_special_state	method	missing	-	auto-generated
-src/dfa/dense.rs::method::DFA<T>.is_start_state	method	missing	-	auto-generated
-src/dfa/dense.rs::method::DFA<T>.is_utf8	method	missing	-	auto-generated
-src/dfa/dense.rs::method::DFA<T>.match_len	method	missing	-	auto-generated
-src/dfa/dense.rs::method::DFA<T>.match_pattern	method	missing	-	auto-generated
+src/dfa/dense.rs::method::DFA<T>.has_empty	method	ported	src/regex/automata/dfa.cr:DFA#has_empty	Crystal exposes the empty-match flag.
+src/dfa/dense.rs::method::DFA<T>.is_accel_state	method	ported	src/regex/automata/dfa.cr:DFA#is_accel_state?;spec/dfa_api_spec.cr	Crystal predicate uses ? suffix.
+src/dfa/dense.rs::method::DFA<T>.is_always_start_anchored	method	ported	src/regex/automata/dfa.cr:DFA#is_always_start_anchored?	Crystal predicate uses ? suffix.
+src/dfa/dense.rs::method::DFA<T>.is_dead_state	method	ported	src/regex/automata/dfa.cr:DFA#is_dead_state?;spec/dfa_api_spec.cr	Crystal predicate uses ? suffix.
+src/dfa/dense.rs::method::DFA<T>.is_match_state	method	ported	src/regex/automata/dfa.cr:DFA#is_match_state?;spec/dfa_api_spec.cr	Crystal predicate uses ? suffix.
+src/dfa/dense.rs::method::DFA<T>.is_quit_state	method	ported	src/regex/automata/dfa.cr:DFA#is_quit_state?;spec/dfa_api_spec.cr	Crystal predicate uses ? suffix.
+src/dfa/dense.rs::method::DFA<T>.is_special_state	method	ported	src/regex/automata/dfa.cr:DFA#is_special_state?;spec/dfa_api_spec.cr	Crystal predicate uses ? suffix.
+src/dfa/dense.rs::method::DFA<T>.is_start_state	method	ported	src/regex/automata/dfa.cr:DFA#is_start_state?	Crystal predicate uses ? suffix.
+src/dfa/dense.rs::method::DFA<T>.is_utf8	method	ported	src/regex/automata/dfa.cr:DFA#is_utf8?	Crystal predicate uses ? suffix.
+src/dfa/dense.rs::method::DFA<T>.match_len	method	ported	src/regex/automata/dfa.cr:DFA#match_len	Crystal reports matches held by a state.
+src/dfa/dense.rs::method::DFA<T>.match_pattern	method	ported	src/regex/automata/dfa.cr:DFA#match_pattern	Crystal returns the indexed matching pattern.
 src/dfa/dense.rs::method::DFA<T>.match_pattern_len	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<T>.match_state_index	method	missing	-	auto-generated
-src/dfa/dense.rs::method::DFA<T>.memory_usage	method	missing	-	auto-generated
-src/dfa/dense.rs::method::DFA<T>.next_eoi_state	method	missing	-	auto-generated
-src/dfa/dense.rs::method::DFA<T>.next_state	method	missing	-	auto-generated
-src/dfa/dense.rs::method::DFA<T>.next_state_unchecked	method	missing	-	auto-generated
+src/dfa/dense.rs::method::DFA<T>.memory_usage	method	partial	src/regex/automata/dfa.cr:DFA#memory_usage;spec/dfa_dense_spec.cr	Reports serialized representation bytes, not Rust allocation-layout accounting.
+src/dfa/dense.rs::method::DFA<T>.next_eoi_state	method	ported	src/regex/automata/dfa.cr:DFA#next_eoi_state;spec/dfa_api_spec.cr	Crystal computes the EOI transition.
+src/dfa/dense.rs::method::DFA<T>.next_state	method	ported	src/regex/automata/dfa.cr:DFA#next_state;spec/dfa_api_spec.cr	Crystal computes a byte transition.
+src/dfa/dense.rs::method::DFA<T>.next_state_unchecked	method	partial	src/regex/automata/dfa.cr:DFA#next_state_unchecked	Same operation is exposed, but Crystal cannot express Rust unchecked-memory safety contract.
 src/dfa/dense.rs::method::DFA<T>.pattern_id_slice	method	missing	-	auto-generated
-src/dfa/dense.rs::method::DFA<T>.pattern_len	method	missing	-	auto-generated
+src/dfa/dense.rs::method::DFA<T>.pattern_len	method	ported	src/regex/automata/dfa.cr:DFA#pattern_len;spec/dfa_dense_spec.cr	Crystal reports pattern count.
 src/dfa/dense.rs::method::DFA<T>.pattern_map	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<T>.quit_id	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<T>.quitset	method	missing	-	auto-generated
@@ -149,23 +149,23 @@ src/dfa/dense.rs::method::DFA<T>.special	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<T>.special_mut	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<T>.start_kind	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<T>.start_map	method	missing	-	auto-generated
-src/dfa/dense.rs::method::DFA<T>.start_state	method	missing	-	auto-generated
+src/dfa/dense.rs::method::DFA<T>.start_state	method	ported	src/regex/automata/dfa.cr:DFA#start_state;spec/dfa_api_spec.cr	Crystal accepts StartConfig and returns StateID or StartError.
 src/dfa/dense.rs::method::DFA<T>.starts	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<T>.starts_for_each_pattern	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<T>.state_len	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<T>.states	method	missing	-	auto-generated
-src/dfa/dense.rs::method::DFA<T>.stride	method	missing	-	auto-generated
-src/dfa/dense.rs::method::DFA<T>.stride2	method	missing	-	auto-generated
+src/dfa/dense.rs::method::DFA<T>.stride	method	ported	src/regex/automata/dfa.cr:DFA#stride;spec/dfa_dense_spec.cr	Crystal reports transition-table stride.
+src/dfa/dense.rs::method::DFA<T>.stride2	method	ported	src/regex/automata/dfa.cr:DFA#stride2;spec/dfa_dense_spec.cr	Crystal reports log2 transition-table stride.
 src/dfa/dense.rs::method::DFA<T>.to_bytes	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<T>.to_bytes_big_endian	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<T>.to_bytes_little_endian	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<T>.to_bytes_native_endian	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<T>.to_index	method	missing	-	auto-generated
-src/dfa/dense.rs::method::DFA<T>.to_owned	method	missing	-	auto-generated
+src/dfa/dense.rs::method::DFA<T>.to_owned	method	intentional_divergence	src/regex/automata/dfa.cr:DFA#to_owned;spec/dfa_dense_spec.cr	Crystal objects are GC-managed; owned DFA view is the same object.
 src/dfa/dense.rs::method::DFA<T>.to_sparse	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<T>.to_state_id	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<T>.trans	method	missing	-	auto-generated
-src/dfa/dense.rs::method::DFA<T>.universal_start_state	method	missing	-	auto-generated
+src/dfa/dense.rs::method::DFA<T>.universal_start_state	method	ported	src/regex/automata/dfa.cr:DFA#universal_start_state;spec/dfa_api_spec.cr	Crystal returns the universal start state when present.
 src/dfa/dense.rs::method::DFA<T>.write_to_big_endian	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<T>.write_to_len	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<T>.write_to_little_endian	method	missing	-	auto-generated
