@@ -77,7 +77,7 @@ src/dfa/dense.rs::method::BuildError.unsupported_dfa_word_boundary_unicode	metho
 src/dfa/dense.rs::method::Builder.build	method	missing	-	auto-generated
 src/dfa/dense.rs::method::Builder.build_from_nfa	method	missing	-	auto-generated
 src/dfa/dense.rs::method::Builder.build_many	method	missing	-	auto-generated
-src/dfa/dense.rs::method::Builder.configure	method	missing	-	auto-generated
+src/dfa/dense.rs::method::Builder.configure	method	ported	src/regex/automata/dfa.cr:Builder#configure;spec/dfa_dense_spec.cr	Successive configuration calls merge with vendored precedence.
 src/dfa/dense.rs::method::Builder.default	method	missing	-	auto-generated
 src/dfa/dense.rs::method::Builder.new	method	missing	-	auto-generated
 src/dfa/dense.rs::method::Builder.syntax	method	missing	-	auto-generated
