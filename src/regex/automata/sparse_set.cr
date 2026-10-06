@@ -11,13 +11,25 @@ module Regex::Automata
     end
 
     def resize(capacity : Int32) : Nil
-      if capacity < @sparse.size
-        @dense.reject! { |sid| sid.to_i >= capacity }
-      end
+      raise ArgumentError.new("sparse set capacity cannot be negative") if capacity < 0
+
+      @dense.clear
       @sparse = Array(Int32?).new(capacity, nil)
-      @dense.each_with_index do |sid, index|
-        @sparse[sid.to_i] = index.to_i32
-      end
+    end
+
+    def capacity : Int32
+      @sparse.size.to_i32
+    end
+
+    def len : Int32
+      @dense.size.to_i32
+    end
+
+    def contains(id : StateID) : Bool
+      index = id.to_i
+      return false if index < 0 || index >= @sparse.size
+
+      @sparse[index]?.try { |dense_index| @dense[dense_index]? == id } || false
     end
 
     def clear : Nil
@@ -28,7 +40,8 @@ module Regex::Automata
     def insert(id : StateID) : Bool
       index = id.to_i
       return false if index < 0 || index >= @sparse.size
-      return false if @sparse[index]?
+      return false if contains(id)
+      raise IndexError.new("sparse set capacity exceeded") if @dense.size >= @sparse.size
 
       @sparse[index] = @dense.size.to_i32
       @dense << id
