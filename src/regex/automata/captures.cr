@@ -268,6 +268,21 @@ module Regex::Automata
       index ? get_group(index) : nil
     end
 
+    # Extract the full match and the first `group_count` participating capture
+    # groups from a String haystack. Rust expresses the group count in the
+    # return type; Crystal supplies it at runtime.
+    def extract(haystack : String, group_count : Int32 = group_len - 1) : Tuple(String, Array(String))
+      whole, groups = extract_spans(group_count)
+      full = haystack.byte_slice(whole.start, whole.len).not_nil!
+      {full, groups.map { |span| haystack.byte_slice(span.start, span.len).not_nil! }}
+    end
+
+    # Bytes variant of #extract.
+    def extract_bytes(haystack : Bytes, group_count : Int32 = group_len - 1) : Tuple(Bytes, Array(Bytes))
+      whole, groups = extract_spans(group_count)
+      {haystack[whole.start, whole.len], groups.map { |span| haystack[span.start, span.len] }}
+    end
+
     def iter : CapturesPatternIter
       CapturesPatternIter.new(self)
     end
@@ -338,6 +353,16 @@ module Regex::Automata
 
     def memory_usage : Int32
       @group_info.memory_usage + (@slots.size * sizeof(Int32)).to_i32
+    end
+
+    private def extract_spans(group_count : Int32) : Tuple(Span, Array(Span))
+      raise ArgumentError.new("capture group count must not be negative") if group_count < 0
+
+      matched = iter.to_a.compact
+      whole = matched.shift? || raise ArgumentError.new("a match is required for capture extraction")
+      raise ArgumentError.new("too few matching groups for capture extraction") if matched.size < group_count
+
+      {whole, matched.first(group_count)}
     end
   end
 

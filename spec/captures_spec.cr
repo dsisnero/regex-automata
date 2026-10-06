@@ -148,6 +148,25 @@ describe Regex::Automata::Captures do
     interpolated = caps.interpolate_bytes(haystack.to_slice, "day=$day".to_slice)
     String.new(interpolated).should eq("day=14")
   end
+
+  it "extracts the full match and requested participating groups" do
+    info = Regex::Automata::GroupInfo.new([[nil, "year", "month"] of String?])
+    caps = Regex::Automata::Captures.all(info)
+    caps.set_pattern(Regex::Automata::PatternID.new(0))
+    slots = caps.slots_mut
+    slots[0] = 3; slots[1] = 10
+    slots[2] = 3; slots[3] = 7
+    slots[4] = 8; slots[5] = 10
+
+    caps.extract("On 2010-03.", 2).should eq({"2010-03", ["2010", "03"]})
+    extracted_bytes = caps.extract_bytes("On 2010-03.".to_slice, 1)
+    String.new(extracted_bytes[0]).should eq("2010-03")
+    extracted_bytes[1].map { |bytes| String.new(bytes) }.should eq(["2010"])
+
+    expect_raises(ArgumentError, /too few matching groups/) do
+      caps.extract("On 2010-03.", 3)
+    end
+  end
 end
 
 describe Regex::Automata::HirCompiler do

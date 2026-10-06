@@ -1423,8 +1423,8 @@ src/util/alphabet.rs::method::Unit.u8	method	missing	-	auto-generated
 src/util/captures.rs::method::Captures.all	method	missing	-	auto-generated
 src/util/captures.rs::method::Captures.clear	method	missing	-	auto-generated
 src/util/captures.rs::method::Captures.empty	method	missing	-	auto-generated
-src/util/captures.rs::method::Captures.extract	method	missing	-	auto-generated
-src/util/captures.rs::method::Captures.extract_bytes	method	missing	-	auto-generated
+src/util/captures.rs::method::Captures.extract	method	partial	src/regex/automata/captures.cr:Captures#extract;spec/captures_spec.cr	Preserves extraction and failure behavior; Crystal takes runtime group_count instead of Rust's const-generic array length.
+src/util/captures.rs::method::Captures.extract_bytes	method	partial	src/regex/automata/captures.cr:Captures#extract_bytes;spec/captures_spec.cr	Preserves byte extraction and failure behavior; Crystal takes runtime group_count instead of Rust's const-generic array length.
 src/util/captures.rs::method::Captures.fmt	method	missing	-	auto-generated
 src/util/captures.rs::method::Captures.get_group	method	missing	-	auto-generated
 src/util/captures.rs::method::Captures.get_group_by_name	method	missing	-	auto-generated
