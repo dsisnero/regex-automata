@@ -1,6 +1,17 @@
 require "./spec_helper"
 
 describe Regex::Automata::MatchError do
+  it "retains a directly constructed structured error" do
+    error = Regex::Automata::MatchError.new(
+      Regex::Automata::MatchError::Kind::Quit,
+      byte: 'x'.ord.to_u8,
+      offset: 7
+    )
+
+    error.should eq(Regex::Automata::MatchError.quit('x'.ord.to_u8, 7))
+    error.kind.should eq(Regex::Automata::MatchError::Kind::Quit)
+  end
+
   it "preserves quit constructor state and kind" do
     error = Regex::Automata::MatchError.quit('x'.ord.to_u8, 7)
 

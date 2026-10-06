@@ -1818,13 +1818,13 @@ src/util/search.rs::method::Match.pattern	method	ported	src/regex/automata/searc
 src/util/search.rs::method::Match.range	method	ported	src/regex/automata/search.cr:Match#range;spec/search_primitives_spec.cr	Range accessor is covered separately from Span.
 src/util/search.rs::method::Match.span	method	ported	src/regex/automata/search.cr:Match#span;spec/search_primitives_spec.cr	Returns a Span rather than conflating it with a Range.
 src/util/search.rs::method::Match.start	method	ported	src/regex/automata/search.cr:Match#start;spec/search_primitives_spec.cr	Start getter is covered.
-src/util/search.rs::method::MatchError.fmt	method	missing	-	auto-generated
-src/util/search.rs::method::MatchError.gave_up	method	missing	-	auto-generated
-src/util/search.rs::method::MatchError.haystack_too_long	method	missing	-	auto-generated
-src/util/search.rs::method::MatchError.kind	method	missing	-	auto-generated
-src/util/search.rs::method::MatchError.new	method	missing	-	auto-generated
-src/util/search.rs::method::MatchError.quit	method	missing	-	auto-generated
-src/util/search.rs::method::MatchError.unsupported_anchored	method	missing	-	auto-generated
+src/util/search.rs::method::MatchError.fmt	method	intentional_divergence	src/regex/automata/errors.cr:MatchError	Rust Debug formatting has no stable Crystal API counterpart.
+src/util/search.rs::method::MatchError.gave_up	method	ported	src/regex/automata/errors.cr:MatchError.gave_up;spec/match_error_spec.cr	Structured gave-up payload is covered.
+src/util/search.rs::method::MatchError.haystack_too_long	method	ported	src/regex/automata/errors.cr:MatchError.haystack_too_long;spec/match_error_spec.cr	Structured haystack-length payload is covered.
+src/util/search.rs::method::MatchError.kind	method	ported	src/regex/automata/errors.cr:MatchError#kind;spec/match_error_spec.cr	Kind getter is covered.
+src/util/search.rs::method::MatchError.new	method	ported	src/regex/automata/errors.cr:MatchError#initialize;spec/match_error_spec.cr	Direct structured construction and equality are covered.
+src/util/search.rs::method::MatchError.quit	method	ported	src/regex/automata/errors.cr:MatchError.quit;spec/match_error_spec.cr	Structured quit payload is covered.
+src/util/search.rs::method::MatchError.unsupported_anchored	method	ported	src/regex/automata/errors.cr:MatchError.unsupported_anchored;spec/match_error_spec.cr	All anchored-mode messages and PatternID context are covered.
 src/util/search.rs::method::MatchKind.continue_past_first_match	method	missing	-	auto-generated
 src/util/search.rs::method::PatternSet.capacity	method	missing	-	auto-generated
 src/util/search.rs::method::PatternSet.clear	method	missing	-	auto-generated

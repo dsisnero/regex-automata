@@ -35,9 +35,9 @@
   - Scope: `src/util/search.rs::{Input,Anchored}`.
   - Done: ranges, done sentinel, UTF-8 boundaries, anchor mode, earliest mode, String/Bytes construction, and clone behavior are covered. Crystal represents Rust's `Anchored::Pattern(PatternID)` as `Anchored::Pattern` plus `Input#pattern`; this intentional language-level divergence is documented in the ledger and tested through clone.
 
-- [ ] Match errors
+- [x] Match errors
   - Scope: `src/util/search.rs::{MatchError,MatchErrorKind}`.
-  - Work: prove every structured error kind, constructor, payload, equality, and consumer conversion path.
+  - Done: every structured kind, constructor, payload, equality, and unsupported-anchor context is covered. Rust Debug formatting remains a documented Crystal-native divergence.
 
 - [ ] Pattern sets and generic search iteration
   - Scope: `src/util/search.rs::{PatternSet,PatternSetIter}` and `src/util/iter.rs`.
