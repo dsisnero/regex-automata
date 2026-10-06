@@ -95,5 +95,13 @@ module Regex::Automata
     def self.arithmetic_overflow(what : String) : self
       new("arithmetic overflow for #{what}")
     end
+
+    def self.pattern_id_error(error : PatternIDError, what : String) : self
+      new("failed to read pattern ID for #{what}: #{error}")
+    end
+
+    def self.state_id_error(error : StateIDError, what : String) : self
+      new("failed to read state ID for #{what}: #{error}")
+    end
   end
 end
