@@ -1,827 +1,1937 @@
 # source_api_id	status	crystal_refs	notes
-src/dfa/accel.rs::func::add	missing	-	baseline
-src/dfa/accel.rs::func::as_bytes	missing	-	baseline
-src/dfa/accel.rs::func::as_ref	missing	-	baseline
-src/dfa/accel.rs::func::empty	missing	-	baseline
-src/dfa/accel.rs::func::from_bytes_unchecked	missing	-	baseline
-src/dfa/accel.rs::func::from_slice	missing	-	baseline
-src/dfa/accel.rs::func::is_empty	missing	-	baseline
-src/dfa/accel.rs::func::len	missing	-	baseline
-src/dfa/accel.rs::func::memory_usage	missing	-	baseline
-src/dfa/accel.rs::func::needles	missing	-	baseline
-src/dfa/accel.rs::func::new	missing	-	baseline
-src/dfa/accel.rs::func::to_owned	missing	-	baseline
-src/dfa/accel.rs::func::validate	missing	-	baseline
-src/dfa/accel.rs::func::write_to_len	missing	-	baseline
+src/dfa/accel.rs::const::ACCEL_CAP	missing	-	baseline
+src/dfa/accel.rs::const::ACCEL_LEN	missing	-	baseline
+src/dfa/accel.rs::const::ACCEL_TY_SIZE	missing	-	baseline
+src/dfa/accel.rs::method::Accel.add	missing	-	baseline
+src/dfa/accel.rs::method::Accel.as_accel_tys	missing	-	baseline
+src/dfa/accel.rs::method::Accel.contains	missing	-	baseline
+src/dfa/accel.rs::method::Accel.fmt	missing	-	baseline
+src/dfa/accel.rs::method::Accel.from_bytes	missing	-	baseline
+src/dfa/accel.rs::method::Accel.from_bytes_unchecked	missing	-	baseline
+src/dfa/accel.rs::method::Accel.from_slice	missing	-	baseline
+src/dfa/accel.rs::method::Accel.is_empty	missing	-	baseline
+src/dfa/accel.rs::method::Accel.len	missing	-	baseline
+src/dfa/accel.rs::method::Accel.needles	missing	-	baseline
 src/dfa/accel.rs::method::Accel.new	missing	-	baseline
-src/dfa/accel.rs::method::Accels.empty	missing	-	baseline
-src/dfa/accel.rs::method::Accels.from_bytes_unchecked	missing	-	baseline
-src/dfa/automaton.rs::enum::StartError	missing	-	baseline
-src/dfa/automaton.rs::func::get_match	missing	-	baseline
-src/dfa/automaton.rs::func::start	missing	-	baseline
+src/dfa/accel.rs::method::Accels<&'a [AccelTy]>.from_bytes_unchecked	missing	-	baseline
+src/dfa/accel.rs::method::Accels<A>.as_bytes	missing	-	baseline
+src/dfa/accel.rs::method::Accels<A>.as_ref	missing	-	baseline
+src/dfa/accel.rs::method::Accels<A>.fmt	missing	-	baseline
+src/dfa/accel.rs::method::Accels<A>.get	missing	-	baseline
+src/dfa/accel.rs::method::Accels<A>.iter	missing	-	baseline
+src/dfa/accel.rs::method::Accels<A>.len	missing	-	baseline
+src/dfa/accel.rs::method::Accels<A>.memory_usage	missing	-	baseline
+src/dfa/accel.rs::method::Accels<A>.needles	missing	-	baseline
+src/dfa/accel.rs::method::Accels<A>.to_owned	missing	-	baseline
+src/dfa/accel.rs::method::Accels<A>.validate	missing	-	baseline
+src/dfa/accel.rs::method::Accels<A>.write_to	missing	-	baseline
+src/dfa/accel.rs::method::Accels<A>.write_to_len	missing	-	baseline
+src/dfa/accel.rs::method::Accels<Vec<AccelTy>>.add	missing	-	baseline
+src/dfa/accel.rs::method::Accels<Vec<AccelTy>>.empty	missing	-	baseline
+src/dfa/accel.rs::method::Accels<Vec<AccelTy>>.set_len	missing	-	baseline
+src/dfa/accel.rs::method::IterAccels<'a, A>.next	missing	-	baseline
+src/dfa/automaton.rs::method::&'a A.accelerator	missing	-	baseline
+src/dfa/automaton.rs::method::&'a A.get_prefilter	missing	-	baseline
+src/dfa/automaton.rs::method::&'a A.has_empty	missing	-	baseline
+src/dfa/automaton.rs::method::&'a A.is_accel_state	missing	-	baseline
+src/dfa/automaton.rs::method::&'a A.is_always_start_anchored	missing	-	baseline
+src/dfa/automaton.rs::method::&'a A.is_dead_state	missing	-	baseline
+src/dfa/automaton.rs::method::&'a A.is_match_state	missing	-	baseline
+src/dfa/automaton.rs::method::&'a A.is_quit_state	missing	-	baseline
+src/dfa/automaton.rs::method::&'a A.is_special_state	missing	-	baseline
+src/dfa/automaton.rs::method::&'a A.is_start_state	missing	-	baseline
+src/dfa/automaton.rs::method::&'a A.is_utf8	missing	-	baseline
+src/dfa/automaton.rs::method::&'a A.match_len	missing	-	baseline
+src/dfa/automaton.rs::method::&'a A.match_pattern	missing	-	baseline
+src/dfa/automaton.rs::method::&'a A.next_eoi_state	missing	-	baseline
+src/dfa/automaton.rs::method::&'a A.next_state	missing	-	baseline
+src/dfa/automaton.rs::method::&'a A.next_state_unchecked	missing	-	baseline
+src/dfa/automaton.rs::method::&'a A.pattern_len	missing	-	baseline
+src/dfa/automaton.rs::method::&'a A.start_state	missing	-	baseline
+src/dfa/automaton.rs::method::&'a A.start_state_forward	missing	-	baseline
+src/dfa/automaton.rs::method::&'a A.start_state_reverse	missing	-	baseline
+src/dfa/automaton.rs::method::&'a A.try_search_fwd	missing	-	baseline
+src/dfa/automaton.rs::method::&'a A.try_search_overlapping_fwd	missing	-	baseline
+src/dfa/automaton.rs::method::&'a A.try_search_overlapping_rev	missing	-	baseline
+src/dfa/automaton.rs::method::&'a A.try_search_rev	missing	-	baseline
+src/dfa/automaton.rs::method::&'a A.try_which_overlapping_matches	missing	-	baseline
+src/dfa/automaton.rs::method::&'a A.universal_start_state	missing	-	baseline
+src/dfa/automaton.rs::method::OverlappingState.get_match	missing	-	baseline
 src/dfa/automaton.rs::method::OverlappingState.start	missing	-	baseline
-src/dfa/automaton.rs::struct::OverlappingState	missing	-	baseline
-src/dfa/dense.rs::func::accelerate	missing	-	baseline
-src/dfa/dense.rs::func::alphabet_len	missing	-	baseline
-src/dfa/dense.rs::func::always_match	missing	-	baseline
-src/dfa/dense.rs::func::as_ref	missing	-	baseline
-src/dfa/dense.rs::func::build	missing	-	baseline
-src/dfa/dense.rs::func::build_from_nfa	missing	-	baseline
-src/dfa/dense.rs::func::builder	missing	-	baseline
-src/dfa/dense.rs::func::byte_classes	missing	-	baseline
-src/dfa/dense.rs::func::config	missing	-	baseline
-src/dfa/dense.rs::func::configure	missing	-	baseline
-src/dfa/dense.rs::func::determinize_size_limit	missing	-	baseline
-src/dfa/dense.rs::func::dfa_size_limit	missing	-	baseline
-src/dfa/dense.rs::func::from_bytes	missing	-	baseline
-src/dfa/dense.rs::func::get_accelerate	missing	-	baseline
-src/dfa/dense.rs::func::get_byte_classes	missing	-	baseline
-src/dfa/dense.rs::func::get_determinize_size_limit	missing	-	baseline
-src/dfa/dense.rs::func::get_dfa_size_limit	missing	-	baseline
-src/dfa/dense.rs::func::get_match_kind	missing	-	baseline
-src/dfa/dense.rs::func::get_minimize	missing	-	baseline
-src/dfa/dense.rs::func::get_prefilter	missing	-	baseline
-src/dfa/dense.rs::func::get_quit	missing	-	baseline
-src/dfa/dense.rs::func::get_specialize_start_states	missing	-	baseline
-src/dfa/dense.rs::func::get_starts	missing	-	baseline
-src/dfa/dense.rs::func::get_starts_for_each_pattern	missing	-	baseline
-src/dfa/dense.rs::func::get_unicode_word_boundary	missing	-	baseline
-src/dfa/dense.rs::func::is_size_limit_exceeded	missing	-	baseline
-src/dfa/dense.rs::func::match_kind	missing	-	baseline
-src/dfa/dense.rs::func::memory_usage	missing	-	baseline
-src/dfa/dense.rs::func::minimize	missing	-	baseline
-src/dfa/dense.rs::func::never_match	missing	-	baseline
-src/dfa/dense.rs::func::new	missing	-	baseline
-src/dfa/dense.rs::func::prefilter	missing	-	baseline
-src/dfa/dense.rs::func::quit	missing	-	baseline
-src/dfa/dense.rs::func::set_prefilter	missing	-	baseline
-src/dfa/dense.rs::func::specialize_start_states	missing	-	baseline
-src/dfa/dense.rs::func::start_kind	missing	-	baseline
-src/dfa/dense.rs::func::starts_for_each_pattern	missing	-	baseline
-src/dfa/dense.rs::func::stride	missing	-	baseline
-src/dfa/dense.rs::func::stride2	missing	-	baseline
-src/dfa/dense.rs::func::syntax	missing	-	baseline
-src/dfa/dense.rs::func::thompson	missing	-	baseline
-src/dfa/dense.rs::func::to_bytes_big_endian	missing	-	baseline
-src/dfa/dense.rs::func::to_bytes_little_endian	missing	-	baseline
-src/dfa/dense.rs::func::to_bytes_native_endian	missing	-	baseline
-src/dfa/dense.rs::func::to_owned	missing	-	baseline
-src/dfa/dense.rs::func::to_sparse	missing	-	baseline
-src/dfa/dense.rs::func::unicode_word_boundary	missing	-	baseline
-src/dfa/dense.rs::func::write_to_big_endian	missing	-	baseline
-src/dfa/dense.rs::func::write_to_len	missing	-	baseline
-src/dfa/dense.rs::func::write_to_little_endian	missing	-	baseline
-src/dfa/dense.rs::func::write_to_native_endian	missing	-	baseline
+src/dfa/automaton.rs::method::StartError.fmt	missing	-	baseline
+src/dfa/automaton.rs::method::StartError.quit	missing	-	baseline
+src/dfa/automaton.rs::method::StartError.unsupported_anchored	missing	-	baseline
+src/dfa/dense.rs::const::LABEL	missing	-	baseline
+src/dfa/dense.rs::const::VERSION	missing	-	baseline
+src/dfa/dense.rs::method::BuildError.determinize_exceeded_size_limit	missing	-	baseline
+src/dfa/dense.rs::method::BuildError.dfa_exceeded_size_limit	missing	-	baseline
+src/dfa/dense.rs::method::BuildError.fmt	missing	-	baseline
 src/dfa/dense.rs::method::BuildError.is_size_limit_exceeded	missing	-	baseline
+src/dfa/dense.rs::method::BuildError.kind	missing	-	baseline
+src/dfa/dense.rs::method::BuildError.nfa	missing	-	baseline
+src/dfa/dense.rs::method::BuildError.source	missing	-	baseline
+src/dfa/dense.rs::method::BuildError.too_many_match_pattern_ids	missing	-	baseline
+src/dfa/dense.rs::method::BuildError.too_many_start_states	missing	-	baseline
+src/dfa/dense.rs::method::BuildError.too_many_states	missing	-	baseline
+src/dfa/dense.rs::method::BuildError.unsupported_dfa_word_boundary_unicode	missing	-	baseline
+src/dfa/dense.rs::method::Builder.build	missing	-	baseline
+src/dfa/dense.rs::method::Builder.build_from_nfa	missing	-	baseline
+src/dfa/dense.rs::method::Builder.build_many	missing	-	baseline
+src/dfa/dense.rs::method::Builder.configure	missing	-	baseline
+src/dfa/dense.rs::method::Builder.default	missing	-	baseline
 src/dfa/dense.rs::method::Builder.new	missing	-	baseline
+src/dfa/dense.rs::method::Builder.syntax	missing	-	baseline
+src/dfa/dense.rs::method::Builder.thompson	missing	-	baseline
+src/dfa/dense.rs::method::Config.accelerate	missing	-	baseline
+src/dfa/dense.rs::method::Config.byte_classes	missing	-	baseline
+src/dfa/dense.rs::method::Config.determinize_size_limit	missing	-	baseline
+src/dfa/dense.rs::method::Config.dfa_size_limit	missing	-	baseline
+src/dfa/dense.rs::method::Config.get_accelerate	missing	-	baseline
+src/dfa/dense.rs::method::Config.get_byte_classes	missing	-	baseline
+src/dfa/dense.rs::method::Config.get_determinize_size_limit	missing	-	baseline
+src/dfa/dense.rs::method::Config.get_dfa_size_limit	missing	-	baseline
+src/dfa/dense.rs::method::Config.get_match_kind	missing	-	baseline
+src/dfa/dense.rs::method::Config.get_minimize	missing	-	baseline
+src/dfa/dense.rs::method::Config.get_prefilter	missing	-	baseline
+src/dfa/dense.rs::method::Config.get_quit	missing	-	baseline
+src/dfa/dense.rs::method::Config.get_specialize_start_states	missing	-	baseline
+src/dfa/dense.rs::method::Config.get_starts	missing	-	baseline
+src/dfa/dense.rs::method::Config.get_starts_for_each_pattern	missing	-	baseline
+src/dfa/dense.rs::method::Config.get_unicode_word_boundary	missing	-	baseline
+src/dfa/dense.rs::method::Config.match_kind	missing	-	baseline
+src/dfa/dense.rs::method::Config.minimize	missing	-	baseline
 src/dfa/dense.rs::method::Config.new	missing	-	baseline
-src/dfa/dense.rs::method::DFA.config	missing	-	baseline
-src/dfa/dense.rs::method::DFA.from_bytes	missing	-	baseline
-src/dfa/dense.rs::method::DFA.set_prefilter	missing	-	baseline
+src/dfa/dense.rs::method::Config.overwrite	missing	-	baseline
+src/dfa/dense.rs::method::Config.prefilter	missing	-	baseline
+src/dfa/dense.rs::method::Config.quit	missing	-	baseline
+src/dfa/dense.rs::method::Config.specialize_start_states	missing	-	baseline
+src/dfa/dense.rs::method::Config.start_kind	missing	-	baseline
+src/dfa/dense.rs::method::Config.starts_for_each_pattern	missing	-	baseline
+src/dfa/dense.rs::method::Config.unicode_word_boundary	missing	-	baseline
+src/dfa/dense.rs::method::DFA<&'a [u32]>.from_bytes	missing	-	baseline
+src/dfa/dense.rs::method::DFA<&'a [u32]>.from_bytes_unchecked	missing	-	baseline
+src/dfa/dense.rs::method::DFA<&'a [u32]>.write_to	missing	-	baseline
+src/dfa/dense.rs::method::DFA<&[u32]>.builder	missing	-	baseline
+src/dfa/dense.rs::method::DFA<&[u32]>.config	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.accelerator	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.accelerator_index	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.accels	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.alphabet_len	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.as_ref	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.byte_classes	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.flags	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.fmt	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.get_prefilter	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.has_empty	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.is_accel_state	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.is_always_start_anchored	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.is_dead_state	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.is_match_state	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.is_quit_state	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.is_special_state	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.is_start_state	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.is_utf8	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.match_len	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.match_pattern	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.match_pattern_len	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.match_state_index	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.memory_usage	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.next_eoi_state	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.next_state	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.next_state_unchecked	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.pattern_id_slice	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.pattern_len	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.pattern_map	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.quit_id	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.quitset	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.set_prefilter	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.special	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.special_mut	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.start_kind	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.start_map	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.start_state	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.starts	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.starts_for_each_pattern	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.state_len	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.states	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.stride	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.stride2	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.to_bytes	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.to_bytes_big_endian	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.to_bytes_little_endian	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.to_bytes_native_endian	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.to_index	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.to_owned	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.to_sparse	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.to_state_id	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.trans	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.universal_start_state	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.write_to_big_endian	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.write_to_len	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.write_to_little_endian	missing	-	baseline
+src/dfa/dense.rs::method::DFA<T>.write_to_native_endian	missing	-	baseline
+src/dfa/dense.rs::method::Flags.bool_to_int	missing	-	baseline
+src/dfa/dense.rs::method::Flags.from_bytes	missing	-	baseline
+src/dfa/dense.rs::method::Flags.from_nfa	missing	-	baseline
+src/dfa/dense.rs::method::Flags.write_to	missing	-	baseline
+src/dfa/dense.rs::method::Flags.write_to_len	missing	-	baseline
+src/dfa/dense.rs::method::MatchStates<&'a [u32]>.from_bytes_unchecked	missing	-	baseline
+src/dfa/dense.rs::method::MatchStates<T>.as_ref	missing	-	baseline
+src/dfa/dense.rs::method::MatchStates<T>.len	missing	-	baseline
+src/dfa/dense.rs::method::MatchStates<T>.match_state_id	missing	-	baseline
+src/dfa/dense.rs::method::MatchStates<T>.memory_usage	missing	-	baseline
+src/dfa/dense.rs::method::MatchStates<T>.pattern_id	missing	-	baseline
+src/dfa/dense.rs::method::MatchStates<T>.pattern_id_slice	missing	-	baseline
+src/dfa/dense.rs::method::MatchStates<T>.pattern_ids	missing	-	baseline
+src/dfa/dense.rs::method::MatchStates<T>.pattern_len	missing	-	baseline
+src/dfa/dense.rs::method::MatchStates<T>.slices	missing	-	baseline
+src/dfa/dense.rs::method::MatchStates<T>.to_map	missing	-	baseline
+src/dfa/dense.rs::method::MatchStates<T>.to_owned	missing	-	baseline
+src/dfa/dense.rs::method::MatchStates<T>.validate	missing	-	baseline
+src/dfa/dense.rs::method::MatchStates<T>.write_to	missing	-	baseline
+src/dfa/dense.rs::method::MatchStates<T>.write_to_len	missing	-	baseline
+src/dfa/dense.rs::method::MatchStates<Vec<u32>>.empty	missing	-	baseline
+src/dfa/dense.rs::method::MatchStates<Vec<u32>>.new	missing	-	baseline
+src/dfa/dense.rs::method::MatchStates<Vec<u32>>.new_with_map	missing	-	baseline
+src/dfa/dense.rs::method::OwnedDFA.accelerate	missing	-	baseline
+src/dfa/dense.rs::method::OwnedDFA.add_empty_state	missing	-	baseline
 src/dfa/dense.rs::method::OwnedDFA.always_match	missing	-	baseline
+src/dfa/dense.rs::method::OwnedDFA.initial	missing	-	baseline
+src/dfa/dense.rs::method::OwnedDFA.minimize	missing	-	baseline
+src/dfa/dense.rs::method::OwnedDFA.never_match	missing	-	baseline
 src/dfa/dense.rs::method::OwnedDFA.new	missing	-	baseline
-src/dfa/dense.rs::struct::BuildError	missing	-	baseline
-src/dfa/dense.rs::struct::Builder	missing	-	baseline
-src/dfa/dense.rs::struct::Config	missing	-	baseline
-src/dfa/dense.rs::struct::DFA	missing	-	baseline
-src/dfa/determinize.rs::func::determinize_size_limit	missing	-	baseline
-src/dfa/determinize.rs::func::dfa_size_limit	missing	-	baseline
-src/dfa/determinize.rs::func::match_kind	missing	-	baseline
-src/dfa/determinize.rs::func::new	missing	-	baseline
-src/dfa/determinize.rs::func::quit	missing	-	baseline
-src/dfa/determinize.rs::func::run	missing	-	baseline
+src/dfa/dense.rs::method::OwnedDFA.new_many	missing	-	baseline
+src/dfa/dense.rs::method::OwnedDFA.remap	missing	-	baseline
+src/dfa/dense.rs::method::OwnedDFA.remap_state	missing	-	baseline
+src/dfa/dense.rs::method::OwnedDFA.set_pattern_map	missing	-	baseline
+src/dfa/dense.rs::method::OwnedDFA.set_start_state	missing	-	baseline
+src/dfa/dense.rs::method::OwnedDFA.set_transition	missing	-	baseline
+src/dfa/dense.rs::method::OwnedDFA.set_universal_starts	missing	-	baseline
+src/dfa/dense.rs::method::OwnedDFA.shuffle	missing	-	baseline
+src/dfa/dense.rs::method::OwnedDFA.swap_states	missing	-	baseline
+src/dfa/dense.rs::method::OwnedDFA.truncate_states	missing	-	baseline
+src/dfa/dense.rs::method::StartStateIter<'a>.next	missing	-	baseline
+src/dfa/dense.rs::method::StartTable<&'a [u32]>.from_bytes_unchecked	missing	-	baseline
+src/dfa/dense.rs::method::StartTable<T>.as_ref	missing	-	baseline
+src/dfa/dense.rs::method::StartTable<T>.iter	missing	-	baseline
+src/dfa/dense.rs::method::StartTable<T>.memory_usage	missing	-	baseline
+src/dfa/dense.rs::method::StartTable<T>.set_start	missing	-	baseline
+src/dfa/dense.rs::method::StartTable<T>.start	missing	-	baseline
+src/dfa/dense.rs::method::StartTable<T>.table	missing	-	baseline
+src/dfa/dense.rs::method::StartTable<T>.table_mut	missing	-	baseline
+src/dfa/dense.rs::method::StartTable<T>.to_owned	missing	-	baseline
+src/dfa/dense.rs::method::StartTable<T>.validate	missing	-	baseline
+src/dfa/dense.rs::method::StartTable<T>.write_to	missing	-	baseline
+src/dfa/dense.rs::method::StartTable<T>.write_to_len	missing	-	baseline
+src/dfa/dense.rs::method::StartTable<Vec<u32>>.dead	missing	-	baseline
+src/dfa/dense.rs::method::State<'a>.accelerate	missing	-	baseline
+src/dfa/dense.rs::method::State<'a>.fmt	missing	-	baseline
+src/dfa/dense.rs::method::State<'a>.id	missing	-	baseline
+src/dfa/dense.rs::method::State<'a>.sparse_transitions	missing	-	baseline
+src/dfa/dense.rs::method::State<'a>.transitions	missing	-	baseline
+src/dfa/dense.rs::method::StateIter<'a, T>.next	missing	-	baseline
+src/dfa/dense.rs::method::StateSparseTransitionIter<'a>.next	missing	-	baseline
+src/dfa/dense.rs::method::StateTransitionIter<'a>.next	missing	-	baseline
+src/dfa/dense.rs::method::TransitionTable<&'a [u32]>.from_bytes_unchecked	missing	-	baseline
+src/dfa/dense.rs::method::TransitionTable<T>.alphabet_len	missing	-	baseline
+src/dfa/dense.rs::method::TransitionTable<T>.as_ref	missing	-	baseline
+src/dfa/dense.rs::method::TransitionTable<T>.is_valid	missing	-	baseline
+src/dfa/dense.rs::method::TransitionTable<T>.len	missing	-	baseline
+src/dfa/dense.rs::method::TransitionTable<T>.memory_usage	missing	-	baseline
+src/dfa/dense.rs::method::TransitionTable<T>.next_state_id	missing	-	baseline
+src/dfa/dense.rs::method::TransitionTable<T>.prev_state_id	missing	-	baseline
+src/dfa/dense.rs::method::TransitionTable<T>.state	missing	-	baseline
+src/dfa/dense.rs::method::TransitionTable<T>.states	missing	-	baseline
+src/dfa/dense.rs::method::TransitionTable<T>.stride	missing	-	baseline
+src/dfa/dense.rs::method::TransitionTable<T>.table	missing	-	baseline
+src/dfa/dense.rs::method::TransitionTable<T>.table_mut	missing	-	baseline
+src/dfa/dense.rs::method::TransitionTable<T>.to_index	missing	-	baseline
+src/dfa/dense.rs::method::TransitionTable<T>.to_owned	missing	-	baseline
+src/dfa/dense.rs::method::TransitionTable<T>.to_state_id	missing	-	baseline
+src/dfa/dense.rs::method::TransitionTable<T>.validate	missing	-	baseline
+src/dfa/dense.rs::method::TransitionTable<T>.write_to	missing	-	baseline
+src/dfa/dense.rs::method::TransitionTable<T>.write_to_len	missing	-	baseline
+src/dfa/dense.rs::method::TransitionTable<Vec<u32>>.add_empty_state	missing	-	baseline
+src/dfa/dense.rs::method::TransitionTable<Vec<u32>>.minimal	missing	-	baseline
+src/dfa/dense.rs::method::TransitionTable<Vec<u32>>.remap	missing	-	baseline
+src/dfa/dense.rs::method::TransitionTable<Vec<u32>>.set	missing	-	baseline
+src/dfa/dense.rs::method::TransitionTable<Vec<u32>>.swap	missing	-	baseline
+src/dfa/dense.rs::method::TransitionTable<Vec<u32>>.truncate	missing	-	baseline
+src/dfa/determinize.rs::method::Config.determinize_size_limit	missing	-	baseline
+src/dfa/determinize.rs::method::Config.dfa_size_limit	missing	-	baseline
+src/dfa/determinize.rs::method::Config.match_kind	missing	-	baseline
 src/dfa/determinize.rs::method::Config.new	missing	-	baseline
-src/dfa/minimize.rs::func::new	missing	-	baseline
-src/dfa/minimize.rs::func::run	missing	-	baseline
-src/dfa/minimize.rs::method::Minimizer.new	missing	-	baseline
-src/dfa/onepass.rs::func::alphabet_len	missing	-	baseline
-src/dfa/onepass.rs::func::always_match	missing	-	baseline
-src/dfa/onepass.rs::func::build	missing	-	baseline
-src/dfa/onepass.rs::func::build_from_nfa	missing	-	baseline
-src/dfa/onepass.rs::func::builder	missing	-	baseline
-src/dfa/onepass.rs::func::byte_classes	missing	-	baseline
-src/dfa/onepass.rs::func::config	missing	-	baseline
-src/dfa/onepass.rs::func::configure	missing	-	baseline
-src/dfa/onepass.rs::func::create_cache	missing	-	baseline
-src/dfa/onepass.rs::func::create_captures	missing	-	baseline
-src/dfa/onepass.rs::func::get_byte_classes	missing	-	baseline
-src/dfa/onepass.rs::func::get_config	missing	-	baseline
-src/dfa/onepass.rs::func::get_match_kind	missing	-	baseline
-src/dfa/onepass.rs::func::get_nfa	missing	-	baseline
-src/dfa/onepass.rs::func::get_size_limit	missing	-	baseline
-src/dfa/onepass.rs::func::get_starts_for_each_pattern	missing	-	baseline
-src/dfa/onepass.rs::func::match_kind	missing	-	baseline
-src/dfa/onepass.rs::func::memory_usage	missing	-	baseline
-src/dfa/onepass.rs::func::never_match	missing	-	baseline
-src/dfa/onepass.rs::func::new	missing	-	baseline
-src/dfa/onepass.rs::func::new_from_nfa	missing	-	baseline
-src/dfa/onepass.rs::func::pattern_len	missing	-	baseline
-src/dfa/onepass.rs::func::reset	missing	-	baseline
-src/dfa/onepass.rs::func::reset_cache	missing	-	baseline
-src/dfa/onepass.rs::func::size_limit	missing	-	baseline
-src/dfa/onepass.rs::func::starts_for_each_pattern	missing	-	baseline
-src/dfa/onepass.rs::func::state_len	missing	-	baseline
-src/dfa/onepass.rs::func::stride	missing	-	baseline
-src/dfa/onepass.rs::func::stride2	missing	-	baseline
-src/dfa/onepass.rs::func::syntax	missing	-	baseline
-src/dfa/onepass.rs::func::thompson	missing	-	baseline
-src/dfa/onepass.rs::func::try_search	missing	-	baseline
-src/dfa/onepass.rs::func::try_search_slots	missing	-	baseline
+src/dfa/determinize.rs::method::Config.quit	missing	-	baseline
+src/dfa/determinize.rs::method::Config.run	missing	-	baseline
+src/dfa/determinize.rs::method::Runner<'a>.add_all_starts	missing	-	baseline
+src/dfa/determinize.rs::method::Runner<'a>.add_one_start	missing	-	baseline
+src/dfa/determinize.rs::method::Runner<'a>.add_start_group	missing	-	baseline
+src/dfa/determinize.rs::method::Runner<'a>.add_state	missing	-	baseline
+src/dfa/determinize.rs::method::Runner<'a>.cached_state	missing	-	baseline
+src/dfa/determinize.rs::method::Runner<'a>.get_state_builder	missing	-	baseline
+src/dfa/determinize.rs::method::Runner<'a>.maybe_add_state	missing	-	baseline
+src/dfa/determinize.rs::method::Runner<'a>.memory_usage	missing	-	baseline
+src/dfa/determinize.rs::method::Runner<'a>.put_state_builder	missing	-	baseline
+src/dfa/determinize.rs::method::Runner<'a>.run	missing	-	baseline
+src/dfa/minimize.rs::method::Minimizer<'a>.find_incoming_to	missing	-	baseline
+src/dfa/minimize.rs::method::Minimizer<'a>.find_waiting	missing	-	baseline
+src/dfa/minimize.rs::method::Minimizer<'a>.fmt	missing	-	baseline
+src/dfa/minimize.rs::method::Minimizer<'a>.incoming_transitions	missing	-	baseline
+src/dfa/minimize.rs::method::Minimizer<'a>.initial_partitions	missing	-	baseline
+src/dfa/minimize.rs::method::Minimizer<'a>.new	missing	-	baseline
+src/dfa/minimize.rs::method::Minimizer<'a>.run	missing	-	baseline
+src/dfa/minimize.rs::method::StateSet.add	missing	-	baseline
+src/dfa/minimize.rs::method::StateSet.canonicalize	missing	-	baseline
+src/dfa/minimize.rs::method::StateSet.clear	missing	-	baseline
+src/dfa/minimize.rs::method::StateSet.deep_clone	missing	-	baseline
+src/dfa/minimize.rs::method::StateSet.empty	missing	-	baseline
+src/dfa/minimize.rs::method::StateSet.intersection	missing	-	baseline
+src/dfa/minimize.rs::method::StateSet.is_empty	missing	-	baseline
+src/dfa/minimize.rs::method::StateSet.iter	missing	-	baseline
+src/dfa/minimize.rs::method::StateSet.len	missing	-	baseline
+src/dfa/minimize.rs::method::StateSet.min	missing	-	baseline
+src/dfa/minimize.rs::method::StateSet.subtract	missing	-	baseline
+src/dfa/mod.rs::const::DEAD	missing	-	baseline
+src/dfa/onepass.rs::const::EPSILONS_MASK	missing	-	baseline
+src/dfa/onepass.rs::const::INFO_MASK	missing	-	baseline
+src/dfa/onepass.rs::const::LIMIT	missing	-	baseline
+src/dfa/onepass.rs::const::LOOK_MASK	missing	-	baseline
+src/dfa/onepass.rs::const::MATCH_WINS_SHIFT	missing	-	baseline
+src/dfa/onepass.rs::const::PATTERN_ID_BITS	missing	-	baseline
+src/dfa/onepass.rs::const::PATTERN_ID_LIMIT	missing	-	baseline
+src/dfa/onepass.rs::const::PATTERN_ID_MASK	missing	-	baseline
+src/dfa/onepass.rs::const::PATTERN_ID_NONE	missing	-	baseline
+src/dfa/onepass.rs::const::PATTERN_ID_SHIFT	missing	-	baseline
+src/dfa/onepass.rs::const::SLOT_MASK	missing	-	baseline
+src/dfa/onepass.rs::const::SLOT_SHIFT	missing	-	baseline
+src/dfa/onepass.rs::const::STATE_ID_BITS	missing	-	baseline
+src/dfa/onepass.rs::const::STATE_ID_LIMIT	missing	-	baseline
+src/dfa/onepass.rs::const::STATE_ID_SHIFT	missing	-	baseline
+src/dfa/onepass.rs::method::BuildError.exceeded_size_limit	missing	-	baseline
+src/dfa/onepass.rs::method::BuildError.fmt	missing	-	baseline
+src/dfa/onepass.rs::method::BuildError.nfa	missing	-	baseline
+src/dfa/onepass.rs::method::BuildError.not_one_pass	missing	-	baseline
+src/dfa/onepass.rs::method::BuildError.source	missing	-	baseline
+src/dfa/onepass.rs::method::BuildError.too_many_patterns	missing	-	baseline
+src/dfa/onepass.rs::method::BuildError.too_many_states	missing	-	baseline
+src/dfa/onepass.rs::method::BuildError.unsupported_look	missing	-	baseline
+src/dfa/onepass.rs::method::BuildError.word	missing	-	baseline
+src/dfa/onepass.rs::method::Builder.build	missing	-	baseline
+src/dfa/onepass.rs::method::Builder.build_from_nfa	missing	-	baseline
+src/dfa/onepass.rs::method::Builder.build_many	missing	-	baseline
+src/dfa/onepass.rs::method::Builder.configure	missing	-	baseline
 src/dfa/onepass.rs::method::Builder.new	missing	-	baseline
+src/dfa/onepass.rs::method::Builder.syntax	missing	-	baseline
+src/dfa/onepass.rs::method::Builder.thompson	missing	-	baseline
+src/dfa/onepass.rs::method::Cache.explicit_slots	missing	-	baseline
+src/dfa/onepass.rs::method::Cache.memory_usage	missing	-	baseline
 src/dfa/onepass.rs::method::Cache.new	missing	-	baseline
+src/dfa/onepass.rs::method::Cache.reset	missing	-	baseline
+src/dfa/onepass.rs::method::Cache.setup_search	missing	-	baseline
+src/dfa/onepass.rs::method::Config.byte_classes	missing	-	baseline
+src/dfa/onepass.rs::method::Config.get_byte_classes	missing	-	baseline
+src/dfa/onepass.rs::method::Config.get_match_kind	missing	-	baseline
+src/dfa/onepass.rs::method::Config.get_size_limit	missing	-	baseline
+src/dfa/onepass.rs::method::Config.get_starts_for_each_pattern	missing	-	baseline
+src/dfa/onepass.rs::method::Config.match_kind	missing	-	baseline
 src/dfa/onepass.rs::method::Config.new	missing	-	baseline
+src/dfa/onepass.rs::method::Config.overwrite	missing	-	baseline
+src/dfa/onepass.rs::method::Config.size_limit	missing	-	baseline
+src/dfa/onepass.rs::method::Config.starts_for_each_pattern	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.alphabet_len	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.always_match	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.builder	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.captures	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.config	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.create_cache	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.create_captures	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.debug_state_transitions	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.find	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.find_match	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.fmt	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.get_config	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.get_nfa	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.is_match	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.last_state_id	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.memory_usage	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.never_match	missing	-	baseline
 src/dfa/onepass.rs::method::DFA.new	missing	-	baseline
-src/dfa/onepass.rs::struct::BuildError	missing	-	baseline
-src/dfa/onepass.rs::struct::Builder	missing	-	baseline
-src/dfa/onepass.rs::struct::Cache	missing	-	baseline
-src/dfa/onepass.rs::struct::Config	missing	-	baseline
-src/dfa/onepass.rs::struct::DFA	missing	-	baseline
-src/dfa/regex.rs::func::build	missing	-	baseline
-src/dfa/regex.rs::func::build_sparse	missing	-	baseline
-src/dfa/regex.rs::func::builder	missing	-	baseline
-src/dfa/regex.rs::func::dense	missing	-	baseline
-src/dfa/regex.rs::func::forward	missing	-	baseline
-src/dfa/regex.rs::func::new	missing	-	baseline
-src/dfa/regex.rs::func::new_sparse	missing	-	baseline
-src/dfa/regex.rs::func::pattern_len	missing	-	baseline
-src/dfa/regex.rs::func::reverse	missing	-	baseline
-src/dfa/regex.rs::func::syntax	missing	-	baseline
-src/dfa/regex.rs::func::thompson	missing	-	baseline
-src/dfa/regex.rs::func::try_search	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.new_from_nfa	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.new_many	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.pattern_epsilons	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.pattern_len	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.prev_state_id	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.remap	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.reset_cache	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.search_imp	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.set_pattern_epsilons	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.set_transition	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.sparse_transitions	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.start	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.start_pattern	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.state_len	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.stride	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.stride2	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.swap_states	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.transition	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.try_search	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.try_search_slots	missing	-	baseline
+src/dfa/onepass.rs::method::DFA.try_search_slots_imp	missing	-	baseline
+src/dfa/onepass.rs::method::Epsilons.empty	missing	-	baseline
+src/dfa/onepass.rs::method::Epsilons.fmt	missing	-	baseline
+src/dfa/onepass.rs::method::Epsilons.is_empty	missing	-	baseline
+src/dfa/onepass.rs::method::Epsilons.looks	missing	-	baseline
+src/dfa/onepass.rs::method::Epsilons.set_looks	missing	-	baseline
+src/dfa/onepass.rs::method::Epsilons.set_slots	missing	-	baseline
+src/dfa/onepass.rs::method::Epsilons.slots	missing	-	baseline
+src/dfa/onepass.rs::method::InternalBuilder<'a>.add_dfa_state_for_nfa_state	missing	-	baseline
+src/dfa/onepass.rs::method::InternalBuilder<'a>.add_empty_state	missing	-	baseline
+src/dfa/onepass.rs::method::InternalBuilder<'a>.add_start_state	missing	-	baseline
+src/dfa/onepass.rs::method::InternalBuilder<'a>.build	missing	-	baseline
+src/dfa/onepass.rs::method::InternalBuilder<'a>.compile_transition	missing	-	baseline
+src/dfa/onepass.rs::method::InternalBuilder<'a>.new	missing	-	baseline
+src/dfa/onepass.rs::method::InternalBuilder<'a>.shuffle_states	missing	-	baseline
+src/dfa/onepass.rs::method::InternalBuilder<'a>.stack_push	missing	-	baseline
+src/dfa/onepass.rs::method::PatternEpsilons.empty	missing	-	baseline
+src/dfa/onepass.rs::method::PatternEpsilons.epsilons	missing	-	baseline
+src/dfa/onepass.rs::method::PatternEpsilons.fmt	missing	-	baseline
+src/dfa/onepass.rs::method::PatternEpsilons.is_empty	missing	-	baseline
+src/dfa/onepass.rs::method::PatternEpsilons.pattern_id	missing	-	baseline
+src/dfa/onepass.rs::method::PatternEpsilons.pattern_id_unchecked	missing	-	baseline
+src/dfa/onepass.rs::method::PatternEpsilons.set_epsilons	missing	-	baseline
+src/dfa/onepass.rs::method::PatternEpsilons.set_pattern_id	missing	-	baseline
+src/dfa/onepass.rs::method::Slots.apply	missing	-	baseline
+src/dfa/onepass.rs::method::Slots.fmt	missing	-	baseline
+src/dfa/onepass.rs::method::Slots.insert	missing	-	baseline
+src/dfa/onepass.rs::method::Slots.is_empty	missing	-	baseline
+src/dfa/onepass.rs::method::Slots.iter	missing	-	baseline
+src/dfa/onepass.rs::method::Slots.remove	missing	-	baseline
+src/dfa/onepass.rs::method::SlotsIter.next	missing	-	baseline
+src/dfa/onepass.rs::method::SparseTransitionIter<'a>.next	missing	-	baseline
+src/dfa/onepass.rs::method::Transition.epsilons	missing	-	baseline
+src/dfa/onepass.rs::method::Transition.fmt	missing	-	baseline
+src/dfa/onepass.rs::method::Transition.is_dead	missing	-	baseline
+src/dfa/onepass.rs::method::Transition.match_wins	missing	-	baseline
+src/dfa/onepass.rs::method::Transition.new	missing	-	baseline
+src/dfa/onepass.rs::method::Transition.set_state_id	missing	-	baseline
+src/dfa/onepass.rs::method::Transition.state_id	missing	-	baseline
+src/dfa/regex.rs::method::Builder.build	missing	-	baseline
+src/dfa/regex.rs::method::Builder.build_from_dfas	missing	-	baseline
+src/dfa/regex.rs::method::Builder.build_many	missing	-	baseline
+src/dfa/regex.rs::method::Builder.build_many_sparse	missing	-	baseline
+src/dfa/regex.rs::method::Builder.build_sparse	missing	-	baseline
+src/dfa/regex.rs::method::Builder.default	missing	-	baseline
+src/dfa/regex.rs::method::Builder.dense	missing	-	baseline
 src/dfa/regex.rs::method::Builder.new	missing	-	baseline
-src/dfa/regex.rs::method::Regex.builder	missing	-	baseline
-src/dfa/regex.rs::method::Regex.forward	missing	-	baseline
+src/dfa/regex.rs::method::Builder.syntax	missing	-	baseline
+src/dfa/regex.rs::method::Builder.thompson	missing	-	baseline
+src/dfa/regex.rs::method::FindMatches<'r, 'h, A>.next	missing	-	baseline
 src/dfa/regex.rs::method::Regex.new	missing	-	baseline
-src/dfa/regex.rs::method::Regex.new_sparse	missing	-	baseline
-src/dfa/regex.rs::method::Regex.try_search	missing	-	baseline
-src/dfa/regex.rs::struct::Builder	missing	-	baseline
-src/dfa/regex.rs::struct::FindMatches	missing	-	baseline
-src/dfa/regex.rs::struct::Regex	missing	-	baseline
-src/dfa/sparse.rs::func::always_match	missing	-	baseline
-src/dfa/sparse.rs::func::byte_classes	missing	-	baseline
-src/dfa/sparse.rs::func::from_bytes	missing	-	baseline
-src/dfa/sparse.rs::func::memory_usage	missing	-	baseline
-src/dfa/sparse.rs::func::never_match	missing	-	baseline
-src/dfa/sparse.rs::func::new	missing	-	baseline
-src/dfa/sparse.rs::func::set_prefilter	missing	-	baseline
-src/dfa/sparse.rs::func::start_kind	missing	-	baseline
-src/dfa/sparse.rs::func::starts_for_each_pattern	missing	-	baseline
-src/dfa/sparse.rs::func::to_bytes_big_endian	missing	-	baseline
-src/dfa/sparse.rs::func::to_bytes_little_endian	missing	-	baseline
-src/dfa/sparse.rs::func::to_bytes_native_endian	missing	-	baseline
-src/dfa/sparse.rs::func::to_owned	missing	-	baseline
-src/dfa/sparse.rs::func::write_to_big_endian	missing	-	baseline
-src/dfa/sparse.rs::func::write_to_len	missing	-	baseline
-src/dfa/sparse.rs::func::write_to_little_endian	missing	-	baseline
-src/dfa/sparse.rs::func::write_to_native_endian	missing	-	baseline
-src/dfa/sparse.rs::method::DFA.always_match	missing	-	baseline
-src/dfa/sparse.rs::method::DFA.from_bytes	missing	-	baseline
-src/dfa/sparse.rs::method::DFA.new	missing	-	baseline
-src/dfa/sparse.rs::method::DFA.set_prefilter	missing	-	baseline
-src/dfa/sparse.rs::struct::DFA	missing	-	baseline
-src/dfa/start.rs::enum::StartKind	missing	-	baseline
-src/hybrid/dfa.rs::func::always_match	missing	-	baseline
-src/hybrid/dfa.rs::func::build	missing	-	baseline
-src/hybrid/dfa.rs::func::build_from_nfa	missing	-	baseline
-src/hybrid/dfa.rs::func::builder	missing	-	baseline
-src/hybrid/dfa.rs::func::byte_classes	missing	-	baseline
-src/hybrid/dfa.rs::func::cache_capacity	missing	-	baseline
-src/hybrid/dfa.rs::func::clear_count	missing	-	baseline
-src/hybrid/dfa.rs::func::config	missing	-	baseline
-src/hybrid/dfa.rs::func::configure	missing	-	baseline
-src/hybrid/dfa.rs::func::create_cache	missing	-	baseline
-src/hybrid/dfa.rs::func::get_byte_classes	missing	-	baseline
-src/hybrid/dfa.rs::func::get_cache_capacity	missing	-	baseline
-src/hybrid/dfa.rs::func::get_config	missing	-	baseline
-src/hybrid/dfa.rs::func::get_match	missing	-	baseline
-src/hybrid/dfa.rs::func::get_match_kind	missing	-	baseline
-src/hybrid/dfa.rs::func::get_minimum_bytes_per_state	missing	-	baseline
-src/hybrid/dfa.rs::func::get_minimum_cache_capacity	missing	-	baseline
-src/hybrid/dfa.rs::func::get_minimum_cache_clear_count	missing	-	baseline
-src/hybrid/dfa.rs::func::get_nfa	missing	-	baseline
-src/hybrid/dfa.rs::func::get_prefilter	missing	-	baseline
-src/hybrid/dfa.rs::func::get_quit	missing	-	baseline
-src/hybrid/dfa.rs::func::get_skip_cache_capacity_check	missing	-	baseline
-src/hybrid/dfa.rs::func::get_specialize_start_states	missing	-	baseline
-src/hybrid/dfa.rs::func::get_starts_for_each_pattern	missing	-	baseline
-src/hybrid/dfa.rs::func::get_unicode_word_boundary	missing	-	baseline
-src/hybrid/dfa.rs::func::match_kind	missing	-	baseline
-src/hybrid/dfa.rs::func::match_len	missing	-	baseline
-src/hybrid/dfa.rs::func::match_pattern	missing	-	baseline
-src/hybrid/dfa.rs::func::memory_usage	missing	-	baseline
-src/hybrid/dfa.rs::func::minimum_bytes_per_state	missing	-	baseline
-src/hybrid/dfa.rs::func::minimum_cache_clear_count	missing	-	baseline
-src/hybrid/dfa.rs::func::never_match	missing	-	baseline
-src/hybrid/dfa.rs::func::new	missing	-	baseline
-src/hybrid/dfa.rs::func::next_eoi_state	missing	-	baseline
-src/hybrid/dfa.rs::func::next_state	missing	-	baseline
-src/hybrid/dfa.rs::func::next_state_untagged	missing	-	baseline
-src/hybrid/dfa.rs::func::pattern_len	missing	-	baseline
-src/hybrid/dfa.rs::func::prefilter	missing	-	baseline
-src/hybrid/dfa.rs::func::quit	missing	-	baseline
-src/hybrid/dfa.rs::func::reset	missing	-	baseline
-src/hybrid/dfa.rs::func::reset_cache	missing	-	baseline
-src/hybrid/dfa.rs::func::search_finish	missing	-	baseline
-src/hybrid/dfa.rs::func::search_start	missing	-	baseline
-src/hybrid/dfa.rs::func::search_total_len	missing	-	baseline
-src/hybrid/dfa.rs::func::search_update	missing	-	baseline
-src/hybrid/dfa.rs::func::skip_cache_capacity_check	missing	-	baseline
-src/hybrid/dfa.rs::func::specialize_start_states	missing	-	baseline
-src/hybrid/dfa.rs::func::start	missing	-	baseline
-src/hybrid/dfa.rs::func::start_state	missing	-	baseline
-src/hybrid/dfa.rs::func::start_state_forward	missing	-	baseline
-src/hybrid/dfa.rs::func::start_state_reverse	missing	-	baseline
-src/hybrid/dfa.rs::func::starts_for_each_pattern	missing	-	baseline
-src/hybrid/dfa.rs::func::syntax	missing	-	baseline
-src/hybrid/dfa.rs::func::thompson	missing	-	baseline
-src/hybrid/dfa.rs::func::try_search_fwd	missing	-	baseline
-src/hybrid/dfa.rs::func::try_search_overlapping_fwd	missing	-	baseline
-src/hybrid/dfa.rs::func::try_search_overlapping_rev	missing	-	baseline
-src/hybrid/dfa.rs::func::try_search_rev	missing	-	baseline
-src/hybrid/dfa.rs::func::try_which_overlapping_matches	missing	-	baseline
-src/hybrid/dfa.rs::func::unicode_word_boundary	missing	-	baseline
+src/dfa/regex.rs::method::Regex.new_many	missing	-	baseline
+src/dfa/regex.rs::method::Regex<A>.find	missing	-	baseline
+src/dfa/regex.rs::method::Regex<A>.find_iter	missing	-	baseline
+src/dfa/regex.rs::method::Regex<A>.forward	missing	-	baseline
+src/dfa/regex.rs::method::Regex<A>.is_anchored	missing	-	baseline
+src/dfa/regex.rs::method::Regex<A>.is_match	missing	-	baseline
+src/dfa/regex.rs::method::Regex<A>.pattern_len	missing	-	baseline
+src/dfa/regex.rs::method::Regex<A>.reverse	missing	-	baseline
+src/dfa/regex.rs::method::Regex<A>.try_search	missing	-	baseline
+src/dfa/regex.rs::method::Regex<dense::DFA<&'static [u32]>>.builder	missing	-	baseline
+src/dfa/regex.rs::method::Regex<sparse::DFA<Vec<u8>>>.new_many_sparse	missing	-	baseline
+src/dfa/regex.rs::method::Regex<sparse::DFA<Vec<u8>>>.new_sparse	missing	-	baseline
+src/dfa/remapper.rs::method::DFA.remap	missing	-	baseline
+src/dfa/remapper.rs::method::DFA.state_len	missing	-	baseline
+src/dfa/remapper.rs::method::DFA.stride2	missing	-	baseline
+src/dfa/remapper.rs::method::DFA.swap_states	missing	-	baseline
+src/dfa/remapper.rs::method::IndexMapper.to_index	missing	-	baseline
+src/dfa/remapper.rs::method::IndexMapper.to_state_id	missing	-	baseline
+src/dfa/remapper.rs::method::OwnedDFA.remap	missing	-	baseline
+src/dfa/remapper.rs::method::OwnedDFA.state_len	missing	-	baseline
+src/dfa/remapper.rs::method::OwnedDFA.stride2	missing	-	baseline
+src/dfa/remapper.rs::method::OwnedDFA.swap_states	missing	-	baseline
+src/dfa/remapper.rs::method::Remapper.new	missing	-	baseline
+src/dfa/remapper.rs::method::Remapper.remap	missing	-	baseline
+src/dfa/remapper.rs::method::Remapper.swap	missing	-	baseline
+src/dfa/sparse.rs::const::LABEL	missing	-	baseline
+src/dfa/sparse.rs::const::VERSION	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<&'a [u8]>.from_bytes	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<&'a [u8]>.from_bytes_unchecked	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<T>.accelerator	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<T>.as_ref	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<T>.byte_classes	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<T>.fmt	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<T>.get_prefilter	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<T>.has_empty	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<T>.is_accel_state	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<T>.is_always_start_anchored	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<T>.is_dead_state	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<T>.is_match_state	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<T>.is_quit_state	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<T>.is_special_state	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<T>.is_start_state	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<T>.is_utf8	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<T>.match_len	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<T>.match_pattern	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<T>.memory_usage	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<T>.next_eoi_state	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<T>.next_state	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<T>.next_state_unchecked	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<T>.pattern_len	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<T>.set_prefilter	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<T>.start_kind	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<T>.start_state	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<T>.starts_for_each_pattern	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<T>.to_bytes	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<T>.to_bytes_big_endian	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<T>.to_bytes_little_endian	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<T>.to_bytes_native_endian	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<T>.to_owned	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<T>.universal_start_state	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<T>.write_to	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<T>.write_to_big_endian	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<T>.write_to_len	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<T>.write_to_little_endian	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<T>.write_to_native_endian	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<Vec<u8>>.always_match	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<Vec<u8>>.from_dense	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<Vec<u8>>.never_match	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<Vec<u8>>.new	missing	-	baseline
+src/dfa/sparse.rs::method::DFA<Vec<u8>>.new_many	missing	-	baseline
+src/dfa/sparse.rs::method::Seen.contains	missing	-	baseline
+src/dfa/sparse.rs::method::Seen.insert	missing	-	baseline
+src/dfa/sparse.rs::method::Seen.new	missing	-	baseline
+src/dfa/sparse.rs::method::StartStateIter<'a, T>.fmt	missing	-	baseline
+src/dfa/sparse.rs::method::StartStateIter<'a, T>.next	missing	-	baseline
+src/dfa/sparse.rs::method::StartTable<&'a [u8]>.from_bytes_unchecked	missing	-	baseline
+src/dfa/sparse.rs::method::StartTable<T>.as_ref	missing	-	baseline
+src/dfa/sparse.rs::method::StartTable<T>.iter	missing	-	baseline
+src/dfa/sparse.rs::method::StartTable<T>.len	missing	-	baseline
+src/dfa/sparse.rs::method::StartTable<T>.memory_usage	missing	-	baseline
+src/dfa/sparse.rs::method::StartTable<T>.set_start	missing	-	baseline
+src/dfa/sparse.rs::method::StartTable<T>.start	missing	-	baseline
+src/dfa/sparse.rs::method::StartTable<T>.table	missing	-	baseline
+src/dfa/sparse.rs::method::StartTable<T>.to_owned	missing	-	baseline
+src/dfa/sparse.rs::method::StartTable<T>.validate	missing	-	baseline
+src/dfa/sparse.rs::method::StartTable<T>.write_to	missing	-	baseline
+src/dfa/sparse.rs::method::StartTable<T>.write_to_len	missing	-	baseline
+src/dfa/sparse.rs::method::StartTable<Vec<u8>>.from_dense_dfa	missing	-	baseline
+src/dfa/sparse.rs::method::StartTable<Vec<u8>>.new	missing	-	baseline
+src/dfa/sparse.rs::method::State<'a>.accelerator	missing	-	baseline
+src/dfa/sparse.rs::method::State<'a>.fmt	missing	-	baseline
+src/dfa/sparse.rs::method::State<'a>.id	missing	-	baseline
+src/dfa/sparse.rs::method::State<'a>.next	missing	-	baseline
+src/dfa/sparse.rs::method::State<'a>.next_at	missing	-	baseline
+src/dfa/sparse.rs::method::State<'a>.next_eoi	missing	-	baseline
+src/dfa/sparse.rs::method::State<'a>.pattern_id	missing	-	baseline
+src/dfa/sparse.rs::method::State<'a>.pattern_len	missing	-	baseline
+src/dfa/sparse.rs::method::State<'a>.range	missing	-	baseline
+src/dfa/sparse.rs::method::State<'a>.write_to	missing	-	baseline
+src/dfa/sparse.rs::method::State<'a>.write_to_len	missing	-	baseline
+src/dfa/sparse.rs::method::StateIter<'a, T>.fmt	missing	-	baseline
+src/dfa/sparse.rs::method::StateIter<'a, T>.next	missing	-	baseline
+src/dfa/sparse.rs::method::StateMut<'a>.fmt	missing	-	baseline
+src/dfa/sparse.rs::method::StateMut<'a>.set_next_at	missing	-	baseline
+src/dfa/sparse.rs::method::Transitions<&'a [u8]>.from_bytes_unchecked	missing	-	baseline
+src/dfa/sparse.rs::method::Transitions<T>.as_ref	missing	-	baseline
+src/dfa/sparse.rs::method::Transitions<T>.id_len	missing	-	baseline
+src/dfa/sparse.rs::method::Transitions<T>.memory_usage	missing	-	baseline
+src/dfa/sparse.rs::method::Transitions<T>.sparse	missing	-	baseline
+src/dfa/sparse.rs::method::Transitions<T>.sparse_mut	missing	-	baseline
+src/dfa/sparse.rs::method::Transitions<T>.state	missing	-	baseline
+src/dfa/sparse.rs::method::Transitions<T>.state_mut	missing	-	baseline
+src/dfa/sparse.rs::method::Transitions<T>.states	missing	-	baseline
+src/dfa/sparse.rs::method::Transitions<T>.to_owned	missing	-	baseline
+src/dfa/sparse.rs::method::Transitions<T>.try_state	missing	-	baseline
+src/dfa/sparse.rs::method::Transitions<T>.validate	missing	-	baseline
+src/dfa/sparse.rs::method::Transitions<T>.write_to	missing	-	baseline
+src/dfa/sparse.rs::method::Transitions<T>.write_to_len	missing	-	baseline
+src/dfa/special.rs::method::Special.accel_len	missing	-	baseline
+src/dfa/special.rs::method::Special.accels	missing	-	baseline
+src/dfa/special.rs::method::Special.from_bytes	missing	-	baseline
+src/dfa/special.rs::method::Special.is_accel_state	missing	-	baseline
+src/dfa/special.rs::method::Special.is_dead_state	missing	-	baseline
+src/dfa/special.rs::method::Special.is_match_state	missing	-	baseline
+src/dfa/special.rs::method::Special.is_quit_state	missing	-	baseline
+src/dfa/special.rs::method::Special.is_special_state	missing	-	baseline
+src/dfa/special.rs::method::Special.is_start_state	missing	-	baseline
+src/dfa/special.rs::method::Special.match_len	missing	-	baseline
+src/dfa/special.rs::method::Special.matches	missing	-	baseline
+src/dfa/special.rs::method::Special.new	missing	-	baseline
+src/dfa/special.rs::method::Special.remap	missing	-	baseline
+src/dfa/special.rs::method::Special.set_max	missing	-	baseline
+src/dfa/special.rs::method::Special.set_no_special_start_states	missing	-	baseline
+src/dfa/special.rs::method::Special.starts	missing	-	baseline
+src/dfa/special.rs::method::Special.validate	missing	-	baseline
+src/dfa/special.rs::method::Special.validate_state_len	missing	-	baseline
+src/dfa/special.rs::method::Special.write_to	missing	-	baseline
+src/dfa/special.rs::method::Special.write_to_len	missing	-	baseline
+src/dfa/start.rs::method::StartKind.from_bytes	missing	-	baseline
+src/dfa/start.rs::method::StartKind.has_anchored	missing	-	baseline
+src/dfa/start.rs::method::StartKind.has_unanchored	missing	-	baseline
+src/dfa/start.rs::method::StartKind.write_to	missing	-	baseline
+src/dfa/start.rs::method::StartKind.write_to_len	missing	-	baseline
+src/hybrid/dfa.rs::const::ID_SIZE	missing	-	baseline
+src/hybrid/dfa.rs::const::MIN_STATES	missing	-	baseline
+src/hybrid/dfa.rs::const::SENTINEL_STATES	missing	-	baseline
+src/hybrid/dfa.rs::const::STATE_SIZE	missing	-	baseline
+src/hybrid/dfa.rs::method::Builder.build	missing	-	baseline
+src/hybrid/dfa.rs::method::Builder.build_from_nfa	missing	-	baseline
+src/hybrid/dfa.rs::method::Builder.build_many	missing	-	baseline
+src/hybrid/dfa.rs::method::Builder.configure	missing	-	baseline
 src/hybrid/dfa.rs::method::Builder.new	missing	-	baseline
+src/hybrid/dfa.rs::method::Builder.syntax	missing	-	baseline
+src/hybrid/dfa.rs::method::Builder.thompson	missing	-	baseline
+src/hybrid/dfa.rs::method::Cache.clear_count	missing	-	baseline
+src/hybrid/dfa.rs::method::Cache.memory_usage	missing	-	baseline
 src/hybrid/dfa.rs::method::Cache.new	missing	-	baseline
+src/hybrid/dfa.rs::method::Cache.reset	missing	-	baseline
+src/hybrid/dfa.rs::method::Cache.search_finish	missing	-	baseline
+src/hybrid/dfa.rs::method::Cache.search_start	missing	-	baseline
+src/hybrid/dfa.rs::method::Cache.search_total_len	missing	-	baseline
+src/hybrid/dfa.rs::method::Cache.search_update	missing	-	baseline
+src/hybrid/dfa.rs::method::Config.byte_classes	missing	-	baseline
+src/hybrid/dfa.rs::method::Config.byte_classes_from_nfa	missing	-	baseline
+src/hybrid/dfa.rs::method::Config.cache_capacity	missing	-	baseline
+src/hybrid/dfa.rs::method::Config.get_byte_classes	missing	-	baseline
+src/hybrid/dfa.rs::method::Config.get_cache_capacity	missing	-	baseline
+src/hybrid/dfa.rs::method::Config.get_match_kind	missing	-	baseline
+src/hybrid/dfa.rs::method::Config.get_minimum_bytes_per_state	missing	-	baseline
+src/hybrid/dfa.rs::method::Config.get_minimum_cache_capacity	missing	-	baseline
+src/hybrid/dfa.rs::method::Config.get_minimum_cache_clear_count	missing	-	baseline
+src/hybrid/dfa.rs::method::Config.get_prefilter	missing	-	baseline
+src/hybrid/dfa.rs::method::Config.get_quit	missing	-	baseline
+src/hybrid/dfa.rs::method::Config.get_skip_cache_capacity_check	missing	-	baseline
+src/hybrid/dfa.rs::method::Config.get_specialize_start_states	missing	-	baseline
+src/hybrid/dfa.rs::method::Config.get_starts_for_each_pattern	missing	-	baseline
+src/hybrid/dfa.rs::method::Config.get_unicode_word_boundary	missing	-	baseline
+src/hybrid/dfa.rs::method::Config.match_kind	missing	-	baseline
+src/hybrid/dfa.rs::method::Config.minimum_bytes_per_state	missing	-	baseline
+src/hybrid/dfa.rs::method::Config.minimum_cache_clear_count	missing	-	baseline
 src/hybrid/dfa.rs::method::Config.new	missing	-	baseline
+src/hybrid/dfa.rs::method::Config.overwrite	missing	-	baseline
+src/hybrid/dfa.rs::method::Config.prefilter	missing	-	baseline
+src/hybrid/dfa.rs::method::Config.quit	missing	-	baseline
+src/hybrid/dfa.rs::method::Config.quit_set_from_nfa	missing	-	baseline
+src/hybrid/dfa.rs::method::Config.skip_cache_capacity_check	missing	-	baseline
+src/hybrid/dfa.rs::method::Config.specialize_start_states	missing	-	baseline
+src/hybrid/dfa.rs::method::Config.starts_for_each_pattern	missing	-	baseline
+src/hybrid/dfa.rs::method::Config.unicode_word_boundary	missing	-	baseline
+src/hybrid/dfa.rs::method::DFA.always_match	missing	-	baseline
+src/hybrid/dfa.rs::method::DFA.builder	missing	-	baseline
+src/hybrid/dfa.rs::method::DFA.byte_classes	missing	-	baseline
+src/hybrid/dfa.rs::method::DFA.config	missing	-	baseline
+src/hybrid/dfa.rs::method::DFA.create_cache	missing	-	baseline
+src/hybrid/dfa.rs::method::DFA.get_config	missing	-	baseline
+src/hybrid/dfa.rs::method::DFA.get_nfa	missing	-	baseline
+src/hybrid/dfa.rs::method::DFA.match_len	missing	-	baseline
+src/hybrid/dfa.rs::method::DFA.match_pattern	missing	-	baseline
+src/hybrid/dfa.rs::method::DFA.memory_usage	missing	-	baseline
+src/hybrid/dfa.rs::method::DFA.never_match	missing	-	baseline
 src/hybrid/dfa.rs::method::DFA.new	missing	-	baseline
+src/hybrid/dfa.rs::method::DFA.new_many	missing	-	baseline
+src/hybrid/dfa.rs::method::DFA.next_eoi_state	missing	-	baseline
 src/hybrid/dfa.rs::method::DFA.next_state	missing	-	baseline
+src/hybrid/dfa.rs::method::DFA.next_state_untagged	missing	-	baseline
+src/hybrid/dfa.rs::method::DFA.next_state_untagged_unchecked	missing	-	baseline
+src/hybrid/dfa.rs::method::DFA.pattern_len	missing	-	baseline
+src/hybrid/dfa.rs::method::DFA.reset_cache	missing	-	baseline
+src/hybrid/dfa.rs::method::DFA.start_state	missing	-	baseline
+src/hybrid/dfa.rs::method::DFA.start_state_forward	missing	-	baseline
+src/hybrid/dfa.rs::method::DFA.start_state_reverse	missing	-	baseline
+src/hybrid/dfa.rs::method::DFA.stride	missing	-	baseline
+src/hybrid/dfa.rs::method::DFA.stride2	missing	-	baseline
 src/hybrid/dfa.rs::method::DFA.try_search_fwd	missing	-	baseline
+src/hybrid/dfa.rs::method::DFA.try_search_overlapping_fwd	missing	-	baseline
+src/hybrid/dfa.rs::method::DFA.try_search_overlapping_rev	missing	-	baseline
+src/hybrid/dfa.rs::method::DFA.try_search_rev	missing	-	baseline
+src/hybrid/dfa.rs::method::DFA.try_which_overlapping_matches	missing	-	baseline
+src/hybrid/dfa.rs::method::Lazy<'i, 'c>.add_builder_state	missing	-	baseline
+src/hybrid/dfa.rs::method::Lazy<'i, 'c>.add_state	missing	-	baseline
+src/hybrid/dfa.rs::method::Lazy<'i, 'c>.as_ref	missing	-	baseline
+src/hybrid/dfa.rs::method::Lazy<'i, 'c>.cache_next_state	missing	-	baseline
+src/hybrid/dfa.rs::method::Lazy<'i, 'c>.cache_start_group	missing	-	baseline
+src/hybrid/dfa.rs::method::Lazy<'i, 'c>.cache_start_one	missing	-	baseline
+src/hybrid/dfa.rs::method::Lazy<'i, 'c>.clear_cache	missing	-	baseline
+src/hybrid/dfa.rs::method::Lazy<'i, 'c>.get_state_builder	missing	-	baseline
+src/hybrid/dfa.rs::method::Lazy<'i, 'c>.init_cache	missing	-	baseline
+src/hybrid/dfa.rs::method::Lazy<'i, 'c>.new	missing	-	baseline
+src/hybrid/dfa.rs::method::Lazy<'i, 'c>.next_state_id	missing	-	baseline
+src/hybrid/dfa.rs::method::Lazy<'i, 'c>.put_state_builder	missing	-	baseline
+src/hybrid/dfa.rs::method::Lazy<'i, 'c>.reset_cache	missing	-	baseline
+src/hybrid/dfa.rs::method::Lazy<'i, 'c>.save_state	missing	-	baseline
+src/hybrid/dfa.rs::method::Lazy<'i, 'c>.saved_state_id	missing	-	baseline
+src/hybrid/dfa.rs::method::Lazy<'i, 'c>.set_all_transitions	missing	-	baseline
+src/hybrid/dfa.rs::method::Lazy<'i, 'c>.set_start_state	missing	-	baseline
+src/hybrid/dfa.rs::method::Lazy<'i, 'c>.set_transition	missing	-	baseline
+src/hybrid/dfa.rs::method::Lazy<'i, 'c>.try_clear_cache	missing	-	baseline
+src/hybrid/dfa.rs::method::LazyRef<'i, 'c>.dead_id	missing	-	baseline
+src/hybrid/dfa.rs::method::LazyRef<'i, 'c>.get_cached_start_id	missing	-	baseline
+src/hybrid/dfa.rs::method::LazyRef<'i, 'c>.get_cached_state	missing	-	baseline
+src/hybrid/dfa.rs::method::LazyRef<'i, 'c>.is_sentinel	missing	-	baseline
+src/hybrid/dfa.rs::method::LazyRef<'i, 'c>.is_valid	missing	-	baseline
+src/hybrid/dfa.rs::method::LazyRef<'i, 'c>.memory_usage_for_one_more_state	missing	-	baseline
+src/hybrid/dfa.rs::method::LazyRef<'i, 'c>.new	missing	-	baseline
+src/hybrid/dfa.rs::method::LazyRef<'i, 'c>.quit_id	missing	-	baseline
+src/hybrid/dfa.rs::method::LazyRef<'i, 'c>.state_builder_fits_in_cache	missing	-	baseline
+src/hybrid/dfa.rs::method::LazyRef<'i, 'c>.state_fits_in_cache	missing	-	baseline
+src/hybrid/dfa.rs::method::LazyRef<'i, 'c>.unknown_id	missing	-	baseline
+src/hybrid/dfa.rs::method::OverlappingState.get_match	missing	-	baseline
 src/hybrid/dfa.rs::method::OverlappingState.start	missing	-	baseline
-src/hybrid/dfa.rs::struct::Builder	missing	-	baseline
-src/hybrid/dfa.rs::struct::Cache	missing	-	baseline
-src/hybrid/dfa.rs::struct::Config	missing	-	baseline
-src/hybrid/dfa.rs::struct::DFA	missing	-	baseline
-src/hybrid/dfa.rs::struct::OverlappingState	missing	-	baseline
-src/hybrid/error.rs::enum::StartError	missing	-	baseline
-src/hybrid/error.rs::struct::BuildError	missing	-	baseline
-src/hybrid/error.rs::struct::CacheError	missing	-	baseline
-src/hybrid/id.rs::struct::LazyStateID	missing	-	baseline
-src/hybrid/regex.rs::func::as_parts	missing	-	baseline
-src/hybrid/regex.rs::func::as_parts_mut	missing	-	baseline
-src/hybrid/regex.rs::func::build	missing	-	baseline
-src/hybrid/regex.rs::func::build_from_dfas	missing	-	baseline
-src/hybrid/regex.rs::func::builder	missing	-	baseline
-src/hybrid/regex.rs::func::create_cache	missing	-	baseline
-src/hybrid/regex.rs::func::dfa	missing	-	baseline
-src/hybrid/regex.rs::func::forward	missing	-	baseline
-src/hybrid/regex.rs::func::forward_mut	missing	-	baseline
-src/hybrid/regex.rs::func::memory_usage	missing	-	baseline
-src/hybrid/regex.rs::func::new	missing	-	baseline
-src/hybrid/regex.rs::func::pattern_len	missing	-	baseline
-src/hybrid/regex.rs::func::reset	missing	-	baseline
-src/hybrid/regex.rs::func::reset_cache	missing	-	baseline
-src/hybrid/regex.rs::func::reverse	missing	-	baseline
-src/hybrid/regex.rs::func::reverse_mut	missing	-	baseline
-src/hybrid/regex.rs::func::syntax	missing	-	baseline
-src/hybrid/regex.rs::func::thompson	missing	-	baseline
-src/hybrid/regex.rs::func::try_search	missing	-	baseline
+src/hybrid/dfa.rs::method::SearchProgress.len	missing	-	baseline
+src/hybrid/dfa.rs::method::StateSaver.none	missing	-	baseline
+src/hybrid/dfa.rs::method::StateSaver.take_saved	missing	-	baseline
+src/hybrid/dfa.rs::method::StateSaver.take_to_save	missing	-	baseline
+src/hybrid/error.rs::method::BuildError.fmt	missing	-	baseline
+src/hybrid/error.rs::method::BuildError.insufficient_cache_capacity	missing	-	baseline
+src/hybrid/error.rs::method::BuildError.insufficient_state_id_capacity	missing	-	baseline
+src/hybrid/error.rs::method::BuildError.nfa	missing	-	baseline
+src/hybrid/error.rs::method::BuildError.source	missing	-	baseline
+src/hybrid/error.rs::method::BuildError.unsupported_dfa_word_boundary_unicode	missing	-	baseline
+src/hybrid/error.rs::method::CacheError.bad_efficiency	missing	-	baseline
+src/hybrid/error.rs::method::CacheError.fmt	missing	-	baseline
+src/hybrid/error.rs::method::CacheError.too_many_cache_clears	missing	-	baseline
+src/hybrid/error.rs::method::StartError.cache	missing	-	baseline
+src/hybrid/error.rs::method::StartError.fmt	missing	-	baseline
+src/hybrid/error.rs::method::StartError.quit	missing	-	baseline
+src/hybrid/error.rs::method::StartError.source	missing	-	baseline
+src/hybrid/error.rs::method::StartError.unsupported_anchored	missing	-	baseline
+src/hybrid/id.rs::const::MASK_DEAD	missing	-	baseline
+src/hybrid/id.rs::const::MASK_MATCH	missing	-	baseline
+src/hybrid/id.rs::const::MASK_QUIT	missing	-	baseline
+src/hybrid/id.rs::const::MASK_START	missing	-	baseline
+src/hybrid/id.rs::const::MASK_UNKNOWN	missing	-	baseline
+src/hybrid/id.rs::const::MAX	missing	-	baseline
+src/hybrid/id.rs::const::MAX_BIT	missing	-	baseline
+src/hybrid/id.rs::method::LazyStateID.as_usize_unchecked	missing	-	baseline
+src/hybrid/id.rs::method::LazyStateID.as_usize_untagged	missing	-	baseline
+src/hybrid/id.rs::method::LazyStateID.is_dead	missing	-	baseline
+src/hybrid/id.rs::method::LazyStateID.is_match	missing	-	baseline
+src/hybrid/id.rs::method::LazyStateID.is_quit	missing	-	baseline
+src/hybrid/id.rs::method::LazyStateID.is_start	missing	-	baseline
+src/hybrid/id.rs::method::LazyStateID.is_tagged	missing	-	baseline
+src/hybrid/id.rs::method::LazyStateID.is_unknown	missing	-	baseline
+src/hybrid/id.rs::method::LazyStateID.new	missing	-	baseline
+src/hybrid/id.rs::method::LazyStateID.new_unchecked	missing	-	baseline
+src/hybrid/id.rs::method::LazyStateID.to_dead	missing	-	baseline
+src/hybrid/id.rs::method::LazyStateID.to_match	missing	-	baseline
+src/hybrid/id.rs::method::LazyStateID.to_quit	missing	-	baseline
+src/hybrid/id.rs::method::LazyStateID.to_start	missing	-	baseline
+src/hybrid/id.rs::method::LazyStateID.to_unknown	missing	-	baseline
+src/hybrid/id.rs::method::LazyStateIDError.attempted	missing	-	baseline
+src/hybrid/id.rs::method::LazyStateIDError.fmt	missing	-	baseline
+src/hybrid/regex.rs::method::Builder.build	missing	-	baseline
+src/hybrid/regex.rs::method::Builder.build_from_dfas	missing	-	baseline
+src/hybrid/regex.rs::method::Builder.build_many	missing	-	baseline
+src/hybrid/regex.rs::method::Builder.default	missing	-	baseline
+src/hybrid/regex.rs::method::Builder.dfa	missing	-	baseline
 src/hybrid/regex.rs::method::Builder.new	missing	-	baseline
+src/hybrid/regex.rs::method::Builder.syntax	missing	-	baseline
+src/hybrid/regex.rs::method::Builder.thompson	missing	-	baseline
+src/hybrid/regex.rs::method::Cache.as_parts	missing	-	baseline
+src/hybrid/regex.rs::method::Cache.as_parts_mut	missing	-	baseline
+src/hybrid/regex.rs::method::Cache.forward	missing	-	baseline
+src/hybrid/regex.rs::method::Cache.forward_mut	missing	-	baseline
+src/hybrid/regex.rs::method::Cache.memory_usage	missing	-	baseline
 src/hybrid/regex.rs::method::Cache.new	missing	-	baseline
+src/hybrid/regex.rs::method::Cache.reset	missing	-	baseline
+src/hybrid/regex.rs::method::Cache.reverse	missing	-	baseline
+src/hybrid/regex.rs::method::Cache.reverse_mut	missing	-	baseline
+src/hybrid/regex.rs::method::FindMatches<'r, 'c, 'h>.next	missing	-	baseline
+src/hybrid/regex.rs::method::Regex.builder	missing	-	baseline
+src/hybrid/regex.rs::method::Regex.create_cache	missing	-	baseline
+src/hybrid/regex.rs::method::Regex.find	missing	-	baseline
+src/hybrid/regex.rs::method::Regex.find_iter	missing	-	baseline
 src/hybrid/regex.rs::method::Regex.forward	missing	-	baseline
+src/hybrid/regex.rs::method::Regex.is_anchored	missing	-	baseline
+src/hybrid/regex.rs::method::Regex.is_match	missing	-	baseline
 src/hybrid/regex.rs::method::Regex.new	missing	-	baseline
+src/hybrid/regex.rs::method::Regex.new_many	missing	-	baseline
+src/hybrid/regex.rs::method::Regex.pattern_len	missing	-	baseline
+src/hybrid/regex.rs::method::Regex.reset_cache	missing	-	baseline
+src/hybrid/regex.rs::method::Regex.reverse	missing	-	baseline
 src/hybrid/regex.rs::method::Regex.try_search	missing	-	baseline
-src/hybrid/regex.rs::struct::Builder	missing	-	baseline
-src/hybrid/regex.rs::struct::Cache	missing	-	baseline
-src/hybrid/regex.rs::struct::FindMatches	missing	-	baseline
-src/hybrid/regex.rs::struct::Regex	missing	-	baseline
-src/meta/error.rs::func::pattern	missing	-	baseline
-src/meta/error.rs::func::size_limit	missing	-	baseline
-src/meta/error.rs::func::syntax_error	missing	-	baseline
+src/meta/error.rs::method::BuildError.ast	missing	-	baseline
+src/meta/error.rs::method::BuildError.fmt	missing	-	baseline
+src/meta/error.rs::method::BuildError.hir	missing	-	baseline
+src/meta/error.rs::method::BuildError.nfa	missing	-	baseline
 src/meta/error.rs::method::BuildError.pattern	missing	-	baseline
-src/meta/error.rs::struct::BuildError	missing	-	baseline
-src/meta/regex.rs::func::auto_prefilter	missing	-	baseline
-src/meta/regex.rs::func::backtrack	missing	-	baseline
-src/meta/regex.rs::func::build	missing	-	baseline
-src/meta/regex.rs::func::build_from_hir	missing	-	baseline
-src/meta/regex.rs::func::builder	missing	-	baseline
-src/meta/regex.rs::func::byte_classes	missing	-	baseline
-src/meta/regex.rs::func::captures_len	missing	-	baseline
-src/meta/regex.rs::func::config	missing	-	baseline
-src/meta/regex.rs::func::configure	missing	-	baseline
-src/meta/regex.rs::func::create_cache	missing	-	baseline
-src/meta/regex.rs::func::create_captures	missing	-	baseline
-src/meta/regex.rs::func::dfa	missing	-	baseline
-src/meta/regex.rs::func::dfa_size_limit	missing	-	baseline
-src/meta/regex.rs::func::dfa_state_limit	missing	-	baseline
-src/meta/regex.rs::func::get_auto_prefilter	missing	-	baseline
-src/meta/regex.rs::func::get_backtrack	missing	-	baseline
-src/meta/regex.rs::func::get_byte_classes	missing	-	baseline
-src/meta/regex.rs::func::get_config	missing	-	baseline
-src/meta/regex.rs::func::get_dfa	missing	-	baseline
-src/meta/regex.rs::func::get_dfa_size_limit	missing	-	baseline
-src/meta/regex.rs::func::get_dfa_state_limit	missing	-	baseline
-src/meta/regex.rs::func::get_hybrid	missing	-	baseline
-src/meta/regex.rs::func::get_hybrid_cache_capacity	missing	-	baseline
-src/meta/regex.rs::func::get_line_terminator	missing	-	baseline
-src/meta/regex.rs::func::get_match_kind	missing	-	baseline
-src/meta/regex.rs::func::get_nfa_size_limit	missing	-	baseline
-src/meta/regex.rs::func::get_onepass	missing	-	baseline
-src/meta/regex.rs::func::get_onepass_size_limit	missing	-	baseline
-src/meta/regex.rs::func::get_prefilter	missing	-	baseline
-src/meta/regex.rs::func::get_utf8_empty	missing	-	baseline
-src/meta/regex.rs::func::get_which_captures	missing	-	baseline
-src/meta/regex.rs::func::group_info	missing	-	baseline
-src/meta/regex.rs::func::hybrid	missing	-	baseline
-src/meta/regex.rs::func::hybrid_cache_capacity	missing	-	baseline
-src/meta/regex.rs::func::is_accelerated	missing	-	baseline
-src/meta/regex.rs::func::line_terminator	missing	-	baseline
-src/meta/regex.rs::func::match_kind	missing	-	baseline
-src/meta/regex.rs::func::memory_usage	missing	-	baseline
-src/meta/regex.rs::func::new	missing	-	baseline
-src/meta/regex.rs::func::nfa_size_limit	missing	-	baseline
-src/meta/regex.rs::func::onepass	missing	-	baseline
-src/meta/regex.rs::func::onepass_size_limit	missing	-	baseline
-src/meta/regex.rs::func::pattern_len	missing	-	baseline
-src/meta/regex.rs::func::prefilter	missing	-	baseline
-src/meta/regex.rs::func::regex	missing	-	baseline
-src/meta/regex.rs::func::reset	missing	-	baseline
-src/meta/regex.rs::func::search	missing	-	baseline
-src/meta/regex.rs::func::search_captures	missing	-	baseline
-src/meta/regex.rs::func::search_captures_with	missing	-	baseline
-src/meta/regex.rs::func::search_half	missing	-	baseline
-src/meta/regex.rs::func::search_half_with	missing	-	baseline
-src/meta/regex.rs::func::search_slots	missing	-	baseline
-src/meta/regex.rs::func::search_slots_with	missing	-	baseline
-src/meta/regex.rs::func::search_with	missing	-	baseline
-src/meta/regex.rs::func::static_captures_len	missing	-	baseline
-src/meta/regex.rs::func::syntax	missing	-	baseline
-src/meta/regex.rs::func::utf8_empty	missing	-	baseline
-src/meta/regex.rs::func::which_captures	missing	-	baseline
-src/meta/regex.rs::func::which_overlapping_matches	missing	-	baseline
-src/meta/regex.rs::func::which_overlapping_matches_with	missing	-	baseline
+src/meta/error.rs::method::BuildError.size_limit	missing	-	baseline
+src/meta/error.rs::method::BuildError.source	missing	-	baseline
+src/meta/error.rs::method::BuildError.syntax_error	missing	-	baseline
+src/meta/error.rs::method::RetryError.fmt	missing	-	baseline
+src/meta/error.rs::method::RetryError.from	missing	-	baseline
+src/meta/error.rs::method::RetryFailError.fmt	missing	-	baseline
+src/meta/error.rs::method::RetryFailError.from	missing	-	baseline
+src/meta/error.rs::method::RetryFailError.from_offset	missing	-	baseline
+src/meta/error.rs::method::RetryQuadraticError.fmt	missing	-	baseline
+src/meta/error.rs::method::RetryQuadraticError.new	missing	-	baseline
+src/meta/regex.rs::const::DEFAULT_POOL_CAPACITY	missing	-	baseline
+src/meta/regex.rs::method::Builder.build	missing	-	baseline
+src/meta/regex.rs::method::Builder.build_from_hir	missing	-	baseline
+src/meta/regex.rs::method::Builder.build_many	missing	-	baseline
+src/meta/regex.rs::method::Builder.build_many_from_hir	missing	-	baseline
+src/meta/regex.rs::method::Builder.configure	missing	-	baseline
 src/meta/regex.rs::method::Builder.new	missing	-	baseline
+src/meta/regex.rs::method::Builder.syntax	missing	-	baseline
+src/meta/regex.rs::method::Cache.memory_usage	missing	-	baseline
 src/meta/regex.rs::method::Cache.new	missing	-	baseline
-src/meta/regex.rs::method::CapturesMatches.regex	missing	-	baseline
+src/meta/regex.rs::method::Cache.reset	missing	-	baseline
+src/meta/regex.rs::method::CapturesMatches<'r, 'h>.count	missing	-	baseline
+src/meta/regex.rs::method::CapturesMatches<'r, 'h>.input	missing	-	baseline
+src/meta/regex.rs::method::CapturesMatches<'r, 'h>.next	missing	-	baseline
+src/meta/regex.rs::method::CapturesMatches<'r, 'h>.regex	missing	-	baseline
+src/meta/regex.rs::method::Config.auto_prefilter	missing	-	baseline
+src/meta/regex.rs::method::Config.backtrack	missing	-	baseline
+src/meta/regex.rs::method::Config.byte_classes	missing	-	baseline
+src/meta/regex.rs::method::Config.dfa	missing	-	baseline
+src/meta/regex.rs::method::Config.dfa_size_limit	missing	-	baseline
+src/meta/regex.rs::method::Config.dfa_state_limit	missing	-	baseline
+src/meta/regex.rs::method::Config.get_auto_prefilter	missing	-	baseline
+src/meta/regex.rs::method::Config.get_backtrack	missing	-	baseline
+src/meta/regex.rs::method::Config.get_byte_classes	missing	-	baseline
+src/meta/regex.rs::method::Config.get_dfa	missing	-	baseline
+src/meta/regex.rs::method::Config.get_dfa_size_limit	missing	-	baseline
+src/meta/regex.rs::method::Config.get_dfa_state_limit	missing	-	baseline
+src/meta/regex.rs::method::Config.get_hybrid	missing	-	baseline
+src/meta/regex.rs::method::Config.get_hybrid_cache_capacity	missing	-	baseline
+src/meta/regex.rs::method::Config.get_line_terminator	missing	-	baseline
+src/meta/regex.rs::method::Config.get_match_kind	missing	-	baseline
+src/meta/regex.rs::method::Config.get_nfa_size_limit	missing	-	baseline
+src/meta/regex.rs::method::Config.get_onepass	missing	-	baseline
+src/meta/regex.rs::method::Config.get_onepass_size_limit	missing	-	baseline
+src/meta/regex.rs::method::Config.get_pool_capacity	missing	-	baseline
+src/meta/regex.rs::method::Config.get_prefilter	missing	-	baseline
+src/meta/regex.rs::method::Config.get_utf8_empty	missing	-	baseline
+src/meta/regex.rs::method::Config.get_which_captures	missing	-	baseline
+src/meta/regex.rs::method::Config.hybrid	missing	-	baseline
+src/meta/regex.rs::method::Config.hybrid_cache_capacity	missing	-	baseline
+src/meta/regex.rs::method::Config.line_terminator	missing	-	baseline
+src/meta/regex.rs::method::Config.match_kind	missing	-	baseline
 src/meta/regex.rs::method::Config.new	missing	-	baseline
-src/meta/regex.rs::method::FindMatches.regex	missing	-	baseline
+src/meta/regex.rs::method::Config.nfa_size_limit	missing	-	baseline
+src/meta/regex.rs::method::Config.onepass	missing	-	baseline
+src/meta/regex.rs::method::Config.onepass_size_limit	missing	-	baseline
+src/meta/regex.rs::method::Config.overwrite	missing	-	baseline
+src/meta/regex.rs::method::Config.pool_capacity	missing	-	baseline
+src/meta/regex.rs::method::Config.prefilter	missing	-	baseline
+src/meta/regex.rs::method::Config.to_thompson_config	missing	-	baseline
+src/meta/regex.rs::method::Config.utf8_empty	missing	-	baseline
+src/meta/regex.rs::method::Config.which_captures	missing	-	baseline
+src/meta/regex.rs::method::FindMatches<'r, 'h>.count	missing	-	baseline
+src/meta/regex.rs::method::FindMatches<'r, 'h>.input	missing	-	baseline
+src/meta/regex.rs::method::FindMatches<'r, 'h>.next	missing	-	baseline
+src/meta/regex.rs::method::FindMatches<'r, 'h>.regex	missing	-	baseline
+src/meta/regex.rs::method::Regex.builder	missing	-	baseline
+src/meta/regex.rs::method::Regex.captures	missing	-	baseline
+src/meta/regex.rs::method::Regex.captures_iter	missing	-	baseline
+src/meta/regex.rs::method::Regex.captures_len	missing	-	baseline
+src/meta/regex.rs::method::Regex.clone	missing	-	baseline
+src/meta/regex.rs::method::Regex.config	missing	-	baseline
+src/meta/regex.rs::method::Regex.create_cache	missing	-	baseline
 src/meta/regex.rs::method::Regex.create_captures	missing	-	baseline
+src/meta/regex.rs::method::Regex.find	missing	-	baseline
+src/meta/regex.rs::method::Regex.find_iter	missing	-	baseline
+src/meta/regex.rs::method::Regex.get_config	missing	-	baseline
+src/meta/regex.rs::method::Regex.group_info	missing	-	baseline
+src/meta/regex.rs::method::Regex.is_accelerated	missing	-	baseline
+src/meta/regex.rs::method::Regex.is_match	missing	-	baseline
+src/meta/regex.rs::method::Regex.memory_usage	missing	-	baseline
 src/meta/regex.rs::method::Regex.new	missing	-	baseline
+src/meta/regex.rs::method::Regex.new_many	missing	-	baseline
+src/meta/regex.rs::method::Regex.pattern_len	missing	-	baseline
 src/meta/regex.rs::method::Regex.search	missing	-	baseline
+src/meta/regex.rs::method::Regex.search_captures	missing	-	baseline
+src/meta/regex.rs::method::Regex.search_captures_with	missing	-	baseline
+src/meta/regex.rs::method::Regex.search_half	missing	-	baseline
+src/meta/regex.rs::method::Regex.search_half_with	missing	-	baseline
+src/meta/regex.rs::method::Regex.search_slots	missing	-	baseline
+src/meta/regex.rs::method::Regex.search_slots_with	missing	-	baseline
 src/meta/regex.rs::method::Regex.search_with	missing	-	baseline
-src/meta/regex.rs::struct::Builder	missing	-	baseline
-src/meta/regex.rs::struct::Cache	missing	-	baseline
-src/meta/regex.rs::struct::CapturesMatches	missing	-	baseline
-src/meta/regex.rs::struct::Config	missing	-	baseline
-src/meta/regex.rs::struct::FindMatches	missing	-	baseline
-src/meta/regex.rs::struct::Regex	missing	-	baseline
-src/meta/regex.rs::struct::Split	missing	-	baseline
-src/meta/regex.rs::struct::SplitN	missing	-	baseline
-src/nfa/thompson/backtrack.rs::func::always_match	missing	-	baseline
-src/nfa/thompson/backtrack.rs::func::build	missing	-	baseline
-src/nfa/thompson/backtrack.rs::func::build_from_nfa	missing	-	baseline
-src/nfa/thompson/backtrack.rs::func::builder	missing	-	baseline
-src/nfa/thompson/backtrack.rs::func::config	missing	-	baseline
-src/nfa/thompson/backtrack.rs::func::configure	missing	-	baseline
-src/nfa/thompson/backtrack.rs::func::create_cache	missing	-	baseline
-src/nfa/thompson/backtrack.rs::func::create_captures	missing	-	baseline
-src/nfa/thompson/backtrack.rs::func::get_config	missing	-	baseline
-src/nfa/thompson/backtrack.rs::func::get_nfa	missing	-	baseline
-src/nfa/thompson/backtrack.rs::func::get_prefilter	missing	-	baseline
-src/nfa/thompson/backtrack.rs::func::get_visited_capacity	missing	-	baseline
-src/nfa/thompson/backtrack.rs::func::max_haystack_len	missing	-	baseline
-src/nfa/thompson/backtrack.rs::func::memory_usage	missing	-	baseline
-src/nfa/thompson/backtrack.rs::func::min_visited_capacity	missing	-	baseline
-src/nfa/thompson/backtrack.rs::func::never_match	missing	-	baseline
-src/nfa/thompson/backtrack.rs::func::new	missing	-	baseline
-src/nfa/thompson/backtrack.rs::func::new_from_nfa	missing	-	baseline
-src/nfa/thompson/backtrack.rs::func::pattern_len	missing	-	baseline
-src/nfa/thompson/backtrack.rs::func::prefilter	missing	-	baseline
-src/nfa/thompson/backtrack.rs::func::reset	missing	-	baseline
-src/nfa/thompson/backtrack.rs::func::reset_cache	missing	-	baseline
-src/nfa/thompson/backtrack.rs::func::syntax	missing	-	baseline
-src/nfa/thompson/backtrack.rs::func::thompson	missing	-	baseline
-src/nfa/thompson/backtrack.rs::func::try_search	missing	-	baseline
-src/nfa/thompson/backtrack.rs::func::try_search_slots	missing	-	baseline
-src/nfa/thompson/backtrack.rs::func::visited_capacity	missing	-	baseline
+src/meta/regex.rs::method::Regex.split	missing	-	baseline
+src/meta/regex.rs::method::Regex.splitn	missing	-	baseline
+src/meta/regex.rs::method::Regex.static_captures_len	missing	-	baseline
+src/meta/regex.rs::method::Regex.which_overlapping_matches	missing	-	baseline
+src/meta/regex.rs::method::Regex.which_overlapping_matches_with	missing	-	baseline
+src/meta/regex.rs::method::RegexInfo.captures_disabled	missing	-	baseline
+src/meta/regex.rs::method::RegexInfo.config	missing	-	baseline
+src/meta/regex.rs::method::RegexInfo.is_always_anchored_end	missing	-	baseline
+src/meta/regex.rs::method::RegexInfo.is_always_anchored_start	missing	-	baseline
+src/meta/regex.rs::method::RegexInfo.is_anchored_start	missing	-	baseline
+src/meta/regex.rs::method::RegexInfo.is_impossible	missing	-	baseline
+src/meta/regex.rs::method::RegexInfo.memory_usage	missing	-	baseline
+src/meta/regex.rs::method::RegexInfo.new	missing	-	baseline
+src/meta/regex.rs::method::RegexInfo.pattern_len	missing	-	baseline
+src/meta/regex.rs::method::RegexInfo.props	missing	-	baseline
+src/meta/regex.rs::method::RegexInfo.props_union	missing	-	baseline
+src/meta/regex.rs::method::Split<'r, 'h>.input	missing	-	baseline
+src/meta/regex.rs::method::Split<'r, 'h>.next	missing	-	baseline
+src/meta/regex.rs::method::SplitN<'r, 'h>.input	missing	-	baseline
+src/meta/regex.rs::method::SplitN<'r, 'h>.next	missing	-	baseline
+src/meta/regex.rs::method::SplitN<'r, 'h>.size_hint	missing	-	baseline
+src/meta/reverse_inner.rs::method::InnerPrefilter.new	missing	-	baseline
+src/meta/strategy.rs::method::Core.create_cache	missing	-	baseline
+src/meta/strategy.rs::method::Core.group_info	missing	-	baseline
+src/meta/strategy.rs::method::Core.is_accelerated	missing	-	baseline
+src/meta/strategy.rs::method::Core.is_capture_search_needed	missing	-	baseline
+src/meta/strategy.rs::method::Core.is_match	missing	-	baseline
+src/meta/strategy.rs::method::Core.is_match_nofail	missing	-	baseline
+src/meta/strategy.rs::method::Core.memory_usage	missing	-	baseline
+src/meta/strategy.rs::method::Core.name	missing	-	baseline
+src/meta/strategy.rs::method::Core.new	missing	-	baseline
+src/meta/strategy.rs::method::Core.reset_cache	missing	-	baseline
+src/meta/strategy.rs::method::Core.search	missing	-	baseline
+src/meta/strategy.rs::method::Core.search_half	missing	-	baseline
+src/meta/strategy.rs::method::Core.search_half_nofail	missing	-	baseline
+src/meta/strategy.rs::method::Core.search_nofail	missing	-	baseline
+src/meta/strategy.rs::method::Core.search_slots	missing	-	baseline
+src/meta/strategy.rs::method::Core.search_slots_nofail	missing	-	baseline
+src/meta/strategy.rs::method::Core.try_search_mayfail	missing	-	baseline
+src/meta/strategy.rs::method::Core.which_overlapping_matches	missing	-	baseline
+src/meta/strategy.rs::method::Pre<()>.from_alternation_literals	missing	-	baseline
+src/meta/strategy.rs::method::Pre<()>.from_prefixes	missing	-	baseline
+src/meta/strategy.rs::method::Pre<P>.create_cache	missing	-	baseline
+src/meta/strategy.rs::method::Pre<P>.group_info	missing	-	baseline
+src/meta/strategy.rs::method::Pre<P>.is_accelerated	missing	-	baseline
+src/meta/strategy.rs::method::Pre<P>.is_match	missing	-	baseline
+src/meta/strategy.rs::method::Pre<P>.memory_usage	missing	-	baseline
+src/meta/strategy.rs::method::Pre<P>.name	missing	-	baseline
+src/meta/strategy.rs::method::Pre<P>.new	missing	-	baseline
+src/meta/strategy.rs::method::Pre<P>.reset_cache	missing	-	baseline
+src/meta/strategy.rs::method::Pre<P>.search	missing	-	baseline
+src/meta/strategy.rs::method::Pre<P>.search_half	missing	-	baseline
+src/meta/strategy.rs::method::Pre<P>.search_slots	missing	-	baseline
+src/meta/strategy.rs::method::Pre<P>.which_overlapping_matches	missing	-	baseline
+src/meta/strategy.rs::method::ReverseAnchored.create_cache	missing	-	baseline
+src/meta/strategy.rs::method::ReverseAnchored.group_info	missing	-	baseline
+src/meta/strategy.rs::method::ReverseAnchored.is_accelerated	missing	-	baseline
+src/meta/strategy.rs::method::ReverseAnchored.is_match	missing	-	baseline
+src/meta/strategy.rs::method::ReverseAnchored.memory_usage	missing	-	baseline
+src/meta/strategy.rs::method::ReverseAnchored.name	missing	-	baseline
+src/meta/strategy.rs::method::ReverseAnchored.new	missing	-	baseline
+src/meta/strategy.rs::method::ReverseAnchored.reset_cache	missing	-	baseline
+src/meta/strategy.rs::method::ReverseAnchored.search	missing	-	baseline
+src/meta/strategy.rs::method::ReverseAnchored.search_half	missing	-	baseline
+src/meta/strategy.rs::method::ReverseAnchored.search_slots	missing	-	baseline
+src/meta/strategy.rs::method::ReverseAnchored.try_search_half_anchored_rev	missing	-	baseline
+src/meta/strategy.rs::method::ReverseAnchored.which_overlapping_matches	missing	-	baseline
+src/meta/strategy.rs::method::ReverseInner.create_cache	missing	-	baseline
+src/meta/strategy.rs::method::ReverseInner.group_info	missing	-	baseline
+src/meta/strategy.rs::method::ReverseInner.is_accelerated	missing	-	baseline
+src/meta/strategy.rs::method::ReverseInner.is_match	missing	-	baseline
+src/meta/strategy.rs::method::ReverseInner.memory_usage	missing	-	baseline
+src/meta/strategy.rs::method::ReverseInner.name	missing	-	baseline
+src/meta/strategy.rs::method::ReverseInner.new	missing	-	baseline
+src/meta/strategy.rs::method::ReverseInner.reset_cache	missing	-	baseline
+src/meta/strategy.rs::method::ReverseInner.search	missing	-	baseline
+src/meta/strategy.rs::method::ReverseInner.search_half	missing	-	baseline
+src/meta/strategy.rs::method::ReverseInner.search_slots	missing	-	baseline
+src/meta/strategy.rs::method::ReverseInner.try_search_full	missing	-	baseline
+src/meta/strategy.rs::method::ReverseInner.try_search_half_fwd_stopat	missing	-	baseline
+src/meta/strategy.rs::method::ReverseInner.try_search_half_rev_limited	missing	-	baseline
+src/meta/strategy.rs::method::ReverseInner.which_overlapping_matches	missing	-	baseline
+src/meta/strategy.rs::method::ReverseSuffix.create_cache	missing	-	baseline
+src/meta/strategy.rs::method::ReverseSuffix.group_info	missing	-	baseline
+src/meta/strategy.rs::method::ReverseSuffix.is_accelerated	missing	-	baseline
+src/meta/strategy.rs::method::ReverseSuffix.is_match	missing	-	baseline
+src/meta/strategy.rs::method::ReverseSuffix.memory_usage	missing	-	baseline
+src/meta/strategy.rs::method::ReverseSuffix.name	missing	-	baseline
+src/meta/strategy.rs::method::ReverseSuffix.new	missing	-	baseline
+src/meta/strategy.rs::method::ReverseSuffix.reset_cache	missing	-	baseline
+src/meta/strategy.rs::method::ReverseSuffix.search	missing	-	baseline
+src/meta/strategy.rs::method::ReverseSuffix.search_half	missing	-	baseline
+src/meta/strategy.rs::method::ReverseSuffix.search_slots	missing	-	baseline
+src/meta/strategy.rs::method::ReverseSuffix.try_search_half_fwd	missing	-	baseline
+src/meta/strategy.rs::method::ReverseSuffix.try_search_half_rev_limited	missing	-	baseline
+src/meta/strategy.rs::method::ReverseSuffix.try_search_half_start	missing	-	baseline
+src/meta/strategy.rs::method::ReverseSuffix.which_overlapping_matches	missing	-	baseline
+src/meta/wrappers.rs::method::BoundedBacktracker.create_cache	missing	-	baseline
+src/meta/wrappers.rs::method::BoundedBacktracker.get	missing	-	baseline
+src/meta/wrappers.rs::method::BoundedBacktracker.new	missing	-	baseline
+src/meta/wrappers.rs::method::BoundedBacktrackerCache.get	missing	-	baseline
+src/meta/wrappers.rs::method::BoundedBacktrackerCache.memory_usage	missing	-	baseline
+src/meta/wrappers.rs::method::BoundedBacktrackerCache.none	missing	-	baseline
+src/meta/wrappers.rs::method::BoundedBacktrackerCache.reset	missing	-	baseline
+src/meta/wrappers.rs::method::BoundedBacktrackerEngine.is_match	missing	-	baseline
+src/meta/wrappers.rs::method::BoundedBacktrackerEngine.max_haystack_len	missing	-	baseline
+src/meta/wrappers.rs::method::BoundedBacktrackerEngine.new	missing	-	baseline
+src/meta/wrappers.rs::method::BoundedBacktrackerEngine.search_slots	missing	-	baseline
+src/meta/wrappers.rs::method::DFA.get	missing	-	baseline
+src/meta/wrappers.rs::method::DFA.is_some	missing	-	baseline
+src/meta/wrappers.rs::method::DFA.memory_usage	missing	-	baseline
+src/meta/wrappers.rs::method::DFA.new	missing	-	baseline
+src/meta/wrappers.rs::method::DFA.none	missing	-	baseline
+src/meta/wrappers.rs::method::DFAEngine.memory_usage	missing	-	baseline
+src/meta/wrappers.rs::method::DFAEngine.new	missing	-	baseline
+src/meta/wrappers.rs::method::DFAEngine.try_search	missing	-	baseline
+src/meta/wrappers.rs::method::DFAEngine.try_search_half_fwd	missing	-	baseline
+src/meta/wrappers.rs::method::DFAEngine.try_search_half_fwd_stopat	missing	-	baseline
+src/meta/wrappers.rs::method::DFAEngine.try_search_half_rev	missing	-	baseline
+src/meta/wrappers.rs::method::DFAEngine.try_search_half_rev_limited	missing	-	baseline
+src/meta/wrappers.rs::method::DFAEngine.try_which_overlapping_matches	missing	-	baseline
+src/meta/wrappers.rs::method::Hybrid.create_cache	missing	-	baseline
+src/meta/wrappers.rs::method::Hybrid.get	missing	-	baseline
+src/meta/wrappers.rs::method::Hybrid.is_some	missing	-	baseline
+src/meta/wrappers.rs::method::Hybrid.new	missing	-	baseline
+src/meta/wrappers.rs::method::Hybrid.none	missing	-	baseline
+src/meta/wrappers.rs::method::HybridCache.memory_usage	missing	-	baseline
+src/meta/wrappers.rs::method::HybridCache.new	missing	-	baseline
+src/meta/wrappers.rs::method::HybridCache.none	missing	-	baseline
+src/meta/wrappers.rs::method::HybridCache.reset	missing	-	baseline
+src/meta/wrappers.rs::method::HybridEngine.new	missing	-	baseline
+src/meta/wrappers.rs::method::HybridEngine.try_search	missing	-	baseline
+src/meta/wrappers.rs::method::HybridEngine.try_search_half_fwd	missing	-	baseline
+src/meta/wrappers.rs::method::HybridEngine.try_search_half_fwd_stopat	missing	-	baseline
+src/meta/wrappers.rs::method::HybridEngine.try_search_half_rev	missing	-	baseline
+src/meta/wrappers.rs::method::HybridEngine.try_search_half_rev_limited	missing	-	baseline
+src/meta/wrappers.rs::method::HybridEngine.try_which_overlapping_matches	missing	-	baseline
+src/meta/wrappers.rs::method::OnePass.create_cache	missing	-	baseline
+src/meta/wrappers.rs::method::OnePass.get	missing	-	baseline
+src/meta/wrappers.rs::method::OnePass.memory_usage	missing	-	baseline
+src/meta/wrappers.rs::method::OnePass.new	missing	-	baseline
+src/meta/wrappers.rs::method::OnePassCache.memory_usage	missing	-	baseline
+src/meta/wrappers.rs::method::OnePassCache.new	missing	-	baseline
+src/meta/wrappers.rs::method::OnePassCache.none	missing	-	baseline
+src/meta/wrappers.rs::method::OnePassCache.reset	missing	-	baseline
+src/meta/wrappers.rs::method::OnePassEngine.get_nfa	missing	-	baseline
+src/meta/wrappers.rs::method::OnePassEngine.memory_usage	missing	-	baseline
+src/meta/wrappers.rs::method::OnePassEngine.new	missing	-	baseline
+src/meta/wrappers.rs::method::OnePassEngine.search_slots	missing	-	baseline
+src/meta/wrappers.rs::method::PikeVM.create_cache	missing	-	baseline
+src/meta/wrappers.rs::method::PikeVM.get	missing	-	baseline
+src/meta/wrappers.rs::method::PikeVM.new	missing	-	baseline
+src/meta/wrappers.rs::method::PikeVMCache.get	missing	-	baseline
+src/meta/wrappers.rs::method::PikeVMCache.memory_usage	missing	-	baseline
+src/meta/wrappers.rs::method::PikeVMCache.none	missing	-	baseline
+src/meta/wrappers.rs::method::PikeVMCache.reset	missing	-	baseline
+src/meta/wrappers.rs::method::PikeVMEngine.is_match	missing	-	baseline
+src/meta/wrappers.rs::method::PikeVMEngine.new	missing	-	baseline
+src/meta/wrappers.rs::method::PikeVMEngine.search_slots	missing	-	baseline
+src/meta/wrappers.rs::method::PikeVMEngine.which_overlapping_matches	missing	-	baseline
+src/meta/wrappers.rs::method::ReverseDFA.get	missing	-	baseline
+src/meta/wrappers.rs::method::ReverseDFA.is_some	missing	-	baseline
+src/meta/wrappers.rs::method::ReverseDFA.memory_usage	missing	-	baseline
+src/meta/wrappers.rs::method::ReverseDFA.new	missing	-	baseline
+src/meta/wrappers.rs::method::ReverseDFA.none	missing	-	baseline
+src/meta/wrappers.rs::method::ReverseDFAEngine.memory_usage	missing	-	baseline
+src/meta/wrappers.rs::method::ReverseDFAEngine.new	missing	-	baseline
+src/meta/wrappers.rs::method::ReverseDFAEngine.try_search_half_rev_limited	missing	-	baseline
+src/meta/wrappers.rs::method::ReverseHybrid.create_cache	missing	-	baseline
+src/meta/wrappers.rs::method::ReverseHybrid.get	missing	-	baseline
+src/meta/wrappers.rs::method::ReverseHybrid.new	missing	-	baseline
+src/meta/wrappers.rs::method::ReverseHybrid.none	missing	-	baseline
+src/meta/wrappers.rs::method::ReverseHybridCache.memory_usage	missing	-	baseline
+src/meta/wrappers.rs::method::ReverseHybridCache.new	missing	-	baseline
+src/meta/wrappers.rs::method::ReverseHybridCache.none	missing	-	baseline
+src/meta/wrappers.rs::method::ReverseHybridCache.reset	missing	-	baseline
+src/meta/wrappers.rs::method::ReverseHybridEngine.new	missing	-	baseline
+src/meta/wrappers.rs::method::ReverseHybridEngine.try_search_half_rev_limited	missing	-	baseline
+src/nfa/thompson/backtrack.rs::const::BLOCK_SIZE	missing	-	baseline
+src/nfa/thompson/backtrack.rs::const::DEFAULT	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.always_match	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.backtrack	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.builder	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.config	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.create_cache	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.create_captures	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.get_config	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.get_nfa	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.max_haystack_len	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.never_match	missing	-	baseline
 src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.new	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.new_from_nfa	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.new_many	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.pattern_len	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.reset_cache	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.search_imp	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.step	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.try_captures	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.try_captures_iter	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.try_find	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.try_find_iter	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.try_is_match	missing	-	baseline
 src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.try_search	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.try_search_slots	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.try_search_slots_imp	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::Builder.build	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::Builder.build_from_nfa	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::Builder.build_many	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::Builder.configure	missing	-	baseline
 src/nfa/thompson/backtrack.rs::method::Builder.new	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::Builder.syntax	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::Builder.thompson	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::Cache.memory_usage	missing	-	baseline
 src/nfa/thompson/backtrack.rs::method::Cache.new	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::Cache.reset	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::Cache.setup_search	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::Config.get_prefilter	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::Config.get_visited_capacity	missing	-	baseline
 src/nfa/thompson/backtrack.rs::method::Config.new	missing	-	baseline
-src/nfa/thompson/backtrack.rs::struct::BoundedBacktracker	missing	-	baseline
-src/nfa/thompson/backtrack.rs::struct::Builder	missing	-	baseline
-src/nfa/thompson/backtrack.rs::struct::Cache	missing	-	baseline
-src/nfa/thompson/backtrack.rs::struct::Config	missing	-	baseline
-src/nfa/thompson/backtrack.rs::struct::TryCapturesMatches	missing	-	baseline
-src/nfa/thompson/backtrack.rs::struct::TryFindMatches	missing	-	baseline
-src/nfa/thompson/builder.rs::func::add_capture_end	missing	-	baseline
-src/nfa/thompson/builder.rs::func::add_capture_start	missing	-	baseline
-src/nfa/thompson/builder.rs::func::add_empty	missing	-	baseline
-src/nfa/thompson/builder.rs::func::add_fail	missing	-	baseline
-src/nfa/thompson/builder.rs::func::add_look	missing	-	baseline
-src/nfa/thompson/builder.rs::func::add_match	missing	-	baseline
-src/nfa/thompson/builder.rs::func::add_range	missing	-	baseline
-src/nfa/thompson/builder.rs::func::add_sparse	missing	-	baseline
-src/nfa/thompson/builder.rs::func::add_union	missing	-	baseline
-src/nfa/thompson/builder.rs::func::add_union_reverse	missing	-	baseline
-src/nfa/thompson/builder.rs::func::build	missing	-	baseline
-src/nfa/thompson/builder.rs::func::clear	missing	-	baseline
-src/nfa/thompson/builder.rs::func::current_pattern_id	missing	-	baseline
-src/nfa/thompson/builder.rs::func::finish_pattern	missing	-	baseline
-src/nfa/thompson/builder.rs::func::get_look_matcher	missing	-	baseline
-src/nfa/thompson/builder.rs::func::get_reverse	missing	-	baseline
-src/nfa/thompson/builder.rs::func::get_size_limit	missing	-	baseline
-src/nfa/thompson/builder.rs::func::get_utf8	missing	-	baseline
-src/nfa/thompson/builder.rs::func::memory_usage	missing	-	baseline
-src/nfa/thompson/builder.rs::func::new	missing	-	baseline
-src/nfa/thompson/builder.rs::func::patch	missing	-	baseline
-src/nfa/thompson/builder.rs::func::pattern_len	missing	-	baseline
-src/nfa/thompson/builder.rs::func::set_look_matcher	missing	-	baseline
-src/nfa/thompson/builder.rs::func::set_reverse	missing	-	baseline
-src/nfa/thompson/builder.rs::func::set_size_limit	missing	-	baseline
-src/nfa/thompson/builder.rs::func::set_utf8	missing	-	baseline
-src/nfa/thompson/builder.rs::func::start_pattern	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::Config.overwrite	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::Config.prefilter	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::Config.visited_capacity	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::TryCapturesMatches<'r, 'c, 'h>.next	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::TryFindMatches<'r, 'c, 'h>.next	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::Visited.insert	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::Visited.memory_usage	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::Visited.new	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::Visited.reset	missing	-	baseline
+src/nfa/thompson/backtrack.rs::method::Visited.setup_search	missing	-	baseline
+src/nfa/thompson/builder.rs::method::Builder.add	missing	-	baseline
+src/nfa/thompson/builder.rs::method::Builder.add_capture_end	missing	-	baseline
+src/nfa/thompson/builder.rs::method::Builder.add_capture_start	missing	-	baseline
+src/nfa/thompson/builder.rs::method::Builder.add_empty	missing	-	baseline
+src/nfa/thompson/builder.rs::method::Builder.add_fail	missing	-	baseline
+src/nfa/thompson/builder.rs::method::Builder.add_look	missing	-	baseline
+src/nfa/thompson/builder.rs::method::Builder.add_match	missing	-	baseline
+src/nfa/thompson/builder.rs::method::Builder.add_range	missing	-	baseline
+src/nfa/thompson/builder.rs::method::Builder.add_sparse	missing	-	baseline
+src/nfa/thompson/builder.rs::method::Builder.add_union	missing	-	baseline
+src/nfa/thompson/builder.rs::method::Builder.add_union_reverse	missing	-	baseline
+src/nfa/thompson/builder.rs::method::Builder.build	missing	-	baseline
+src/nfa/thompson/builder.rs::method::Builder.check_size_limit	missing	-	baseline
+src/nfa/thompson/builder.rs::method::Builder.clear	missing	-	baseline
+src/nfa/thompson/builder.rs::method::Builder.current_pattern_id	missing	-	baseline
+src/nfa/thompson/builder.rs::method::Builder.finish_pattern	missing	-	baseline
+src/nfa/thompson/builder.rs::method::Builder.get_look_matcher	missing	-	baseline
+src/nfa/thompson/builder.rs::method::Builder.get_reverse	missing	-	baseline
+src/nfa/thompson/builder.rs::method::Builder.get_size_limit	missing	-	baseline
+src/nfa/thompson/builder.rs::method::Builder.get_utf8	missing	-	baseline
+src/nfa/thompson/builder.rs::method::Builder.memory_usage	missing	-	baseline
 src/nfa/thompson/builder.rs::method::Builder.new	missing	-	baseline
-src/nfa/thompson/builder.rs::struct::Builder	missing	-	baseline
-src/nfa/thompson/compiler.rs::enum::WhichCaptures	missing	-	baseline
-src/nfa/thompson/compiler.rs::func::build	missing	-	baseline
-src/nfa/thompson/compiler.rs::func::build_from_hir	missing	-	baseline
-src/nfa/thompson/compiler.rs::func::captures	missing	-	baseline
-src/nfa/thompson/compiler.rs::func::configure	missing	-	baseline
-src/nfa/thompson/compiler.rs::func::get_captures	missing	-	baseline
-src/nfa/thompson/compiler.rs::func::get_look_matcher	missing	-	baseline
-src/nfa/thompson/compiler.rs::func::get_nfa_size_limit	missing	-	baseline
-src/nfa/thompson/compiler.rs::func::get_reverse	missing	-	baseline
-src/nfa/thompson/compiler.rs::func::get_shrink	missing	-	baseline
-src/nfa/thompson/compiler.rs::func::get_utf8	missing	-	baseline
-src/nfa/thompson/compiler.rs::func::get_which_captures	missing	-	baseline
-src/nfa/thompson/compiler.rs::func::is_any	missing	-	baseline
-src/nfa/thompson/compiler.rs::func::is_none	missing	-	baseline
-src/nfa/thompson/compiler.rs::func::look_matcher	missing	-	baseline
-src/nfa/thompson/compiler.rs::func::new	missing	-	baseline
-src/nfa/thompson/compiler.rs::func::nfa_size_limit	missing	-	baseline
-src/nfa/thompson/compiler.rs::func::reverse	missing	-	baseline
-src/nfa/thompson/compiler.rs::func::shrink	missing	-	baseline
-src/nfa/thompson/compiler.rs::func::syntax	missing	-	baseline
-src/nfa/thompson/compiler.rs::func::utf8	missing	-	baseline
-src/nfa/thompson/compiler.rs::func::which_captures	missing	-	baseline
+src/nfa/thompson/builder.rs::method::Builder.patch	missing	-	baseline
+src/nfa/thompson/builder.rs::method::Builder.pattern_len	missing	-	baseline
+src/nfa/thompson/builder.rs::method::Builder.set_look_matcher	missing	-	baseline
+src/nfa/thompson/builder.rs::method::Builder.set_reverse	missing	-	baseline
+src/nfa/thompson/builder.rs::method::Builder.set_size_limit	missing	-	baseline
+src/nfa/thompson/builder.rs::method::Builder.set_utf8	missing	-	baseline
+src/nfa/thompson/builder.rs::method::Builder.start_pattern	missing	-	baseline
+src/nfa/thompson/builder.rs::method::State.goto	missing	-	baseline
+src/nfa/thompson/builder.rs::method::State.memory_usage	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.add_capture_end	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.add_capture_start	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.add_empty	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.add_fail	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.add_look	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.add_match	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.add_range	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.add_sparse	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.add_union	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.add_union_reverse	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.build	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.build_from_hir	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.build_many	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.build_many_from_hir	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.c	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.c_alt_iter	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.c_alt_slice	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.c_at_least	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.c_bounded	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.c_byte_class	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.c_cap	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.c_concat	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.c_empty	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.c_exactly	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.c_fail	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.c_literal	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.c_look	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.c_range	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.c_repetition	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.c_unicode_class	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.c_unicode_class_reverse_with_suffix	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.c_zero_or_one	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.compile	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.configure	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.finish_pattern	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.is_reverse	missing	-	baseline
 src/nfa/thompson/compiler.rs::method::Compiler.new	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.patch	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.start_pattern	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.syntax	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Config.captures	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Config.get_captures	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Config.get_look_matcher	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Config.get_nfa_size_limit	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Config.get_reverse	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Config.get_shrink	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Config.get_unanchored_prefix	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Config.get_utf8	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Config.get_which_captures	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Config.look_matcher	missing	-	baseline
 src/nfa/thompson/compiler.rs::method::Config.new	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Config.nfa_size_limit	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Config.overwrite	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Config.reverse	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Config.shrink	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Config.unanchored_prefix	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Config.utf8	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Config.which_captures	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Utf8Compiler<'a>.add	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Utf8Compiler<'a>.add_empty	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Utf8Compiler<'a>.add_suffix	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Utf8Compiler<'a>.compile	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Utf8Compiler<'a>.compile_from	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Utf8Compiler<'a>.finish	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Utf8Compiler<'a>.new	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Utf8Compiler<'a>.pop_freeze	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Utf8Compiler<'a>.pop_root	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Utf8Compiler<'a>.top_last_freeze	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Utf8Node.set_last_transition	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Utf8State.clear	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Utf8State.new	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::WhichCaptures.default	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::WhichCaptures.is_any	missing	-	baseline
 src/nfa/thompson/compiler.rs::method::WhichCaptures.is_none	missing	-	baseline
-src/nfa/thompson/compiler.rs::struct::Compiler	missing	-	baseline
-src/nfa/thompson/compiler.rs::struct::Config	missing	-	baseline
-src/nfa/thompson/error.rs::func::size_limit	missing	-	baseline
+src/nfa/thompson/error.rs::method::BuildError.captures	missing	-	baseline
+src/nfa/thompson/error.rs::method::BuildError.exceeded_size_limit	missing	-	baseline
+src/nfa/thompson/error.rs::method::BuildError.fmt	missing	-	baseline
+src/nfa/thompson/error.rs::method::BuildError.invalid_capture_index	missing	-	baseline
+src/nfa/thompson/error.rs::method::BuildError.kind	missing	-	baseline
 src/nfa/thompson/error.rs::method::BuildError.size_limit	missing	-	baseline
-src/nfa/thompson/error.rs::struct::BuildError	missing	-	baseline
-src/nfa/thompson/map.rs::func::clear	missing	-	baseline
-src/nfa/thompson/map.rs::func::get	missing	-	baseline
-src/nfa/thompson/map.rs::func::hash	missing	-	baseline
-src/nfa/thompson/map.rs::func::new	missing	-	baseline
-src/nfa/thompson/map.rs::func::set	missing	-	baseline
+src/nfa/thompson/error.rs::method::BuildError.source	missing	-	baseline
+src/nfa/thompson/error.rs::method::BuildError.syntax	missing	-	baseline
+src/nfa/thompson/error.rs::method::BuildError.too_many_patterns	missing	-	baseline
+src/nfa/thompson/error.rs::method::BuildError.too_many_states	missing	-	baseline
+src/nfa/thompson/error.rs::method::BuildError.unsupported_captures	missing	-	baseline
+src/nfa/thompson/error.rs::method::BuildError.word	missing	-	baseline
+src/nfa/thompson/literal_trie.rs::method::Frame<'a>.new	missing	-	baseline
+src/nfa/thompson/literal_trie.rs::method::LiteralTrie.add	missing	-	baseline
+src/nfa/thompson/literal_trie.rs::method::LiteralTrie.compile	missing	-	baseline
+src/nfa/thompson/literal_trie.rs::method::LiteralTrie.compile_state_to_hir	missing	-	baseline
+src/nfa/thompson/literal_trie.rs::method::LiteralTrie.compile_to_hir	missing	-	baseline
+src/nfa/thompson/literal_trie.rs::method::LiteralTrie.fmt	missing	-	baseline
+src/nfa/thompson/literal_trie.rs::method::LiteralTrie.forward	missing	-	baseline
+src/nfa/thompson/literal_trie.rs::method::LiteralTrie.get_or_add_state	missing	-	baseline
+src/nfa/thompson/literal_trie.rs::method::LiteralTrie.reverse	missing	-	baseline
+src/nfa/thompson/literal_trie.rs::method::State.active_chunk	missing	-	baseline
+src/nfa/thompson/literal_trie.rs::method::State.active_chunk_start	missing	-	baseline
+src/nfa/thompson/literal_trie.rs::method::State.add_match	missing	-	baseline
+src/nfa/thompson/literal_trie.rs::method::State.chunks	missing	-	baseline
+src/nfa/thompson/literal_trie.rs::method::State.fmt	missing	-	baseline
+src/nfa/thompson/literal_trie.rs::method::State.is_leaf	missing	-	baseline
+src/nfa/thompson/literal_trie.rs::method::StateChunksIter<'a>.next	missing	-	baseline
+src/nfa/thompson/literal_trie.rs::method::Transition.fmt	missing	-	baseline
+src/nfa/thompson/map.rs::const::INIT	missing	-	baseline
+src/nfa/thompson/map.rs::const::PRIME	missing	-	baseline
+src/nfa/thompson/map.rs::method::Utf8BoundedMap.clear	missing	-	baseline
+src/nfa/thompson/map.rs::method::Utf8BoundedMap.get	missing	-	baseline
+src/nfa/thompson/map.rs::method::Utf8BoundedMap.hash	missing	-	baseline
 src/nfa/thompson/map.rs::method::Utf8BoundedMap.new	missing	-	baseline
+src/nfa/thompson/map.rs::method::Utf8BoundedMap.set	missing	-	baseline
+src/nfa/thompson/map.rs::method::Utf8SuffixMap.clear	missing	-	baseline
+src/nfa/thompson/map.rs::method::Utf8SuffixMap.get	missing	-	baseline
+src/nfa/thompson/map.rs::method::Utf8SuffixMap.hash	missing	-	baseline
 src/nfa/thompson/map.rs::method::Utf8SuffixMap.new	missing	-	baseline
-src/nfa/thompson/map.rs::struct::Utf8BoundedMap	missing	-	baseline
-src/nfa/thompson/map.rs::struct::Utf8SuffixKey	missing	-	baseline
-src/nfa/thompson/map.rs::struct::Utf8SuffixMap	missing	-	baseline
-src/nfa/thompson/nfa.rs::enum::State	missing	-	baseline
-src/nfa/thompson/nfa.rs::func::always_match	missing	-	baseline
-src/nfa/thompson/nfa.rs::func::byte_classes	missing	-	baseline
-src/nfa/thompson/nfa.rs::func::compiler	missing	-	baseline
-src/nfa/thompson/nfa.rs::func::config	missing	-	baseline
-src/nfa/thompson/nfa.rs::func::group_info	missing	-	baseline
-src/nfa/thompson/nfa.rs::func::has_capture	missing	-	baseline
-src/nfa/thompson/nfa.rs::func::has_empty	missing	-	baseline
-src/nfa/thompson/nfa.rs::func::is_always_start_anchored	missing	-	baseline
-src/nfa/thompson/nfa.rs::func::is_epsilon	missing	-	baseline
-src/nfa/thompson/nfa.rs::func::is_reverse	missing	-	baseline
-src/nfa/thompson/nfa.rs::func::is_utf8	missing	-	baseline
-src/nfa/thompson/nfa.rs::func::look_matcher	missing	-	baseline
-src/nfa/thompson/nfa.rs::func::look_set_any	missing	-	baseline
-src/nfa/thompson/nfa.rs::func::look_set_prefix_all	missing	-	baseline
-src/nfa/thompson/nfa.rs::func::look_set_prefix_any	missing	-	baseline
-src/nfa/thompson/nfa.rs::func::matches	missing	-	baseline
-src/nfa/thompson/nfa.rs::func::matches_byte	missing	-	baseline
-src/nfa/thompson/nfa.rs::func::matches_unit	missing	-	baseline
-src/nfa/thompson/nfa.rs::func::memory_usage	missing	-	baseline
-src/nfa/thompson/nfa.rs::func::never_match	missing	-	baseline
-src/nfa/thompson/nfa.rs::func::new	missing	-	baseline
-src/nfa/thompson/nfa.rs::func::pattern_len	missing	-	baseline
-src/nfa/thompson/nfa.rs::func::patterns	missing	-	baseline
-src/nfa/thompson/nfa.rs::func::start_anchored	missing	-	baseline
-src/nfa/thompson/nfa.rs::func::start_pattern	missing	-	baseline
-src/nfa/thompson/nfa.rs::func::start_unanchored	missing	-	baseline
-src/nfa/thompson/nfa.rs::func::state	missing	-	baseline
-src/nfa/thompson/nfa.rs::func::states	missing	-	baseline
+src/nfa/thompson/map.rs::method::Utf8SuffixMap.set	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::DenseTransitions.iter	missing	-	baseline
 src/nfa/thompson/nfa.rs::method::DenseTransitions.matches	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::DenseTransitions.matches_byte	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::DenseTransitions.matches_unit	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::Inner.add	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::Inner.fmt	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::Inner.group_info	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::Inner.into_nfa	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::Inner.remap	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::Inner.set_captures	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::Inner.set_look_matcher	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::Inner.set_reverse	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::Inner.set_starts	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::Inner.set_utf8	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::NFA.always_match	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::NFA.byte_class_set	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::NFA.byte_classes	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::NFA.compiler	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::NFA.config	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::NFA.fmt	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::NFA.group_info	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::NFA.has_capture	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::NFA.has_empty	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::NFA.is_always_start_anchored	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::NFA.is_reverse	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::NFA.is_utf8	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::NFA.look_matcher	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::NFA.look_set_any	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::NFA.look_set_prefix_any	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::NFA.memory_usage	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::NFA.never_match	missing	-	baseline
 src/nfa/thompson/nfa.rs::method::NFA.new	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::NFA.new_many	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::NFA.pattern_len	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::NFA.patterns	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::NFA.start_anchored	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::NFA.start_pattern	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::NFA.start_unanchored	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::NFA.state	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::NFA.states	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::PatternIter<'a>.next	missing	-	baseline
 src/nfa/thompson/nfa.rs::method::SparseTransitions.matches	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::SparseTransitions.matches_byte	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::SparseTransitions.matches_unit	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::State.fmt	missing	-	baseline
 src/nfa/thompson/nfa.rs::method::State.is_epsilon	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::State.memory_usage	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::State.remap	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::Transition.fmt	missing	-	baseline
 src/nfa/thompson/nfa.rs::method::Transition.matches	missing	-	baseline
-src/nfa/thompson/nfa.rs::struct::DenseTransitions	missing	-	baseline
-src/nfa/thompson/nfa.rs::struct::NFA	missing	-	baseline
-src/nfa/thompson/nfa.rs::struct::PatternIter	missing	-	baseline
-src/nfa/thompson/nfa.rs::struct::SparseTransitions	missing	-	baseline
-src/nfa/thompson/nfa.rs::struct::Transition	missing	-	baseline
-src/nfa/thompson/pikevm.rs::func::always_match	missing	-	baseline
-src/nfa/thompson/pikevm.rs::func::build	missing	-	baseline
-src/nfa/thompson/pikevm.rs::func::build_from_nfa	missing	-	baseline
-src/nfa/thompson/pikevm.rs::func::builder	missing	-	baseline
-src/nfa/thompson/pikevm.rs::func::config	missing	-	baseline
-src/nfa/thompson/pikevm.rs::func::configure	missing	-	baseline
-src/nfa/thompson/pikevm.rs::func::create_cache	missing	-	baseline
-src/nfa/thompson/pikevm.rs::func::create_captures	missing	-	baseline
-src/nfa/thompson/pikevm.rs::func::get_config	missing	-	baseline
-src/nfa/thompson/pikevm.rs::func::get_match_kind	missing	-	baseline
-src/nfa/thompson/pikevm.rs::func::get_nfa	missing	-	baseline
-src/nfa/thompson/pikevm.rs::func::get_prefilter	missing	-	baseline
-src/nfa/thompson/pikevm.rs::func::match_kind	missing	-	baseline
-src/nfa/thompson/pikevm.rs::func::memory_usage	missing	-	baseline
-src/nfa/thompson/pikevm.rs::func::never_match	missing	-	baseline
-src/nfa/thompson/pikevm.rs::func::new	missing	-	baseline
-src/nfa/thompson/pikevm.rs::func::new_from_nfa	missing	-	baseline
-src/nfa/thompson/pikevm.rs::func::pattern_len	missing	-	baseline
-src/nfa/thompson/pikevm.rs::func::prefilter	missing	-	baseline
-src/nfa/thompson/pikevm.rs::func::reset	missing	-	baseline
-src/nfa/thompson/pikevm.rs::func::reset_cache	missing	-	baseline
-src/nfa/thompson/pikevm.rs::func::search	missing	-	baseline
-src/nfa/thompson/pikevm.rs::func::search_slots	missing	-	baseline
-src/nfa/thompson/pikevm.rs::func::syntax	missing	-	baseline
-src/nfa/thompson/pikevm.rs::func::thompson	missing	-	baseline
-src/nfa/thompson/pikevm.rs::func::which_overlapping_matches	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::Transition.matches_byte	missing	-	baseline
+src/nfa/thompson/nfa.rs::method::Transition.matches_unit	missing	-	baseline
+src/nfa/thompson/pikevm.rs::const::LIMIT	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::ActiveStates.memory_usage	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::ActiveStates.new	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::ActiveStates.reset	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::ActiveStates.setup_search	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::Builder.build	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::Builder.build_from_nfa	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::Builder.build_many	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::Builder.configure	missing	-	baseline
 src/nfa/thompson/pikevm.rs::method::Builder.new	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::Builder.syntax	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::Builder.thompson	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::Cache.memory_usage	missing	-	baseline
 src/nfa/thompson/pikevm.rs::method::Cache.new	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::Cache.reset	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::Cache.setup_search	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::CapturesMatches<'r, 'c, 'h>.next	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::Config.get_match_kind	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::Config.get_prefilter	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::Config.match_kind	missing	-	baseline
 src/nfa/thompson/pikevm.rs::method::Config.new	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::Config.overwrite	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::Config.prefilter	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::Counters.empty	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::Counters.eprint	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::Counters.record_closure	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::Counters.record_set_insert	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::Counters.record_stack_push	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::Counters.record_state_set	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::Counters.record_step	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::Counters.reset	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::FindMatches<'r, 'c, 'h>.next	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::PikeVM.always_match	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::PikeVM.builder	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::PikeVM.captures	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::PikeVM.captures_iter	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::PikeVM.config	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::PikeVM.create_cache	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::PikeVM.create_captures	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::PikeVM.epsilon_closure	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::PikeVM.epsilon_closure_explore	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::PikeVM.find	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::PikeVM.find_iter	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::PikeVM.get_config	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::PikeVM.get_nfa	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::PikeVM.is_match	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::PikeVM.never_match	missing	-	baseline
 src/nfa/thompson/pikevm.rs::method::PikeVM.new	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::PikeVM.new_from_nfa	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::PikeVM.new_many	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::PikeVM.next	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::PikeVM.nexts	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::PikeVM.nexts_overlapping	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::PikeVM.pattern_len	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::PikeVM.reset_cache	missing	-	baseline
 src/nfa/thompson/pikevm.rs::method::PikeVM.search	missing	-	baseline
-src/nfa/thompson/pikevm.rs::struct::Builder	missing	-	baseline
-src/nfa/thompson/pikevm.rs::struct::Cache	missing	-	baseline
-src/nfa/thompson/pikevm.rs::struct::CapturesMatches	missing	-	baseline
-src/nfa/thompson/pikevm.rs::struct::Config	missing	-	baseline
-src/nfa/thompson/pikevm.rs::struct::FindMatches	missing	-	baseline
-src/nfa/thompson/pikevm.rs::struct::PikeVM	missing	-	baseline
-src/nfa/thompson/range_trie.rs::func::add_empty	missing	-	baseline
-src/nfa/thompson/range_trie.rs::func::clear	missing	-	baseline
-src/nfa/thompson/range_trie.rs::func::insert	missing	-	baseline
-src/nfa/thompson/range_trie.rs::func::new	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::PikeVM.search_imp	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::PikeVM.search_slots	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::PikeVM.search_slots_imp	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::PikeVM.start_config	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::PikeVM.which_overlapping_imp	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::PikeVM.which_overlapping_matches	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::SlotTable.all_absent	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::SlotTable.for_state	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::SlotTable.memory_usage	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::SlotTable.new	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::SlotTable.reset	missing	-	baseline
+src/nfa/thompson/pikevm.rs::method::SlotTable.setup_search	missing	-	baseline
+src/nfa/thompson/range_trie.rs::const::FINAL	missing	-	baseline
+src/nfa/thompson/range_trie.rs::const::ROOT	missing	-	baseline
+src/nfa/thompson/range_trie.rs::method::NextInsert.new	missing	-	baseline
+src/nfa/thompson/range_trie.rs::method::NextInsert.push	missing	-	baseline
+src/nfa/thompson/range_trie.rs::method::NextInsert.ranges	missing	-	baseline
+src/nfa/thompson/range_trie.rs::method::NextInsert.state_id	missing	-	baseline
+src/nfa/thompson/range_trie.rs::method::RangeTrie.add_empty	missing	-	baseline
+src/nfa/thompson/range_trie.rs::method::RangeTrie.add_transition	missing	-	baseline
+src/nfa/thompson/range_trie.rs::method::RangeTrie.add_transition_at	missing	-	baseline
+src/nfa/thompson/range_trie.rs::method::RangeTrie.clear	missing	-	baseline
+src/nfa/thompson/range_trie.rs::method::RangeTrie.duplicate	missing	-	baseline
+src/nfa/thompson/range_trie.rs::method::RangeTrie.fmt	missing	-	baseline
+src/nfa/thompson/range_trie.rs::method::RangeTrie.insert	missing	-	baseline
+src/nfa/thompson/range_trie.rs::method::RangeTrie.iter	missing	-	baseline
 src/nfa/thompson/range_trie.rs::method::RangeTrie.new	missing	-	baseline
-src/nfa/thompson/range_trie.rs::struct::RangeTrie	missing	-	baseline
-src/util/alphabet.rs::func::alphabet_len	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to an EOI-aware ByteClasses implementation in Crystal
-src/util/alphabet.rs::func::as_eoi	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to Unit#as_eoi
-src/util/alphabet.rs::func::as_u8	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to Unit#as_u8
-src/util/alphabet.rs::func::as_usize	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to Unit#as_usize
-src/util/alphabet.rs::func::elements	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to ByteClasses#elements
-src/util/alphabet.rs::func::empty	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to ByteClasses.empty
-src/util/alphabet.rs::func::eoi	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to ByteClasses#eoi
-src/util/alphabet.rs::func::get	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to ByteClasses#get
-src/util/alphabet.rs::func::get_by_unit	mapped	src/regex/automata/byte_classes.cr	mapped to ByteClasses#get_by_unit
-src/util/alphabet.rs::func::is_byte	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to Unit#is_byte
-src/util/alphabet.rs::func::is_eoi	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to Unit#is_eoi
-src/util/alphabet.rs::func::is_singleton	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to ByteClasses#is_singleton
-src/util/alphabet.rs::func::is_word_byte	mapped	src/regex/automata/byte_classes.cr;src/regex/automata/utf8_sequences.cr;spec/byte_classes_spec.cr	mapped to shared UTF-8 word-byte helpers
-src/util/alphabet.rs::func::iter	mapped	src/regex/automata/byte_classes.cr	mapped to ByteClasses#iter
-src/util/alphabet.rs::func::set	mapped	src/regex/automata/byte_classes.cr	mapped to ByteClasses#set
-src/util/alphabet.rs::func::singletons	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to ByteClasses.singletons
-src/util/alphabet.rs::func::stride2	mapped	src/regex/automata/byte_classes.cr	mapped to ByteClasses#stride2
-src/util/alphabet.rs::func::u8	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to Unit.u8
-src/util/alphabet.rs::method::ByteClasses.empty	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to ByteClasses.empty
-src/util/alphabet.rs::method::Unit.u8	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to Unit.u8
-src/util/alphabet.rs::struct::ByteClassElements	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to ByteClassElements
-src/util/alphabet.rs::struct::ByteClassIter	mapped	src/regex/automata/byte_classes.cr	mapped to ByteClassIter
-src/util/alphabet.rs::struct::ByteClassRepresentatives	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to ByteClassRepresentatives; Crystal uses explicit start/end parameters instead of Rust RangeBounds
-src/util/alphabet.rs::struct::ByteClasses	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to a Crystal byte-class map with EOI-aware alphabet semantics
-src/util/alphabet.rs::struct::Unit	mapped	src/regex/automata/byte_classes.cr;spec/byte_classes_spec.cr	mapped to a Crystal Unit value type with byte and EOI variants
-src/util/captures.rs::func::all	missing	-	baseline
-src/util/captures.rs::func::all_group_len	missing	-	baseline
-src/util/captures.rs::func::all_names	missing	-	baseline
-src/util/captures.rs::func::clear	missing	-	baseline
-src/util/captures.rs::func::empty	missing	-	baseline
-src/util/captures.rs::func::explicit_slot_len	missing	-	baseline
-src/util/captures.rs::func::get_group	missing	-	baseline
-src/util/captures.rs::func::get_group_by_name	missing	-	baseline
-src/util/captures.rs::func::get_match	missing	-	baseline
-src/util/captures.rs::func::group_info	missing	-	baseline
-src/util/captures.rs::func::group_len	missing	-	baseline
-src/util/captures.rs::func::implicit_slot_len	missing	-	baseline
-src/util/captures.rs::func::interpolate_bytes	mapped	src/regex/automata/captures.cr;spec/captures_spec.cr	mapped byte interpolation through shared helper-backed captures API
-src/util/captures.rs::func::interpolate_bytes_into	mapped	src/regex/automata/captures.cr;spec/captures_spec.cr	mapped byte interpolation append path through shared helper-backed captures API
-src/util/captures.rs::func::interpolate_string	mapped	src/regex/automata/captures.cr;spec/captures_spec.cr	mapped string interpolation through shared helper-backed captures API
-src/util/captures.rs::func::interpolate_string_into	mapped	src/regex/automata/captures.cr;spec/captures_spec.cr	mapped string interpolation append path through shared helper-backed captures API
-src/util/captures.rs::func::is_match	missing	-	baseline
-src/util/captures.rs::func::iter	missing	-	baseline
-src/util/captures.rs::func::matches	missing	-	baseline
-src/util/captures.rs::func::memory_usage	missing	-	baseline
-src/util/captures.rs::func::pattern	missing	-	baseline
-src/util/captures.rs::func::pattern_len	missing	-	baseline
-src/util/captures.rs::func::pattern_names	missing	-	baseline
-src/util/captures.rs::func::set_pattern	missing	-	baseline
-src/util/captures.rs::func::slot	missing	-	baseline
-src/util/captures.rs::func::slot_len	missing	-	baseline
-src/util/captures.rs::func::slots	missing	-	baseline
-src/util/captures.rs::func::slots_mut	missing	-	baseline
-src/util/captures.rs::func::to_index	missing	-	baseline
-src/util/captures.rs::func::to_name	missing	-	baseline
+src/nfa/thompson/range_trie.rs::method::RangeTrie.set_transition_at	missing	-	baseline
+src/nfa/thompson/range_trie.rs::method::RangeTrie.state	missing	-	baseline
+src/nfa/thompson/range_trie.rs::method::RangeTrie.state_mut	missing	-	baseline
+src/nfa/thompson/range_trie.rs::method::Split.as_slice	missing	-	baseline
+src/nfa/thompson/range_trie.rs::method::Split.new	missing	-	baseline
+src/nfa/thompson/range_trie.rs::method::Split.parts1	missing	-	baseline
+src/nfa/thompson/range_trie.rs::method::Split.parts2	missing	-	baseline
+src/nfa/thompson/range_trie.rs::method::Split.parts3	missing	-	baseline
+src/nfa/thompson/range_trie.rs::method::State.binary_search	missing	-	baseline
+src/nfa/thompson/range_trie.rs::method::State.clear	missing	-	baseline
+src/nfa/thompson/range_trie.rs::method::State.find	missing	-	baseline
+src/nfa/thompson/range_trie.rs::method::State.fmt	missing	-	baseline
+src/nfa/thompson/range_trie.rs::method::Transition.fmt	missing	-	baseline
+src/util/alphabet.rs::method::BitSet.fmt	missing	-	baseline
+src/util/alphabet.rs::method::ByteClassElementRanges<'a>.next	missing	-	baseline
+src/util/alphabet.rs::method::ByteClassElements<'a>.next	missing	-	baseline
+src/util/alphabet.rs::method::ByteClassIter<'a>.next	missing	-	baseline
+src/util/alphabet.rs::method::ByteClassRepresentatives<'a>.next	missing	-	baseline
+src/util/alphabet.rs::method::ByteClassSet.add_set	missing	-	baseline
+src/util/alphabet.rs::method::ByteClassSet.byte_classes	missing	-	baseline
+src/util/alphabet.rs::method::ByteClassSet.default	missing	-	baseline
+src/util/alphabet.rs::method::ByteClassSet.empty	missing	-	baseline
+src/util/alphabet.rs::method::ByteClassSet.set_range	missing	-	baseline
+src/util/alphabet.rs::method::ByteClasses.alphabet_len	missing	-	baseline
+src/util/alphabet.rs::method::ByteClasses.default	missing	-	baseline
+src/util/alphabet.rs::method::ByteClasses.element_ranges	missing	-	baseline
+src/util/alphabet.rs::method::ByteClasses.elements	missing	-	baseline
+src/util/alphabet.rs::method::ByteClasses.empty	missing	-	baseline
+src/util/alphabet.rs::method::ByteClasses.eoi	missing	-	baseline
+src/util/alphabet.rs::method::ByteClasses.fmt	missing	-	baseline
+src/util/alphabet.rs::method::ByteClasses.from_bytes	missing	-	baseline
+src/util/alphabet.rs::method::ByteClasses.get	missing	-	baseline
+src/util/alphabet.rs::method::ByteClasses.get_by_unit	missing	-	baseline
+src/util/alphabet.rs::method::ByteClasses.is_singleton	missing	-	baseline
+src/util/alphabet.rs::method::ByteClasses.iter	missing	-	baseline
+src/util/alphabet.rs::method::ByteClasses.representatives	missing	-	baseline
+src/util/alphabet.rs::method::ByteClasses.set	missing	-	baseline
+src/util/alphabet.rs::method::ByteClasses.singletons	missing	-	baseline
+src/util/alphabet.rs::method::ByteClasses.stride2	missing	-	baseline
+src/util/alphabet.rs::method::ByteClasses.write_to	missing	-	baseline
+src/util/alphabet.rs::method::ByteClasses.write_to_len	missing	-	baseline
+src/util/alphabet.rs::method::ByteSet.add	missing	-	baseline
+src/util/alphabet.rs::method::ByteSet.contains	missing	-	baseline
+src/util/alphabet.rs::method::ByteSet.contains_range	missing	-	baseline
+src/util/alphabet.rs::method::ByteSet.empty	missing	-	baseline
+src/util/alphabet.rs::method::ByteSet.from_bytes	missing	-	baseline
+src/util/alphabet.rs::method::ByteSet.is_empty	missing	-	baseline
+src/util/alphabet.rs::method::ByteSet.iter	missing	-	baseline
+src/util/alphabet.rs::method::ByteSet.iter_ranges	missing	-	baseline
+src/util/alphabet.rs::method::ByteSet.remove	missing	-	baseline
+src/util/alphabet.rs::method::ByteSet.write_to	missing	-	baseline
+src/util/alphabet.rs::method::ByteSet.write_to_len	missing	-	baseline
+src/util/alphabet.rs::method::ByteSetIter<'a>.next	missing	-	baseline
+src/util/alphabet.rs::method::ByteSetRangeIter<'a>.next	missing	-	baseline
+src/util/alphabet.rs::method::Unit.as_eoi	missing	-	baseline
+src/util/alphabet.rs::method::Unit.as_u8	missing	-	baseline
+src/util/alphabet.rs::method::Unit.as_usize	missing	-	baseline
+src/util/alphabet.rs::method::Unit.eoi	missing	-	baseline
+src/util/alphabet.rs::method::Unit.fmt	missing	-	baseline
+src/util/alphabet.rs::method::Unit.is_byte	missing	-	baseline
+src/util/alphabet.rs::method::Unit.is_eoi	missing	-	baseline
+src/util/alphabet.rs::method::Unit.is_word_byte	missing	-	baseline
+src/util/alphabet.rs::method::Unit.u8	missing	-	baseline
 src/util/captures.rs::method::Captures.all	missing	-	baseline
 src/util/captures.rs::method::Captures.clear	missing	-	baseline
-src/util/captures.rs::struct::Captures	missing	-	baseline
-src/util/captures.rs::struct::CapturesPatternIter	missing	-	baseline
-src/util/captures.rs::struct::GroupInfo	missing	-	baseline
-src/util/captures.rs::struct::GroupInfoAllNames	missing	-	baseline
-src/util/captures.rs::struct::GroupInfoError	missing	-	baseline
-src/util/captures.rs::struct::GroupInfoPatternNames	missing	-	baseline
-src/util/escape.rs::struct::DebugByte	mapped	src/regex/automata/escape.cr;spec/escape_spec.cr	mapped to a Crystal byte debug wrapper
-src/util/escape.rs::struct::DebugHaystack	mapped	src/regex/automata/escape.cr;spec/escape_spec.cr	mapped to a Crystal haystack debug wrapper
-src/util/interpolate.rs::func::bytes	mapped	src/regex/automata/interpolate.cr;spec/interpolate_spec.cr	mapped byte interpolation helper with vendored capture-reference parsing
-src/util/interpolate.rs::func::string	mapped	src/regex/automata/interpolate.cr;spec/interpolate_spec.cr	mapped string interpolation helper with vendored capture-reference parsing
-src/util/iter.rs::func::infallible	missing	-	baseline
-src/util/iter.rs::func::new	missing	-	baseline
-src/util/iter.rs::method::Searcher.new	missing	-	baseline
-src/util/iter.rs::method::TryCapturesIter.infallible	missing	-	baseline
-src/util/iter.rs::method::TryHalfMatchesIter.infallible	missing	-	baseline
-src/util/iter.rs::method::TryMatchesIter.infallible	missing	-	baseline
-src/util/iter.rs::struct::CapturesIter	missing	-	baseline
-src/util/iter.rs::struct::HalfMatchesIter	missing	-	baseline
-src/util/iter.rs::struct::MatchesIter	missing	-	baseline
-src/util/iter.rs::struct::Searcher	missing	-	baseline
-src/util/iter.rs::struct::TryCapturesIter	missing	-	baseline
-src/util/iter.rs::struct::TryHalfMatchesIter	missing	-	baseline
-src/util/iter.rs::struct::TryMatchesIter	missing	-	baseline
-src/util/lazy.rs::func::get	missing	-	baseline
-src/util/lazy.rs::method::T.get	missing	-	baseline
-src/util/lazy.rs::struct::Lazy	missing	-	baseline
-src/util/look.rs::enum::Look	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported the full look-around assertion enum, reverse mapping, repr conversion, and display-char surface
-src/util/look.rs::func::available	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported availability checks; Crystal always ships the Unicode word tables required by this surface
-src/util/look.rs::func::check	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported Unicode word-boundary availability API; the Rust feature-disabled error branch is not applicable here
-src/util/look.rs::func::contains	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported look-set membership checks
-src/util/look.rs::func::contains_anchor	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported look-set anchor category checks
-src/util/look.rs::func::contains_anchor_crlf	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported look-set CRLF anchor category checks
-src/util/look.rs::func::contains_anchor_haystack	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported look-set haystack-anchor category checks
-src/util/look.rs::func::contains_anchor_lf	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported look-set LF-anchor category checks
-src/util/look.rs::func::contains_anchor_line	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported look-set line-anchor category checks
-src/util/look.rs::func::contains_word	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported look-set word-boundary category checks
-src/util/look.rs::func::contains_word_ascii	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported ASCII word-boundary category checks
-src/util/look.rs::func::contains_word_unicode	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported Unicode word-boundary category checks
-src/util/look.rs::func::empty	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported empty look-set constructor
-src/util/look.rs::func::full	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported full look-set constructor and iteration behavior
-src/util/look.rs::func::get_line_terminator	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported configurable look-matcher line terminator getter
-src/util/look.rs::func::insert	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported persistent look-set insertion
-src/util/look.rs::func::intersect	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported persistent look-set intersection
-src/util/look.rs::func::is_empty	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported look-set emptiness checks
-src/util/look.rs::func::is_end	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported end-of-haystack assertion matching
-src/util/look.rs::func::is_end_crlf	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported CRLF-aware end-of-line assertion matching
-src/util/look.rs::func::is_end_lf	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported LF-aware end-of-line assertion matching
-src/util/look.rs::func::is_start	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported start-of-haystack assertion matching
-src/util/look.rs::func::is_start_crlf	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported CRLF-aware start-of-line assertion matching
-src/util/look.rs::func::is_start_lf	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported LF-aware start-of-line assertion matching
-src/util/look.rs::func::is_word_ascii	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported ASCII word-boundary matching
-src/util/look.rs::func::is_word_ascii_negate	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported ASCII non-word-boundary matching
-src/util/look.rs::func::is_word_end_ascii	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported ASCII word-end matching
-src/util/look.rs::func::is_word_end_half_ascii	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported ASCII word-end-half matching
-src/util/look.rs::func::is_word_end_half_unicode	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported Unicode word-end-half matching with UTF-8 boundary filtering
-src/util/look.rs::func::is_word_end_unicode	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported Unicode word-end matching
-src/util/look.rs::func::is_word_start_ascii	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported ASCII word-start matching
-src/util/look.rs::func::is_word_start_half_ascii	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported ASCII word-start-half matching
-src/util/look.rs::func::is_word_start_half_unicode	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported Unicode word-start-half matching with UTF-8 boundary filtering
-src/util/look.rs::func::is_word_start_unicode	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported Unicode word-start matching
-src/util/look.rs::func::is_word_unicode	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported Unicode word-boundary matching via UTF-8 decoding and regex-syntax tables
-src/util/look.rs::func::is_word_unicode_negate	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported Unicode non-word-boundary matching with split-codepoint suppression
-src/util/look.rs::func::iter	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported look-set iterator surface
-src/util/look.rs::func::len	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported look-set length surface
-src/util/look.rs::func::matches	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported per-assertion look matcher
-src/util/look.rs::func::matches_set	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported combined look-set matcher
-src/util/look.rs::func::new	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported default constructors for look-set and look-matcher
-src/util/look.rs::func::read_repr	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported native-endian look-set deserialization
-src/util/look.rs::func::remove	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported persistent look-set removal
-src/util/look.rs::func::set_insert	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported in-place look-set insertion
-src/util/look.rs::func::set_intersect	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported in-place look-set intersection
-src/util/look.rs::func::set_line_terminator	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported configurable look-matcher line terminator setter
-src/util/look.rs::func::set_remove	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported in-place look-set removal
-src/util/look.rs::func::set_subtract	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported in-place look-set subtraction
-src/util/look.rs::func::set_union	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported in-place look-set union
-src/util/look.rs::func::singleton	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported singleton look-set constructor
-src/util/look.rs::func::subtract	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported persistent look-set subtraction
-src/util/look.rs::func::union	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported persistent look-set union
-src/util/look.rs::func::write_repr	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported native-endian look-set serialization
-src/util/look.rs::method::LookMatcher.new	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported default look-matcher constructor
-src/util/look.rs::method::LookSet.empty	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported empty look-set constructor
-src/util/look.rs::struct::LookMatcher	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported configurable look matcher
-src/util/look.rs::struct::LookSet	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported look-set storage, repr I/O, and set operations
-src/util/look.rs::struct::LookSetIter	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported look-set iterator
-src/util/look.rs::struct::UnicodeWordBoundaryError	mapped	src/regex/automata/look.cr;spec/look_spec.cr	ported the availability-error surface; only Rust's disabled-feature branch is not applicable in Crystal
-src/util/pool.rs::func::get	missing	-	baseline
-src/util/pool.rs::func::new	missing	-	baseline
-src/util/pool.rs::func::put	missing	-	baseline
-src/util/pool.rs::method::Pool.new	missing	-	baseline
-src/util/pool.rs::method::T.get	missing	-	baseline
-src/util/pool.rs::method::T.put	missing	-	baseline
-src/util/pool.rs::struct::Pool	missing	-	baseline
-src/util/pool.rs::struct::PoolGuard	missing	-	baseline
-src/util/prefilter/mod.rs::func::find	mapped	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	mapped to literal prefilter candidate searching
-src/util/prefilter/mod.rs::func::from_hir_prefix	mapped	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	mapped to HIR prefix extraction using the Crystal regex-syntax literal extractor
-src/util/prefilter/mod.rs::func::is_fast	mapped	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	mapped to the Crystal prefilter speed heuristic
-src/util/prefilter/mod.rs::func::max_needle_len	mapped	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	mapped to longest-needle metadata
-src/util/prefilter/mod.rs::func::memory_usage	mapped	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	mapped to prefilter memory-usage reporting
-src/util/prefilter/mod.rs::func::prefix	mapped	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	mapped to anchored prefix matching
-src/util/prefilter/mod.rs::struct::Prefilter	mapped	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	mapped to a Crystal literal-prefilter wrapper
+src/util/captures.rs::method::Captures.empty	missing	-	baseline
+src/util/captures.rs::method::Captures.extract	missing	-	baseline
+src/util/captures.rs::method::Captures.extract_bytes	missing	-	baseline
+src/util/captures.rs::method::Captures.fmt	missing	-	baseline
+src/util/captures.rs::method::Captures.get_group	missing	-	baseline
+src/util/captures.rs::method::Captures.get_group_by_name	missing	-	baseline
+src/util/captures.rs::method::Captures.get_match	missing	-	baseline
+src/util/captures.rs::method::Captures.group_info	missing	-	baseline
+src/util/captures.rs::method::Captures.group_len	missing	-	baseline
+src/util/captures.rs::method::Captures.interpolate_bytes	missing	-	baseline
+src/util/captures.rs::method::Captures.interpolate_bytes_into	missing	-	baseline
+src/util/captures.rs::method::Captures.interpolate_string	missing	-	baseline
+src/util/captures.rs::method::Captures.interpolate_string_into	missing	-	baseline
+src/util/captures.rs::method::Captures.is_match	missing	-	baseline
+src/util/captures.rs::method::Captures.iter	missing	-	baseline
+src/util/captures.rs::method::Captures.matches	missing	-	baseline
+src/util/captures.rs::method::Captures.pattern	missing	-	baseline
+src/util/captures.rs::method::Captures.set_pattern	missing	-	baseline
+src/util/captures.rs::method::Captures.slots	missing	-	baseline
+src/util/captures.rs::method::Captures.slots_mut	missing	-	baseline
+src/util/captures.rs::method::CapturesDebugMap<'a>.fmt	missing	-	baseline
+src/util/captures.rs::method::CapturesPatternIter<'a>.count	missing	-	baseline
+src/util/captures.rs::method::CapturesPatternIter<'a>.next	missing	-	baseline
+src/util/captures.rs::method::CapturesPatternIter<'a>.size_hint	missing	-	baseline
+src/util/captures.rs::method::GroupInfo.all_group_len	missing	-	baseline
+src/util/captures.rs::method::GroupInfo.all_names	missing	-	baseline
+src/util/captures.rs::method::GroupInfo.empty	missing	-	baseline
+src/util/captures.rs::method::GroupInfo.explicit_slot_len	missing	-	baseline
+src/util/captures.rs::method::GroupInfo.group_len	missing	-	baseline
+src/util/captures.rs::method::GroupInfo.implicit_slot_len	missing	-	baseline
+src/util/captures.rs::method::GroupInfo.memory_usage	missing	-	baseline
+src/util/captures.rs::method::GroupInfo.new	missing	-	baseline
+src/util/captures.rs::method::GroupInfo.pattern_len	missing	-	baseline
+src/util/captures.rs::method::GroupInfo.pattern_names	missing	-	baseline
+src/util/captures.rs::method::GroupInfo.slot	missing	-	baseline
+src/util/captures.rs::method::GroupInfo.slot_len	missing	-	baseline
+src/util/captures.rs::method::GroupInfo.slots	missing	-	baseline
+src/util/captures.rs::method::GroupInfo.to_index	missing	-	baseline
+src/util/captures.rs::method::GroupInfo.to_name	missing	-	baseline
+src/util/captures.rs::method::GroupInfoAllNames<'a>.next	missing	-	baseline
+src/util/captures.rs::method::GroupInfoError.duplicate	missing	-	baseline
+src/util/captures.rs::method::GroupInfoError.first_must_be_unnamed	missing	-	baseline
+src/util/captures.rs::method::GroupInfoError.fmt	missing	-	baseline
+src/util/captures.rs::method::GroupInfoError.missing_groups	missing	-	baseline
+src/util/captures.rs::method::GroupInfoError.source	missing	-	baseline
+src/util/captures.rs::method::GroupInfoError.too_many_groups	missing	-	baseline
+src/util/captures.rs::method::GroupInfoError.too_many_patterns	missing	-	baseline
+src/util/captures.rs::method::GroupInfoInner.add_explicit_group	missing	-	baseline
+src/util/captures.rs::method::GroupInfoInner.add_first_group	missing	-	baseline
+src/util/captures.rs::method::GroupInfoInner.fixup_slot_ranges	missing	-	baseline
+src/util/captures.rs::method::GroupInfoInner.group_len	missing	-	baseline
+src/util/captures.rs::method::GroupInfoInner.pattern_len	missing	-	baseline
+src/util/captures.rs::method::GroupInfoInner.small_slot_len	missing	-	baseline
+src/util/captures.rs::method::GroupInfoPatternNames<'a>.count	missing	-	baseline
+src/util/captures.rs::method::GroupInfoPatternNames<'a>.next	missing	-	baseline
+src/util/captures.rs::method::GroupInfoPatternNames<'a>.size_hint	missing	-	baseline
+src/util/captures.rs::method::GroupInfoPatternNames<'static>.empty	missing	-	baseline
+src/util/captures.rs::method::Key<'a>.fmt	missing	-	baseline
+src/util/determinize/state.rs::method::Repr<'a>.encoded_pattern_len	missing	-	baseline
+src/util/determinize/state.rs::method::Repr<'a>.fmt	missing	-	baseline
+src/util/determinize/state.rs::method::Repr<'a>.has_pattern_ids	missing	-	baseline
+src/util/determinize/state.rs::method::Repr<'a>.is_from_word	missing	-	baseline
+src/util/determinize/state.rs::method::Repr<'a>.is_half_crlf	missing	-	baseline
+src/util/determinize/state.rs::method::Repr<'a>.is_match	missing	-	baseline
+src/util/determinize/state.rs::method::Repr<'a>.iter_match_pattern_ids	missing	-	baseline
+src/util/determinize/state.rs::method::Repr<'a>.iter_nfa_state_ids	missing	-	baseline
+src/util/determinize/state.rs::method::Repr<'a>.look_have	missing	-	baseline
+src/util/determinize/state.rs::method::Repr<'a>.look_need	missing	-	baseline
+src/util/determinize/state.rs::method::Repr<'a>.match_len	missing	-	baseline
+src/util/determinize/state.rs::method::Repr<'a>.match_pattern	missing	-	baseline
+src/util/determinize/state.rs::method::Repr<'a>.match_pattern_ids	missing	-	baseline
+src/util/determinize/state.rs::method::Repr<'a>.pattern_offset_end	missing	-	baseline
+src/util/determinize/state.rs::method::ReprVec<'a>.add_match_pattern_id	missing	-	baseline
+src/util/determinize/state.rs::method::ReprVec<'a>.add_nfa_state_id	missing	-	baseline
+src/util/determinize/state.rs::method::ReprVec<'a>.close_match_pattern_ids	missing	-	baseline
+src/util/determinize/state.rs::method::ReprVec<'a>.look_have	missing	-	baseline
+src/util/determinize/state.rs::method::ReprVec<'a>.look_need	missing	-	baseline
+src/util/determinize/state.rs::method::ReprVec<'a>.repr	missing	-	baseline
+src/util/determinize/state.rs::method::ReprVec<'a>.set_has_pattern_ids	missing	-	baseline
+src/util/determinize/state.rs::method::ReprVec<'a>.set_is_from_word	missing	-	baseline
+src/util/determinize/state.rs::method::ReprVec<'a>.set_is_half_crlf	missing	-	baseline
+src/util/determinize/state.rs::method::ReprVec<'a>.set_is_match	missing	-	baseline
+src/util/determinize/state.rs::method::ReprVec<'a>.set_look_have	missing	-	baseline
+src/util/determinize/state.rs::method::ReprVec<'a>.set_look_need	missing	-	baseline
+src/util/determinize/state.rs::method::State.borrow	missing	-	baseline
+src/util/determinize/state.rs::method::State.dead	missing	-	baseline
+src/util/determinize/state.rs::method::State.fmt	missing	-	baseline
+src/util/determinize/state.rs::method::State.is_from_word	missing	-	baseline
+src/util/determinize/state.rs::method::State.is_half_crlf	missing	-	baseline
+src/util/determinize/state.rs::method::State.is_match	missing	-	baseline
+src/util/determinize/state.rs::method::State.iter_match_pattern_ids	missing	-	baseline
+src/util/determinize/state.rs::method::State.iter_nfa_state_ids	missing	-	baseline
+src/util/determinize/state.rs::method::State.look_have	missing	-	baseline
+src/util/determinize/state.rs::method::State.look_need	missing	-	baseline
+src/util/determinize/state.rs::method::State.match_len	missing	-	baseline
+src/util/determinize/state.rs::method::State.match_pattern	missing	-	baseline
+src/util/determinize/state.rs::method::State.match_pattern_ids	missing	-	baseline
+src/util/determinize/state.rs::method::State.memory_usage	missing	-	baseline
+src/util/determinize/state.rs::method::State.repr	missing	-	baseline
+src/util/determinize/state.rs::method::StateBuilderEmpty.capacity	missing	-	baseline
+src/util/determinize/state.rs::method::StateBuilderEmpty.clear	missing	-	baseline
+src/util/determinize/state.rs::method::StateBuilderEmpty.into_matches	missing	-	baseline
+src/util/determinize/state.rs::method::StateBuilderEmpty.new	missing	-	baseline
+src/util/determinize/state.rs::method::StateBuilderMatches.add_match_pattern_id	missing	-	baseline
+src/util/determinize/state.rs::method::StateBuilderMatches.fmt	missing	-	baseline
+src/util/determinize/state.rs::method::StateBuilderMatches.into_nfa	missing	-	baseline
+src/util/determinize/state.rs::method::StateBuilderMatches.look_have	missing	-	baseline
+src/util/determinize/state.rs::method::StateBuilderMatches.repr	missing	-	baseline
+src/util/determinize/state.rs::method::StateBuilderMatches.repr_vec	missing	-	baseline
+src/util/determinize/state.rs::method::StateBuilderMatches.set_is_from_word	missing	-	baseline
+src/util/determinize/state.rs::method::StateBuilderMatches.set_is_half_crlf	missing	-	baseline
+src/util/determinize/state.rs::method::StateBuilderMatches.set_look_have	missing	-	baseline
+src/util/determinize/state.rs::method::StateBuilderNFA.add_nfa_state_id	missing	-	baseline
+src/util/determinize/state.rs::method::StateBuilderNFA.as_bytes	missing	-	baseline
+src/util/determinize/state.rs::method::StateBuilderNFA.clear	missing	-	baseline
+src/util/determinize/state.rs::method::StateBuilderNFA.fmt	missing	-	baseline
+src/util/determinize/state.rs::method::StateBuilderNFA.look_need	missing	-	baseline
+src/util/determinize/state.rs::method::StateBuilderNFA.repr	missing	-	baseline
+src/util/determinize/state.rs::method::StateBuilderNFA.repr_vec	missing	-	baseline
+src/util/determinize/state.rs::method::StateBuilderNFA.set_look_have	missing	-	baseline
+src/util/determinize/state.rs::method::StateBuilderNFA.set_look_need	missing	-	baseline
+src/util/determinize/state.rs::method::StateBuilderNFA.to_state	missing	-	baseline
+src/util/escape.rs::method::DebugByte.fmt	missing	-	baseline
+src/util/escape.rs::method::DebugHaystack<'a>.fmt	missing	-	baseline
+src/util/int.rs::method::*const T.as_usize	missing	-	baseline
+src/util/int.rs::method::i32.as_usize	missing	-	baseline
+src/util/int.rs::method::i32.from_bits	missing	-	baseline
+src/util/int.rs::method::i32.to_bits	missing	-	baseline
+src/util/int.rs::method::u16.as_usize	missing	-	baseline
+src/util/int.rs::method::u16.high_u8	missing	-	baseline
+src/util/int.rs::method::u16.low_u8	missing	-	baseline
+src/util/int.rs::method::u32.as_usize	missing	-	baseline
+src/util/int.rs::method::u32.high_u16	missing	-	baseline
+src/util/int.rs::method::u32.low_u16	missing	-	baseline
+src/util/int.rs::method::u32.low_u8	missing	-	baseline
+src/util/int.rs::method::u64.as_usize	missing	-	baseline
+src/util/int.rs::method::u64.high_u32	missing	-	baseline
+src/util/int.rs::method::u64.low_u16	missing	-	baseline
+src/util/int.rs::method::u64.low_u32	missing	-	baseline
+src/util/int.rs::method::u64.low_u8	missing	-	baseline
+src/util/int.rs::method::u8.as_usize	missing	-	baseline
+src/util/int.rs::method::usize.as_u16	missing	-	baseline
+src/util/int.rs::method::usize.as_u32	missing	-	baseline
+src/util/int.rs::method::usize.as_u64	missing	-	baseline
+src/util/int.rs::method::usize.as_u8	missing	-	baseline
+src/util/interpolate.rs::method::Ref<'a>.from	missing	-	baseline
+src/util/interpolate.rs::method::Ref<'static>.from	missing	-	baseline
+src/util/iter.rs::method::CapturesIter<'h, F>.next	missing	-	baseline
+src/util/iter.rs::method::HalfMatchesIter<'h, F>.input	missing	-	baseline
+src/util/iter.rs::method::HalfMatchesIter<'h, F>.next	missing	-	baseline
+src/util/iter.rs::method::MatchesIter<'h, F>.input	missing	-	baseline
+src/util/iter.rs::method::MatchesIter<'h, F>.next	missing	-	baseline
+src/util/iter.rs::method::Searcher<'h>.advance	missing	-	baseline
+src/util/iter.rs::method::Searcher<'h>.advance_half	missing	-	baseline
+src/util/iter.rs::method::Searcher<'h>.handle_overlapping_empty_half_match	missing	-	baseline
+src/util/iter.rs::method::Searcher<'h>.handle_overlapping_empty_match	missing	-	baseline
+src/util/iter.rs::method::Searcher<'h>.input	missing	-	baseline
+src/util/iter.rs::method::Searcher<'h>.into_captures_iter	missing	-	baseline
+src/util/iter.rs::method::Searcher<'h>.into_half_matches_iter	missing	-	baseline
+src/util/iter.rs::method::Searcher<'h>.into_matches_iter	missing	-	baseline
+src/util/iter.rs::method::Searcher<'h>.new	missing	-	baseline
+src/util/iter.rs::method::Searcher<'h>.try_advance	missing	-	baseline
+src/util/iter.rs::method::Searcher<'h>.try_advance_half	missing	-	baseline
+src/util/iter.rs::method::TryCapturesIter<'h, F>.fmt	missing	-	baseline
+src/util/iter.rs::method::TryCapturesIter<'h, F>.infallible	missing	-	baseline
+src/util/iter.rs::method::TryCapturesIter<'h, F>.next	missing	-	baseline
+src/util/iter.rs::method::TryHalfMatchesIter<'h, F>.fmt	missing	-	baseline
+src/util/iter.rs::method::TryHalfMatchesIter<'h, F>.infallible	missing	-	baseline
+src/util/iter.rs::method::TryHalfMatchesIter<'h, F>.input	missing	-	baseline
+src/util/iter.rs::method::TryHalfMatchesIter<'h, F>.next	missing	-	baseline
+src/util/iter.rs::method::TryMatchesIter<'h, F>.fmt	missing	-	baseline
+src/util/iter.rs::method::TryMatchesIter<'h, F>.infallible	missing	-	baseline
+src/util/iter.rs::method::TryMatchesIter<'h, F>.input	missing	-	baseline
+src/util/iter.rs::method::TryMatchesIter<'h, F>.next	missing	-	baseline
+src/util/lazy.rs::const::LAZY_STATE_BUSY	missing	-	baseline
+src/util/lazy.rs::const::LAZY_STATE_DONE	missing	-	baseline
+src/util/lazy.rs::const::LAZY_STATE_INIT	missing	-	baseline
+src/util/lazy.rs::method::Guard<'a>.drop	missing	-	baseline
+src/util/lazy.rs::method::Lazy<T, F>.deref	missing	-	baseline
+src/util/lazy.rs::method::Lazy<T, F>.drop	missing	-	baseline
+src/util/lazy.rs::method::Lazy<T, F>.fmt	missing	-	baseline
+src/util/lazy.rs::method::Lazy<T, F>.get	missing	-	baseline
+src/util/lazy.rs::method::Lazy<T, F>.new	missing	-	baseline
+src/util/lazy.rs::method::Lazy<T, F>.poll	missing	-	baseline
+src/util/look.rs::method::Look.as_char	missing	-	baseline
+src/util/look.rs::method::Look.as_repr	missing	-	baseline
+src/util/look.rs::method::Look.from_repr	missing	-	baseline
+src/util/look.rs::method::Look.reversed	missing	-	baseline
+src/util/look.rs::method::LookMatcher.add_to_byteset	missing	-	baseline
+src/util/look.rs::method::LookMatcher.default	missing	-	baseline
+src/util/look.rs::method::LookMatcher.get_line_terminator	missing	-	baseline
+src/util/look.rs::method::LookMatcher.is_end	missing	-	baseline
+src/util/look.rs::method::LookMatcher.is_end_crlf	missing	-	baseline
+src/util/look.rs::method::LookMatcher.is_end_lf	missing	-	baseline
+src/util/look.rs::method::LookMatcher.is_start	missing	-	baseline
+src/util/look.rs::method::LookMatcher.is_start_crlf	missing	-	baseline
+src/util/look.rs::method::LookMatcher.is_start_lf	missing	-	baseline
+src/util/look.rs::method::LookMatcher.is_word_ascii	missing	-	baseline
+src/util/look.rs::method::LookMatcher.is_word_ascii_negate	missing	-	baseline
+src/util/look.rs::method::LookMatcher.is_word_end_ascii	missing	-	baseline
+src/util/look.rs::method::LookMatcher.is_word_end_half_ascii	missing	-	baseline
+src/util/look.rs::method::LookMatcher.is_word_end_half_unicode	missing	-	baseline
+src/util/look.rs::method::LookMatcher.is_word_end_unicode	missing	-	baseline
+src/util/look.rs::method::LookMatcher.is_word_start_ascii	missing	-	baseline
+src/util/look.rs::method::LookMatcher.is_word_start_half_ascii	missing	-	baseline
+src/util/look.rs::method::LookMatcher.is_word_start_half_unicode	missing	-	baseline
+src/util/look.rs::method::LookMatcher.is_word_start_unicode	missing	-	baseline
+src/util/look.rs::method::LookMatcher.is_word_unicode	missing	-	baseline
+src/util/look.rs::method::LookMatcher.is_word_unicode_negate	missing	-	baseline
+src/util/look.rs::method::LookMatcher.matches	missing	-	baseline
+src/util/look.rs::method::LookMatcher.matches_inline	missing	-	baseline
+src/util/look.rs::method::LookMatcher.matches_set	missing	-	baseline
+src/util/look.rs::method::LookMatcher.matches_set_inline	missing	-	baseline
+src/util/look.rs::method::LookMatcher.new	missing	-	baseline
+src/util/look.rs::method::LookMatcher.set_line_terminator	missing	-	baseline
+src/util/look.rs::method::LookSet.available	missing	-	baseline
+src/util/look.rs::method::LookSet.contains	missing	-	baseline
+src/util/look.rs::method::LookSet.contains_anchor	missing	-	baseline
+src/util/look.rs::method::LookSet.contains_anchor_crlf	missing	-	baseline
+src/util/look.rs::method::LookSet.contains_anchor_haystack	missing	-	baseline
+src/util/look.rs::method::LookSet.contains_anchor_lf	missing	-	baseline
+src/util/look.rs::method::LookSet.contains_anchor_line	missing	-	baseline
+src/util/look.rs::method::LookSet.contains_word	missing	-	baseline
+src/util/look.rs::method::LookSet.contains_word_ascii	missing	-	baseline
+src/util/look.rs::method::LookSet.contains_word_unicode	missing	-	baseline
+src/util/look.rs::method::LookSet.empty	missing	-	baseline
+src/util/look.rs::method::LookSet.fmt	missing	-	baseline
+src/util/look.rs::method::LookSet.full	missing	-	baseline
+src/util/look.rs::method::LookSet.insert	missing	-	baseline
+src/util/look.rs::method::LookSet.intersect	missing	-	baseline
+src/util/look.rs::method::LookSet.is_empty	missing	-	baseline
+src/util/look.rs::method::LookSet.iter	missing	-	baseline
+src/util/look.rs::method::LookSet.len	missing	-	baseline
+src/util/look.rs::method::LookSet.read_repr	missing	-	baseline
+src/util/look.rs::method::LookSet.remove	missing	-	baseline
+src/util/look.rs::method::LookSet.set_insert	missing	-	baseline
+src/util/look.rs::method::LookSet.set_intersect	missing	-	baseline
+src/util/look.rs::method::LookSet.set_remove	missing	-	baseline
+src/util/look.rs::method::LookSet.set_subtract	missing	-	baseline
+src/util/look.rs::method::LookSet.set_union	missing	-	baseline
+src/util/look.rs::method::LookSet.singleton	missing	-	baseline
+src/util/look.rs::method::LookSet.subtract	missing	-	baseline
+src/util/look.rs::method::LookSet.union	missing	-	baseline
+src/util/look.rs::method::LookSet.write_repr	missing	-	baseline
+src/util/look.rs::method::LookSetIter.next	missing	-	baseline
+src/util/look.rs::method::UnicodeWordBoundaryError.check	missing	-	baseline
+src/util/look.rs::method::UnicodeWordBoundaryError.fmt	missing	-	baseline
+src/util/look.rs::method::UnicodeWordBoundaryError.new	missing	-	baseline
+src/util/pool.rs::const::MAX_POOL_STACKS	missing	-	baseline
+src/util/pool.rs::method::Mutex<T>.lock	missing	-	baseline
+src/util/pool.rs::method::Mutex<T>.new	missing	-	baseline
+src/util/pool.rs::method::MutexGuard<'a, T>.deref	missing	-	baseline
+src/util/pool.rs::method::MutexGuard<'a, T>.deref_mut	missing	-	baseline
+src/util/pool.rs::method::MutexGuard<'a, T>.drop	missing	-	baseline
+src/util/pool.rs::method::Pool<T, F>.fmt	missing	-	baseline
+src/util/pool.rs::method::Pool<T, F>.get	missing	-	baseline
+src/util/pool.rs::method::Pool<T, F>.get_slow	missing	-	baseline
+src/util/pool.rs::method::Pool<T, F>.guard_owned	missing	-	baseline
+src/util/pool.rs::method::Pool<T, F>.guard_stack	missing	-	baseline
+src/util/pool.rs::method::Pool<T, F>.guard_stack_transient	missing	-	baseline
+src/util/pool.rs::method::Pool<T, F>.new	missing	-	baseline
+src/util/pool.rs::method::Pool<T, F>.put	missing	-	baseline
+src/util/pool.rs::method::Pool<T, F>.put_value	missing	-	baseline
+src/util/pool.rs::method::Pool<T, F>.with_available_parallelism_capacity	missing	-	baseline
+src/util/pool.rs::method::Pool<T, F>.with_capacity	missing	-	baseline
+src/util/pool.rs::method::PoolGuard<'a, T, F>.deref	missing	-	baseline
+src/util/pool.rs::method::PoolGuard<'a, T, F>.deref_mut	missing	-	baseline
+src/util/pool.rs::method::PoolGuard<'a, T, F>.drop	missing	-	baseline
+src/util/pool.rs::method::PoolGuard<'a, T, F>.fmt	missing	-	baseline
+src/util/pool.rs::method::PoolGuard<'a, T, F>.put	missing	-	baseline
+src/util/pool.rs::method::PoolGuard<'a, T, F>.put_imp	missing	-	baseline
+src/util/pool.rs::method::PoolGuard<'a, T, F>.value	missing	-	baseline
+src/util/pool.rs::method::PoolGuard<'a, T, F>.value_mut	missing	-	baseline
+src/util/prefilter/aho_corasick.rs::method::AhoCorasick.find	missing	-	baseline
+src/util/prefilter/aho_corasick.rs::method::AhoCorasick.is_fast	missing	-	baseline
+src/util/prefilter/aho_corasick.rs::method::AhoCorasick.memory_usage	missing	-	baseline
+src/util/prefilter/aho_corasick.rs::method::AhoCorasick.name	missing	-	baseline
+src/util/prefilter/aho_corasick.rs::method::AhoCorasick.new	missing	-	baseline
+src/util/prefilter/aho_corasick.rs::method::AhoCorasick.prefix	missing	-	baseline
+src/util/prefilter/byteset.rs::method::ByteSet.find	missing	-	baseline
+src/util/prefilter/byteset.rs::method::ByteSet.is_fast	missing	-	baseline
+src/util/prefilter/byteset.rs::method::ByteSet.memory_usage	missing	-	baseline
+src/util/prefilter/byteset.rs::method::ByteSet.name	missing	-	baseline
+src/util/prefilter/byteset.rs::method::ByteSet.new	missing	-	baseline
+src/util/prefilter/byteset.rs::method::ByteSet.prefix	missing	-	baseline
+src/util/prefilter/memchr.rs::method::Memchr.find	missing	-	baseline
+src/util/prefilter/memchr.rs::method::Memchr.is_fast	missing	-	baseline
+src/util/prefilter/memchr.rs::method::Memchr.memory_usage	missing	-	baseline
+src/util/prefilter/memchr.rs::method::Memchr.name	missing	-	baseline
+src/util/prefilter/memchr.rs::method::Memchr.new	missing	-	baseline
+src/util/prefilter/memchr.rs::method::Memchr.prefix	missing	-	baseline
+src/util/prefilter/memchr.rs::method::Memchr2.find	missing	-	baseline
+src/util/prefilter/memchr.rs::method::Memchr2.is_fast	missing	-	baseline
+src/util/prefilter/memchr.rs::method::Memchr2.memory_usage	missing	-	baseline
+src/util/prefilter/memchr.rs::method::Memchr2.name	missing	-	baseline
+src/util/prefilter/memchr.rs::method::Memchr2.new	missing	-	baseline
+src/util/prefilter/memchr.rs::method::Memchr2.prefix	missing	-	baseline
+src/util/prefilter/memchr.rs::method::Memchr3.find	missing	-	baseline
+src/util/prefilter/memchr.rs::method::Memchr3.is_fast	missing	-	baseline
+src/util/prefilter/memchr.rs::method::Memchr3.memory_usage	missing	-	baseline
+src/util/prefilter/memchr.rs::method::Memchr3.name	missing	-	baseline
+src/util/prefilter/memchr.rs::method::Memchr3.new	missing	-	baseline
+src/util/prefilter/memchr.rs::method::Memchr3.prefix	missing	-	baseline
+src/util/prefilter/memmem.rs::method::Memmem.find	missing	-	baseline
+src/util/prefilter/memmem.rs::method::Memmem.is_fast	missing	-	baseline
+src/util/prefilter/memmem.rs::method::Memmem.memory_usage	missing	-	baseline
+src/util/prefilter/memmem.rs::method::Memmem.name	missing	-	baseline
+src/util/prefilter/memmem.rs::method::Memmem.new	missing	-	baseline
+src/util/prefilter/memmem.rs::method::Memmem.prefix	missing	-	baseline
+src/util/prefilter/mod.rs::method::Arc<P>.find	missing	-	baseline
+src/util/prefilter/mod.rs::method::Arc<P>.is_fast	missing	-	baseline
+src/util/prefilter/mod.rs::method::Arc<P>.memory_usage	missing	-	baseline
+src/util/prefilter/mod.rs::method::Arc<P>.name	missing	-	baseline
+src/util/prefilter/mod.rs::method::Arc<P>.prefix	missing	-	baseline
+src/util/prefilter/mod.rs::method::Choice.new	missing	-	baseline
+src/util/prefilter/mod.rs::method::Prefilter.find	missing	-	baseline
+src/util/prefilter/mod.rs::method::Prefilter.from_choice	missing	-	baseline
+src/util/prefilter/mod.rs::method::Prefilter.from_hir_prefix	missing	-	baseline
+src/util/prefilter/mod.rs::method::Prefilter.from_hirs_prefix	missing	-	baseline
+src/util/prefilter/mod.rs::method::Prefilter.is_fast	missing	-	baseline
+src/util/prefilter/mod.rs::method::Prefilter.max_needle_len	missing	-	baseline
+src/util/prefilter/mod.rs::method::Prefilter.memory_usage	missing	-	baseline
+src/util/prefilter/mod.rs::method::Prefilter.new	missing	-	baseline
+src/util/prefilter/mod.rs::method::Prefilter.prefix	missing	-	baseline
+src/util/prefilter/teddy.rs::method::Teddy.find	missing	-	baseline
+src/util/prefilter/teddy.rs::method::Teddy.is_fast	missing	-	baseline
+src/util/prefilter/teddy.rs::method::Teddy.memory_usage	missing	-	baseline
+src/util/prefilter/teddy.rs::method::Teddy.name	missing	-	baseline
+src/util/prefilter/teddy.rs::method::Teddy.new	missing	-	baseline
+src/util/prefilter/teddy.rs::method::Teddy.prefix	missing	-	baseline
 src/util/primitives.rs::const::LIMIT	missing	-	baseline
 src/util/primitives.rs::const::MAX	missing	-	baseline
 src/util/primitives.rs::const::SIZE	missing	-	baseline
 src/util/primitives.rs::const::ZERO	missing	-	baseline
-src/util/primitives.rs::func::attempted	missing	-	baseline
-src/util/primitives.rs::func::from_ne_bytes	missing	-	baseline
-src/util/primitives.rs::func::from_ne_bytes_unchecked	missing	-	baseline
-src/util/primitives.rs::func::get	missing	-	baseline
-src/util/primitives.rs::func::must	missing	-	baseline
-src/util/primitives.rs::func::new	missing	-	baseline
-src/util/primitives.rs::func::one_more	missing	-	baseline
-src/util/primitives.rs::func::to_ne_bytes	missing	-	baseline
+src/util/primitives.rs::method::NonMaxUsize.fmt	missing	-	baseline
+src/util/primitives.rs::method::NonMaxUsize.get	missing	-	baseline
 src/util/primitives.rs::method::NonMaxUsize.new	missing	-	baseline
+src/util/primitives.rs::method::SmallIndex.arbitrary	missing	-	baseline
+src/util/primitives.rs::method::SmallIndex.as_i32	missing	-	baseline
+src/util/primitives.rs::method::SmallIndex.as_u32	missing	-	baseline
+src/util/primitives.rs::method::SmallIndex.as_u64	missing	-	baseline
+src/util/primitives.rs::method::SmallIndex.as_usize	missing	-	baseline
+src/util/primitives.rs::method::SmallIndex.from	missing	-	baseline
+src/util/primitives.rs::method::SmallIndex.from_ne_bytes	missing	-	baseline
+src/util/primitives.rs::method::SmallIndex.from_ne_bytes_unchecked	missing	-	baseline
+src/util/primitives.rs::method::SmallIndex.must	missing	-	baseline
 src/util/primitives.rs::method::SmallIndex.new	missing	-	baseline
+src/util/primitives.rs::method::SmallIndex.new_unchecked	missing	-	baseline
+src/util/primitives.rs::method::SmallIndex.one_more	missing	-	baseline
+src/util/primitives.rs::method::SmallIndex.to_ne_bytes	missing	-	baseline
+src/util/primitives.rs::method::SmallIndex.try_from	missing	-	baseline
 src/util/primitives.rs::method::SmallIndexError.attempted	missing	-	baseline
-src/util/primitives.rs::struct::NonMaxUsize	missing	-	baseline
-src/util/primitives.rs::struct::PatternID	missing	-	baseline
-src/util/primitives.rs::struct::SmallIndex	missing	-	baseline
-src/util/primitives.rs::struct::SmallIndexError	missing	-	baseline
-src/util/primitives.rs::struct::StateID	missing	-	baseline
-src/util/search.rs::enum::Anchored	missing	-	baseline
-src/util/search.rs::enum::MatchErrorKind	missing	-	baseline
-src/util/search.rs::enum::MatchKind	missing	-	baseline
-src/util/search.rs::func::anchored	missing	-	baseline
-src/util/search.rs::func::capacity	mapped	src/regex/automata/search.cr	mapped to PatternSet#capacity
-src/util/search.rs::func::clear	mapped	src/regex/automata/search.cr	mapped to PatternSet#clear
-src/util/search.rs::func::contains	mapped	src/regex/automata/search.cr	mapped to PatternSet#contains
-src/util/search.rs::func::earliest	missing	-	baseline
-src/util/search.rs::func::end	missing	-	baseline
-src/util/search.rs::func::gave_up	missing	-	baseline
-src/util/search.rs::func::get_anchored	missing	-	baseline
-src/util/search.rs::func::get_earliest	missing	-	baseline
-src/util/search.rs::func::get_range	missing	-	baseline
-src/util/search.rs::func::get_span	missing	-	baseline
-src/util/search.rs::func::haystack	missing	-	baseline
-src/util/search.rs::func::haystack_too_long	missing	-	baseline
-src/util/search.rs::func::insert	mapped	src/regex/automata/search.cr	mapped to PatternSet#insert
-src/util/search.rs::func::is_anchored	missing	-	baseline
-src/util/search.rs::func::is_char_boundary	missing	-	baseline
-src/util/search.rs::func::is_done	missing	-	baseline
-src/util/search.rs::func::is_empty	mapped	src/regex/automata/search.cr	mapped to primitive empty predicates and PatternSet#is_empty
-src/util/search.rs::func::is_full	mapped	src/regex/automata/search.cr	mapped to PatternSet#is_full
-src/util/search.rs::func::iter	mapped	src/regex/automata/search.cr	mapped to PatternSet#iter and PatternSetIter
-src/util/search.rs::func::kind	missing	-	baseline
-src/util/search.rs::func::len	mapped	src/regex/automata/search.cr	mapped to primitive length helpers and PatternSet#len
-src/util/search.rs::func::must	missing	-	baseline
-src/util/search.rs::func::new	missing	-	baseline
-src/util/search.rs::func::offset	missing	-	baseline
-src/util/search.rs::func::pattern	missing	-	baseline
-src/util/search.rs::func::quit	missing	-	baseline
-src/util/search.rs::func::range	missing	-	baseline
-src/util/search.rs::func::remove	mapped	src/regex/automata/search.cr	mapped to PatternSet#remove
-src/util/search.rs::func::set_anchored	missing	-	baseline
-src/util/search.rs::func::set_earliest	missing	-	baseline
-src/util/search.rs::func::set_end	missing	-	baseline
-src/util/search.rs::func::set_start	missing	-	baseline
-src/util/search.rs::func::span	missing	-	baseline
-src/util/search.rs::func::start	missing	-	baseline
-src/util/search.rs::func::try_insert	mapped	src/regex/automata/search.cr	mapped to PatternSet#try_insert
-src/util/search.rs::func::unsupported_anchored	missing	-	baseline
+src/util/primitives.rs::method::SmallIndexError.fmt	missing	-	baseline
+src/util/primitives.rs::method::SmallIndexIter.next	missing	-	baseline
+src/util/primitives.rs::method::Vec<T>.index	missing	-	baseline
+src/util/primitives.rs::method::Vec<T>.index_mut	missing	-	baseline
+src/util/primitives.rs::method::[T].index	missing	-	baseline
+src/util/primitives.rs::method::[T].index_mut	missing	-	baseline
 src/util/search.rs::method::Anchored.is_anchored	missing	-	baseline
+src/util/search.rs::method::Anchored.pattern	missing	-	baseline
+src/util/search.rs::method::Bad.as_ref	missing	-	baseline
+src/util/search.rs::method::HalfMatch.must	missing	-	baseline
 src/util/search.rs::method::HalfMatch.new	missing	-	baseline
+src/util/search.rs::method::HalfMatch.offset	missing	-	baseline
+src/util/search.rs::method::HalfMatch.pattern	missing	-	baseline
+src/util/search.rs::method::Input<'h>.anchored	missing	-	baseline
+src/util/search.rs::method::Input<'h>.earliest	missing	-	baseline
+src/util/search.rs::method::Input<'h>.end	missing	-	baseline
+src/util/search.rs::method::Input<'h>.fmt	missing	-	baseline
+src/util/search.rs::method::Input<'h>.from	missing	-	baseline
+src/util/search.rs::method::Input<'h>.get_anchored	missing	-	baseline
+src/util/search.rs::method::Input<'h>.get_earliest	missing	-	baseline
+src/util/search.rs::method::Input<'h>.get_range	missing	-	baseline
+src/util/search.rs::method::Input<'h>.get_span	missing	-	baseline
+src/util/search.rs::method::Input<'h>.haystack	missing	-	baseline
+src/util/search.rs::method::Input<'h>.is_char_boundary	missing	-	baseline
+src/util/search.rs::method::Input<'h>.is_done	missing	-	baseline
+src/util/search.rs::method::Input<'h>.new	missing	-	baseline
+src/util/search.rs::method::Input<'h>.range	missing	-	baseline
+src/util/search.rs::method::Input<'h>.set_anchored	missing	-	baseline
+src/util/search.rs::method::Input<'h>.set_earliest	missing	-	baseline
+src/util/search.rs::method::Input<'h>.set_end	missing	-	baseline
+src/util/search.rs::method::Input<'h>.set_range	missing	-	baseline
+src/util/search.rs::method::Input<'h>.set_span	missing	-	baseline
+src/util/search.rs::method::Input<'h>.set_start	missing	-	baseline
+src/util/search.rs::method::Input<'h>.span	missing	-	baseline
+src/util/search.rs::method::Input<'h>.start	missing	-	baseline
+src/util/search.rs::method::Match.end	missing	-	baseline
+src/util/search.rs::method::Match.is_empty	missing	-	baseline
+src/util/search.rs::method::Match.len	missing	-	baseline
+src/util/search.rs::method::Match.must	missing	-	baseline
+src/util/search.rs::method::Match.new	missing	-	baseline
+src/util/search.rs::method::Match.pattern	missing	-	baseline
+src/util/search.rs::method::Match.range	missing	-	baseline
+src/util/search.rs::method::Match.span	missing	-	baseline
+src/util/search.rs::method::Match.start	missing	-	baseline
+src/util/search.rs::method::MatchError.fmt	missing	-	baseline
+src/util/search.rs::method::MatchError.gave_up	missing	-	baseline
+src/util/search.rs::method::MatchError.haystack_too_long	missing	-	baseline
+src/util/search.rs::method::MatchError.kind	missing	-	baseline
 src/util/search.rs::method::MatchError.new	missing	-	baseline
-src/util/search.rs::method::PatternSet.new	mapped	src/regex/automata/search.cr	mapped to PatternSet.initialize
+src/util/search.rs::method::MatchError.quit	missing	-	baseline
+src/util/search.rs::method::MatchError.unsupported_anchored	missing	-	baseline
+src/util/search.rs::method::MatchKind.continue_past_first_match	missing	-	baseline
+src/util/search.rs::method::PatternSet.capacity	missing	-	baseline
+src/util/search.rs::method::PatternSet.clear	missing	-	baseline
+src/util/search.rs::method::PatternSet.contains	missing	-	baseline
+src/util/search.rs::method::PatternSet.insert	missing	-	baseline
+src/util/search.rs::method::PatternSet.is_empty	missing	-	baseline
+src/util/search.rs::method::PatternSet.is_full	missing	-	baseline
+src/util/search.rs::method::PatternSet.iter	missing	-	baseline
+src/util/search.rs::method::PatternSet.len	missing	-	baseline
+src/util/search.rs::method::PatternSet.new	missing	-	baseline
+src/util/search.rs::method::PatternSet.try_insert	missing	-	baseline
+src/util/search.rs::method::PatternSetInsertError.fmt	missing	-	baseline
+src/util/search.rs::method::PatternSetIter<'a>.next	missing	-	baseline
+src/util/search.rs::method::PatternSetIter<'a>.next_back	missing	-	baseline
+src/util/search.rs::method::PatternSetIter<'a>.size_hint	missing	-	baseline
+src/util/search.rs::method::Range<usize>.eq	missing	-	baseline
+src/util/search.rs::method::Range<usize>.from	missing	-	baseline
+src/util/search.rs::method::Span.contains	missing	-	baseline
+src/util/search.rs::method::Span.eq	missing	-	baseline
+src/util/search.rs::method::Span.fmt	missing	-	baseline
+src/util/search.rs::method::Span.from	missing	-	baseline
+src/util/search.rs::method::Span.is_empty	missing	-	baseline
+src/util/search.rs::method::Span.len	missing	-	baseline
+src/util/search.rs::method::Span.offset	missing	-	baseline
 src/util/search.rs::method::Span.range	missing	-	baseline
-src/util/search.rs::struct::HalfMatch	missing	-	baseline
-src/util/search.rs::struct::Input	missing	-	baseline
-src/util/search.rs::struct::Match	missing	-	baseline
-src/util/search.rs::struct::MatchError	missing	-	baseline
-src/util/search.rs::struct::PatternSet	mapped	src/regex/automata/search.cr;spec/pattern_set_spec.cr	mapped to the Crystal PatternSet container
-src/util/search.rs::struct::PatternSetInsertError	mapped	src/regex/automata/search.cr;spec/pattern_set_spec.cr	mapped to the Crystal PatternSet insert failure type
-src/util/search.rs::struct::PatternSetIter	mapped	src/regex/automata/search.cr;spec/pattern_set_spec.cr	mapped to the Crystal PatternSet iterator
-src/util/search.rs::struct::Span	missing	-	baseline
-src/util/start.rs::func::anchored	missing	-	baseline
-src/util/start.rs::func::from_input_forward	missing	-	baseline
-src/util/start.rs::func::from_input_reverse	missing	-	baseline
-src/util/start.rs::func::get_anchored	missing	-	baseline
-src/util/start.rs::func::get_look_behind	missing	-	baseline
-src/util/start.rs::func::look_behind	missing	-	baseline
-src/util/start.rs::func::new	missing	-	baseline
+src/util/search.rs::method::[u8].index	missing	-	baseline
+src/util/search.rs::method::[u8].index_mut	missing	-	baseline
+src/util/search.rs::method::str.index	missing	-	baseline
+src/util/sparse_set.rs::method::SparseSet.capacity	missing	-	baseline
+src/util/sparse_set.rs::method::SparseSet.clear	missing	-	baseline
+src/util/sparse_set.rs::method::SparseSet.contains	missing	-	baseline
+src/util/sparse_set.rs::method::SparseSet.fmt	missing	-	baseline
+src/util/sparse_set.rs::method::SparseSet.insert	missing	-	baseline
+src/util/sparse_set.rs::method::SparseSet.is_empty	missing	-	baseline
+src/util/sparse_set.rs::method::SparseSet.iter	missing	-	baseline
+src/util/sparse_set.rs::method::SparseSet.len	missing	-	baseline
+src/util/sparse_set.rs::method::SparseSet.memory_usage	missing	-	baseline
+src/util/sparse_set.rs::method::SparseSet.new	missing	-	baseline
+src/util/sparse_set.rs::method::SparseSet.resize	missing	-	baseline
+src/util/sparse_set.rs::method::SparseSetIter<'a>.next	missing	-	baseline
+src/util/sparse_set.rs::method::SparseSets.clear	missing	-	baseline
+src/util/sparse_set.rs::method::SparseSets.memory_usage	missing	-	baseline
+src/util/sparse_set.rs::method::SparseSets.new	missing	-	baseline
+src/util/sparse_set.rs::method::SparseSets.resize	missing	-	baseline
+src/util/sparse_set.rs::method::SparseSets.swap	missing	-	baseline
+src/util/start.rs::method::Config.anchored	missing	-	baseline
+src/util/start.rs::method::Config.from_input_forward	missing	-	baseline
+src/util/start.rs::method::Config.from_input_reverse	missing	-	baseline
+src/util/start.rs::method::Config.get_anchored	missing	-	baseline
+src/util/start.rs::method::Config.get_look_behind	missing	-	baseline
+src/util/start.rs::method::Config.look_behind	missing	-	baseline
 src/util/start.rs::method::Config.new	missing	-	baseline
-src/util/start.rs::struct::Config	missing	-	baseline
-src/util/syntax.rs::func::case_insensitive	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config case-insensitive builder
-src/util/syntax.rs::func::crlf	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config CRLF builder
-src/util/syntax.rs::func::dot_matches_new_line	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config dot-matches-new-line builder
-src/util/syntax.rs::func::get_case_insensitive	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config case-insensitive getter
-src/util/syntax.rs::func::get_crlf	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config CRLF getter
-src/util/syntax.rs::func::get_dot_matches_new_line	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config dot-matches-new-line getter
-src/util/syntax.rs::func::get_ignore_whitespace	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config ignore-whitespace getter
-src/util/syntax.rs::func::get_line_terminator	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config line-terminator getter
-src/util/syntax.rs::func::get_multi_line	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config multi-line getter
-src/util/syntax.rs::func::get_nest_limit	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config nest-limit getter
-src/util/syntax.rs::func::get_octal	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config octal getter
-src/util/syntax.rs::func::get_swap_greed	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config swap-greed getter
-src/util/syntax.rs::func::get_unicode	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config unicode getter
-src/util/syntax.rs::func::get_utf8	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config utf8 getter
-src/util/syntax.rs::func::ignore_whitespace	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config ignore-whitespace builder
-src/util/syntax.rs::func::line_terminator	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config line-terminator builder
-src/util/syntax.rs::func::multi_line	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config multi-line builder
-src/util/syntax.rs::func::nest_limit	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config nest-limit builder
-src/util/syntax.rs::func::new	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config defaults
-src/util/syntax.rs::func::octal	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config octal builder
-src/util/syntax.rs::func::parse	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped default syntax parse helper
-src/util/syntax.rs::func::parse_with	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped configured syntax parse helper
-src/util/syntax.rs::func::swap_greed	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config swap-greed builder
-src/util/syntax.rs::func::unicode	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config unicode builder
-src/util/syntax.rs::func::utf8	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config utf8 builder
-src/util/syntax.rs::method::Config.new	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config constructor
-src/util/syntax.rs::struct::Config	mapped	src/regex/automata/syntax.cr;spec/syntax_spec.cr	mapped syntax config wrapper around regex-syntax parser builder
+src/util/start.rs::method::Start.as_u8	missing	-	baseline
+src/util/start.rs::method::Start.as_usize	missing	-	baseline
+src/util/start.rs::method::Start.from_usize	missing	-	baseline
+src/util/start.rs::method::Start.len	missing	-	baseline
+src/util/start.rs::method::StartByteMap.fmt	missing	-	baseline
+src/util/start.rs::method::StartByteMap.from_bytes	missing	-	baseline
+src/util/start.rs::method::StartByteMap.get	missing	-	baseline
+src/util/start.rs::method::StartByteMap.new	missing	-	baseline
+src/util/start.rs::method::StartByteMap.write_to	missing	-	baseline
+src/util/start.rs::method::StartByteMap.write_to_len	missing	-	baseline
+src/util/syntax.rs::method::Config.apply	missing	-	baseline
+src/util/syntax.rs::method::Config.apply_ast	missing	-	baseline
+src/util/syntax.rs::method::Config.apply_hir	missing	-	baseline
+src/util/syntax.rs::method::Config.case_insensitive	missing	-	baseline
+src/util/syntax.rs::method::Config.crlf	missing	-	baseline
+src/util/syntax.rs::method::Config.default	missing	-	baseline
+src/util/syntax.rs::method::Config.dot_matches_new_line	missing	-	baseline
+src/util/syntax.rs::method::Config.get_case_insensitive	missing	-	baseline
+src/util/syntax.rs::method::Config.get_crlf	missing	-	baseline
+src/util/syntax.rs::method::Config.get_dot_matches_new_line	missing	-	baseline
+src/util/syntax.rs::method::Config.get_ignore_whitespace	missing	-	baseline
+src/util/syntax.rs::method::Config.get_line_terminator	missing	-	baseline
+src/util/syntax.rs::method::Config.get_multi_line	missing	-	baseline
+src/util/syntax.rs::method::Config.get_nest_limit	missing	-	baseline
+src/util/syntax.rs::method::Config.get_octal	missing	-	baseline
+src/util/syntax.rs::method::Config.get_swap_greed	missing	-	baseline
+src/util/syntax.rs::method::Config.get_unicode	missing	-	baseline
+src/util/syntax.rs::method::Config.get_utf8	missing	-	baseline
+src/util/syntax.rs::method::Config.ignore_whitespace	missing	-	baseline
+src/util/syntax.rs::method::Config.line_terminator	missing	-	baseline
+src/util/syntax.rs::method::Config.multi_line	missing	-	baseline
+src/util/syntax.rs::method::Config.nest_limit	missing	-	baseline
+src/util/syntax.rs::method::Config.new	missing	-	baseline
+src/util/syntax.rs::method::Config.octal	missing	-	baseline
+src/util/syntax.rs::method::Config.swap_greed	missing	-	baseline
+src/util/syntax.rs::method::Config.unicode	missing	-	baseline
+src/util/syntax.rs::method::Config.utf8	missing	-	baseline
 src/util/unicode_data/perl_word.rs::const::PERL_WORD	missing	-	baseline
-src/util/wire.rs::struct::AlignAs	mapped	src/regex/automata/wire.cr;spec/wire_spec.cr	mapped to a Crystal alignment helper wrapper
-src/util/wire.rs::struct::DeserializeError	mapped	src/regex/automata/errors.cr;src/regex/automata/wire.cr	mapped to the existing deserialize error type plus wire helper constructors
-src/util/wire.rs::struct::SerializeError	mapped	src/regex/automata/errors.cr;src/regex/automata/wire.cr	mapped to the existing serialize error type plus wire helper constructors
+src/util/utf8.rs::const::WORD	missing	-	baseline
+src/util/wire.rs::method::BE.write_u128	missing	-	baseline
+src/util/wire.rs::method::BE.write_u16	missing	-	baseline
+src/util/wire.rs::method::BE.write_u32	missing	-	baseline
+src/util/wire.rs::method::DeserializeError.alignment_mismatch	missing	-	baseline
+src/util/wire.rs::method::DeserializeError.arithmetic_overflow	missing	-	baseline
+src/util/wire.rs::method::DeserializeError.buffer_too_small	missing	-	baseline
+src/util/wire.rs::method::DeserializeError.endian_mismatch	missing	-	baseline
+src/util/wire.rs::method::DeserializeError.fmt	missing	-	baseline
+src/util/wire.rs::method::DeserializeError.generic	missing	-	baseline
+src/util/wire.rs::method::DeserializeError.invalid_usize	missing	-	baseline
+src/util/wire.rs::method::DeserializeError.label_mismatch	missing	-	baseline
+src/util/wire.rs::method::DeserializeError.pattern_id_error	missing	-	baseline
+src/util/wire.rs::method::DeserializeError.state_id_error	missing	-	baseline
+src/util/wire.rs::method::DeserializeError.version_mismatch	missing	-	baseline
+src/util/wire.rs::method::LE.write_u128	missing	-	baseline
+src/util/wire.rs::method::LE.write_u16	missing	-	baseline
+src/util/wire.rs::method::LE.write_u32	missing	-	baseline
+src/util/wire.rs::method::SerializeError.buffer_too_small	missing	-	baseline
+src/util/wire.rs::method::SerializeError.fmt	missing	-	baseline

@@ -1,0 +1,11 @@
+{
+  "base": "/Volumes/extreme_ssd/repos/github.com/dsisnero/regex-automata/vendor/regex/regex-automata",
+  "parser_requested": "regex",
+  "backend": "regex",
+  "binary": null,
+  "include_paths": [
+    "src",
+    "tests"
+  ],
+  "exclude_patterns": []
+}

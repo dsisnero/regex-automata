@@ -1,0 +1,10 @@
+{
+  "base": "/Volumes/extreme_ssd/repos/github.com/dsisnero/regex-automata/vendor/regex/regex-automata",
+  "parser_requested": "tree-sitter",
+  "backend": "chiasmus-tree-sitter",
+  "binary": "/Users/dominic/.agents/skills/crystal_forge/skills/cross-language-crystal-parity/bin/darwin-aarch64/chiasmus-discover --language rust --dir /Volumes/extreme_ssd/repos/github.com/dsisnero/regex-automata/vendor/regex/regex-automata --parser tree-sitter",
+  "include_paths": [
+    "src"
+  ],
+  "exclude_patterns": []
+}
