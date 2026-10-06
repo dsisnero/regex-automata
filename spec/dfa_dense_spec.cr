@@ -243,6 +243,20 @@ describe "DFA::Dense" do
     error.is_size_limit_exceeded.should be_true
   end
 
+  it "distinguishes dense size-limit failures from unsupported syntax" do
+    size_error = expect_raises(Regex::Automata::BuildError) do
+      Regex::Automata::DFA::Builder.new
+        .configure(Regex::Automata::DFA::DFA.config.dfa_size_limit(1_i64))
+        .build("abc")
+    end
+    size_error.is_size_limit_exceeded.should be_true
+
+    unsupported_error = expect_raises(Regex::Automata::BuildError) do
+      Regex::Automata::DFA::Builder.new.build("\\babc\\b")
+    end
+    unsupported_error.is_size_limit_exceeded.should be_false
+  end
+
   it "reports determinization scratch-limit failures through BuildError" do
     error = expect_raises(Regex::Automata::BuildError) do
       Regex::Automata::DFA::Builder.new
