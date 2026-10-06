@@ -81,7 +81,7 @@ src/dfa/dense.rs::method::Builder.configure	method	ported	src/regex/automata/dfa
 src/dfa/dense.rs::method::Builder.default	method	missing	-	auto-generated
 src/dfa/dense.rs::method::Builder.new	method	missing	-	auto-generated
 src/dfa/dense.rs::method::Builder.syntax	method	missing	-	auto-generated
-src/dfa/dense.rs::method::Builder.thompson	method	missing	-	auto-generated
+src/dfa/dense.rs::method::Builder.thompson	method	ported	src/regex/automata/dfa.cr:Builder#thompson;spec/dfa_dense_spec.cr	Successive Thompson configuration calls retain prior settings.
 src/dfa/dense.rs::method::Config.accelerate	method	ported	src/regex/automata/config.cr:Config#accelerate;spec/dfa_dense_spec.cr	Configuration setter and default are covered.
 src/dfa/dense.rs::method::Config.byte_classes	method	ported	src/regex/automata/config.cr:Config#byte_classes;spec/dfa_dense_spec.cr	Configuration setter and default are covered.
 src/dfa/dense.rs::method::Config.determinize_size_limit	method	ported	src/regex/automata/config.cr:Config#determinize_size_limit;spec/dfa_dense_spec.cr	Optional limit configuration is covered.
