@@ -310,8 +310,22 @@ module Regex::Automata
       end
     end
 
-    def interpolate_string_into(haystack : String, replacement : String, dst : String) : Nil
-      dst << interpolate_string(haystack, replacement)
+    # Appends interpolated text to a mutable output stream. Crystal's String
+    # values are immutable, so IO is the counterpart to Rust's &mut String.
+    def interpolate_string_into(haystack : String, replacement : String, dst : IO) : Nil
+      Interpolate.string(
+        replacement,
+        ->(index : Int32, io : IO) do
+          if span = get_group(index)
+            if match = haystack.byte_slice(span.start, span.length)
+              io << match
+            end
+          end
+          nil
+        end,
+        ->(name : String) { @group_info.to_index(pattern.not_nil!, name) if pattern },
+        dst
+      )
     end
 
     def interpolate_bytes(haystack : Bytes, replacement : Bytes) : Bytes

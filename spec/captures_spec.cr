@@ -173,6 +173,33 @@ describe Regex::Automata::Captures do
 
     interpolated = caps.interpolate_bytes(haystack.to_slice, "day=$day".to_slice)
     String.new(interpolated).should eq("day=14")
+
+    string_dst = IO::Memory.new
+    string_dst << "prefix:"
+    caps.interpolate_string_into(haystack, "$month/$year", string_dst)
+    string_dst.to_s.should eq("prefix:03/2010")
+
+    bytes_dst = "prefix:".bytes
+    caps.interpolate_bytes_into(haystack.to_slice, "$day".to_slice, bytes_dst)
+    String.new(Bytes.new(bytes_dst.size) { |i| bytes_dst[i] }).should eq("prefix:14")
+  end
+
+  it "clones capture snapshots without sharing mutable slots" do
+    info = Regex::Automata::GroupInfo.new([[nil, "word"] of String?])
+    original = Regex::Automata::Captures.all(info)
+    original.set_pattern(Regex::Automata::PatternID.new(0))
+    original.slots_mut[0] = 2
+    original.slots_mut[1] = 6
+    original.slots_mut[2] = 2
+    original.slots_mut[3] = 6
+
+    copied = original.clone
+    copied.clear
+
+    original.is_match.should be_true
+    original.get_group_by_name("word").should eq(Regex::Automata::Span.new(2, 6))
+    copied.is_match.should be_false
+    copied.slots.compact.should be_empty
   end
 
   it "extracts the full match and requested participating groups" do

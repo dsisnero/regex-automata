@@ -1420,8 +1420,8 @@ src/util/alphabet.rs::method::Unit.is_byte	method	missing	-	auto-generated
 src/util/alphabet.rs::method::Unit.is_eoi	method	missing	-	auto-generated
 src/util/alphabet.rs::method::Unit.is_word_byte	method	missing	-	auto-generated
 src/util/alphabet.rs::method::Unit.u8	method	missing	-	auto-generated
-src/util/captures.rs::method::Captures.all	method	missing	-	auto-generated
-src/util/captures.rs::method::Captures.clear	method	missing	-	auto-generated
+src/util/captures.rs::method::Captures.all	method	ported	src/regex/automata/captures.cr:Captures.all;spec/captures_spec.cr	All-slot capture storage is covered.
+src/util/captures.rs::method::Captures.clear	method	ported	src/regex/automata/captures.cr:Captures#clear;spec/captures_spec.cr	Clears both match state and slots as upstream.
 src/util/captures.rs::method::Captures.empty	method	ported	src/regex/automata/captures.cr:Captures.empty;spec/captures_spec.cr	Pattern-only capture storage matches upstream.
 src/util/captures.rs::method::Captures.extract	method	partial	src/regex/automata/captures.cr:Captures#extract;spec/captures_spec.cr	Preserves extraction and failure behavior; Crystal takes runtime group_count instead of Rust's const-generic array length.
 src/util/captures.rs::method::Captures.extract_bytes	method	partial	src/regex/automata/captures.cr:Captures#extract_bytes;spec/captures_spec.cr	Preserves byte extraction and failure behavior; Crystal takes runtime group_count instead of Rust's const-generic array length.
@@ -1567,8 +1567,8 @@ src/util/int.rs::method::usize.as_u16	method	missing	-	auto-generated
 src/util/int.rs::method::usize.as_u32	method	missing	-	auto-generated
 src/util/int.rs::method::usize.as_u64	method	missing	-	auto-generated
 src/util/int.rs::method::usize.as_u8	method	missing	-	auto-generated
-src/util/interpolate.rs::method::Ref<'a>.from	method	missing	-	auto-generated
-src/util/interpolate.rs::method::Ref<'static>.from	method	missing	-	auto-generated
+src/util/interpolate.rs::method::Ref<'a>.from	method	ported	src/regex/automata/interpolate.cr:Interpolate#ref_from_name;spec/interpolate_spec.cr	String capture names are represented by CaptureNameRef.
+src/util/interpolate.rs::method::Ref<'static>.from	method	ported	src/regex/automata/interpolate.cr:Interpolate#ref_from_name;spec/interpolate_spec.cr	Numeric capture references are represented by Int32.
 src/util/iter.rs::method::CapturesIter<'h, F>.next	method	ported	src/regex/automata/search.cr:CapturesIter#next;spec/searcher_spec.cr	covered
 src/util/iter.rs::method::HalfMatchesIter<'h, F>.input	method	ported	src/regex/automata/search.cr:HalfMatchesIter#input;spec/searcher_spec.cr	covered
 src/util/iter.rs::method::HalfMatchesIter<'h, F>.next	method	ported	src/regex/automata/search.cr:HalfMatchesIter#next;spec/searcher_spec.cr	covered

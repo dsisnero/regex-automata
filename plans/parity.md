@@ -43,9 +43,9 @@
   - Scope: `src/util/search.rs::{PatternSet,PatternSetIter}` and `src/util/iter.rs`.
   - Done: capacity/error limits, ordering, forward/reverse exhaustion, empty-match handling, fallible/infallible conversion, capture snapshots, error propagation, and retained input are covered. Rust Debug and size-hint protocols are documented Crystal-native divergences.
 
-- [ ] Capture slots and interpolation
+- [x] Capture slots and interpolation
   - Scope: `src/util/captures.rs` and `src/util/interpolate.rs`.
-  - Work: prove group metadata, named/numeric lookup, slots, all capture iterator variants, malformed group information, byte/string interpolation, and snapshot ownership behavior.
+  - Done: group metadata, named/numeric lookup, slot ordering, all capture iterator variants, malformed metadata, byte/string interpolation (including append destinations), and snapshot ownership are covered. Rust Debug/iterator-hint APIs and exact memory-layout accounting are documented Crystal-native divergences; extraction uses a runtime group count in place of Rust's const-generic array length.
 
 - [ ] Start configuration and start-byte map
   - Scope: `src/util/start.rs`.
