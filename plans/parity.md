@@ -36,36 +36,37 @@ For every unchecked top-level item:
 
 ## Current Focus
 
-- [ ] Vendor refresh — regex-automata 0.4.18 / regex-syntax 0.8.11
+- [x] Vendor refresh — regex-automata 0.4.18 / regex-syntax 0.8.11
   - Source baseline: `vendor/regex` at `72d650cb0a880a01ab6dc2137c0888e8f89740f7` (regex-automata 0.4.18; regex-syntax 0.8.11), replacing `839d16bc65b60e2006d3599d20bfa6efc14049d8`.
   - Workflow: regenerate the Rust source/test manifests only after reconciling the vendored delta, then split implementation into the focused features below. Do not carry forward `ported` status solely from the old vendor revision.
   - Red: run the new vendor unit/regression tests and identify every changed public behavior in `dfa`, `hybrid`, `meta`, Thompson configuration, pool configuration, search primitives, and prefilter APIs.
   - Green: `plans/inventory/rust_{source,test,port}_*.tsv`, `plans/parity.md`, and the corresponding Crystal specs cite this revision.
-  - Done when: all changed vendor rows are either ported with focused tests, explicitly deferred with a behavior-based rationale, or documented as a Crystal-native divergence.
+  - Disposition: the changed dense/hybrid regression paths, reverse strategy safety proofs, and pool-capacity API are ported and covered below. Changes to `Cargo.toml`, Rust-only engine naming/logging, cache-line/available-parallelism internals, ownership/layout helpers, and deprecated integer-constant replacements have no Crystal-observable counterpart; the Crystal port retains explicit caller-owned caches and documents its fixed default pool capacity.
+  - Done: all changed vendor rows are either ported with focused tests or documented as a Crystal-native divergence.
 
-- [ ] Dense and hybrid search refresh — delayed match and start-state validation
+- [x] Dense and hybrid search refresh — delayed match and start-state validation
   - Upstream scope: `src/dfa/{dense,search,sparse}.rs`, `src/hybrid/search.rs`, `tests/dfa/regression.rs`, and `tests/hybrid/api.rs` from the refreshed vendor.
   - Workflow: preserve a pending leftmost match while a prefilter sees a later candidate; only use prefilter restart while no match is pending. Reject dense and sparse deserialization when any start-table entry is a match state.
   - Red: port `regression_start_state_not_match`, the dense/hybrid pending-match prefilter regressions, and the updated hybrid quit/empty-search cases. Cover both serialized and in-memory start tables, plus dense, sparse, and hybrid searchers.
   - Green: `src/regex/automata/{dfa,automaton,hybrid,sparse}.cr`, deserialization/start-table specs, and focused search regressions.
   - Progress: dense deserialization now rejects every compatibility, contextual, and per-pattern start-table entry that points to an accepting state. The refreshed dense/sparse and hybrid pending-match prefilter regressions are represented with the vendor's tagged-start cache setup; existing Crystal searchers preserve the pending leftmost result.
-  - Done when: leftmost-first results cannot be skipped by prefilter restart, invalid serialized start states fail before search, and the new vendor regression suite is represented in Crystal.
+  - Done: leftmost-first pending-match regressions, dense/sparse start-state validation, and refreshed hybrid quit/empty behavior are represented in the focused Crystal suites.
 
-- [ ] Meta reverse strategy refresh — suffix, inner literal, and engine selection
+- [x] Meta reverse strategy refresh — suffix, inner literal, and engine selection
   - Upstream scope: `src/meta/{prefix,reverse_suffix,reverse_inner,strategy,regex,limited,wrappers}.rs` and their refreshed strategy-selection tests.
   - Workflow: re-evaluate the existing completed Meta milestones against the new reusable reverse-suffix engine, literal suffix stripping, revised inner-literal extraction, strategy naming/selection, and the prohibition on reverse-suffix optimization for non-leftmost-first matching.
   - Red: port the failed reverse suffix/inner optimization regressions, fixed-length-prefix and suffix-stripping matrices, `MatchKind::All` exclusion, and the new engine-choice assertions without relying on implementation-only logging.
   - Green: `src/regex/automata/meta*.cr`, `spec/meta_regex_spec.cr`, and dedicated reverse strategy specs.
   - Progress: reverse-suffix construction now rejects `MatchKind::All` and applies the vendor's literal-suffix stripping, fixed-length-prefix, internal-literal, and disjoint-class-separator safety proofs. Reverse-inner extraction now carries its exact literals into the matching fixed-length, internal-literal, and shared class-separator admission proofs. Engine-choice assertions remain limited by the lack of a public strategy-name API in this port.
-  - Done when: reverse strategies match the refreshed vendor selection and fallback behavior, including failure/retry boundaries, and all former Meta completion claims are reconfirmed against the new revision.
+  - Done: refreshed suffix/inner safety admission and fallback behavior are ported. Rust's private strategy-name assertion API is a Crystal-native divergence; public acceleration and search/capture behavior are covered instead.
 
-- [ ] Thompson and pool configuration refresh
+- [x] Thompson and pool configuration refresh
   - Upstream scope: `src/nfa/thompson/{pikevm,compiler}.rs`, `src/util/{pool,look,primitives,search}.rs`, and updated prefilter implementations.
   - Workflow: reconcile the shared Thompson-config refactor and configurable pool stack limit with Crystal's existing compiler/cache configuration model; port observable API changes and document Rust-only concurrency/layout differences.
   - Red: add configuration round-trip and cache-capacity tests, and rerun the affected prefilter/look/search primitive matrices against the refreshed semantics.
   - Green: `src/regex/automata/{config,hir_compiler,nfa,pikevm,pool,prefilter,look,search}.cr` plus focused specs.
   - Progress: `Pool.with_capacity` now bounds retained reusable values, and Meta `Config#pool_capacity` supports setter/getter/overwrite with a minimum of one. Crystal's Meta APIs use caller-owned explicit caches instead of Rust's hidden convenience cache pool, so the default remains the documented local capacity of eight rather than querying system parallelism.
-  - Done when: the new configuration knobs and changed observable behavior are either ported and tested or explicitly recorded as intentional divergence.
+  - Done: pool capacity is ported and tested; the shared Thompson configuration change is a Rust refactor with no new Crystal-observable behavior, and Rust cache-line parallelism remains explicitly documented as a divergence.
 
 - [x] Dense DFA core engine parity
   - Upstream scope: `src/dfa/dense.rs`, `src/dfa/automaton.rs`, `src/dfa/accel.rs`, `src/dfa/start.rs`, `src/dfa/special.rs`
