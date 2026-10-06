@@ -51,6 +51,41 @@ describe "DFA::Dense" do
     config.get_determinize_size_limit.should eq(456_i64)
   end
 
+  it "merges dense config overrides without sharing the quit set" do
+    prefilter = Regex::Automata::Prefilter.new(
+      Regex::Automata::MatchKind::LeftmostFirst,
+      ["base"]
+    ).not_nil!
+    override_prefilter = Regex::Automata::Prefilter.new(
+      Regex::Automata::MatchKind::LeftmostFirst,
+      ["override"]
+    ).not_nil!
+    base = Regex::Automata::DFA::DFA.config
+      .accelerate(false)
+      .prefilter(prefilter)
+      .match_kind(Regex::Automata::MatchKind::All)
+      .quit('x'.ord.to_u8, true)
+      .dfa_size_limit(123_i64)
+    merged = base.overwrite(
+      Regex::Automata::DFA::DFA.config
+        .accelerate(true)
+        .prefilter(override_prefilter)
+        .start_kind(Regex::Automata::StartKind::Anchored)
+        .determinize_size_limit(456_i64)
+    )
+
+    merged.get_accelerate.should be_true
+    merged.get_prefilter.should be(override_prefilter)
+    merged.get_match_kind.should eq(Regex::Automata::MatchKind::All)
+    merged.get_starts.should eq(Regex::Automata::StartKind::Anchored)
+    merged.get_quit('x'.ord.to_u8).should be_true
+    merged.get_dfa_size_limit.should eq(123_i64)
+    merged.get_determinize_size_limit.should eq(456_i64)
+
+    base.quit('y'.ord.to_u8, true)
+    merged.get_quit('y'.ord.to_u8).should be_false
+  end
+
   it "exposes builder and config convenience constructors" do
     dfa = Regex::Automata::DFA::DFA.builder
       .configure(Regex::Automata::DFA::DFA.config.start_kind(Regex::Automata::StartKind::Anchored))

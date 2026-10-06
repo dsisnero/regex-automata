@@ -239,6 +239,15 @@ module Regex::Automata
       @prefilter
     end
 
+    # Returns a configuration where options explicitly set by `other` take
+    # precedence over this configuration. This mirrors the builder merge used
+    # by the upstream dense DFA implementation.
+    def overwrite(other : Config) : Config
+      merged = Config.new
+      merged.overwrite_from(self, other)
+      merged
+    end
+
     # Create a copy of this configuration
     def dup : Config
       # Create a new config
@@ -260,10 +269,33 @@ module Regex::Automata
       @starts_for_each_pattern = other.@starts_for_each_pattern
       @byte_classes = other.@byte_classes
       @unicode_word_boundary = other.@unicode_word_boundary
-      @quitset = other.@quitset
+      @quitset = clone_quitset(other.@quitset)
       @specialize_start_states = other.@specialize_start_states
       @dfa_size_limit = other.@dfa_size_limit
       @determinize_size_limit = other.@determinize_size_limit
+    end
+
+    protected def overwrite_from(base : Config, other : Config) : Nil
+      @accelerate = other.@accelerate || base.@accelerate
+      @prefilter = other.@prefilter || base.@prefilter
+      @minimize = other.@minimize || base.@minimize
+      @match_kind = other.@match_kind || base.@match_kind
+      @start_kind = other.@start_kind || base.@start_kind
+      @starts_for_each_pattern = other.@starts_for_each_pattern || base.@starts_for_each_pattern
+      @byte_classes = other.@byte_classes || base.@byte_classes
+      @unicode_word_boundary = other.@unicode_word_boundary || base.@unicode_word_boundary
+      @quitset = clone_quitset(other.@quitset || base.@quitset)
+      @specialize_start_states = other.@specialize_start_states || base.@specialize_start_states
+      @dfa_size_limit = other.@dfa_size_limit || base.@dfa_size_limit
+      @determinize_size_limit = other.@determinize_size_limit || base.@determinize_size_limit
+    end
+
+    private def clone_quitset(quitset : ByteSet?) : ByteSet?
+      return nil unless quitset
+
+      copy = ByteSet.empty
+      quitset.each { |byte| copy.add(byte) }
+      copy
     end
   end
 end
