@@ -188,6 +188,33 @@ describe "DFA::Dense" do
     )
   end
 
+  it "preserves EOI and per-pattern start IDs through minimization and serialization" do
+    dfa = Regex::Automata::DFA::Builder.new
+      .configure(
+        Regex::Automata::DFA::DFA.config
+          .minimize(true)
+          .starts_for_each_pattern(true)
+          .specialize_start_states(true)
+      )
+      .build_many(["foo$", "bar", "(?-u:\\b)baz"])
+    roundtrip = Regex::Automata::DFA::DFA.from_bytes(dfa.to_bytes_native_endian[0])[0]
+
+    [dfa, roundtrip].each do |candidate|
+      candidate.try_search_fwd(Regex::Automata::Input.new("foo")).should eq(
+        Regex::Automata::HalfMatch.must(0, 3)
+      )
+      candidate.try_search_fwd(Regex::Automata::Input.new("bar")).should eq(
+        Regex::Automata::HalfMatch.must(1, 3)
+      )
+      input = Regex::Automata::Input.new("baz")
+        .anchored_pattern(Regex::Automata::PatternID.new(2))
+      candidate.try_search_fwd(input).should eq(Regex::Automata::HalfMatch.must(2, 3))
+      candidate.to_sparse.try_search_fwd(Regex::Automata::Input.new("foo")).should eq(
+        Regex::Automata::HalfMatch.must(0, 3)
+      )
+    end
+  end
+
   it "rejects unicode word boundaries unless heuristic support is enabled" do
     expect_raises(Regex::Automata::BuildError) do
       Regex::Automata::DFA::DFA.builder.build("\\bxyz\\b")
