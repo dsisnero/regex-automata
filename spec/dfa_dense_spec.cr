@@ -95,6 +95,17 @@ describe "DFA::Dense" do
       .should be_a(Regex::Automata::UnsupportedAnchoredStartError)
   end
 
+  it "merges successive dense builder configurations" do
+    dfa = Regex::Automata::DFA::Builder.new
+      .configure(Regex::Automata::DFA::DFA.config.byte_classes(false))
+      .configure(Regex::Automata::DFA::DFA.config.start_kind(Regex::Automata::StartKind::Anchored))
+      .build("abc")
+
+    dfa.byte_classifier.is_singleton.should be_true
+    dfa.start_state(Regex::Automata::StartConfig.new(nil, Regex::Automata::Anchored::No))
+      .should be_a(Regex::Automata::UnsupportedAnchoredStartError)
+  end
+
   it "builds dense DFAs through convenience constructors" do
     dfa = Regex::Automata::DFA::DFA.new("abc")
     dfa.try_search_fwd(Regex::Automata::Input.new("zabc")).should eq(

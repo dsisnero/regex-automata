@@ -1651,7 +1651,7 @@ module Regex::Automata::DFA
 
     # Configure the builder with a new configuration
     def configure(config : Config) : Builder
-      Builder.new(config, nfa: @nfa, hir_compiler: @hir_compiler, syntax_config: @syntax_config)
+      Builder.new(@config.overwrite(config), nfa: @nfa, hir_compiler: @hir_compiler, syntax_config: @syntax_config)
     end
 
     # Configure the builder using a block
