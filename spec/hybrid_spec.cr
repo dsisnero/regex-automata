@@ -286,6 +286,27 @@ describe Regex::Automata::Hybrid::DFA do
     dfa.try_search_fwd(cache, input).should be_nil
   end
 
+  it "restarts all-matches overlap searches at prefilter candidates" do
+    prefilter = Regex::Automata::Prefilter.new(
+      Regex::Automata::MatchKind::All,
+      ["abc"]
+    ).not_nil!
+    dfa = Regex::Automata::Hybrid::Builder.new
+      .configure(
+        Regex::Automata::Hybrid::DFA.config
+          .prefilter(prefilter)
+          .match_kind(Regex::Automata::MatchKind::All)
+          .specialize_start_states(true)
+      )
+      .build("(?-u:\\b)abc")
+    cache = dfa.create_cache
+    state = Regex::Automata::Hybrid::OverlappingState.start
+    input = Regex::Automata::Input.new("xabc ").span(1...4)
+
+    dfa.try_search_overlapping_fwd(cache, input, state).should be_nil
+    state.get_match.should be_nil
+  end
+
   it "supports quit bytes and implicit unicode word boundary enabling" do
     dfa = Regex::Automata::Hybrid::Builder.new
       .configure(Regex::Automata::Hybrid::DFA.config.quit('x'.ord.to_u8, true))

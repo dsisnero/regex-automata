@@ -1289,6 +1289,8 @@ module Regex::Automata::Hybrid
       end
       state.mat = nil
       return nil if input.is_done
+      pre = input.get_anchored == ::Regex::Automata::Anchored::No ? get_prefilter : nil
+      universal_start = @nfa.look_set_prefix_any.empty?
 
       current = if sid = state.id
                   if next_index = state.next_match_index
@@ -1313,7 +1315,26 @@ module Regex::Automata::Hybrid
         return ::Regex::Automata::MatchError.gave_up(state.at) if next_sid.is_a?(CacheError)
         current = next_sid.as(LazyStateID)
         state.id = current
-        if current.is_match
+        if current.is_start && pre
+          candidate = pre.find(input.haystack, ::Regex::Automata::Span.new(state.at, input.end))
+          unless candidate
+            cache.search_finish(state.at)
+            return nil
+          end
+
+          if candidate.start > state.at
+            state.at = candidate.start
+            unless universal_start
+              restarted_input = input.clone
+              restarted_input.set_start(state.at)
+              restarted = start_state_forward(cache, restarted_input)
+              return restarted if restarted.is_a?(::Regex::Automata::MatchError)
+              current = restarted.as(LazyStateID)
+            end
+            cache.search_update(state.at)
+            next
+          end
+        elsif current.is_match
           state.next_match_index = 1
           state.mat = ::Regex::Automata::HalfMatch.new(match_pattern(cache, current, 0), state.at)
           cache.search_finish(state.at)
