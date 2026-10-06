@@ -64,12 +64,36 @@ module Regex::Automata
   end
 
   class DeserializeError
+    def self.buffer_too_small(what : String) : self
+      new("buffer is too small to read #{what}")
+    end
+
     def self.generic(message : String) : self
       new(message)
     end
 
+    def self.invalid_usize(what : String) : self
+      new("#{what} is too big to fit in a usize")
+    end
+
+    def self.version_mismatch(expected : UInt32, found : UInt32) : self
+      new("unsupported version: expected version #{expected} but found version #{found}")
+    end
+
+    def self.endian_mismatch(expected : UInt32, found : UInt32) : self
+      new("endianness mismatch: expected 0x#{expected.to_s(16, upcase: true)} but got 0x#{found.to_s(16, upcase: true)}. (Are you trying to load an object serialized with a different endianness?)")
+    end
+
+    def self.alignment_mismatch(alignment : Int32, address : UInt64) : self
+      new("alignment mismatch: slice starts at address 0x#{address.to_s(16, upcase: true)}, which is not aligned to a #{alignment} byte boundary")
+    end
+
     def self.label_mismatch(expected_label : String) : self
       new("label mismatch: start of serialized object should contain a NUL terminated #{expected_label.inspect} label, but a different label was found")
+    end
+
+    def self.arithmetic_overflow(what : String) : self
+      new("arithmetic overflow for #{what}")
     end
   end
 end

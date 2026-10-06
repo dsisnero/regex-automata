@@ -1919,13 +1919,13 @@ src/util/utf8.rs::const::WORD	const	missing	-	auto-generated
 src/util/wire.rs::method::BE.write_u128	method	missing	-	auto-generated
 src/util/wire.rs::method::BE.write_u16	method	missing	-	auto-generated
 src/util/wire.rs::method::BE.write_u32	method	missing	-	auto-generated
-src/util/wire.rs::method::DeserializeError.alignment_mismatch	method	missing	-	auto-generated
-src/util/wire.rs::method::DeserializeError.arithmetic_overflow	method	missing	-	auto-generated
-src/util/wire.rs::method::DeserializeError.buffer_too_small	method	missing	-	auto-generated
-src/util/wire.rs::method::DeserializeError.endian_mismatch	method	missing	-	auto-generated
-src/util/wire.rs::method::DeserializeError.fmt	method	missing	-	auto-generated
-src/util/wire.rs::method::DeserializeError.generic	method	missing	-	auto-generated
-src/util/wire.rs::method::DeserializeError.invalid_usize	method	missing	-	auto-generated
+src/util/wire.rs::method::DeserializeError.alignment_mismatch	method	ported	src/regex/automata/wire.cr:DeserializeError.alignment_mismatch;spec/wire_spec.cr	Vendored display text is covered.
+src/util/wire.rs::method::DeserializeError.arithmetic_overflow	method	ported	src/regex/automata/wire.cr:DeserializeError.arithmetic_overflow;spec/wire_spec.cr	Vendored display text is covered.
+src/util/wire.rs::method::DeserializeError.buffer_too_small	method	ported	src/regex/automata/wire.cr:DeserializeError.buffer_too_small;spec/wire_spec.cr	Vendored display text is covered.
+src/util/wire.rs::method::DeserializeError.endian_mismatch	method	ported	src/regex/automata/wire.cr:DeserializeError.endian_mismatch;spec/wire_spec.cr	Vendored display text is covered.
+src/util/wire.rs::method::DeserializeError.fmt	method	ported	src/regex/automata/wire.cr:DeserializeError;spec/wire_spec.cr	Mapped constructors preserve represented Rust Display messages.
+src/util/wire.rs::method::DeserializeError.generic	method	ported	src/regex/automata/wire.cr:DeserializeError.generic	Generic message construction is implemented.
+src/util/wire.rs::method::DeserializeError.invalid_usize	method	ported	src/regex/automata/wire.cr:DeserializeError.invalid_usize;spec/wire_spec.cr	Vendored display text is covered.
 src/util/wire.rs::method::DeserializeError.label_mismatch	method	missing	-	auto-generated
 src/util/wire.rs::method::DeserializeError.pattern_id_error	method	missing	-	auto-generated
 src/util/wire.rs::method::DeserializeError.state_id_error	method	missing	-	auto-generated
