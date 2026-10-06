@@ -1546,27 +1546,27 @@ src/util/determinize/state.rs::method::StateBuilderNFA.set_look_need	method	miss
 src/util/determinize/state.rs::method::StateBuilderNFA.to_state	method	missing	-	auto-generated
 src/util/escape.rs::method::DebugByte.fmt	method	ported	src/regex/automata/escape.cr:DebugByte#inspect;spec/escape_spec.cr	ASCII, escape, and uppercase hex rendering are covered.
 src/util/escape.rs::method::DebugHaystack<'a>.fmt	method	ported	src/regex/automata/escape.cr:DebugHaystack#inspect;spec/escape_spec.cr	UTF-8, invalid bytes, quote/backslash, and controls are covered.
-src/util/int.rs::method::*const T.as_usize	method	missing	-	auto-generated
-src/util/int.rs::method::i32.as_usize	method	missing	-	auto-generated
-src/util/int.rs::method::i32.from_bits	method	missing	-	auto-generated
-src/util/int.rs::method::i32.to_bits	method	missing	-	auto-generated
-src/util/int.rs::method::u16.as_usize	method	missing	-	auto-generated
-src/util/int.rs::method::u16.high_u8	method	missing	-	auto-generated
-src/util/int.rs::method::u16.low_u8	method	missing	-	auto-generated
-src/util/int.rs::method::u32.as_usize	method	missing	-	auto-generated
-src/util/int.rs::method::u32.high_u16	method	missing	-	auto-generated
-src/util/int.rs::method::u32.low_u16	method	missing	-	auto-generated
-src/util/int.rs::method::u32.low_u8	method	missing	-	auto-generated
-src/util/int.rs::method::u64.as_usize	method	missing	-	auto-generated
-src/util/int.rs::method::u64.high_u32	method	missing	-	auto-generated
-src/util/int.rs::method::u64.low_u16	method	missing	-	auto-generated
-src/util/int.rs::method::u64.low_u32	method	missing	-	auto-generated
-src/util/int.rs::method::u64.low_u8	method	missing	-	auto-generated
-src/util/int.rs::method::u8.as_usize	method	missing	-	auto-generated
-src/util/int.rs::method::usize.as_u16	method	missing	-	auto-generated
-src/util/int.rs::method::usize.as_u32	method	missing	-	auto-generated
-src/util/int.rs::method::usize.as_u64	method	missing	-	auto-generated
-src/util/int.rs::method::usize.as_u8	method	missing	-	auto-generated
+src/util/int.rs::method::*const T.as_usize	method	intentional_divergence	-	Rust-private pointer cast auditing has no Crystal pointer conversion use.
+src/util/int.rs::method::i32.as_usize	method	intentional_divergence	-	Crystal native integer conversion supplies the equivalent internal operation.
+src/util/int.rs::method::i32.from_bits	method	intentional_divergence	-	Crystal native integer conversion supplies the equivalent internal operation.
+src/util/int.rs::method::i32.to_bits	method	intentional_divergence	-	Crystal native integer conversion supplies the equivalent internal operation.
+src/util/int.rs::method::u16.as_usize	method	intentional_divergence	-	Crystal native integer conversion supplies the equivalent internal operation.
+src/util/int.rs::method::u16.high_u8	method	intentional_divergence	-	Rust-private truncating cast helper; Crystal call sites use native shifts and conversions.
+src/util/int.rs::method::u16.low_u8	method	intentional_divergence	-	Rust-private truncating cast helper; Crystal call sites use native shifts and conversions.
+src/util/int.rs::method::u32.as_usize	method	intentional_divergence	-	Crystal native integer conversion supplies the equivalent internal operation.
+src/util/int.rs::method::u32.high_u16	method	intentional_divergence	-	Rust-private truncating cast helper; Crystal call sites use native shifts and conversions.
+src/util/int.rs::method::u32.low_u16	method	intentional_divergence	-	Rust-private truncating cast helper; Crystal call sites use native shifts and conversions.
+src/util/int.rs::method::u32.low_u8	method	intentional_divergence	-	Rust-private truncating cast helper; Crystal call sites use native shifts and conversions.
+src/util/int.rs::method::u64.as_usize	method	intentional_divergence	-	Crystal native integer conversion supplies the equivalent internal operation.
+src/util/int.rs::method::u64.high_u32	method	intentional_divergence	-	Rust-private truncating cast helper; Crystal call sites use native shifts and conversions.
+src/util/int.rs::method::u64.low_u16	method	intentional_divergence	-	Rust-private truncating cast helper; Crystal call sites use native shifts and conversions.
+src/util/int.rs::method::u64.low_u32	method	intentional_divergence	-	Rust-private truncating cast helper; Crystal call sites use native shifts and conversions.
+src/util/int.rs::method::u64.low_u8	method	intentional_divergence	-	Rust-private truncating cast helper; Crystal call sites use native shifts and conversions.
+src/util/int.rs::method::u8.as_usize	method	intentional_divergence	-	Crystal native integer conversion supplies the equivalent internal operation.
+src/util/int.rs::method::usize.as_u16	method	intentional_divergence	-	Crystal native integer conversion supplies the equivalent internal operation.
+src/util/int.rs::method::usize.as_u32	method	intentional_divergence	-	Crystal native integer conversion supplies the equivalent internal operation.
+src/util/int.rs::method::usize.as_u64	method	intentional_divergence	-	Crystal native integer conversion supplies the equivalent internal operation.
+src/util/int.rs::method::usize.as_u8	method	intentional_divergence	-	Crystal native integer conversion supplies the equivalent internal operation.
 src/util/interpolate.rs::method::Ref<'a>.from	method	ported	src/regex/automata/interpolate.cr:Interpolate#ref_from_name;spec/interpolate_spec.cr	String capture names are represented by CaptureNameRef.
 src/util/interpolate.rs::method::Ref<'static>.from	method	ported	src/regex/automata/interpolate.cr:Interpolate#ref_from_name;spec/interpolate_spec.cr	Numeric capture references are represented by Int32.
 src/util/iter.rs::method::CapturesIter<'h, F>.next	method	ported	src/regex/automata/search.cr:CapturesIter#next;spec/searcher_spec.cr	covered
