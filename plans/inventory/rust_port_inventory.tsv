@@ -1914,7 +1914,7 @@ src/util/syntax.rs::method::Config.octal	method	ported	src/regex/automata/syntax
 src/util/syntax.rs::method::Config.swap_greed	method	ported	src/regex/automata/syntax.cr:Config#swap_greed;spec/syntax_spec.cr	Immutable builder is covered.
 src/util/syntax.rs::method::Config.unicode	method	ported	src/regex/automata/syntax.cr:Config#unicode;spec/syntax_spec.cr	Immutable builder is covered.
 src/util/syntax.rs::method::Config.utf8	method	ported	src/regex/automata/syntax.cr:Config#utf8;spec/syntax_spec.cr	Immutable builder is covered.
-src/util/unicode_data/perl_word.rs::const::PERL_WORD	const	missing	-	auto-generated
+src/util/unicode_data/perl_word.rs::const::PERL_WORD	const	partial	src/regex/automata/look.cr:LookMatcher#is_word_unicode;spec/look_spec.cr	Crystal delegates generated Perl-word data to regex-syntax's Unicode predicate; behavior is covered, but Unicode-data revision is dependency-owned.
 src/util/utf8.rs::const::WORD	const	ported	src/regex/automata/utf8_sequences.cr:Utf8.is_word_byte;spec/byte_classes_spec.cr	The private ASCII word-byte table is represented by the tested helper predicate.
 src/util/wire.rs::method::BE.write_u128	method	intentional_divergence	-	Crystal uses IO::ByteFormat rather than Rust endian traits.
 src/util/wire.rs::method::BE.write_u16	method	intentional_divergence	-	Crystal uses IO::ByteFormat rather than Rust endian traits.
