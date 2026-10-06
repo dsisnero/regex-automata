@@ -1695,18 +1695,18 @@ src/util/pool.rs::method::PoolGuard<'a, T, F>.put	method	ported	src/regex/automa
 src/util/pool.rs::method::PoolGuard<'a, T, F>.put_imp	method	ported	src/regex/automata/pool.cr:PoolGuard#put	One-time return guard is implemented.
 src/util/pool.rs::method::PoolGuard<'a, T, F>.value	method	ported	src/regex/automata/pool.cr:PoolGuard#value;spec/pool_spec.cr	Checked-out values are covered.
 src/util/pool.rs::method::PoolGuard<'a, T, F>.value_mut	method	partial	src/regex/automata/pool.cr:PoolGuard#value	Mutable reference semantics map to Crystal mutable object references.
-src/util/prefilter/aho_corasick.rs::method::AhoCorasick.find	method	missing	-	auto-generated
-src/util/prefilter/aho_corasick.rs::method::AhoCorasick.is_fast	method	missing	-	auto-generated
-src/util/prefilter/aho_corasick.rs::method::AhoCorasick.memory_usage	method	missing	-	auto-generated
-src/util/prefilter/aho_corasick.rs::method::AhoCorasick.name	method	missing	-	auto-generated
-src/util/prefilter/aho_corasick.rs::method::AhoCorasick.new	method	missing	-	auto-generated
-src/util/prefilter/aho_corasick.rs::method::AhoCorasick.prefix	method	missing	-	auto-generated
-src/util/prefilter/byteset.rs::method::ByteSet.find	method	missing	-	auto-generated
-src/util/prefilter/byteset.rs::method::ByteSet.is_fast	method	missing	-	auto-generated
-src/util/prefilter/byteset.rs::method::ByteSet.memory_usage	method	missing	-	auto-generated
-src/util/prefilter/byteset.rs::method::ByteSet.name	method	missing	-	auto-generated
-src/util/prefilter/byteset.rs::method::ByteSet.new	method	missing	-	auto-generated
-src/util/prefilter/byteset.rs::method::ByteSet.prefix	method	missing	-	auto-generated
+src/util/prefilter/aho_corasick.rs::method::AhoCorasick.find	method	partial	src/regex/automata/prefilter.cr:Prefilter#find;spec/prefilter_spec.cr	Generic candidate search covers the contract; Aho-Corasick selection is absent.
+src/util/prefilter/aho_corasick.rs::method::AhoCorasick.is_fast	method	partial	src/regex/automata/prefilter.cr:Prefilter#is_fast	Generic heuristic differs from Aho-Corasick capability.
+src/util/prefilter/aho_corasick.rs::method::AhoCorasick.memory_usage	method	partial	src/regex/automata/prefilter.cr:Prefilter#memory_usage	Needle-byte accounting differs from automaton allocation.
+src/util/prefilter/aho_corasick.rs::method::AhoCorasick.name	method	intentional_divergence	-	Concrete Rust strategy names are not exposed by the Crystal generic prefilter.
+src/util/prefilter/aho_corasick.rs::method::AhoCorasick.new	method	partial	src/regex/automata/prefilter.cr:Prefilter.new	Generic construction validates needles without automaton selection.
+src/util/prefilter/aho_corasick.rs::method::AhoCorasick.prefix	method	partial	src/regex/automata/prefilter.cr:Prefilter#prefix;spec/prefilter_spec.cr	Generic prefix semantics are covered.
+src/util/prefilter/byteset.rs::method::ByteSet.find	method	partial	src/regex/automata/prefilter.cr:Prefilter#find;spec/prefilter_spec.cr	Generic candidate search covers the contract; byte-set specialization is absent.
+src/util/prefilter/byteset.rs::method::ByteSet.is_fast	method	partial	src/regex/automata/prefilter.cr:Prefilter#is_fast	Generic heuristic differs from byte-set capability.
+src/util/prefilter/byteset.rs::method::ByteSet.memory_usage	method	partial	src/regex/automata/prefilter.cr:Prefilter#memory_usage	Needle-byte accounting differs from fixed byte-set storage.
+src/util/prefilter/byteset.rs::method::ByteSet.name	method	intentional_divergence	-	Concrete Rust strategy names are not exposed by the Crystal generic prefilter.
+src/util/prefilter/byteset.rs::method::ByteSet.new	method	partial	src/regex/automata/prefilter.cr:Prefilter.new	Generic construction validates needles without byte-set selection.
+src/util/prefilter/byteset.rs::method::ByteSet.prefix	method	partial	src/regex/automata/prefilter.cr:Prefilter#prefix;spec/prefilter_spec.cr	Generic prefix semantics are covered.
 src/util/prefilter/memchr.rs::method::Memchr.find	method	partial	src/regex/automata/prefilter.cr:Prefilter#find;spec/prefilter_spec.cr	Generic candidate search preserves behavior; specialized memchr dispatch is absent.
 src/util/prefilter/memchr.rs::method::Memchr.is_fast	method	partial	src/regex/automata/prefilter.cr:Prefilter#is_fast;spec/prefilter_spec.cr	Heuristic is represented generically, not by memchr SIMD capability.
 src/util/prefilter/memchr.rs::method::Memchr.memory_usage	method	partial	src/regex/automata/prefilter.cr:Prefilter#memory_usage	Generic needle-byte accounting differs from zero-allocation memchr.
@@ -1725,12 +1725,12 @@ src/util/prefilter/memchr.rs::method::Memchr3.memory_usage	method	partial	src/re
 src/util/prefilter/memchr.rs::method::Memchr3.name	method	intentional_divergence	-	Concrete Rust strategy names are not exposed by the Crystal generic prefilter.
 src/util/prefilter/memchr.rs::method::Memchr3.new	method	partial	src/regex/automata/prefilter.cr:Prefilter.new	Three-byte validation is represented without concrete strategy selection.
 src/util/prefilter/memchr.rs::method::Memchr3.prefix	method	partial	src/regex/automata/prefilter.cr:Prefilter#prefix;spec/prefilter_spec.cr	Generic prefix semantics are covered.
-src/util/prefilter/memmem.rs::method::Memmem.find	method	missing	-	auto-generated
-src/util/prefilter/memmem.rs::method::Memmem.is_fast	method	missing	-	auto-generated
-src/util/prefilter/memmem.rs::method::Memmem.memory_usage	method	missing	-	auto-generated
-src/util/prefilter/memmem.rs::method::Memmem.name	method	missing	-	auto-generated
-src/util/prefilter/memmem.rs::method::Memmem.new	method	missing	-	auto-generated
-src/util/prefilter/memmem.rs::method::Memmem.prefix	method	missing	-	auto-generated
+src/util/prefilter/memmem.rs::method::Memmem.find	method	partial	src/regex/automata/prefilter.cr:Prefilter#find;spec/prefilter_spec.cr	Generic candidate search covers behavior; memmem dispatch is absent.
+src/util/prefilter/memmem.rs::method::Memmem.is_fast	method	partial	src/regex/automata/prefilter.cr:Prefilter#is_fast	Generic heuristic differs from memmem capability.
+src/util/prefilter/memmem.rs::method::Memmem.memory_usage	method	partial	src/regex/automata/prefilter.cr:Prefilter#memory_usage	Needle-byte accounting differs from compiled finder storage.
+src/util/prefilter/memmem.rs::method::Memmem.name	method	intentional_divergence	-	Concrete Rust strategy names are not exposed by the Crystal generic prefilter.
+src/util/prefilter/memmem.rs::method::Memmem.new	method	partial	src/regex/automata/prefilter.cr:Prefilter.new	Generic construction validates needles without memmem selection.
+src/util/prefilter/memmem.rs::method::Memmem.prefix	method	partial	src/regex/automata/prefilter.cr:Prefilter#prefix;spec/prefilter_spec.cr	Generic prefix semantics are covered.
 src/util/prefilter/mod.rs::method::Arc<P>.find	method	intentional_divergence	src/regex/automata/prefilter.cr:Prefilter#find	Crystal GC references replace Rust Arc trait-object forwarding.
 src/util/prefilter/mod.rs::method::Arc<P>.is_fast	method	intentional_divergence	src/regex/automata/prefilter.cr:Prefilter#is_fast	Crystal GC references replace Rust Arc trait-object forwarding.
 src/util/prefilter/mod.rs::method::Arc<P>.memory_usage	method	intentional_divergence	src/regex/automata/prefilter.cr:Prefilter#memory_usage	Crystal GC references replace Rust Arc trait-object forwarding.
@@ -1746,12 +1746,12 @@ src/util/prefilter/mod.rs::method::Prefilter.max_needle_len	method	ported	src/re
 src/util/prefilter/mod.rs::method::Prefilter.memory_usage	method	partial	src/regex/automata/prefilter.cr:Prefilter#memory_usage;spec/prefilter_spec.cr	Tracks owned needle bytes; Crystal object-layout accounting differs.
 src/util/prefilter/mod.rs::method::Prefilter.new	method	ported	src/regex/automata/prefilter.cr:Prefilter.new;spec/prefilter_spec.cr	Needle validation and candidate semantics are covered.
 src/util/prefilter/mod.rs::method::Prefilter.prefix	method	ported	src/regex/automata/prefilter.cr:Prefilter#prefix;spec/prefilter_spec.cr	Anchored prefix behavior is covered.
-src/util/prefilter/teddy.rs::method::Teddy.find	method	missing	-	auto-generated
-src/util/prefilter/teddy.rs::method::Teddy.is_fast	method	missing	-	auto-generated
-src/util/prefilter/teddy.rs::method::Teddy.memory_usage	method	missing	-	auto-generated
-src/util/prefilter/teddy.rs::method::Teddy.name	method	missing	-	auto-generated
-src/util/prefilter/teddy.rs::method::Teddy.new	method	missing	-	auto-generated
-src/util/prefilter/teddy.rs::method::Teddy.prefix	method	missing	-	auto-generated
+src/util/prefilter/teddy.rs::method::Teddy.find	method	partial	src/regex/automata/prefilter.cr:Prefilter#find;spec/prefilter_spec.cr	Generic candidate search covers behavior; Teddy selection is absent.
+src/util/prefilter/teddy.rs::method::Teddy.is_fast	method	partial	src/regex/automata/prefilter.cr:Prefilter#is_fast	Generic heuristic differs from Teddy capability.
+src/util/prefilter/teddy.rs::method::Teddy.memory_usage	method	partial	src/regex/automata/prefilter.cr:Prefilter#memory_usage	Needle-byte accounting differs from Teddy finder storage.
+src/util/prefilter/teddy.rs::method::Teddy.name	method	intentional_divergence	-	Concrete Rust strategy names are not exposed by the Crystal generic prefilter.
+src/util/prefilter/teddy.rs::method::Teddy.new	method	partial	src/regex/automata/prefilter.cr:Prefilter.new	Generic construction validates needles without Teddy selection.
+src/util/prefilter/teddy.rs::method::Teddy.prefix	method	partial	src/regex/automata/prefilter.cr:Prefilter#prefix;spec/prefilter_spec.cr	Generic prefix semantics are covered.
 src/util/primitives.rs::const::LIMIT	const	ported	src/regex/automata/types.cr:SmallIndex::LIMIT;spec/primitives_spec.cr	The shared limit is exposed and covered with the identifier constants.
 src/util/primitives.rs::const::MAX	const	ported	src/regex/automata/types.cr:SmallIndex::MAX;spec/primitives_spec.cr	The maximum representable small index is preserved.
 src/util/primitives.rs::const::SIZE	const	ported	src/regex/automata/types.cr:SmallIndex::SIZE;spec/primitives_spec.cr	The four-byte wire representation is covered.
