@@ -56,7 +56,7 @@ For every unchecked top-level item:
   - Workflow: re-evaluate the existing completed Meta milestones against the new reusable reverse-suffix engine, literal suffix stripping, revised inner-literal extraction, strategy naming/selection, and the prohibition on reverse-suffix optimization for non-leftmost-first matching.
   - Red: port the failed reverse suffix/inner optimization regressions, fixed-length-prefix and suffix-stripping matrices, `MatchKind::All` exclusion, and the new engine-choice assertions without relying on implementation-only logging.
   - Green: `src/regex/automata/meta*.cr`, `spec/meta_regex_spec.cr`, and dedicated reverse strategy specs.
-  - Progress: reverse-suffix construction now rejects `MatchKind::All` and applies the vendor's literal-suffix stripping, fixed-length-prefix, internal-literal, and disjoint-class-separator safety proofs. Reverse-inner literal-boundary proofs still need direct porting before this feature can close.
+  - Progress: reverse-suffix construction now rejects `MatchKind::All` and applies the vendor's literal-suffix stripping, fixed-length-prefix, internal-literal, and disjoint-class-separator safety proofs. Reverse-inner extraction now carries its exact literals into the matching fixed-length, internal-literal, and shared class-separator admission proofs. Engine-choice assertions remain limited by the lack of a public strategy-name API in this port.
   - Done when: reverse strategies match the refreshed vendor selection and fallback behavior, including failure/retry boundaries, and all former Meta completion claims are reconfirmed against the new revision.
 
 - [ ] Thompson and pool configuration refresh

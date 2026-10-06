@@ -560,7 +560,7 @@ module Regex::Automata::Meta
       return false unless prefix
       return true if hir_has_fixed_length?(prefix)
 
-      return true if hir_has_disjoint_class_separator?(prefix, suffix)
+      return true if hir_has_disjoint_class_separator?(prefix, [suffix])
 
       !hir_can_contain_literal?(prefix, suffix)
     end
@@ -662,7 +662,7 @@ module Regex::Automata::Meta
       end
     end
 
-    private def hir_has_disjoint_class_separator?(prefix : ::Regex::Syntax::Hir::Hir, suffix : Bytes) : Bool
+    private def hir_has_disjoint_class_separator?(prefix : ::Regex::Syntax::Hir::Hir, literals : Array(Bytes)) : Bool
       node = uncapture_hir_node(prefix.node)
       return false unless node.is_a?(::Regex::Syntax::Hir::Concat)
 
@@ -671,14 +671,14 @@ module Regex::Automata::Meta
       last = children.rindex { |child| !hir_matches_empty_only?(child) }
       return false unless first && last
 
-      hir_has_disjoint_class_separator_at?(children, last, suffix) ||
-        (first != last && hir_has_disjoint_class_separator_at?(children, first, suffix))
+      hir_has_disjoint_class_separator_at?(children, last, literals) ||
+        (first != last && hir_has_disjoint_class_separator_at?(children, first, literals))
     end
 
-    private def hir_has_disjoint_class_separator_at?(children : Array(::Regex::Syntax::Hir::Node), index : Int32, suffix : Bytes) : Bool
+    private def hir_has_disjoint_class_separator_at?(children : Array(::Regex::Syntax::Hir::Node), index : Int32, literals : Array(Bytes)) : Bool
       separator = hir_required_class(children[index])
       return false unless separator
-      return false unless class_is_disjoint_from_literal?(separator, suffix)
+      return false unless literals.all? { |literal| class_is_disjoint_from_literal?(separator, literal) }
 
       children.each_with_index.all? do |child, child_index|
         child_index == index || hir_is_disjoint_from_class?(child, separator)
@@ -788,8 +788,9 @@ module Regex::Automata::Meta
       return {nil, nil, nil} if reverse_suffix_prefilter.try(&.is_fast)
       return {nil, nil, nil} unless hirs.size == 1
 
-      concat_prefix, preinner = extract_reverse_inner_strategy(hirs.first)
-      return {nil, nil, nil} unless concat_prefix && preinner
+      concat_prefix, preinner, literals = extract_reverse_inner_strategy(hirs.first)
+      return {nil, nil, nil} unless concat_prefix && preinner && literals
+      return {nil, nil, nil} unless reverse_inner_has_no_earlier_match?(concat_prefix, literals)
 
       dfa = build_reverse_dense_dfa([concat_prefix])
       fwd = build_forward_dense_dfa(hirs)
@@ -800,27 +801,28 @@ module Regex::Automata::Meta
 
     private def extract_reverse_inner_strategy(
       hir : ::Regex::Syntax::Hir::Hir,
-    ) : Tuple(::Regex::Syntax::Hir::Hir?, ::Regex::Automata::Prefilter?)
+    ) : Tuple(::Regex::Syntax::Hir::Hir?, ::Regex::Automata::Prefilter?, Array(Bytes)?)
       concat = reverse_inner_top_concat(hir)
-      return {nil, nil} unless concat
+      return {nil, nil, nil} unless concat
 
       i = 1
       while i < concat.size
         sub_hir = ::Regex::Syntax::Hir::Hir.new(concat[i])
-        pre = reverse_inner_prefilter(sub_hir)
-        if pre && pre.is_fast
+        extracted = reverse_inner_prefilter(sub_hir)
+        if extracted && extracted[0].is_fast
+          pre, literals = extracted
           concat_suffix = ::Regex::Syntax::Hir::Hir.concat(concat[i..])
           concat_prefix = ::Regex::Syntax::Hir::Hir.concat(concat[0...i])
           better = reverse_inner_prefilter(concat_suffix)
-          pre = better if better && better.is_fast
-          return {concat_prefix, pre}
+          pre, literals = better if better && better[0].is_fast
+          return {concat_prefix, pre, literals}
         end
         i += 1
       end
-      {nil, nil}
+      {nil, nil, nil}
     end
 
-    private def reverse_inner_prefilter(hir : ::Regex::Syntax::Hir::Hir) : ::Regex::Automata::Prefilter?
+    private def reverse_inner_prefilter(hir : ::Regex::Syntax::Hir::Hir) : Tuple(::Regex::Automata::Prefilter, Array(Bytes))?
       extractor = ::Regex::Syntax::Hir::LiteralExtraction::Extractor.new
       extractor.kind(::Regex::Syntax::Hir::LiteralExtraction::ExtractKind::Prefix)
       prefixes = extractor.extract(hir)
@@ -829,7 +831,20 @@ module Regex::Automata::Meta
       literals = prefixes.literals
       return nil unless literals
 
-      ::Regex::Automata::Prefilter.new(::Regex::Automata::MatchKind::LeftmostFirst, literals.map(&.bytes))
+      literal_bytes = literals.map do |literal|
+        bytes = literal.bytes
+        Bytes.new(bytes.size) { |index| bytes[index] }
+      end
+      prefilter = ::Regex::Automata::Prefilter.new(::Regex::Automata::MatchKind::LeftmostFirst, literal_bytes)
+      prefilter ? {prefilter, literal_bytes} : nil
+    end
+
+    private def reverse_inner_has_no_earlier_match?(prefix : ::Regex::Syntax::Hir::Hir, literals : Array(Bytes)) : Bool
+      return false if literals.empty? || literals.any?(&.empty?)
+      return true if literals.size == 1 && !hir_can_contain_literal?(prefix, literals.first)
+      return true if hir_has_fixed_length?(prefix)
+
+      hir_has_disjoint_class_separator?(prefix, literals)
     end
 
     private def reverse_inner_top_concat(hir : ::Regex::Syntax::Hir::Hir) : Array(::Regex::Syntax::Hir::Node)?
