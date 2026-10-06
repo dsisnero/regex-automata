@@ -85,6 +85,14 @@ describe "DFA::Regex" do
     matches[2].end.should eq(17) # "foo123"
   end
 
+  it "supports direct iterator advancement and exhaustion" do
+    it = Regex::Automata::DFA::Regex.new_many(["[a-z]+", "[0-9]+"]).find_iter("abc 12")
+
+    it.next.should eq(Regex::Automata::Match.must(0, 0...3))
+    it.next.should eq(Regex::Automata::Match.must(1, 4...6))
+    it.next.should eq(Iterator::Stop::INSTANCE)
+  end
+
   it "handles pattern_len for multi-pattern regexes" do
     re = Regex::Automata::DFA::Regex.new_many(["[a-z]+", "[0-9]+", "[A-Z]+"])
     re.pattern_len.should eq(3)

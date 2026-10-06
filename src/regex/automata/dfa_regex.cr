@@ -373,7 +373,6 @@ module Regex::Automata::DFA
       fwd_len
     end
 
-    # TODO: Implement FindMatches iterator
     class FindMatches
       @re : Regex
       @it : ::Regex::Automata::Searcher
