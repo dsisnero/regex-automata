@@ -47,6 +47,16 @@ describe Regex::Automata::Determinize::State do
     state.memory_usage.should eq(9)
   end
 
+  it "retains scratch capacity when a builder is cleared" do
+    nfa = Regex::Automata::Determinize::StateBuilderEmpty.new
+      .into_matches
+      .into_nfa
+    nfa.add_nfa_state_id(Regex::Automata::StateID.new_unchecked(300))
+
+    cleared = nfa.clear
+    cleared.capacity.should be >= 9
+  end
+
   it "tracks flags and look sets" do
     builder = Regex::Automata::Determinize::StateBuilderEmpty.new.into_matches
     builder.set_is_from_word

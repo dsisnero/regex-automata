@@ -88,21 +88,23 @@ module Regex::Automata::Determinize
 
   class StateBuilderEmpty
     @repr : Array(UInt8)
+    @capacity : Int32
 
     def initialize
       @repr = [] of UInt8
+      @capacity = 0
     end
 
-    protected def initialize(@repr : Array(UInt8))
+    protected def initialize(@repr : Array(UInt8), @capacity : Int32)
     end
 
     def into_matches : StateBuilderMatches
       9.times { @repr << 0_u8 }
-      StateBuilderMatches.new(@repr)
+      StateBuilderMatches.new(@repr, @capacity = Math.max(@capacity, @repr.size.to_i32))
     end
 
     def capacity : Int32
-      @repr.size.to_i32
+      @capacity
     end
 
     protected def clear : Nil
@@ -112,13 +114,14 @@ module Regex::Automata::Determinize
 
   class StateBuilderMatches
     @repr : Array(UInt8)
+    @capacity : Int32
 
-    protected def initialize(@repr : Array(UInt8))
+    protected def initialize(@repr : Array(UInt8), @capacity : Int32)
     end
 
     def into_nfa : StateBuilderNFA
       repr_vec.close_match_pattern_ids
-      StateBuilderNFA.new(@repr, ::Regex::Automata::StateID::ZERO)
+      StateBuilderNFA.new(@repr, @capacity, ::Regex::Automata::StateID::ZERO)
     end
 
     def set_is_from_word : Nil
@@ -141,6 +144,7 @@ module Regex::Automata::Determinize
 
     def add_match_pattern_id(pid : ::Regex::Automata::PatternID) : Nil
       repr_vec.add_match_pattern_id(pid)
+      @capacity = Math.max(@capacity, @repr.size.to_i32)
     end
 
     def inspect(io : IO) : Nil
@@ -164,10 +168,12 @@ module Regex::Automata::Determinize
 
   class StateBuilderNFA
     @repr : Array(UInt8)
+    @capacity : Int32
     @prev_nfa_state_id : ::Regex::Automata::StateID
 
     protected def initialize(
       @repr : Array(UInt8),
+      @capacity : Int32,
       @prev_nfa_state_id : ::Regex::Automata::StateID,
     )
     end
@@ -179,7 +185,7 @@ module Regex::Automata::Determinize
     end
 
     def clear : StateBuilderEmpty
-      builder = StateBuilderEmpty.new(@repr)
+      builder = StateBuilderEmpty.new(@repr, @capacity)
       builder.clear
       builder
     end
@@ -202,6 +208,7 @@ module Regex::Automata::Determinize
 
     def add_nfa_state_id(sid : ::Regex::Automata::StateID) : Nil
       repr_vec.add_nfa_state_id(@prev_nfa_state_id, sid)
+      @capacity = Math.max(@capacity, @repr.size.to_i32)
       @prev_nfa_state_id = sid
     end
 
