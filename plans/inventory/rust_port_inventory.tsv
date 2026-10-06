@@ -1480,20 +1480,20 @@ src/util/captures.rs::method::GroupInfoPatternNames<'a>.next	method	ported	src/r
 src/util/captures.rs::method::GroupInfoPatternNames<'a>.size_hint	method	intentional_divergence	src/regex/automata/captures.cr:GroupInfoPatternNames	Crystal Iterator does not expose Rust size hints.
 src/util/captures.rs::method::GroupInfoPatternNames<'static>.empty	method	ported	src/regex/automata/captures.cr:GroupInfoPatternNames.empty	Empty iterator behavior is represented.
 src/util/captures.rs::method::Key<'a>.fmt	method	intentional_divergence	src/regex/automata/captures.cr	Rust Debug-only helper has no Crystal public equivalent.
-src/util/determinize/state.rs::method::Repr<'a>.encoded_pattern_len	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::Repr<'a>.fmt	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::Repr<'a>.has_pattern_ids	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::Repr<'a>.is_from_word	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::Repr<'a>.is_half_crlf	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::Repr<'a>.is_match	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::Repr<'a>.iter_match_pattern_ids	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::Repr<'a>.iter_nfa_state_ids	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::Repr<'a>.look_have	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::Repr<'a>.look_need	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::Repr<'a>.match_len	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::Repr<'a>.match_pattern	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::Repr<'a>.match_pattern_ids	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::Repr<'a>.pattern_offset_end	method	missing	-	auto-generated
+src/util/determinize/state.rs::method::Repr<'a>.encoded_pattern_len	method	ported	src/regex/automata/determinize_state.cr:Repr#encoded_pattern_len;spec/determinize_state_spec.cr	Encoded match-count decoding is covered.
+src/util/determinize/state.rs::method::Repr<'a>.fmt	method	ported	src/regex/automata/determinize_state.cr:Repr#inspect	Equivalent representation inspection is implemented.
+src/util/determinize/state.rs::method::Repr<'a>.has_pattern_ids	method	ported	src/regex/automata/determinize_state.cr:Repr#has_pattern_ids	Internal representation flag is implemented.
+src/util/determinize/state.rs::method::Repr<'a>.is_from_word	method	ported	src/regex/automata/determinize_state.cr:Repr#is_from_word;spec/determinize_state_spec.cr	Flag behavior is covered.
+src/util/determinize/state.rs::method::Repr<'a>.is_half_crlf	method	ported	src/regex/automata/determinize_state.cr:Repr#is_half_crlf;spec/determinize_state_spec.cr	Flag behavior is covered.
+src/util/determinize/state.rs::method::Repr<'a>.is_match	method	ported	src/regex/automata/determinize_state.cr:Repr#is_match;spec/determinize_state_spec.cr	Match-state behavior is covered.
+src/util/determinize/state.rs::method::Repr<'a>.iter_match_pattern_ids	method	ported	src/regex/automata/determinize_state.cr:Repr#iter_match_pattern_ids;spec/determinize_state_spec.cr	Pattern encoding round trips are covered.
+src/util/determinize/state.rs::method::Repr<'a>.iter_nfa_state_ids	method	ported	src/regex/automata/determinize_state.cr:Repr#iter_nfa_state_ids;spec/determinize_state_spec.cr	Signed delta encoding round trips are covered.
+src/util/determinize/state.rs::method::Repr<'a>.look_have	method	ported	src/regex/automata/determinize_state.cr:Repr#look_have;spec/determinize_state_spec.cr	Look set behavior is covered.
+src/util/determinize/state.rs::method::Repr<'a>.look_need	method	ported	src/regex/automata/determinize_state.cr:Repr#look_need;spec/determinize_state_spec.cr	Look set behavior is covered.
+src/util/determinize/state.rs::method::Repr<'a>.match_len	method	ported	src/regex/automata/determinize_state.cr:Repr#match_len;spec/determinize_state_spec.cr	Encoded and implicit pattern counts are covered.
+src/util/determinize/state.rs::method::Repr<'a>.match_pattern	method	ported	src/regex/automata/determinize_state.cr:Repr#match_pattern;spec/determinize_state_spec.cr	Pattern access is covered.
+src/util/determinize/state.rs::method::Repr<'a>.match_pattern_ids	method	ported	src/regex/automata/determinize_state.cr:Repr#match_pattern_ids;spec/determinize_state_spec.cr	Pattern encoding round trips are covered.
+src/util/determinize/state.rs::method::Repr<'a>.pattern_offset_end	method	ported	src/regex/automata/determinize_state.cr:Repr#pattern_offset_end	Internal offset calculation is used by tested decoding.
 src/util/determinize/state.rs::method::ReprVec<'a>.add_match_pattern_id	method	missing	-	auto-generated
 src/util/determinize/state.rs::method::ReprVec<'a>.add_nfa_state_id	method	missing	-	auto-generated
 src/util/determinize/state.rs::method::ReprVec<'a>.close_match_pattern_ids	method	missing	-	auto-generated
