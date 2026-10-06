@@ -1663,8 +1663,7 @@ module Regex::Automata::DFA
     # Configure the Thompson NFA compiler
     def thompson(&block : HirCompilerConfig -> HirCompilerConfig) : Builder
       config = @config
-      hir_compiler_config = HirCompilerConfig.new.which_captures(NFA::WhichCaptures::None)
-      hir_compiler_config = block.call(hir_compiler_config)
+      hir_compiler_config = block.call(@hir_compiler.config)
       hir_compiler = HirCompiler.new(hir_compiler_config)
       Builder.new(config, nfa: @nfa, hir_compiler: hir_compiler, syntax_config: @syntax_config)
     end

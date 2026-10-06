@@ -106,6 +106,18 @@ describe "DFA::Dense" do
       .should be_a(Regex::Automata::UnsupportedAnchoredStartError)
   end
 
+  it "preserves successive Thompson builder configurations" do
+    dfa = Regex::Automata::DFA::Builder.new
+      .thompson { |config| config.reverse(true) }
+      .thompson { |config| config.utf8(false) }
+      .syntax { |config| config.unicode(false).utf8(false) }
+      .build("(?-u:[\\xFF])")
+
+    dfa.try_search_rev(Regex::Automata::Input.new(Bytes[0xFF_u8])).should eq(
+      Regex::Automata::HalfMatch.must(0, 0)
+    )
+  end
+
   it "builds dense DFAs through convenience constructors" do
     dfa = Regex::Automata::DFA::DFA.new("abc")
     dfa.try_search_fwd(Regex::Automata::Input.new("zabc")).should eq(

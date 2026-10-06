@@ -154,6 +154,8 @@ module Regex::Automata
     @group_info : GroupInfo
     @syntax_config : Regex::Automata::Syntax::Config
 
+    getter config : HirCompilerConfig
+
     def initialize(config : HirCompilerConfig = HirCompilerConfig.new, syntax_config : Regex::Automata::Syntax::Config = Regex::Automata::Syntax::Config.new)
       @config = config
       @syntax_config = syntax_config
