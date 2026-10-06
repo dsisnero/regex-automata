@@ -1916,9 +1916,9 @@ src/util/syntax.rs::method::Config.unicode	method	ported	src/regex/automata/synt
 src/util/syntax.rs::method::Config.utf8	method	ported	src/regex/automata/syntax.cr:Config#utf8;spec/syntax_spec.cr	Immutable builder is covered.
 src/util/unicode_data/perl_word.rs::const::PERL_WORD	const	missing	-	auto-generated
 src/util/utf8.rs::const::WORD	const	ported	src/regex/automata/utf8_sequences.cr:Utf8.is_word_byte;spec/byte_classes_spec.cr	The private ASCII word-byte table is represented by the tested helper predicate.
-src/util/wire.rs::method::BE.write_u128	method	missing	-	auto-generated
-src/util/wire.rs::method::BE.write_u16	method	missing	-	auto-generated
-src/util/wire.rs::method::BE.write_u32	method	missing	-	auto-generated
+src/util/wire.rs::method::BE.write_u128	method	intentional_divergence	-	Crystal uses IO::ByteFormat rather than Rust endian traits.
+src/util/wire.rs::method::BE.write_u16	method	intentional_divergence	-	Crystal uses IO::ByteFormat rather than Rust endian traits.
+src/util/wire.rs::method::BE.write_u32	method	intentional_divergence	-	Crystal uses IO::ByteFormat rather than Rust endian traits.
 src/util/wire.rs::method::DeserializeError.alignment_mismatch	method	ported	src/regex/automata/wire.cr:DeserializeError.alignment_mismatch;spec/wire_spec.cr	Vendored display text is covered.
 src/util/wire.rs::method::DeserializeError.arithmetic_overflow	method	ported	src/regex/automata/wire.cr:DeserializeError.arithmetic_overflow;spec/wire_spec.cr	Vendored display text is covered.
 src/util/wire.rs::method::DeserializeError.buffer_too_small	method	ported	src/regex/automata/wire.cr:DeserializeError.buffer_too_small;spec/wire_spec.cr	Vendored display text is covered.
@@ -1926,12 +1926,12 @@ src/util/wire.rs::method::DeserializeError.endian_mismatch	method	ported	src/reg
 src/util/wire.rs::method::DeserializeError.fmt	method	ported	src/regex/automata/wire.cr:DeserializeError;spec/wire_spec.cr	Mapped constructors preserve represented Rust Display messages.
 src/util/wire.rs::method::DeserializeError.generic	method	ported	src/regex/automata/wire.cr:DeserializeError.generic	Generic message construction is implemented.
 src/util/wire.rs::method::DeserializeError.invalid_usize	method	ported	src/regex/automata/wire.cr:DeserializeError.invalid_usize;spec/wire_spec.cr	Vendored display text is covered.
-src/util/wire.rs::method::DeserializeError.label_mismatch	method	missing	-	auto-generated
-src/util/wire.rs::method::DeserializeError.pattern_id_error	method	missing	-	auto-generated
-src/util/wire.rs::method::DeserializeError.state_id_error	method	missing	-	auto-generated
-src/util/wire.rs::method::DeserializeError.version_mismatch	method	missing	-	auto-generated
-src/util/wire.rs::method::LE.write_u128	method	missing	-	auto-generated
-src/util/wire.rs::method::LE.write_u16	method	missing	-	auto-generated
-src/util/wire.rs::method::LE.write_u32	method	missing	-	auto-generated
-src/util/wire.rs::method::SerializeError.buffer_too_small	method	missing	-	auto-generated
-src/util/wire.rs::method::SerializeError.fmt	method	missing	-	auto-generated
+src/util/wire.rs::method::DeserializeError.label_mismatch	method	ported	src/regex/automata/wire.cr:DeserializeError.label_mismatch;spec/wire_spec.cr	Vendored display text is covered.
+src/util/wire.rs::method::DeserializeError.pattern_id_error	method	ported	src/regex/automata/wire.cr:DeserializeError.pattern_id_error;spec/wire_spec.cr	Pattern-ID decode context is covered.
+src/util/wire.rs::method::DeserializeError.state_id_error	method	ported	src/regex/automata/wire.cr:DeserializeError.state_id_error;spec/wire_spec.cr	State-ID decode context is covered.
+src/util/wire.rs::method::DeserializeError.version_mismatch	method	ported	src/regex/automata/wire.cr:DeserializeError.version_mismatch;spec/wire_spec.cr	Vendored display text is covered.
+src/util/wire.rs::method::LE.write_u128	method	intentional_divergence	-	Crystal uses IO::ByteFormat rather than Rust endian traits.
+src/util/wire.rs::method::LE.write_u16	method	intentional_divergence	-	Crystal uses IO::ByteFormat rather than Rust endian traits.
+src/util/wire.rs::method::LE.write_u32	method	intentional_divergence	-	Crystal uses IO::ByteFormat rather than Rust endian traits.
+src/util/wire.rs::method::SerializeError.buffer_too_small	method	ported	src/regex/automata/wire.cr:SerializeError.buffer_too_small;spec/wire_spec.cr	Vendored display text is covered.
+src/util/wire.rs::method::SerializeError.fmt	method	ported	src/regex/automata/wire.cr:SerializeError#message;spec/wire_spec.cr	Crystal exception messages preserve Rust Display output.
