@@ -77,6 +77,13 @@ module Regex::Automata
       raise "invalid match span: end < start" if @end < @start
     end
 
+    # Create a new match from a pattern ID and a Span.
+    def initialize(@pattern : PatternID, span : Span)
+      @start = span.start
+      @end = span.end
+      raise "invalid match span: end < start" if @end < @start
+    end
+
     # Create a new match from a pattern ID and a range
     def initialize(@pattern : PatternID, range : Range(Int32, Int32))
       @start = range.begin
@@ -92,6 +99,11 @@ module Regex::Automata
       new(PatternID.new(pattern), start, _end)
     end
 
+    # Create a new match from a numeric pattern ID and a Span.
+    def self.must(pattern : Int32, span : Span) : Match
+      new(PatternID.new(pattern), span)
+    end
+
     # Create a new match from a pattern ID and a range
     #
     # This is like `Match.new`, but accepts an `Int32` instead of a
@@ -100,19 +112,33 @@ module Regex::Automata
       new(PatternID.new(pattern), range)
     end
 
-    # Returns the span as a range
-    def span : Range(Int32, Int32)
+    # Returns the match span.
+    def span : Span
+      Span.new(@start, @end)
+    end
+
+    # Returns the match span as a range.
+    def range : Range(Int32, Int32)
       @start...@end
     end
 
-    # Returns the length of the match
-    def length : Int32
+    # Returns the length of the match.
+    def len : Int32
       @end - @start
     end
 
-    # Returns true if the match is empty
-    def empty? : Bool
+    # Returns true if the match is empty.
+    def is_empty : Bool
       @start == @end
+    end
+
+    # Crystal-style compatibility aliases.
+    def length : Int32
+      len
+    end
+
+    def empty? : Bool
+      is_empty
     end
   end
 
@@ -128,20 +154,33 @@ module Regex::Automata
       @start...@end
     end
 
-    def empty? : Bool
+    def is_empty : Bool
       @start >= @end
     end
 
-    def length : Int32
+    def len : Int32
       Math.max(@end - @start, 0)
     end
 
-    def contains?(offset : Int32) : Bool
-      !empty? && @start <= offset && offset < @end
+    def contains(offset : Int32) : Bool
+      !is_empty && @start <= offset && offset <= @end
     end
 
     def offset(amount : Int32) : Span
       Span.new(@start + amount, @end + amount)
+    end
+
+    # Crystal-style compatibility aliases.
+    def empty? : Bool
+      is_empty
+    end
+
+    def length : Int32
+      len
+    end
+
+    def contains?(offset : Int32) : Bool
+      contains(offset)
     end
   end
 

@@ -20,12 +20,17 @@ describe "search result primitives" do
     match.pattern.should eq(Regex::Automata::PatternID.new(2))
     match.start.should eq(5)
     match.end.should eq(10)
-    match.span.should eq(5...10)
+    match.span.should eq(Regex::Automata::Span.new(5, 10))
+    match.range.should eq(5...10)
+    match.len.should eq(5)
     match.length.should eq(5)
+    match.is_empty.should be_false
     match.empty?.should be_false
 
     empty = Regex::Automata::Match.must(1, 8...8)
+    empty.is_empty.should be_true
     empty.empty?.should be_true
+    empty.len.should eq(0)
     empty.length.should eq(0)
   end
 
@@ -37,11 +42,16 @@ describe "search result primitives" do
     span.length.should eq(5)
     span.contains?(4).should be_true
     span.contains?(8).should be_true
-    span.contains?(9).should be_false
+    span.contains?(9).should be_true
+    span.contains(9).should be_true
+    span.len.should eq(5)
+    span.is_empty.should be_false
     span.offset(3).should eq(Regex::Automata::Span.new(7, 12))
 
     empty = Regex::Automata::Span.new(6, 6)
+    empty.is_empty.should be_true
     empty.empty?.should be_true
+    empty.len.should eq(0)
     empty.length.should eq(0)
   end
 end

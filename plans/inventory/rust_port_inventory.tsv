@@ -1783,10 +1783,10 @@ src/util/primitives.rs::method::[T].index_mut	method	missing	-	auto-generated
 src/util/search.rs::method::Anchored.is_anchored	method	missing	-	auto-generated
 src/util/search.rs::method::Anchored.pattern	method	missing	-	auto-generated
 src/util/search.rs::method::Bad.as_ref	method	missing	-	auto-generated
-src/util/search.rs::method::HalfMatch.must	method	missing	-	auto-generated
-src/util/search.rs::method::HalfMatch.new	method	missing	-	auto-generated
-src/util/search.rs::method::HalfMatch.offset	method	missing	-	auto-generated
-src/util/search.rs::method::HalfMatch.pattern	method	missing	-	auto-generated
+src/util/search.rs::method::HalfMatch.must	method	ported	src/regex/automata/search.cr:HalfMatch.must;spec/search_primitives_spec.cr	Numeric pattern-ID constructor is covered with the vendor result primitives.
+src/util/search.rs::method::HalfMatch.new	method	ported	src/regex/automata/search.cr:HalfMatch#initialize;spec/search_primitives_spec.cr	PatternID and offset constructor is represented directly.
+src/util/search.rs::method::HalfMatch.offset	method	ported	src/regex/automata/search.cr:HalfMatch#offset;spec/search_primitives_spec.cr	Offset getter is covered.
+src/util/search.rs::method::HalfMatch.pattern	method	ported	src/regex/automata/search.cr:HalfMatch#pattern;spec/search_primitives_spec.cr	Pattern getter is covered.
 src/util/search.rs::method::Input<'h>.anchored	method	missing	-	auto-generated
 src/util/search.rs::method::Input<'h>.earliest	method	missing	-	auto-generated
 src/util/search.rs::method::Input<'h>.end	method	missing	-	auto-generated
@@ -1809,15 +1809,15 @@ src/util/search.rs::method::Input<'h>.set_span	method	missing	-	auto-generated
 src/util/search.rs::method::Input<'h>.set_start	method	missing	-	auto-generated
 src/util/search.rs::method::Input<'h>.span	method	missing	-	auto-generated
 src/util/search.rs::method::Input<'h>.start	method	missing	-	auto-generated
-src/util/search.rs::method::Match.end	method	missing	-	auto-generated
-src/util/search.rs::method::Match.is_empty	method	missing	-	auto-generated
-src/util/search.rs::method::Match.len	method	missing	-	auto-generated
-src/util/search.rs::method::Match.must	method	missing	-	auto-generated
-src/util/search.rs::method::Match.new	method	missing	-	auto-generated
-src/util/search.rs::method::Match.pattern	method	missing	-	auto-generated
-src/util/search.rs::method::Match.range	method	missing	-	auto-generated
-src/util/search.rs::method::Match.span	method	missing	-	auto-generated
-src/util/search.rs::method::Match.start	method	missing	-	auto-generated
+src/util/search.rs::method::Match.end	method	ported	src/regex/automata/search.cr:Match#end;spec/search_primitives_spec.cr	End getter is covered.
+src/util/search.rs::method::Match.is_empty	method	ported	src/regex/automata/search.cr:Match#is_empty;spec/search_primitives_spec.cr	Rust-style empty predicate is covered.
+src/util/search.rs::method::Match.len	method	ported	src/regex/automata/search.cr:Match#len;spec/search_primitives_spec.cr	Rust-style length accessor is covered.
+src/util/search.rs::method::Match.must	method	ported	src/regex/automata/search.cr:Match.must;spec/search_primitives_spec.cr	Numeric pattern-ID constructor supports spans and ranges.
+src/util/search.rs::method::Match.new	method	ported	src/regex/automata/search.cr:Match#initialize;spec/search_primitives_spec.cr	PatternID constructor supports spans and ranges.
+src/util/search.rs::method::Match.pattern	method	ported	src/regex/automata/search.cr:Match#pattern;spec/search_primitives_spec.cr	Pattern getter is covered.
+src/util/search.rs::method::Match.range	method	ported	src/regex/automata/search.cr:Match#range;spec/search_primitives_spec.cr	Range accessor is covered separately from Span.
+src/util/search.rs::method::Match.span	method	ported	src/regex/automata/search.cr:Match#span;spec/search_primitives_spec.cr	Returns a Span rather than conflating it with a Range.
+src/util/search.rs::method::Match.start	method	ported	src/regex/automata/search.cr:Match#start;spec/search_primitives_spec.cr	Start getter is covered.
 src/util/search.rs::method::MatchError.fmt	method	missing	-	auto-generated
 src/util/search.rs::method::MatchError.gave_up	method	missing	-	auto-generated
 src/util/search.rs::method::MatchError.haystack_too_long	method	missing	-	auto-generated
@@ -1842,14 +1842,14 @@ src/util/search.rs::method::PatternSetIter<'a>.next_back	method	missing	-	auto-g
 src/util/search.rs::method::PatternSetIter<'a>.size_hint	method	missing	-	auto-generated
 src/util/search.rs::method::Range<usize>.eq	method	missing	-	auto-generated
 src/util/search.rs::method::Range<usize>.from	method	missing	-	auto-generated
-src/util/search.rs::method::Span.contains	method	missing	-	auto-generated
-src/util/search.rs::method::Span.eq	method	missing	-	auto-generated
-src/util/search.rs::method::Span.fmt	method	missing	-	auto-generated
-src/util/search.rs::method::Span.from	method	missing	-	auto-generated
-src/util/search.rs::method::Span.is_empty	method	missing	-	auto-generated
-src/util/search.rs::method::Span.len	method	missing	-	auto-generated
-src/util/search.rs::method::Span.offset	method	missing	-	auto-generated
-src/util/search.rs::method::Span.range	method	missing	-	auto-generated
+src/util/search.rs::method::Span.contains	method	ported	src/regex/automata/search.cr:Span#contains;spec/search_primitives_spec.cr	Preserves vendor inclusive-end containment behavior.
+src/util/search.rs::method::Span.eq	method	ported	src/regex/automata/search.cr:Span;spec/search_primitives_spec.cr	Crystal struct value equality supplies the Rust equality behavior.
+src/util/search.rs::method::Span.fmt	method	intentional_divergence	src/regex/automata/search.cr:Span	Rust Debug formatting has no stable Crystal API counterpart; Crystal uses its standard inspect/to_s protocol.
+src/util/search.rs::method::Span.from	method	ported	src/regex/automata/search.cr:Span#initialize;spec/search_primitives_spec.cr	Crystal constructors and Match overloads accept the equivalent Span/range forms.
+src/util/search.rs::method::Span.is_empty	method	ported	src/regex/automata/search.cr:Span#is_empty;spec/search_primitives_spec.cr	Rust-style empty predicate is covered.
+src/util/search.rs::method::Span.len	method	ported	src/regex/automata/search.cr:Span#len;spec/search_primitives_spec.cr	Rust-style saturating length accessor is covered.
+src/util/search.rs::method::Span.offset	method	ported	src/regex/automata/search.cr:Span#offset;spec/search_primitives_spec.cr	Offset construction is covered.
+src/util/search.rs::method::Span.range	method	ported	src/regex/automata/search.cr:Span#range;spec/search_primitives_spec.cr	Half-open range accessor is covered.
 src/util/search.rs::method::[u8].index	method	missing	-	auto-generated
 src/util/search.rs::method::[u8].index_mut	method	missing	-	auto-generated
 src/util/search.rs::method::str.index	method	missing	-	auto-generated

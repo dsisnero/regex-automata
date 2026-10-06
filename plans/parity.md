@@ -27,10 +27,29 @@
   - Scope: `src/lib.rs`, `src/macros.rs`, `src/dfa/mod.rs`, `src/hybrid/mod.rs`, `src/meta/mod.rs`, `src/nfa/mod.rs`, `src/nfa/thompson/mod.rs`, `src/util/mod.rs`, and every public type/re-export/error surfaced through them.
   - Done: the Crystal entry point loads the primary engine namespaces and shared search/type surface. Rust Cargo feature gates and macro expansion are build-system mechanisms with no Crystal runtime counterpart; the only generated source row in this module layer, the private DFA `DEAD` sentinel, maps to `DFA::DEAD_STATE_ID` and is proven to remain `StateID::ZERO`.
 
-- [ ] Search, capture, input, start, and look primitives
-  - Scope: `src/util/{search,captures,start,look,empty,iter}.rs`.
-  - Work: prove `Input` range/anchoring/earliest semantics, `Match`/`HalfMatch`/`Span`, match and start errors, capture slot lifecycle, empty-match iteration, forward/reverse start configuration, every look assertion, and fallible iterator behavior.
-  - Tests: Rust utility tests plus every engine test exercising ranged, reverse, UTF-8, empty, quit, and overlapping search.
+- [x] Search result primitives
+  - Scope: `src/util/search.rs::{Span,HalfMatch,Match}`.
+  - Done: `Span`, `HalfMatch`, and `Match` expose the Rust result API, including `Match#span` versus `Match#range`, `len`, `is_empty`, and the upstream inclusive-end `Span#contains` behavior. Crystal-friendly aliases remain additive.
+
+- [ ] Input, anchoring, and match errors
+  - Scope: `src/util/search.rs::{Input,Anchored,MatchError,MatchErrorKind}`.
+  - Work: prove every range, done-state, UTF-8 boundary, anchored-pattern, earliest-search, conversion, and error-kind contract. Document the Crystal enum-plus-`Input#pattern` representation where Rust carries a `PatternID` inside `Anchored::Pattern`.
+
+- [ ] Pattern sets and generic search iteration
+  - Scope: `src/util/search.rs::{PatternSet,PatternSetIter}` and `src/util/iter.rs`.
+  - Work: prove capacity/error limits, forward/reverse iterator exhaustion, collection ordering, empty-match handling, fallible/infallible iterator conversion, and retained input behavior.
+
+- [ ] Capture slots and interpolation
+  - Scope: `src/util/captures.rs` and `src/util/interpolate.rs`.
+  - Work: prove group metadata, named/numeric lookup, slots, all capture iterator variants, malformed group information, byte/string interpolation, and snapshot ownership behavior.
+
+- [ ] Start configuration and start-byte map
+  - Scope: `src/util/start.rs`.
+  - Work: prove forward/reverse configuration from every `Input` state, look-behind bytes, every start classification, and wire read/write behavior.
+
+- [ ] Look-around assertions
+  - Scope: `src/util/look.rs`.
+  - Work: prove all line, CRLF, ASCII/Unicode word, half-boundary, set algebra, repr/wire, and invalid Unicode-boundary paths against Rust's tests.
 
 - [ ] Utility data structures, syntax, Unicode, and wire helpers
   - Scope: `src/util/{alphabet,determinize,escape,int,interpolate,lazy,memchr,pool,primitives,sparse_set,syntax,utf8,wire}.rs` and `src/util/unicode_data/**`.
