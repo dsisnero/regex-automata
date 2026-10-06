@@ -1596,16 +1596,16 @@ src/util/iter.rs::method::TryMatchesIter<'h, F>.fmt	method	intentional_divergenc
 src/util/iter.rs::method::TryMatchesIter<'h, F>.infallible	method	ported	src/regex/automata/search.cr:TryMatchesIter#infallible;spec/searcher_spec.cr	covered
 src/util/iter.rs::method::TryMatchesIter<'h, F>.input	method	ported	src/regex/automata/search.cr:TryMatchesIter#input;spec/searcher_spec.cr	covered
 src/util/iter.rs::method::TryMatchesIter<'h, F>.next	method	ported	src/regex/automata/search.cr:TryMatchesIter#next;spec/searcher_spec.cr	covered
-src/util/lazy.rs::const::LAZY_STATE_BUSY	const	missing	-	auto-generated
-src/util/lazy.rs::const::LAZY_STATE_DONE	const	missing	-	auto-generated
-src/util/lazy.rs::const::LAZY_STATE_INIT	const	missing	-	auto-generated
-src/util/lazy.rs::method::Guard<'a>.drop	method	missing	-	auto-generated
-src/util/lazy.rs::method::Lazy<T, F>.deref	method	missing	-	auto-generated
-src/util/lazy.rs::method::Lazy<T, F>.drop	method	missing	-	auto-generated
-src/util/lazy.rs::method::Lazy<T, F>.fmt	method	missing	-	auto-generated
-src/util/lazy.rs::method::Lazy<T, F>.get	method	missing	-	auto-generated
-src/util/lazy.rs::method::Lazy<T, F>.new	method	missing	-	auto-generated
-src/util/lazy.rs::method::Lazy<T, F>.poll	method	missing	-	auto-generated
+src/util/lazy.rs::const::LAZY_STATE_BUSY	const	intentional_divergence	src/regex/automata/lazy.cr	Crystal Mutex supplies synchronization without exposing Rust state constants.
+src/util/lazy.rs::const::LAZY_STATE_DONE	const	intentional_divergence	src/regex/automata/lazy.cr	Crystal Mutex supplies synchronization without exposing Rust state constants.
+src/util/lazy.rs::const::LAZY_STATE_INIT	const	intentional_divergence	src/regex/automata/lazy.cr	Crystal Mutex supplies synchronization without exposing Rust state constants.
+src/util/lazy.rs::method::Guard<'a>.drop	method	intentional_divergence	src/regex/automata/lazy.cr	Rust no-alloc panic guard is unnecessary for Crystal's mutex implementation.
+src/util/lazy.rs::method::Lazy<T, F>.deref	method	intentional_divergence	src/regex/automata/lazy.cr	Crystal has no Rust Deref trait; callers use #get.
+src/util/lazy.rs::method::Lazy<T, F>.drop	method	intentional_divergence	src/regex/automata/lazy.cr	Crystal GC owns initialized values.
+src/util/lazy.rs::method::Lazy<T, F>.fmt	method	intentional_divergence	src/regex/automata/lazy.cr	Rust Debug representation has no Crystal public equivalent.
+src/util/lazy.rs::method::Lazy<T, F>.get	method	ported	src/regex/automata/lazy.cr:Lazy#get;spec/lazy_spec.cr	Cached value and class getter are covered.
+src/util/lazy.rs::method::Lazy<T, F>.new	method	ported	src/regex/automata/lazy.cr:Lazy#initialize;spec/lazy_spec.cr	Deferred construction is covered.
+src/util/lazy.rs::method::Lazy<T, F>.poll	method	intentional_divergence	src/regex/automata/lazy.cr	Private atomic poll is replaced by synchronized initialization.
 src/util/look.rs::method::Look.as_char	method	ported	src/regex/automata/look.cr:Look#as_char;spec/look_spec.cr	Debug glyph mapping is covered.
 src/util/look.rs::method::Look.as_repr	method	ported	src/regex/automata/look.cr:Look#as_repr;spec/look_spec.cr	Stable bit representation is covered.
 src/util/look.rs::method::Look.from_repr	method	ported	src/regex/automata/look.cr:Look.from_repr;spec/look_spec.cr	Wire representation decoding is covered.
