@@ -1915,7 +1915,7 @@ src/util/syntax.rs::method::Config.swap_greed	method	ported	src/regex/automata/s
 src/util/syntax.rs::method::Config.unicode	method	ported	src/regex/automata/syntax.cr:Config#unicode;spec/syntax_spec.cr	Immutable builder is covered.
 src/util/syntax.rs::method::Config.utf8	method	ported	src/regex/automata/syntax.cr:Config#utf8;spec/syntax_spec.cr	Immutable builder is covered.
 src/util/unicode_data/perl_word.rs::const::PERL_WORD	const	missing	-	auto-generated
-src/util/utf8.rs::const::WORD	const	missing	-	auto-generated
+src/util/utf8.rs::const::WORD	const	ported	src/regex/automata/utf8_sequences.cr:Utf8.is_word_byte;spec/byte_classes_spec.cr	The private ASCII word-byte table is represented by the tested helper predicate.
 src/util/wire.rs::method::BE.write_u128	method	missing	-	auto-generated
 src/util/wire.rs::method::BE.write_u16	method	missing	-	auto-generated
 src/util/wire.rs::method::BE.write_u32	method	missing	-	auto-generated
