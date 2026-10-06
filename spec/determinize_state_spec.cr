@@ -21,6 +21,18 @@ describe Regex::Automata::Determinize::State do
     ])
   end
 
+  it "round trips signed deltas across non-monotonic NFA state IDs" do
+    ids = [300, 3, 301, 1, 0, 2_000_000]
+    builder = Regex::Automata::Determinize::StateBuilderEmpty.new
+      .into_matches
+      .into_nfa
+    ids.each { |id| builder.add_nfa_state_id(Regex::Automata::StateID.new_unchecked(id)) }
+
+    got = [] of Regex::Automata::StateID
+    builder.to_state.iter_nfa_state_ids { |sid| got << sid }
+    got.map(&.as_i32).should eq(ids)
+  end
+
   it "round trips representative pattern IDs" do
     builder = Regex::Automata::Determinize::StateBuilderEmpty.new.into_matches
     [0, 5, 9].each do |id|
@@ -34,6 +46,15 @@ describe Regex::Automata::Determinize::State do
       Regex::Automata::PatternID.new_unchecked(5),
       Regex::Automata::PatternID.new_unchecked(9),
     ])
+  end
+
+  it "retains mixed pattern-ID ordering after the zero-ID optimization expands" do
+    ids = [0, 5, 0, 9]
+    builder = Regex::Automata::Determinize::StateBuilderEmpty.new.into_matches
+    ids.each { |id| builder.add_match_pattern_id(Regex::Automata::PatternID.new_unchecked(id)) }
+
+    state = builder.into_nfa.to_state
+    state.match_pattern_ids.not_nil!.map(&.as_i32).should eq(ids)
   end
 
   it "optimizes a lone zero pattern ID" do
