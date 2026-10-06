@@ -101,7 +101,7 @@ src/dfa/dense.rs::method::Config.get_unicode_word_boundary	method	missing	-	auto
 src/dfa/dense.rs::method::Config.match_kind	method	missing	-	auto-generated
 src/dfa/dense.rs::method::Config.minimize	method	missing	-	auto-generated
 src/dfa/dense.rs::method::Config.new	method	missing	-	auto-generated
-src/dfa/dense.rs::method::Config.overwrite	method	missing	-	auto-generated
+src/dfa/dense.rs::method::Config.overwrite	method	ported	src/regex/automata/config.cr:Config#overwrite;spec/dfa_dense_spec.cr	Override precedence and mutable quit-set isolation are covered.
 src/dfa/dense.rs::method::Config.prefilter	method	ported	src/regex/automata/config.cr:Config#prefilter;spec/dfa_dense_spec.cr	Prefilter configuration and start-state specialization are covered.
 src/dfa/dense.rs::method::Config.quit	method	missing	-	auto-generated
 src/dfa/dense.rs::method::Config.specialize_start_states	method	missing	-	auto-generated
