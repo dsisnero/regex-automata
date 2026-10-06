@@ -1370,7 +1370,7 @@ src/nfa/thompson/range_trie.rs::method::State.clear	method	missing	-	auto-genera
 src/nfa/thompson/range_trie.rs::method::State.find	method	missing	-	auto-generated
 src/nfa/thompson/range_trie.rs::method::State.fmt	method	missing	-	auto-generated
 src/nfa/thompson/range_trie.rs::method::Transition.fmt	method	missing	-	auto-generated
-src/util/alphabet.rs::method::BitSet.fmt	method	missing	-	auto-generated
+src/util/alphabet.rs::method::BitSet.fmt	method	intentional_divergence	-	Rust-private debug formatter has no Crystal-visible BitSet type.
 src/util/alphabet.rs::method::ByteClassElementRanges<'a>.next	method	ported	src/regex/automata/byte_classes.cr:ByteClassElementRanges#next;spec/byte_classes_spec.cr	Contiguous element range iteration is implemented.
 src/util/alphabet.rs::method::ByteClassElements<'a>.next	method	ported	src/regex/automata/byte_classes.cr:ByteClassElements#next;spec/byte_classes_spec.cr	Class element enumeration is covered.
 src/util/alphabet.rs::method::ByteClassIter<'a>.next	method	ported	src/regex/automata/byte_classes.cr:ByteClassIter#next	Alphabet unit iteration is implemented.
@@ -1397,7 +1397,7 @@ src/util/alphabet.rs::method::ByteClasses.set	method	ported	src/regex/automata/b
 src/util/alphabet.rs::method::ByteClasses.singletons	method	ported	src/regex/automata/byte_classes.cr:ByteClasses.singletons;spec/byte_classes_spec.cr	Singleton map is covered.
 src/util/alphabet.rs::method::ByteClasses.stride2	method	ported	src/regex/automata/byte_classes.cr:ByteClasses#stride2	Power-of-two stride calculation is implemented.
 src/util/alphabet.rs::method::ByteClasses.write_to	method	ported	src/regex/automata/byte_classes.cr:ByteClasses#write_to;spec/byte_classes_spec.cr	Fixed-size wire output and short-buffer error are covered.
-src/util/alphabet.rs::method::ByteClasses.write_to_len	method	missing	-	auto-generated
+src/util/alphabet.rs::method::ByteClasses.write_to_len	method	ported	src/regex/automata/byte_classes.cr:ByteClasses#write_to_len;spec/byte_classes_spec.cr	Fixed 256-byte wire size is covered.
 src/util/alphabet.rs::method::ByteSet.add	method	ported	src/regex/automata/byte_set.cr:ByteSet#add;spec/byte_classes_spec.cr	Mutation and membership are covered.
 src/util/alphabet.rs::method::ByteSet.contains	method	ported	src/regex/automata/byte_set.cr:ByteSet#contains;spec/byte_classes_spec.cr	Membership is covered.
 src/util/alphabet.rs::method::ByteSet.contains_range	method	ported	src/regex/automata/byte_set.cr:ByteSet#contains_range;spec/byte_classes_spec.cr	Inclusive range membership is covered.
