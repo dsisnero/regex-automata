@@ -180,6 +180,26 @@ describe Regex::Automata::ByteClasses do
   end
 end
 
+describe Regex::Automata::Unit do
+  it "distinguishes bytes from the EOI sentinel" do
+    byte = Regex::Automata::Unit.u8('a'.ord.to_u8)
+    byte.as_u8.should eq('a'.ord.to_u8)
+    byte.as_eoi.should be_nil
+    byte.as_usize.should eq('a'.ord)
+    byte.is_byte('a'.ord.to_u8).should be_true
+    byte.is_eoi.should be_false
+    byte.is_word_byte.should be_true
+
+    eoi = Regex::Automata::Unit.eoi(256)
+    eoi.as_u8.should be_nil
+    eoi.as_eoi.should eq(256_u16)
+    eoi.as_usize.should eq(256)
+    eoi.is_byte('a'.ord.to_u8).should be_false
+    eoi.is_eoi.should be_true
+    eoi.is_word_byte.should be_false
+  end
+end
+
 describe Regex::Automata::Utf8 do
   it "matches upstream word-byte classification" do
     Regex::Automata::Utf8.is_word_byte('a'.ord.to_u8).should be_true

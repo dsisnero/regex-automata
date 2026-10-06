@@ -1371,31 +1371,31 @@ src/nfa/thompson/range_trie.rs::method::State.find	method	missing	-	auto-generat
 src/nfa/thompson/range_trie.rs::method::State.fmt	method	missing	-	auto-generated
 src/nfa/thompson/range_trie.rs::method::Transition.fmt	method	missing	-	auto-generated
 src/util/alphabet.rs::method::BitSet.fmt	method	missing	-	auto-generated
-src/util/alphabet.rs::method::ByteClassElementRanges<'a>.next	method	missing	-	auto-generated
-src/util/alphabet.rs::method::ByteClassElements<'a>.next	method	missing	-	auto-generated
-src/util/alphabet.rs::method::ByteClassIter<'a>.next	method	missing	-	auto-generated
-src/util/alphabet.rs::method::ByteClassRepresentatives<'a>.next	method	missing	-	auto-generated
-src/util/alphabet.rs::method::ByteClassSet.add_set	method	missing	-	auto-generated
-src/util/alphabet.rs::method::ByteClassSet.byte_classes	method	missing	-	auto-generated
-src/util/alphabet.rs::method::ByteClassSet.default	method	missing	-	auto-generated
-src/util/alphabet.rs::method::ByteClassSet.empty	method	missing	-	auto-generated
-src/util/alphabet.rs::method::ByteClassSet.set_range	method	missing	-	auto-generated
-src/util/alphabet.rs::method::ByteClasses.alphabet_len	method	missing	-	auto-generated
+src/util/alphabet.rs::method::ByteClassElementRanges<'a>.next	method	ported	src/regex/automata/byte_classes.cr:ByteClassElementRanges#next;spec/byte_classes_spec.cr	Contiguous element range iteration is implemented.
+src/util/alphabet.rs::method::ByteClassElements<'a>.next	method	ported	src/regex/automata/byte_classes.cr:ByteClassElements#next;spec/byte_classes_spec.cr	Class element enumeration is covered.
+src/util/alphabet.rs::method::ByteClassIter<'a>.next	method	ported	src/regex/automata/byte_classes.cr:ByteClassIter#next	Alphabet unit iteration is implemented.
+src/util/alphabet.rs::method::ByteClassRepresentatives<'a>.next	method	ported	src/regex/automata/byte_classes.cr:ByteClassRepresentatives#next;spec/byte_classes_spec.cr	Representative iteration is covered.
+src/util/alphabet.rs::method::ByteClassSet.add_set	method	ported	src/regex/automata/byte_classes.cr:ByteClassSet#add_set	Adds all ranges from a ByteSet.
+src/util/alphabet.rs::method::ByteClassSet.byte_classes	method	ported	src/regex/automata/byte_classes.cr:ByteClassSet#byte_classes;spec/byte_classes_spec.cr	Partition construction is covered.
+src/util/alphabet.rs::method::ByteClassSet.default	method	ported	src/regex/automata/byte_classes.cr:ByteClassSet.empty	Crystal uses explicit empty construction for Rust Default.
+src/util/alphabet.rs::method::ByteClassSet.empty	method	ported	src/regex/automata/byte_classes.cr:ByteClassSet.empty;spec/byte_classes_spec.cr	Empty construction is covered.
+src/util/alphabet.rs::method::ByteClassSet.set_range	method	ported	src/regex/automata/byte_classes.cr:ByteClassSet#set_range;spec/byte_classes_spec.cr	Boundary partitioning is covered.
+src/util/alphabet.rs::method::ByteClasses.alphabet_len	method	ported	src/regex/automata/byte_classes.cr:ByteClasses#alphabet_len;spec/byte_classes_spec.cr	Alphabet including EOI is covered.
 src/util/alphabet.rs::method::ByteClasses.default	method	ported	src/regex/automata/byte_classes.cr:ByteClasses#initialize;spec/byte_classes_spec.cr	Default now produces the singleton map, as upstream.
-src/util/alphabet.rs::method::ByteClasses.element_ranges	method	missing	-	auto-generated
-src/util/alphabet.rs::method::ByteClasses.elements	method	missing	-	auto-generated
-src/util/alphabet.rs::method::ByteClasses.empty	method	missing	-	auto-generated
-src/util/alphabet.rs::method::ByteClasses.eoi	method	missing	-	auto-generated
-src/util/alphabet.rs::method::ByteClasses.fmt	method	missing	-	auto-generated
-src/util/alphabet.rs::method::ByteClasses.from_bytes	method	missing	-	auto-generated
-src/util/alphabet.rs::method::ByteClasses.get	method	missing	-	auto-generated
-src/util/alphabet.rs::method::ByteClasses.get_by_unit	method	missing	-	auto-generated
-src/util/alphabet.rs::method::ByteClasses.is_singleton	method	missing	-	auto-generated
-src/util/alphabet.rs::method::ByteClasses.iter	method	missing	-	auto-generated
-src/util/alphabet.rs::method::ByteClasses.representatives	method	missing	-	auto-generated
-src/util/alphabet.rs::method::ByteClasses.set	method	missing	-	auto-generated
-src/util/alphabet.rs::method::ByteClasses.singletons	method	missing	-	auto-generated
-src/util/alphabet.rs::method::ByteClasses.stride2	method	missing	-	auto-generated
+src/util/alphabet.rs::method::ByteClasses.element_ranges	method	ported	src/regex/automata/byte_classes.cr:ByteClasses#element_ranges	Used by debug representation with equivalent ranges.
+src/util/alphabet.rs::method::ByteClasses.elements	method	ported	src/regex/automata/byte_classes.cr:ByteClasses#elements;spec/byte_classes_spec.cr	Elements and EOI behavior are covered.
+src/util/alphabet.rs::method::ByteClasses.empty	method	ported	src/regex/automata/byte_classes.cr:ByteClasses.empty;spec/byte_classes_spec.cr	All-zero map is covered.
+src/util/alphabet.rs::method::ByteClasses.eoi	method	ported	src/regex/automata/byte_classes.cr:ByteClasses#eoi;spec/byte_classes_spec.cr	EOI sentinel is covered through iterators.
+src/util/alphabet.rs::method::ByteClasses.fmt	method	partial	src/regex/automata/byte_classes.cr:ByteClasses#inspect	Equivalent partition display; Crystal inspect wrapper differs.
+src/util/alphabet.rs::method::ByteClasses.from_bytes	method	ported	src/regex/automata/byte_classes.cr:ByteClasses.from_bytes;spec/byte_classes_spec.cr	Fixed map wire round trip is covered.
+src/util/alphabet.rs::method::ByteClasses.get	method	ported	src/regex/automata/byte_classes.cr:ByteClasses#get;spec/byte_classes_spec.cr	Class lookup is covered.
+src/util/alphabet.rs::method::ByteClasses.get_by_unit	method	ported	src/regex/automata/byte_classes.cr:ByteClasses#get_by_unit	Unit lookup is implemented.
+src/util/alphabet.rs::method::ByteClasses.is_singleton	method	ported	src/regex/automata/byte_classes.cr:ByteClasses#is_singleton;spec/byte_classes_spec.cr	Singleton default is covered.
+src/util/alphabet.rs::method::ByteClasses.iter	method	ported	src/regex/automata/byte_classes.cr:ByteClasses#iter	Alphabet iteration is implemented.
+src/util/alphabet.rs::method::ByteClasses.representatives	method	ported	src/regex/automata/byte_classes.cr:ByteClasses#representatives;spec/byte_classes_spec.cr	Bounded and unbounded behavior is covered.
+src/util/alphabet.rs::method::ByteClasses.set	method	ported	src/regex/automata/byte_classes.cr:ByteClasses#set	Class assignment is implemented.
+src/util/alphabet.rs::method::ByteClasses.singletons	method	ported	src/regex/automata/byte_classes.cr:ByteClasses.singletons;spec/byte_classes_spec.cr	Singleton map is covered.
+src/util/alphabet.rs::method::ByteClasses.stride2	method	ported	src/regex/automata/byte_classes.cr:ByteClasses#stride2	Power-of-two stride calculation is implemented.
 src/util/alphabet.rs::method::ByteClasses.write_to	method	ported	src/regex/automata/byte_classes.cr:ByteClasses#write_to;spec/byte_classes_spec.cr	Fixed-size wire output and short-buffer error are covered.
 src/util/alphabet.rs::method::ByteClasses.write_to_len	method	missing	-	auto-generated
 src/util/alphabet.rs::method::ByteSet.add	method	ported	src/regex/automata/byte_set.cr:ByteSet#add;spec/byte_classes_spec.cr	Mutation and membership are covered.
@@ -1411,15 +1411,15 @@ src/util/alphabet.rs::method::ByteSet.write_to	method	ported	src/regex/automata/
 src/util/alphabet.rs::method::ByteSet.write_to_len	method	ported	src/regex/automata/byte_set.cr:ByteSet#write_to_len;spec/byte_classes_spec.cr	Fixed 32-byte wire size is covered.
 src/util/alphabet.rs::method::ByteSetIter<'a>.next	method	ported	src/regex/automata/byte_set.cr:ByteSetIter#next;spec/byte_classes_spec.cr	Ascending iteration is covered.
 src/util/alphabet.rs::method::ByteSetRangeIter<'a>.next	method	ported	src/regex/automata/byte_set.cr:ByteSetRangeIter#next;spec/byte_classes_spec.cr	Range iteration is covered.
-src/util/alphabet.rs::method::Unit.as_eoi	method	missing	-	auto-generated
-src/util/alphabet.rs::method::Unit.as_u8	method	missing	-	auto-generated
-src/util/alphabet.rs::method::Unit.as_usize	method	missing	-	auto-generated
-src/util/alphabet.rs::method::Unit.eoi	method	missing	-	auto-generated
-src/util/alphabet.rs::method::Unit.fmt	method	missing	-	auto-generated
-src/util/alphabet.rs::method::Unit.is_byte	method	missing	-	auto-generated
-src/util/alphabet.rs::method::Unit.is_eoi	method	missing	-	auto-generated
-src/util/alphabet.rs::method::Unit.is_word_byte	method	missing	-	auto-generated
-src/util/alphabet.rs::method::Unit.u8	method	missing	-	auto-generated
+src/util/alphabet.rs::method::Unit.as_eoi	method	ported	src/regex/automata/byte_classes.cr:Unit#as_eoi;spec/byte_classes_spec.cr	EOI conversion is covered.
+src/util/alphabet.rs::method::Unit.as_u8	method	ported	src/regex/automata/byte_classes.cr:Unit#as_u8;spec/byte_classes_spec.cr	Byte conversion is covered.
+src/util/alphabet.rs::method::Unit.as_usize	method	ported	src/regex/automata/byte_classes.cr:Unit#as_usize;spec/byte_classes_spec.cr	Ordinal conversion is covered.
+src/util/alphabet.rs::method::Unit.eoi	method	ported	src/regex/automata/byte_classes.cr:Unit.eoi;spec/byte_classes_spec.cr	EOI construction is covered.
+src/util/alphabet.rs::method::Unit.fmt	method	partial	src/regex/automata/byte_classes.cr:Unit#inspect	Equivalent debug bytes with Crystal formatting differences.
+src/util/alphabet.rs::method::Unit.is_byte	method	ported	src/regex/automata/byte_classes.cr:Unit#is_byte;spec/byte_classes_spec.cr	Byte test is covered.
+src/util/alphabet.rs::method::Unit.is_eoi	method	ported	src/regex/automata/byte_classes.cr:Unit#is_eoi;spec/byte_classes_spec.cr	EOI test is covered.
+src/util/alphabet.rs::method::Unit.is_word_byte	method	ported	src/regex/automata/byte_classes.cr:Unit#is_word_byte;spec/byte_classes_spec.cr	ASCII word-byte behavior is covered.
+src/util/alphabet.rs::method::Unit.u8	method	ported	src/regex/automata/byte_classes.cr:Unit.u8;spec/byte_classes_spec.cr	Byte unit construction is covered.
 src/util/captures.rs::method::Captures.all	method	ported	src/regex/automata/captures.cr:Captures.all;spec/captures_spec.cr	All-slot capture storage is covered.
 src/util/captures.rs::method::Captures.clear	method	ported	src/regex/automata/captures.cr:Captures#clear;spec/captures_spec.cr	Clears both match state and slots as upstream.
 src/util/captures.rs::method::Captures.empty	method	ported	src/regex/automata/captures.cr:Captures.empty;spec/captures_spec.cr	Pattern-only capture storage matches upstream.
