@@ -213,6 +213,29 @@ describe Regex::Automata::Utf8 do
   end
 end
 
+describe Regex::Automata::ByteSet do
+  it "round trips its fixed-width wire representation and preserves ranges" do
+    set = Regex::Automata::ByteSet.empty
+    set.add(0_u8).add(1_u8).add(127_u8).add(128_u8).add(255_u8)
+    set.contains_range(0_u8, 1_u8).should be_true
+    set.contains_range(0_u8, 2_u8).should be_false
+    set.iter_ranges.to_a.should eq([{0_u8, 1_u8}, {127_u8, 128_u8}, {255_u8, 255_u8}])
+
+    wire = Bytes.new(set.write_to_len, 0_u8)
+    set.write_to(wire).should eq(32)
+    restored, read = Regex::Automata::ByteSet.from_bytes(wire)
+    read.should eq(32)
+    restored.to_a.should eq([0_u8, 1_u8, 127_u8, 128_u8, 255_u8])
+
+    expect_raises(Regex::Automata::DeserializeError, /buffer too small/) do
+      Regex::Automata::ByteSet.from_bytes(Bytes.new(31, 0_u8))
+    end
+    expect_raises(Regex::Automata::SerializeError, /buffer too small/) do
+      set.write_to(Bytes.new(31, 0_u8))
+    end
+  end
+end
+
 describe Regex::Automata::Utf8Sequences do
   it "enumerates ascii and non-ascii scalar ranges as utf8 byte automata" do
     ascii = Regex::Automata::Utf8Sequences.new('a', 'c')

@@ -69,8 +69,8 @@ module Regex::Automata
       bytes
     end
 
-    def self.from_bytes(bytes : Bytes) : ByteSet
-      raise IndexError.new if bytes.size < 32
+    def self.from_bytes(bytes : Bytes) : Tuple(ByteSet, Int32)
+      raise DeserializeError.new("buffer too small for byte set") if bytes.size < 32
 
       set = ByteSet.new
       256.times do |i|
@@ -80,7 +80,18 @@ module Regex::Automata
           set.add(i.to_u8)
         end
       end
-      set
+      {set, 32}
+    end
+
+    def write_to(dst : Bytes) : Int32
+      raise SerializeError.new("buffer too small for byte set") if dst.size < write_to_len
+
+      dst[0, write_to_len].copy_from(to_bytes)
+      write_to_len
+    end
+
+    def write_to_len : Int32
+      32
     end
   end
 

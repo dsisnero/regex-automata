@@ -500,7 +500,7 @@ module Regex::Automata::DFA
       ensure_bytes_available(slice, offset, 32, "quit byte set")
       quit_bytes = slice[offset, 32]
       offset += 32
-      quitset = ByteSet.from_bytes(quit_bytes)
+      quitset, _quitset_read = ByteSet.from_bytes(quit_bytes)
 
       # Create DFA
       dfa = DFA.new(states, nil, start_unanchored, byte_classes_obj, start_anchored, accelerators, nil, quitset, flags, start_table)
