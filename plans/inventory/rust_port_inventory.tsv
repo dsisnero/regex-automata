@@ -1544,8 +1544,8 @@ src/util/determinize/state.rs::method::StateBuilderNFA.repr_vec	method	missing	-
 src/util/determinize/state.rs::method::StateBuilderNFA.set_look_have	method	missing	-	auto-generated
 src/util/determinize/state.rs::method::StateBuilderNFA.set_look_need	method	missing	-	auto-generated
 src/util/determinize/state.rs::method::StateBuilderNFA.to_state	method	missing	-	auto-generated
-src/util/escape.rs::method::DebugByte.fmt	method	missing	-	auto-generated
-src/util/escape.rs::method::DebugHaystack<'a>.fmt	method	missing	-	auto-generated
+src/util/escape.rs::method::DebugByte.fmt	method	ported	src/regex/automata/escape.cr:DebugByte#inspect;spec/escape_spec.cr	ASCII, escape, and uppercase hex rendering are covered.
+src/util/escape.rs::method::DebugHaystack<'a>.fmt	method	ported	src/regex/automata/escape.cr:DebugHaystack#inspect;spec/escape_spec.cr	UTF-8, invalid bytes, quote/backslash, and controls are covered.
 src/util/int.rs::method::*const T.as_usize	method	missing	-	auto-generated
 src/util/int.rs::method::i32.as_usize	method	missing	-	auto-generated
 src/util/int.rs::method::i32.from_bits	method	missing	-	auto-generated

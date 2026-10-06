@@ -5,6 +5,8 @@ describe "debug escaping" do
     Regex::Automata::DebugByte.new(' '.ord.to_u8).inspect.should eq("' '")
     Regex::Automata::DebugByte.new('A'.ord.to_u8).inspect.should eq("A")
     Regex::Automata::DebugByte.new('\n'.ord.to_u8).inspect.should eq("\\n")
+    Regex::Automata::DebugByte.new('\\'.ord.to_u8).inspect.should eq("\\\\")
+    Regex::Automata::DebugByte.new('\''.ord.to_u8).inspect.should eq("\\'")
     Regex::Automata::DebugByte.new(0xFF_u8).inspect.should eq("\\xFF")
   end
 
@@ -13,5 +15,8 @@ describe "debug escaping" do
 
     bytes = Bytes[0x66_u8, 0x6F_u8, 0x80_u8, 0x0A_u8]
     Regex::Automata::DebugHaystack.new(bytes).inspect.should eq("\"fo\\x80\\n\"")
+
+    escaped = Bytes[0_u8, 1_u8, '"'.ord.to_u8, '\\'.ord.to_u8, 0x7F_u8]
+    Regex::Automata::DebugHaystack.new(escaped).inspect.should eq("\"\\0\\x01\\\"\\\\\\x7f\"")
   end
 end
