@@ -61,7 +61,7 @@
 
 - [ ] Prefilter algorithms and search contracts
   - Scope: `src/util/prefilter/{mod,aho_corasick,byteset,memchr,memmem,teddy}.rs`.
-  - Work: generic `find`/prefix construction, dense-DFA forward/overlapping integration, and hybrid forward integration now preserve bounded candidates, pending leftmost matches, and context-sensitive start-state restarts. Still port or explicitly classify actual strategy selection (`aho_corasick`, byteset, memchr, memmem, teddy), false-positive and diagnostic/memory contracts, then prove hybrid overlapping plus PikeVM, backtracker, and Meta integration before closing this feature.
+  - Work: generic `find`/prefix construction plus dense-DFA and hybrid forward/overlapping integration now preserve bounded candidates, pending leftmost matches, and context-sensitive start-state restarts. Still port or explicitly classify actual strategy selection (`aho_corasick`, byteset, memchr, memmem, teddy), false-positive and diagnostic/memory contracts, then prove PikeVM, backtracker, and Meta integration before closing this feature.
 
 - [ ] Thompson NFA construction, representation, and compiler
   - Scope: `src/nfa/thompson/{nfa,builder,compiler,literal_trie,range_trie,map,error}.rs`.
