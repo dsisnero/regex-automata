@@ -194,6 +194,23 @@ module Regex::Automata
         return last_match if input.get_earliest
       end
       at = input.start
+      pre = input.get_anchored == Anchored::No ? get_prefilter : nil
+      universal_start = !universal_start_state(Anchored::No).nil?
+
+      # A prefilter reports only candidate starts. When the DFA's start state
+      # depends on surrounding context, recompute it at the candidate so that
+      # look-around remains correct.
+      if pre && last_match.nil?
+        candidate = pre.find(input.haystack, Span.new(at, input.end))
+        return nil unless candidate
+
+        at = candidate.start
+        unless universal_start
+          restarted = prefilter_restart_fwd(input, at)
+          return restarted if restarted.is_a?(MatchError)
+          current_state = restarted.as(StateID)
+        end
+      end
 
       while at < input.end
         next_state = next_state(current_state, input.haystack[at])
@@ -203,6 +220,20 @@ module Regex::Automata
         end
         break if is_dead_state?(next_state)
         current_state = next_state
+        if is_start_state?(current_state) && pre && last_match.nil?
+          candidate = pre.find(input.haystack, Span.new(at, input.end))
+          return nil unless candidate
+
+          if candidate.start > at
+            at = candidate.start
+            unless universal_start
+              restarted = prefilter_restart_fwd(input, at)
+              return restarted if restarted.is_a?(MatchError)
+              current_state = restarted.as(StateID)
+            end
+            next
+          end
+        end
         if is_match_state?(current_state)
           last_match = HalfMatch.new(match_pattern(current_state, 0), at)
           return last_match if input.get_earliest
@@ -328,7 +359,18 @@ module Regex::Automata
         if is_special_state?(current_state)
           if is_start_state?(current_state)
             if pre
-              # Prefilters are not implemented yet in this port.
+              candidate = pre.find(input.haystack, Span.new(state.at, input.end))
+              return nil unless candidate
+
+              if candidate.start > state.at
+                state.at = candidate.start
+                unless universal_start
+                  restarted = prefilter_restart_fwd(input, state.at)
+                  return restarted if restarted.is_a?(MatchError)
+                  current_state = restarted.as(StateID)
+                end
+                next
+              end
             elsif is_accel_state?(current_state)
               needles = accelerator(current_state)
               state.at = Regex::Automata.find_fwd(needles, input.haystack, state.at + 1) || input.end
@@ -561,6 +603,14 @@ module Regex::Automata
       else
         false
       end
+    end
+
+    # Recompute a forward start state after a prefilter jumps to a candidate
+    # offset. A copied input preserves the full haystack and all search flags.
+    private def prefilter_restart_fwd(input : Input, at : Int32) : StateID | MatchError
+      restarted = input.clone
+      restarted.set_start(at)
+      start_state_forward(restarted)
     end
 
     # Returns the earliest match found in the given slice.

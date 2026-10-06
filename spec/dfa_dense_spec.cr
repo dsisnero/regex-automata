@@ -152,6 +152,29 @@ describe "DFA::Dense" do
     dfa.to_sparse.try_search_fwd(input).should eq(expected)
   end
 
+  it "restarts context-sensitive DFA searches at prefilter candidates" do
+    prefilter = Regex::Automata::Prefilter.new(
+      Regex::Automata::MatchKind::LeftmostFirst,
+      ["abc"]
+    ).not_nil!
+    dfa = Regex::Automata::DFA::Builder.new
+      .configure(
+        Regex::Automata::DFA::DFA.config
+          .prefilter(prefilter)
+          .specialize_start_states(true)
+      )
+      .build("(?-u:\\b)abc")
+    input = Regex::Automata::Input.new("xabc ").span(1...4)
+
+    # Restarting at offset 1 must retain the preceding `x`; otherwise the
+    # artificial beginning of the candidate span would incorrectly satisfy
+    # the word boundary.
+    dfa.try_search_fwd(input).should be_nil
+    state = Regex::Automata::OverlappingState.new
+    dfa.try_search_overlapping_fwd(input, state).should be_nil
+    state.get_match.should be_nil
+  end
+
   it "reports DFA size-limit failures through BuildError" do
     error = expect_raises(Regex::Automata::BuildError) do
       Regex::Automata::DFA::Builder.new
