@@ -47,9 +47,9 @@
   - Scope: `src/util/captures.rs` and `src/util/interpolate.rs`.
   - Done: group metadata, named/numeric lookup, slot ordering, all capture iterator variants, malformed metadata, byte/string interpolation (including append destinations), and snapshot ownership are covered. Rust Debug/iterator-hint APIs and exact memory-layout accounting are documented Crystal-native divergences; extraction uses a runtime group count in place of Rust's const-generic array length.
 
-- [ ] Start configuration and start-byte map
+- [x] Start configuration and start-byte map
   - Scope: `src/util/start.rs`.
-  - Work: prove forward/reverse configuration from every `Input` state, look-behind bytes, every start classification, and wire read/write behavior.
+  - Done: forward/reverse `Input` configuration, look-behind selection, anchor builders, every start classification, custom line terminators, and exact 256-byte wire read/write error behavior are covered. Rust Debug formatting is a documented Crystal-native divergence.
 
 - [ ] Look-around assertions
   - Scope: `src/util/look.rs`.

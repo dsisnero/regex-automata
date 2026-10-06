@@ -69,4 +69,37 @@ describe Regex::Automata::StartConfig do
     classify.call("abc", 0, 2).should eq(Regex::Automata::Start::WordByte)
     classify.call("abc ", 0, 3).should eq(Regex::Automata::Start::NonWordByte)
   end
+
+  it "classifies custom line terminators and round trips the start-byte map" do
+    matcher = Regex::Automata::LookMatcher.new('a'.ord.to_u8)
+    map = Regex::Automata::StartByteMap.new(matcher)
+
+    map.get('a'.ord.to_u8).should eq(Regex::Automata::Start::CustomLineTerminator)
+    map.get('Z'.ord.to_u8).should eq(Regex::Automata::Start::WordByte)
+    map.get(' '.ord.to_u8).should eq(Regex::Automata::Start::NonWordByte)
+
+    wire = Bytes.new(map.write_to_len, 0_u8)
+    map.write_to(wire).should eq(256)
+    restored, read = Regex::Automata::StartByteMap.from_bytes(wire)
+    read.should eq(256)
+    restored.get('a'.ord.to_u8).should eq(Regex::Automata::Start::CustomLineTerminator)
+  end
+
+  it "rejects malformed start-byte map wire data and invalid enum values" do
+    expect_raises(Regex::Automata::DeserializeError, /buffer too small/) do
+      Regex::Automata::StartByteMap.from_bytes(Bytes.new(255, 0_u8))
+    end
+    malformed = Bytes.new(256, 0_u8)
+    malformed[42] = 6_u8
+    expect_raises(Regex::Automata::DeserializeError, /invalid starting configuration/) do
+      Regex::Automata::StartByteMap.from_bytes(malformed)
+    end
+    expect_raises(Regex::Automata::SerializeError, /buffer too small/) do
+      start_map.write_to(Bytes.new(255, 0_u8))
+    end
+
+    Regex::Automata::Start.from_usize(0).should eq(Regex::Automata::Start::NonWordByte)
+    Regex::Automata::Start.from_usize(5).should eq(Regex::Automata::Start::CustomLineTerminator)
+    Regex::Automata::Start.from_usize(6).should be_nil
+  end
 end

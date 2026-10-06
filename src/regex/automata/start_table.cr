@@ -16,6 +16,18 @@ module Regex::Automata
       6
     end
 
+    def self.from_usize(value : Int32) : Start?
+      case value
+      when 0 then NonWordByte
+      when 1 then WordByte
+      when 2 then Text
+      when 3 then LineLF
+      when 4 then LineCR
+      when 5 then CustomLineTerminator
+      else        nil
+      end
+    end
+
     def as_u8 : UInt8
       to_i.to_u8
     end
@@ -50,6 +62,29 @@ module Regex::Automata
 
     def get(byte : UInt8) : Start
       @map[byte]
+    end
+
+    def self.from_bytes(slice : Bytes) : Tuple(StartByteMap, Int32)
+      raise DeserializeError.new("buffer too small for start byte map") if slice.size < 256
+
+      map = StaticArray(Start, 256).new(Start::NonWordByte)
+      256.times do |index|
+        start = Start.from_usize(slice[index].to_i)
+        raise DeserializeError.new("found invalid starting configuration") unless start
+        map[index] = start
+      end
+      {StartByteMap.new(map), 256}
+    end
+
+    def write_to(dst : Bytes) : Int32
+      raise SerializeError.new("buffer too small for start byte map") if dst.size < write_to_len
+
+      256.times { |index| dst[index] = @map[index].as_u8 }
+      write_to_len
+    end
+
+    def write_to_len : Int32
+      256
     end
   end
 
