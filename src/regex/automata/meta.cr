@@ -551,15 +551,16 @@ module Regex::Automata::Meta
 
     # A reverse suffix search begins at the first candidate literal it sees.
     # It is only safe when that candidate cannot conceal an earlier match.
-    # This ports the vendor's fixed-length and internal-literal proofs. The
-    # disjoint-class-separator proof is intentionally handled separately
-    # below as it needs richer Unicode-class intersection support.
+    # This ports the vendor's fixed-length, internal-literal, and
+    # disjoint-class-separator proofs.
     private def reverse_suffix_has_no_earlier_match?(hirs : Array(::Regex::Syntax::Hir::Hir), suffix : Bytes) : Bool
       return false unless hirs.size == 1
 
       prefix = strip_literal_suffix(hirs.first, suffix)
       return false unless prefix
       return true if hir_has_fixed_length?(prefix)
+
+      return true if hir_has_disjoint_class_separator?(prefix, suffix)
 
       !hir_can_contain_literal?(prefix, suffix)
     end
@@ -648,10 +649,10 @@ module Regex::Automata::Meta
       when ::Regex::Syntax::Hir::Literal
         node.bytes.includes?(byte)
       when ::Regex::Syntax::Hir::CharClass
-        node.ranges.any? { |range| range.begin <= byte && byte <= range.end }
+        byte_class_contains?(node, byte)
       when ::Regex::Syntax::Hir::UnicodeClass
         return true if byte > 0x7F_u8
-        node.ranges.any? { |range| range.begin <= byte.to_u32 && byte.to_u32 <= range.end }
+        unicode_class_contains?(node, byte.to_u32)
       when ::Regex::Syntax::Hir::Repetition, ::Regex::Syntax::Hir::Capture
         hir_can_consume_byte?(node.sub, byte)
       when ::Regex::Syntax::Hir::Concat, ::Regex::Syntax::Hir::Alternation
@@ -659,6 +660,116 @@ module Regex::Automata::Meta
       else
         false
       end
+    end
+
+    private def hir_has_disjoint_class_separator?(prefix : ::Regex::Syntax::Hir::Hir, suffix : Bytes) : Bool
+      node = uncapture_hir_node(prefix.node)
+      return false unless node.is_a?(::Regex::Syntax::Hir::Concat)
+
+      children = node.children
+      first = children.index { |child| !hir_matches_empty_only?(child) }
+      last = children.rindex { |child| !hir_matches_empty_only?(child) }
+      return false unless first && last
+
+      hir_has_disjoint_class_separator_at?(children, last, suffix) ||
+        (first != last && hir_has_disjoint_class_separator_at?(children, first, suffix))
+    end
+
+    private def hir_has_disjoint_class_separator_at?(children : Array(::Regex::Syntax::Hir::Node), index : Int32, suffix : Bytes) : Bool
+      separator = hir_required_class(children[index])
+      return false unless separator
+      return false unless class_is_disjoint_from_literal?(separator, suffix)
+
+      children.each_with_index.all? do |child, child_index|
+        child_index == index || hir_is_disjoint_from_class?(child, separator)
+      end
+    end
+
+    private def hir_matches_empty_only?(node : ::Regex::Syntax::Hir::Node) : Bool
+      ::Regex::Syntax::Hir::Hir.new(node).maximum_len == 0
+    end
+
+    private def uncapture_hir_node(node : ::Regex::Syntax::Hir::Node) : ::Regex::Syntax::Hir::Node
+      current = node
+      while current.is_a?(::Regex::Syntax::Hir::Capture)
+        current = current.sub
+      end
+      current
+    end
+
+    private def hir_required_class(node : ::Regex::Syntax::Hir::Node) : (::Regex::Syntax::Hir::CharClass | ::Regex::Syntax::Hir::UnicodeClass)?
+      case node = uncapture_hir_node(node)
+      when ::Regex::Syntax::Hir::CharClass, ::Regex::Syntax::Hir::UnicodeClass
+        node
+      when ::Regex::Syntax::Hir::Repetition
+        return nil if node.min == 0_u32
+        child = uncapture_hir_node(node.sub)
+        child.as?(::Regex::Syntax::Hir::CharClass) || child.as?(::Regex::Syntax::Hir::UnicodeClass)
+      else
+        nil
+      end
+    end
+
+    private def hir_is_disjoint_from_class?(node : ::Regex::Syntax::Hir::Node, separator : ::Regex::Syntax::Hir::Node) : Bool
+      case node
+      when ::Regex::Syntax::Hir::Empty, ::Regex::Syntax::Hir::Look
+        true
+      when ::Regex::Syntax::Hir::Literal
+        class_is_disjoint_from_literal?(separator, node.bytes)
+      when ::Regex::Syntax::Hir::CharClass, ::Regex::Syntax::Hir::UnicodeClass
+        classes_are_disjoint?(node, separator)
+      when ::Regex::Syntax::Hir::Repetition, ::Regex::Syntax::Hir::Capture
+        hir_is_disjoint_from_class?(node.sub, separator)
+      when ::Regex::Syntax::Hir::Concat, ::Regex::Syntax::Hir::Alternation
+        node.children.all? { |child| hir_is_disjoint_from_class?(child, separator) }
+      else
+        false
+      end
+    end
+
+    private def classes_are_disjoint?(left : ::Regex::Syntax::Hir::Node, right : ::Regex::Syntax::Hir::Node) : Bool
+      case {left, right}
+      when {::Regex::Syntax::Hir::CharClass, ::Regex::Syntax::Hir::CharClass}
+        byte_class_ranges(left).none? { |l| byte_class_ranges(right).any? { |r| l.begin <= r.end && r.begin <= l.end } }
+      when {::Regex::Syntax::Hir::UnicodeClass, ::Regex::Syntax::Hir::UnicodeClass}
+        unicode_class_ranges(left).none? { |l| unicode_class_ranges(right).any? { |r| l.begin <= r.end && r.begin <= l.end } }
+      else
+        false
+      end
+    end
+
+    private def class_is_disjoint_from_literal?(klass : ::Regex::Syntax::Hir::Node, literal : Bytes) : Bool
+      case klass
+      when ::Regex::Syntax::Hir::CharClass
+        literal.all? { |byte| !byte_class_contains?(klass, byte) }
+      when ::Regex::Syntax::Hir::UnicodeClass
+        string = String.new(literal)
+        string.each_char.all? { |char| !unicode_class_contains?(klass, char.ord.to_u32) }
+      else
+        false
+      end
+    rescue ArgumentError
+      false
+    end
+
+    private def byte_class_ranges(klass : ::Regex::Syntax::Hir::CharClass) : Array(Range(UInt8, UInt8))
+      return klass.ranges unless klass.negated?
+
+      klass.dup.negate.ranges
+    end
+
+    private def unicode_class_ranges(klass : ::Regex::Syntax::Hir::UnicodeClass) : Array(Range(UInt32, UInt32))
+      return klass.ranges unless klass.negated?
+
+      klass.dup.negate.ranges
+    end
+
+    private def byte_class_contains?(klass : ::Regex::Syntax::Hir::CharClass, byte : UInt8) : Bool
+      byte_class_ranges(klass).any? { |range| range.begin <= byte && byte <= range.end }
+    end
+
+    private def unicode_class_contains?(klass : ::Regex::Syntax::Hir::UnicodeClass, codepoint : UInt32) : Bool
+      unicode_class_ranges(klass).any? { |range| range.begin <= codepoint && codepoint <= range.end }
     end
 
     private def build_reverse_inner_strategy(

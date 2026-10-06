@@ -285,6 +285,13 @@ describe Regex::Automata::Meta::Regex do
     re.find("fshing").should eq(Regex::Automata::Match.must(0, 0...6))
   end
 
+  it "uses a disjoint class separator to preserve reverse suffix ordering" do
+    re = Regex::Automata::Meta::Regex.new("\\w+\\s+Holmes")
+
+    re.is_accelerated.should be_true
+    re.find("Sherlock Holmes").should eq(Regex::Automata::Match.must(0, 0...15))
+  end
+
   it "does not use reverse suffix acceleration for MatchKind::All" do
     re = Regex::Automata::Meta::Regex.builder
       .configure(Regex::Automata::Meta::Regex.config.match_kind(Regex::Automata::MatchKind::All))
