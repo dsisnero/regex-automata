@@ -415,30 +415,30 @@ src/dfa/onepass.rs::method::Transition.match_wins	method	missing	-	auto-generate
 src/dfa/onepass.rs::method::Transition.new	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::Transition.set_state_id	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::Transition.state_id	method	missing	-	auto-generated
-src/dfa/regex.rs::method::Builder.build	method	missing	-	auto-generated
-src/dfa/regex.rs::method::Builder.build_from_dfas	method	missing	-	auto-generated
-src/dfa/regex.rs::method::Builder.build_many	method	missing	-	auto-generated
-src/dfa/regex.rs::method::Builder.build_many_sparse	method	missing	-	auto-generated
-src/dfa/regex.rs::method::Builder.build_sparse	method	missing	-	auto-generated
-src/dfa/regex.rs::method::Builder.default	method	missing	-	auto-generated
-src/dfa/regex.rs::method::Builder.dense	method	missing	-	auto-generated
-src/dfa/regex.rs::method::Builder.new	method	missing	-	auto-generated
-src/dfa/regex.rs::method::Builder.syntax	method	missing	-	auto-generated
-src/dfa/regex.rs::method::Builder.thompson	method	missing	-	auto-generated
-src/dfa/regex.rs::method::FindMatches<'r, 'h, A>.next	method	missing	-	auto-generated
-src/dfa/regex.rs::method::Regex.new	method	missing	-	auto-generated
-src/dfa/regex.rs::method::Regex.new_many	method	missing	-	auto-generated
-src/dfa/regex.rs::method::Regex<A>.find	method	missing	-	auto-generated
-src/dfa/regex.rs::method::Regex<A>.find_iter	method	missing	-	auto-generated
-src/dfa/regex.rs::method::Regex<A>.forward	method	missing	-	auto-generated
-src/dfa/regex.rs::method::Regex<A>.is_anchored	method	missing	-	auto-generated
-src/dfa/regex.rs::method::Regex<A>.is_match	method	missing	-	auto-generated
-src/dfa/regex.rs::method::Regex<A>.pattern_len	method	missing	-	auto-generated
-src/dfa/regex.rs::method::Regex<A>.reverse	method	missing	-	auto-generated
-src/dfa/regex.rs::method::Regex<A>.try_search	method	missing	-	auto-generated
-src/dfa/regex.rs::method::Regex<dense::DFA<&'static [u32]>>.builder	method	missing	-	auto-generated
-src/dfa/regex.rs::method::Regex<sparse::DFA<Vec<u8>>>.new_many_sparse	method	missing	-	auto-generated
-src/dfa/regex.rs::method::Regex<sparse::DFA<Vec<u8>>>.new_sparse	method	missing	-	auto-generated
+src/dfa/regex.rs::method::Builder.build	method	ported	src/regex/automata/dfa_regex.cr:RegexBuilder#build;spec/dfa_regex_spec.cr	Builds a dense DFA regex.
+src/dfa/regex.rs::method::Builder.build_from_dfas	method	ported	src/regex/automata/dfa_regex.cr:RegexBuilder#build_from_dfas;spec/dfa_regex_spec.cr	Builds from compatible forward and reverse DFAs.
+src/dfa/regex.rs::method::Builder.build_many	method	ported	src/regex/automata/dfa_regex.cr:RegexBuilder#build_many;spec/dfa_regex_spec.cr	Builds a multi-pattern dense DFA regex.
+src/dfa/regex.rs::method::Builder.build_many_sparse	method	ported	src/regex/automata/dfa_regex.cr:RegexBuilder#build_many_sparse;spec/dfa_regex_spec.cr	Builds a sparse DFA regex pair.
+src/dfa/regex.rs::method::Builder.build_sparse	method	ported	src/regex/automata/dfa_regex.cr:RegexBuilder#build_sparse;spec/dfa_regex_spec.cr	Builds a sparse DFA regex.
+src/dfa/regex.rs::method::Builder.default	method	intentional_divergence	src/regex/automata/dfa_regex.cr:RegexBuilder#initialize	Crystal constructors provide the default builder.
+src/dfa/regex.rs::method::Builder.dense	method	ported	src/regex/automata/dfa_regex.cr:RegexBuilder#dense;spec/dfa_regex_spec.cr	Applies dense DFA configuration.
+src/dfa/regex.rs::method::Builder.new	method	ported	src/regex/automata/dfa_regex.cr:RegexBuilder#initialize	Crystal constructor supplies a fresh builder.
+src/dfa/regex.rs::method::Builder.syntax	method	ported	src/regex/automata/dfa_regex.cr:RegexBuilder#syntax;spec/dfa_regex_spec.cr	Configures syntax parsing.
+src/dfa/regex.rs::method::Builder.thompson	method	ported	src/regex/automata/dfa_regex.cr:RegexBuilder#thompson;spec/dfa_regex_spec.cr	Configures Thompson compilation.
+src/dfa/regex.rs::method::FindMatches<'r, 'h, A>.next	method	ported	src/regex/automata/dfa_regex.cr:Regex::FindMatches#next;spec/dfa_regex_spec.cr	Crystal Iterator advancement and exhaustion are covered.
+src/dfa/regex.rs::method::Regex.new	method	ported	src/regex/automata/dfa_regex.cr:Regex.new;spec/dfa_regex_spec.cr	Builds a default dense DFA regex.
+src/dfa/regex.rs::method::Regex.new_many	method	ported	src/regex/automata/dfa_regex.cr:Regex.new_many;spec/dfa_regex_spec.cr	Builds a multi-pattern DFA regex.
+src/dfa/regex.rs::method::Regex<A>.find	method	ported	src/regex/automata/dfa_regex.cr:Regex#find;spec/dfa_regex_spec.cr	Returns a leftmost Match or nil.
+src/dfa/regex.rs::method::Regex<A>.find_iter	method	ported	src/regex/automata/dfa_regex.cr:Regex#find_iter;spec/dfa_regex_spec.cr	Returns an iterator over non-overlapping matches.
+src/dfa/regex.rs::method::Regex<A>.forward	method	ported	src/regex/automata/dfa_regex.cr:Regex#forward;spec/dfa_regex_spec.cr	Returns the forward automaton.
+src/dfa/regex.rs::method::Regex<A>.is_anchored	method	skipped	src/regex/automata/dfa_regex.cr:Regex#is_anchored	Private search helper; its vendor semantics are exercised through try_search.
+src/dfa/regex.rs::method::Regex<A>.is_match	method	ported	src/regex/automata/dfa_regex.cr:Regex#is_match;spec/dfa_regex_spec.cr	Performs earliest forward existence search.
+src/dfa/regex.rs::method::Regex<A>.pattern_len	method	ported	src/regex/automata/dfa_regex.cr:Regex#pattern_len;spec/dfa_regex_spec.cr	Reports shared forward/reverse pattern count.
+src/dfa/regex.rs::method::Regex<A>.reverse	method	ported	src/regex/automata/dfa_regex.cr:Regex#reverse;spec/dfa_regex_spec.cr	Returns the reverse automaton.
+src/dfa/regex.rs::method::Regex<A>.try_search	method	ported	src/regex/automata/dfa_regex.cr:Regex#try_search;spec/dfa_regex_spec.cr	Returns Match, nil, or MatchError.
+src/dfa/regex.rs::method::Regex<dense::DFA<&'static [u32]>>.builder	method	ported	src/regex/automata/dfa_regex.cr:Regex.builder;spec/dfa_regex_spec.cr	Returns the default Crystal RegexBuilder.
+src/dfa/regex.rs::method::Regex<sparse::DFA<Vec<u8>>>.new_many_sparse	method	ported	src/regex/automata/dfa_regex.cr:Regex.new_many_sparse;spec/dfa_regex_spec.cr	Sparse multi-pattern convenience constructor.
+src/dfa/regex.rs::method::Regex<sparse::DFA<Vec<u8>>>.new_sparse	method	ported	src/regex/automata/dfa_regex.cr:Regex.new_sparse;spec/dfa_regex_spec.cr	Sparse convenience constructor.
 src/dfa/remapper.rs::method::DFA.remap	method	missing	-	auto-generated
 src/dfa/remapper.rs::method::DFA.state_len	method	missing	-	auto-generated
 src/dfa/remapper.rs::method::DFA.stride2	method	missing	-	auto-generated
