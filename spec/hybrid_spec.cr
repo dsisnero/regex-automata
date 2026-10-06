@@ -268,6 +268,24 @@ describe Regex::Automata::Hybrid::DFA do
     dfa.try_search_fwd(cache, Regex::Automata::Input.new(haystack)).should eq(expected)
   end
 
+  it "restarts prefiltered searches with bounded look-around context" do
+    prefilter = Regex::Automata::Prefilter.new(
+      Regex::Automata::MatchKind::LeftmostFirst,
+      ["abc"]
+    ).not_nil!
+    dfa = Regex::Automata::Hybrid::Builder.new
+      .configure(
+        Regex::Automata::Hybrid::DFA.config
+          .prefilter(prefilter)
+          .specialize_start_states(true)
+      )
+      .build("(?-u:\\b)abc")
+    cache = dfa.create_cache
+    input = Regex::Automata::Input.new("xabc ").span(1...4)
+
+    dfa.try_search_fwd(cache, input).should be_nil
+  end
+
   it "supports quit bytes and implicit unicode word boundary enabling" do
     dfa = Regex::Automata::Hybrid::Builder.new
       .configure(Regex::Automata::Hybrid::DFA.config.quit('x'.ord.to_u8, true))

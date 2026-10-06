@@ -1128,7 +1128,17 @@ module Regex::Automata::Hybrid
         return ::Regex::Automata::HalfMatch.new(::Regex::Automata::PatternID::ZERO, offset)
       end
       search = input.clone
+      pre = input.get_anchored == ::Regex::Automata::Anchored::No ? get_prefilter : nil
       loop do
+        if pre
+          candidate = pre.find(search.haystack, ::Regex::Automata::Span.new(search.start, search.end))
+          return nil unless candidate
+
+          # Start-state construction observes the byte before the search span.
+          # Moving the Input itself, rather than slicing the haystack, keeps
+          # look-around assertions valid at a prefilter candidate.
+          search.set_start(candidate.start) if candidate.start > search.start
+        end
         result = try_search_fwd_once(cache, search)
         return result if result.is_a?(::Regex::Automata::MatchError)
         if half = result.as?(::Regex::Automata::HalfMatch)
