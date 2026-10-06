@@ -1780,35 +1780,35 @@ src/util/primitives.rs::method::Vec<T>.index	method	missing	-	auto-generated
 src/util/primitives.rs::method::Vec<T>.index_mut	method	missing	-	auto-generated
 src/util/primitives.rs::method::[T].index	method	missing	-	auto-generated
 src/util/primitives.rs::method::[T].index_mut	method	missing	-	auto-generated
-src/util/search.rs::method::Anchored.is_anchored	method	missing	-	auto-generated
-src/util/search.rs::method::Anchored.pattern	method	missing	-	auto-generated
+src/util/search.rs::method::Anchored.is_anchored	method	ported	src/regex/automata/search.cr:Anchored#is_anchored;spec/search_primitives_spec.cr	Anchored predicate is covered.
+src/util/search.rs::method::Anchored.pattern	method	intentional_divergence	src/regex/automata/search.cr:Input#pattern;spec/search_input_spec.cr	Crystal enums cannot carry the Rust PatternID payload; Input stores it separately and preserves it through clone.
 src/util/search.rs::method::Bad.as_ref	method	missing	-	auto-generated
 src/util/search.rs::method::HalfMatch.must	method	ported	src/regex/automata/search.cr:HalfMatch.must;spec/search_primitives_spec.cr	Numeric pattern-ID constructor is covered with the vendor result primitives.
 src/util/search.rs::method::HalfMatch.new	method	ported	src/regex/automata/search.cr:HalfMatch#initialize;spec/search_primitives_spec.cr	PatternID and offset constructor is represented directly.
 src/util/search.rs::method::HalfMatch.offset	method	ported	src/regex/automata/search.cr:HalfMatch#offset;spec/search_primitives_spec.cr	Offset getter is covered.
 src/util/search.rs::method::HalfMatch.pattern	method	ported	src/regex/automata/search.cr:HalfMatch#pattern;spec/search_primitives_spec.cr	Pattern getter is covered.
-src/util/search.rs::method::Input<'h>.anchored	method	missing	-	auto-generated
-src/util/search.rs::method::Input<'h>.earliest	method	missing	-	auto-generated
-src/util/search.rs::method::Input<'h>.end	method	missing	-	auto-generated
-src/util/search.rs::method::Input<'h>.fmt	method	missing	-	auto-generated
-src/util/search.rs::method::Input<'h>.from	method	missing	-	auto-generated
-src/util/search.rs::method::Input<'h>.get_anchored	method	missing	-	auto-generated
-src/util/search.rs::method::Input<'h>.get_earliest	method	missing	-	auto-generated
-src/util/search.rs::method::Input<'h>.get_range	method	missing	-	auto-generated
-src/util/search.rs::method::Input<'h>.get_span	method	missing	-	auto-generated
-src/util/search.rs::method::Input<'h>.haystack	method	missing	-	auto-generated
-src/util/search.rs::method::Input<'h>.is_char_boundary	method	missing	-	auto-generated
-src/util/search.rs::method::Input<'h>.is_done	method	missing	-	auto-generated
-src/util/search.rs::method::Input<'h>.new	method	missing	-	auto-generated
-src/util/search.rs::method::Input<'h>.range	method	missing	-	auto-generated
-src/util/search.rs::method::Input<'h>.set_anchored	method	missing	-	auto-generated
-src/util/search.rs::method::Input<'h>.set_earliest	method	missing	-	auto-generated
-src/util/search.rs::method::Input<'h>.set_end	method	missing	-	auto-generated
-src/util/search.rs::method::Input<'h>.set_range	method	missing	-	auto-generated
-src/util/search.rs::method::Input<'h>.set_span	method	missing	-	auto-generated
-src/util/search.rs::method::Input<'h>.set_start	method	missing	-	auto-generated
-src/util/search.rs::method::Input<'h>.span	method	missing	-	auto-generated
-src/util/search.rs::method::Input<'h>.start	method	missing	-	auto-generated
+src/util/search.rs::method::Input<'h>.anchored	method	ported	src/regex/automata/search.cr:Input#anchored;spec/search_input_spec.cr	Builder-style anchoring preserves the pattern ID separately.
+src/util/search.rs::method::Input<'h>.earliest	method	ported	src/regex/automata/search.cr:Input#earliest;spec/search_input_spec.cr	Builder-style earliest mode is covered.
+src/util/search.rs::method::Input<'h>.end	method	ported	src/regex/automata/search.cr:Input#end;spec/search_input_spec.cr	End getter is covered.
+src/util/search.rs::method::Input<'h>.fmt	method	intentional_divergence	src/regex/automata/search.cr:Input	Rust Debug formatting has no stable Crystal API counterpart.
+src/util/search.rs::method::Input<'h>.from	method	ported	src/regex/automata/search.cr:Input#initialize;spec/search_input_spec.cr	Crystal overloads construct Input from String and Bytes directly.
+src/util/search.rs::method::Input<'h>.get_anchored	method	ported	src/regex/automata/search.cr:Input#get_anchored;spec/search_input_spec.cr	Anchoring getter is covered.
+src/util/search.rs::method::Input<'h>.get_earliest	method	ported	src/regex/automata/search.cr:Input#get_earliest;spec/search_input_spec.cr	Earliest getter is covered.
+src/util/search.rs::method::Input<'h>.get_range	method	ported	src/regex/automata/search.cr:Input#get_range;spec/search_input_spec.cr	Range getter is covered.
+src/util/search.rs::method::Input<'h>.get_span	method	ported	src/regex/automata/search.cr:Input#get_span;spec/search_input_spec.cr	Span getter is covered.
+src/util/search.rs::method::Input<'h>.haystack	method	ported	src/regex/automata/search.cr:Input#haystack;spec/search_input_spec.cr	Haystack getter is covered.
+src/util/search.rs::method::Input<'h>.is_char_boundary	method	ported	src/regex/automata/search.cr:Input#is_char_boundary;spec/search_input_spec.cr	UTF-8 boundary behavior is covered.
+src/util/search.rs::method::Input<'h>.is_done	method	ported	src/regex/automata/search.cr:Input#is_done;spec/search_input_spec.cr	Forward done sentinel is covered.
+src/util/search.rs::method::Input<'h>.new	method	ported	src/regex/automata/search.cr:Input#initialize;spec/search_input_spec.cr	String and Bytes constructors are covered.
+src/util/search.rs::method::Input<'h>.range	method	ported	src/regex/automata/search.cr:Input#range;spec/search_input_spec.cr	Builder-style range conversion is covered.
+src/util/search.rs::method::Input<'h>.set_anchored	method	ported	src/regex/automata/search.cr:Input#set_anchored;spec/search_input_spec.cr	In-place anchoring is covered.
+src/util/search.rs::method::Input<'h>.set_earliest	method	ported	src/regex/automata/search.cr:Input#set_earliest;spec/search_input_spec.cr	In-place earliest mode is covered.
+src/util/search.rs::method::Input<'h>.set_end	method	ported	src/regex/automata/search.cr:Input#set_end;spec/search_input_spec.cr	In-place end update is covered.
+src/util/search.rs::method::Input<'h>.set_range	method	ported	src/regex/automata/search.cr:Input#set_range;spec/search_input_spec.cr	In-place range conversion is covered.
+src/util/search.rs::method::Input<'h>.set_span	method	ported	src/regex/automata/search.cr:Input#set_span;spec/search_input_spec.cr	In-place Span and range updates are covered.
+src/util/search.rs::method::Input<'h>.set_start	method	ported	src/regex/automata/search.cr:Input#set_start;spec/search_input_spec.cr	Forward done sentinel and bounds validation are covered.
+src/util/search.rs::method::Input<'h>.span	method	ported	src/regex/automata/search.cr:Input#span;spec/search_input_spec.cr	Builder-style Span update is covered.
+src/util/search.rs::method::Input<'h>.start	method	ported	src/regex/automata/search.cr:Input#start;spec/search_input_spec.cr	Start getter is covered.
 src/util/search.rs::method::Match.end	method	ported	src/regex/automata/search.cr:Match#end;spec/search_primitives_spec.cr	End getter is covered.
 src/util/search.rs::method::Match.is_empty	method	ported	src/regex/automata/search.cr:Match#is_empty;spec/search_primitives_spec.cr	Rust-style empty predicate is covered.
 src/util/search.rs::method::Match.len	method	ported	src/regex/automata/search.cr:Match#len;spec/search_primitives_spec.cr	Rust-style length accessor is covered.

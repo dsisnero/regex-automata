@@ -74,4 +74,21 @@ describe Regex::Automata::Input do
     input.is_char_boundary(3).should be_true
     input.is_char_boundary(4).should be_false
   end
+
+  it "preserves pattern-specific anchoring and earliest mode when cloned" do
+    input = Regex::Automata::Input.new("foobar")
+      .span(2...6)
+      .anchored(Regex::Automata::Anchored::Pattern, Regex::Automata::PatternID.new(3))
+      .earliest(true)
+
+    input.get_anchored.should eq(Regex::Automata::Anchored::Pattern)
+    input.pattern.should eq(Regex::Automata::PatternID.new(3))
+    input.get_earliest.should be_true
+
+    clone = input.clone
+    clone.get_range.should eq(2...6)
+    clone.get_anchored.should eq(Regex::Automata::Anchored::Pattern)
+    clone.pattern.should eq(Regex::Automata::PatternID.new(3))
+    clone.get_earliest.should be_true
+  end
 end

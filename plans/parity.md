@@ -31,9 +31,13 @@
   - Scope: `src/util/search.rs::{Span,HalfMatch,Match}`.
   - Done: `Span`, `HalfMatch`, and `Match` expose the Rust result API, including `Match#span` versus `Match#range`, `len`, `is_empty`, and the upstream inclusive-end `Span#contains` behavior. Crystal-friendly aliases remain additive.
 
-- [ ] Input, anchoring, and match errors
-  - Scope: `src/util/search.rs::{Input,Anchored,MatchError,MatchErrorKind}`.
-  - Work: prove every range, done-state, UTF-8 boundary, anchored-pattern, earliest-search, conversion, and error-kind contract. Document the Crystal enum-plus-`Input#pattern` representation where Rust carries a `PatternID` inside `Anchored::Pattern`.
+- [x] Input configuration and anchoring
+  - Scope: `src/util/search.rs::{Input,Anchored}`.
+  - Done: ranges, done sentinel, UTF-8 boundaries, anchor mode, earliest mode, String/Bytes construction, and clone behavior are covered. Crystal represents Rust's `Anchored::Pattern(PatternID)` as `Anchored::Pattern` plus `Input#pattern`; this intentional language-level divergence is documented in the ledger and tested through clone.
+
+- [ ] Match errors
+  - Scope: `src/util/search.rs::{MatchError,MatchErrorKind}`.
+  - Work: prove every structured error kind, constructor, payload, equality, and consumer conversion path.
 
 - [ ] Pattern sets and generic search iteration
   - Scope: `src/util/search.rs::{PatternSet,PatternSetIter}` and `src/util/iter.rs`.
