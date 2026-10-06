@@ -1670,31 +1670,31 @@ src/util/look.rs::method::LookSetIter.next	method	ported	src/regex/automata/look
 src/util/look.rs::method::UnicodeWordBoundaryError.check	method	ported	src/regex/automata/look.cr:UnicodeWordBoundaryError.check;spec/look_spec.cr	Crystal ships Unicode word data.
 src/util/look.rs::method::UnicodeWordBoundaryError.fmt	method	ported	src/regex/automata/look.cr:UnicodeWordBoundaryError#initialize	Error text is preserved.
 src/util/look.rs::method::UnicodeWordBoundaryError.new	method	ported	src/regex/automata/look.cr:UnicodeWordBoundaryError#initialize	Constructor is represented.
-src/util/pool.rs::const::MAX_POOL_STACKS	const	missing	-	auto-generated
-src/util/pool.rs::method::Mutex<T>.lock	method	missing	-	auto-generated
-src/util/pool.rs::method::Mutex<T>.new	method	missing	-	auto-generated
-src/util/pool.rs::method::MutexGuard<'a, T>.deref	method	missing	-	auto-generated
-src/util/pool.rs::method::MutexGuard<'a, T>.deref_mut	method	missing	-	auto-generated
-src/util/pool.rs::method::MutexGuard<'a, T>.drop	method	missing	-	auto-generated
-src/util/pool.rs::method::Pool<T, F>.fmt	method	missing	-	auto-generated
-src/util/pool.rs::method::Pool<T, F>.get	method	missing	-	auto-generated
-src/util/pool.rs::method::Pool<T, F>.get_slow	method	missing	-	auto-generated
-src/util/pool.rs::method::Pool<T, F>.guard_owned	method	missing	-	auto-generated
-src/util/pool.rs::method::Pool<T, F>.guard_stack	method	missing	-	auto-generated
-src/util/pool.rs::method::Pool<T, F>.guard_stack_transient	method	missing	-	auto-generated
-src/util/pool.rs::method::Pool<T, F>.new	method	missing	-	auto-generated
-src/util/pool.rs::method::Pool<T, F>.put	method	missing	-	auto-generated
-src/util/pool.rs::method::Pool<T, F>.put_value	method	missing	-	auto-generated
-src/util/pool.rs::method::Pool<T, F>.with_available_parallelism_capacity	method	missing	-	auto-generated
-src/util/pool.rs::method::Pool<T, F>.with_capacity	method	missing	-	auto-generated
-src/util/pool.rs::method::PoolGuard<'a, T, F>.deref	method	missing	-	auto-generated
-src/util/pool.rs::method::PoolGuard<'a, T, F>.deref_mut	method	missing	-	auto-generated
-src/util/pool.rs::method::PoolGuard<'a, T, F>.drop	method	missing	-	auto-generated
-src/util/pool.rs::method::PoolGuard<'a, T, F>.fmt	method	missing	-	auto-generated
-src/util/pool.rs::method::PoolGuard<'a, T, F>.put	method	missing	-	auto-generated
-src/util/pool.rs::method::PoolGuard<'a, T, F>.put_imp	method	missing	-	auto-generated
-src/util/pool.rs::method::PoolGuard<'a, T, F>.value	method	missing	-	auto-generated
-src/util/pool.rs::method::PoolGuard<'a, T, F>.value_mut	method	missing	-	auto-generated
+src/util/pool.rs::const::MAX_POOL_STACKS	const	intentional_divergence	src/regex/automata/pool.cr	Crystal uses one mutex-protected stack instead of Rust cache-line stacks.
+src/util/pool.rs::method::Mutex<T>.lock	method	ported	src/regex/automata/pool.cr:Pool#get	Crystal Mutex synchronization protects pool access.
+src/util/pool.rs::method::Mutex<T>.new	method	ported	src/regex/automata/pool.cr:Pool#initialize	Crystal Mutex initialization is used.
+src/util/pool.rs::method::MutexGuard<'a, T>.deref	method	intentional_divergence	src/regex/automata/pool.cr	Crystal Mutex blocks do not expose a guard type.
+src/util/pool.rs::method::MutexGuard<'a, T>.deref_mut	method	intentional_divergence	src/regex/automata/pool.cr	Crystal Mutex blocks do not expose a guard type.
+src/util/pool.rs::method::MutexGuard<'a, T>.drop	method	intentional_divergence	src/regex/automata/pool.cr	Crystal Mutex block scopes release locks.
+src/util/pool.rs::method::Pool<T, F>.fmt	method	intentional_divergence	src/regex/automata/pool.cr	Rust Debug formatting has no Crystal public equivalent.
+src/util/pool.rs::method::Pool<T, F>.get	method	ported	src/regex/automata/pool.cr:Pool#get;spec/pool_spec.cr	Creation, exclusive checkout, and reuse are covered.
+src/util/pool.rs::method::Pool<T, F>.get_slow	method	intentional_divergence	src/regex/automata/pool.cr	Rust cache-line optimization is absent; behavior is preserved.
+src/util/pool.rs::method::Pool<T, F>.guard_owned	method	intentional_divergence	src/regex/automata/pool.cr	Rust internal ownership helper has no Crystal counterpart.
+src/util/pool.rs::method::Pool<T, F>.guard_stack	method	intentional_divergence	src/regex/automata/pool.cr	Rust cache-line stack selection has no Crystal counterpart.
+src/util/pool.rs::method::Pool<T, F>.guard_stack_transient	method	intentional_divergence	src/regex/automata/pool.cr	Rust transient-stack optimization has no Crystal counterpart.
+src/util/pool.rs::method::Pool<T, F>.new	method	ported	src/regex/automata/pool.cr:Pool#initialize;spec/pool_spec.cr	Deferred value creation is covered.
+src/util/pool.rs::method::Pool<T, F>.put	method	ported	src/regex/automata/pool.cr:PoolGuard#put;spec/pool_spec.cr	Explicit pool return is covered.
+src/util/pool.rs::method::Pool<T, F>.put_value	method	ported	src/regex/automata/pool.cr:Pool#put_value;spec/pool_spec.cr	Configured retention capacity is covered.
+src/util/pool.rs::method::Pool<T, F>.with_available_parallelism_capacity	method	intentional_divergence	src/regex/automata/pool.cr	Crystal runtime parallelism heuristic is not used.
+src/util/pool.rs::method::Pool<T, F>.with_capacity	method	ported	src/regex/automata/pool.cr:Pool.with_capacity;spec/pool_spec.cr	Retention-capacity behavior is covered.
+src/util/pool.rs::method::PoolGuard<'a, T, F>.deref	method	intentional_divergence	src/regex/automata/pool.cr	Crystal callers use #value instead of Rust Deref.
+src/util/pool.rs::method::PoolGuard<'a, T, F>.deref_mut	method	intentional_divergence	src/regex/automata/pool.cr	Crystal mutable objects are accessed through #value.
+src/util/pool.rs::method::PoolGuard<'a, T, F>.drop	method	intentional_divergence	src/regex/automata/pool.cr	Crystal GC has no deterministic Rust RAII drop; callers explicitly #put.
+src/util/pool.rs::method::PoolGuard<'a, T, F>.fmt	method	intentional_divergence	src/regex/automata/pool.cr	Rust Debug formatting has no Crystal public equivalent.
+src/util/pool.rs::method::PoolGuard<'a, T, F>.put	method	ported	src/regex/automata/pool.cr:PoolGuard#put;spec/pool_spec.cr	Explicit and class helper return are covered.
+src/util/pool.rs::method::PoolGuard<'a, T, F>.put_imp	method	ported	src/regex/automata/pool.cr:PoolGuard#put	One-time return guard is implemented.
+src/util/pool.rs::method::PoolGuard<'a, T, F>.value	method	ported	src/regex/automata/pool.cr:PoolGuard#value;spec/pool_spec.cr	Checked-out values are covered.
+src/util/pool.rs::method::PoolGuard<'a, T, F>.value_mut	method	partial	src/regex/automata/pool.cr:PoolGuard#value	Mutable reference semantics map to Crystal mutable object references.
 src/util/prefilter/aho_corasick.rs::method::AhoCorasick.find	method	missing	-	auto-generated
 src/util/prefilter/aho_corasick.rs::method::AhoCorasick.is_fast	method	missing	-	auto-generated
 src/util/prefilter/aho_corasick.rs::method::AhoCorasick.memory_usage	method	missing	-	auto-generated
