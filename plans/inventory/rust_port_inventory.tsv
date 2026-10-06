@@ -1381,7 +1381,7 @@ src/util/alphabet.rs::method::ByteClassSet.default	method	missing	-	auto-generat
 src/util/alphabet.rs::method::ByteClassSet.empty	method	missing	-	auto-generated
 src/util/alphabet.rs::method::ByteClassSet.set_range	method	missing	-	auto-generated
 src/util/alphabet.rs::method::ByteClasses.alphabet_len	method	missing	-	auto-generated
-src/util/alphabet.rs::method::ByteClasses.default	method	missing	-	auto-generated
+src/util/alphabet.rs::method::ByteClasses.default	method	ported	src/regex/automata/byte_classes.cr:ByteClasses#initialize;spec/byte_classes_spec.cr	Default now produces the singleton map, as upstream.
 src/util/alphabet.rs::method::ByteClasses.element_ranges	method	missing	-	auto-generated
 src/util/alphabet.rs::method::ByteClasses.elements	method	missing	-	auto-generated
 src/util/alphabet.rs::method::ByteClasses.empty	method	missing	-	auto-generated
@@ -1396,7 +1396,7 @@ src/util/alphabet.rs::method::ByteClasses.representatives	method	missing	-	auto-
 src/util/alphabet.rs::method::ByteClasses.set	method	missing	-	auto-generated
 src/util/alphabet.rs::method::ByteClasses.singletons	method	missing	-	auto-generated
 src/util/alphabet.rs::method::ByteClasses.stride2	method	missing	-	auto-generated
-src/util/alphabet.rs::method::ByteClasses.write_to	method	missing	-	auto-generated
+src/util/alphabet.rs::method::ByteClasses.write_to	method	ported	src/regex/automata/byte_classes.cr:ByteClasses#write_to;spec/byte_classes_spec.cr	Fixed-size wire output and short-buffer error are covered.
 src/util/alphabet.rs::method::ByteClasses.write_to_len	method	missing	-	auto-generated
 src/util/alphabet.rs::method::ByteSet.add	method	missing	-	auto-generated
 src/util/alphabet.rs::method::ByteSet.contains	method	missing	-	auto-generated

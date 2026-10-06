@@ -65,13 +65,14 @@ module Regex::Automata
 
     def initialize
       @classes = StaticArray(UInt8, 256).new(0_u8)
+      256.times { |byte| @classes[byte] = byte.to_u8 }
     end
 
     private def initialize(@classes : StaticArray(UInt8, 256))
     end
 
     def self.empty : ByteClasses
-      new
+      new(StaticArray(UInt8, 256).new(0_u8))
     end
 
     def self.singletons : ByteClasses
@@ -156,6 +157,13 @@ module Regex::Automata
       bytes = Bytes.new(256)
       256.times { |byte| bytes[byte] = @classes[byte] }
       bytes
+    end
+
+    def write_to(dst : Bytes) : Int32
+      raise SerializeError.new("buffer too small for byte class map") if dst.size < write_to_len
+
+      256.times { |byte| dst[byte] = @classes[byte] }
+      write_to_len
     end
 
     def write_to_len : Int32

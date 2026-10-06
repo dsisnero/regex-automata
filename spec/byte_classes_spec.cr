@@ -1,6 +1,12 @@
 require "./spec_helper"
 
 describe Regex::Automata::ByteClasses do
+  it "uses singleton classes by default and preserves the empty constructor" do
+    Regex::Automata::ByteClasses.new.is_singleton.should be_true
+    Regex::Automata::ByteClasses.new.get('a'.ord.to_u8).should eq('a'.ord.to_u8)
+    Regex::Automata::ByteClasses.empty.get('a'.ord.to_u8).should eq(0_u8)
+  end
+
   it "ports upstream byte class partitioning" do
     set = Regex::Automata::ByteClassSet.empty
     set.set_range('a'.ord.to_u8, 'z'.ord.to_u8)
@@ -155,6 +161,22 @@ describe Regex::Automata::ByteClasses do
       Regex::Automata::Unit.u8('z'.ord.to_u8),
       Regex::Automata::Unit.u8('{'.ord.to_u8),
     ])
+  end
+
+  it "round trips fixed-size byte-class wire data" do
+    set = Regex::Automata::ByteClassSet.empty
+    set.set_range('a'.ord.to_u8, 'z'.ord.to_u8)
+    classes = set.byte_classes
+    wire = Bytes.new(classes.write_to_len, 0_u8)
+
+    classes.write_to(wire).should eq(256)
+    restored, read = Regex::Automata::ByteClasses.from_bytes(wire)
+    read.should eq(256)
+    restored.to_bytes.should eq(wire)
+
+    expect_raises(Regex::Automata::SerializeError, /buffer too small/) do
+      classes.write_to(Bytes.new(255, 0_u8))
+    end
   end
 end
 
