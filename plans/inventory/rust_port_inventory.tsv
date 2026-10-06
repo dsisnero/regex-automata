@@ -1494,18 +1494,18 @@ src/util/determinize/state.rs::method::Repr<'a>.match_len	method	ported	src/rege
 src/util/determinize/state.rs::method::Repr<'a>.match_pattern	method	ported	src/regex/automata/determinize_state.cr:Repr#match_pattern;spec/determinize_state_spec.cr	Pattern access is covered.
 src/util/determinize/state.rs::method::Repr<'a>.match_pattern_ids	method	ported	src/regex/automata/determinize_state.cr:Repr#match_pattern_ids;spec/determinize_state_spec.cr	Pattern encoding round trips are covered.
 src/util/determinize/state.rs::method::Repr<'a>.pattern_offset_end	method	ported	src/regex/automata/determinize_state.cr:Repr#pattern_offset_end	Internal offset calculation is used by tested decoding.
-src/util/determinize/state.rs::method::ReprVec<'a>.add_match_pattern_id	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::ReprVec<'a>.add_nfa_state_id	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::ReprVec<'a>.close_match_pattern_ids	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::ReprVec<'a>.look_have	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::ReprVec<'a>.look_need	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::ReprVec<'a>.repr	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::ReprVec<'a>.set_has_pattern_ids	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::ReprVec<'a>.set_is_from_word	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::ReprVec<'a>.set_is_half_crlf	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::ReprVec<'a>.set_is_match	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::ReprVec<'a>.set_look_have	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::ReprVec<'a>.set_look_need	method	missing	-	auto-generated
+src/util/determinize/state.rs::method::ReprVec<'a>.add_match_pattern_id	method	ported	src/regex/automata/determinize_state.cr:ReprVec#add_match_pattern_id;spec/determinize_state_spec.cr	Implicit-zero and explicit pattern encoding are covered.
+src/util/determinize/state.rs::method::ReprVec<'a>.add_nfa_state_id	method	ported	src/regex/automata/determinize_state.cr:ReprVec#add_nfa_state_id;spec/determinize_state_spec.cr	Signed NFA-state delta encoding is covered.
+src/util/determinize/state.rs::method::ReprVec<'a>.close_match_pattern_ids	method	ported	src/regex/automata/determinize_state.cr:ReprVec#close_match_pattern_ids;spec/determinize_state_spec.cr	Pattern count finalization is covered.
+src/util/determinize/state.rs::method::ReprVec<'a>.look_have	method	ported	src/regex/automata/determinize_state.cr:ReprVec#look_have	Internal look-set accessor is implemented.
+src/util/determinize/state.rs::method::ReprVec<'a>.look_need	method	ported	src/regex/automata/determinize_state.cr:ReprVec#look_need	Internal look-set accessor is implemented.
+src/util/determinize/state.rs::method::ReprVec<'a>.repr	method	ported	src/regex/automata/determinize_state.cr:ReprVec#repr	Write-side representation view is implemented.
+src/util/determinize/state.rs::method::ReprVec<'a>.set_has_pattern_ids	method	ported	src/regex/automata/determinize_state.cr:ReprVec#set_has_pattern_ids	Pattern flag is used by tested encoding.
+src/util/determinize/state.rs::method::ReprVec<'a>.set_is_from_word	method	ported	src/regex/automata/determinize_state.cr:ReprVec#set_is_from_word;spec/determinize_state_spec.cr	Flag behavior is covered.
+src/util/determinize/state.rs::method::ReprVec<'a>.set_is_half_crlf	method	ported	src/regex/automata/determinize_state.cr:ReprVec#set_is_half_crlf;spec/determinize_state_spec.cr	Flag behavior is covered.
+src/util/determinize/state.rs::method::ReprVec<'a>.set_is_match	method	ported	src/regex/automata/determinize_state.cr:ReprVec#set_is_match;spec/determinize_state_spec.cr	Match flag is used by tested encoding.
+src/util/determinize/state.rs::method::ReprVec<'a>.set_look_have	method	ported	src/regex/automata/determinize_state.cr:ReprVec#set_look_have;spec/determinize_state_spec.cr	Look-set mutation is covered.
+src/util/determinize/state.rs::method::ReprVec<'a>.set_look_need	method	ported	src/regex/automata/determinize_state.cr:ReprVec#set_look_need;spec/determinize_state_spec.cr	Look-set mutation is covered.
 src/util/determinize/state.rs::method::State.borrow	method	missing	-	auto-generated
 src/util/determinize/state.rs::method::State.dead	method	missing	-	auto-generated
 src/util/determinize/state.rs::method::State.fmt	method	missing	-	auto-generated
