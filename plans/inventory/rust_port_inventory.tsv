@@ -291,7 +291,7 @@ src/dfa/minimize.rs::method::StateSet.iter	method	missing	-	auto-generated
 src/dfa/minimize.rs::method::StateSet.len	method	missing	-	auto-generated
 src/dfa/minimize.rs::method::StateSet.min	method	missing	-	auto-generated
 src/dfa/minimize.rs::method::StateSet.subtract	method	missing	-	auto-generated
-src/dfa/mod.rs::const::DEAD	const	missing	-	auto-generated
+src/dfa/mod.rs::const::DEAD	const	ported	src/regex/automata/dfa.cr:DFA::DEAD_STATE_ID;spec/regex-automata_spec.cr	Rust's private dead-state sentinel is represented by the public Crystal DFA sentinel and validated as StateID::ZERO.
 src/dfa/onepass.rs::const::EPSILONS_MASK	const	missing	-	auto-generated
 src/dfa/onepass.rs::const::INFO_MASK	const	missing	-	auto-generated
 src/dfa/onepass.rs::const::LIMIT	const	missing	-	auto-generated

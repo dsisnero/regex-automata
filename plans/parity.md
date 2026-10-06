@@ -23,9 +23,9 @@
   - Work: replace stale identifier rows with current tree-sitter IDs, preserve verified mappings only after checking them, and add source/test notes for Crystal-native divergences. Create a repeatable way to run or transcribe the Rust suite matrices instead of relying on handwritten spot checks.
   - Done when: all generated rows are present in the curated ledger, source/test/port inventory checks pass under their recorded parser modes, and no unverified `ported` status remains.
 
-- [ ] Public facade, shared types, and crate configuration
+- [x] Public facade, shared types, and crate configuration
   - Scope: `src/lib.rs`, `src/macros.rs`, `src/dfa/mod.rs`, `src/hybrid/mod.rs`, `src/meta/mod.rs`, `src/nfa/mod.rs`, `src/nfa/thompson/mod.rs`, `src/util/mod.rs`, and every public type/re-export/error surfaced through them.
-  - Work: compare the Crystal require tree and public constants/types with Rust feature gates, re-exports, error behavior, and documented constructors. Record Rust-only feature gating and macro expansion as intentional divergences where appropriate.
+  - Done: the Crystal entry point loads the primary engine namespaces and shared search/type surface. Rust Cargo feature gates and macro expansion are build-system mechanisms with no Crystal runtime counterpart; the only generated source row in this module layer, the private DFA `DEAD` sentinel, maps to `DFA::DEAD_STATE_ID` and is proven to remain `StateID::ZERO`.
 
 - [ ] Search, capture, input, start, and look primitives
   - Scope: `src/util/{search,captures,start,look,empty,iter}.rs`.
