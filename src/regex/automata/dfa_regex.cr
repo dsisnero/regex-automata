@@ -323,7 +323,7 @@ module Regex::Automata::DFA
     private def is_anchored(input : Input) : Bool
       case input.anchored
       when Anchored::No
-        false
+        @forward.is_always_start_anchored?
       when Anchored::Yes, Anchored::Pattern
         true
       else
