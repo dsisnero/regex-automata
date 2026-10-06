@@ -31,7 +31,7 @@ src/dfa/accel.rs::method::Accels<Vec<AccelTy>>.empty	method	missing	-	auto-gener
 src/dfa/accel.rs::method::Accels<Vec<AccelTy>>.set_len	method	missing	-	auto-generated
 src/dfa/accel.rs::method::IterAccels<'a, A>.next	method	missing	-	auto-generated
 src/dfa/automaton.rs::method::&'a A.accelerator	method	missing	-	auto-generated
-src/dfa/automaton.rs::method::&'a A.get_prefilter	method	missing	-	auto-generated
+src/dfa/automaton.rs::method::&'a A.get_prefilter	method	intentional_divergence	src/regex/automata/automaton.cr:Automaton#get_prefilter	Crystal dynamic dispatch does not require Rust reference forwarding.
 src/dfa/automaton.rs::method::&'a A.has_empty	method	missing	-	auto-generated
 src/dfa/automaton.rs::method::&'a A.is_accel_state	method	missing	-	auto-generated
 src/dfa/automaton.rs::method::&'a A.is_always_start_anchored	method	missing	-	auto-generated
@@ -92,7 +92,7 @@ src/dfa/dense.rs::method::Config.get_determinize_size_limit	method	missing	-	aut
 src/dfa/dense.rs::method::Config.get_dfa_size_limit	method	missing	-	auto-generated
 src/dfa/dense.rs::method::Config.get_match_kind	method	missing	-	auto-generated
 src/dfa/dense.rs::method::Config.get_minimize	method	missing	-	auto-generated
-src/dfa/dense.rs::method::Config.get_prefilter	method	missing	-	auto-generated
+src/dfa/dense.rs::method::Config.get_prefilter	method	ported	src/regex/automata/config.cr:Config#get_prefilter;spec/dfa_dense_spec.cr	Configured prefilters are attached and covered.
 src/dfa/dense.rs::method::Config.get_quit	method	missing	-	auto-generated
 src/dfa/dense.rs::method::Config.get_specialize_start_states	method	missing	-	auto-generated
 src/dfa/dense.rs::method::Config.get_starts	method	missing	-	auto-generated
@@ -102,7 +102,7 @@ src/dfa/dense.rs::method::Config.match_kind	method	missing	-	auto-generated
 src/dfa/dense.rs::method::Config.minimize	method	missing	-	auto-generated
 src/dfa/dense.rs::method::Config.new	method	missing	-	auto-generated
 src/dfa/dense.rs::method::Config.overwrite	method	missing	-	auto-generated
-src/dfa/dense.rs::method::Config.prefilter	method	missing	-	auto-generated
+src/dfa/dense.rs::method::Config.prefilter	method	ported	src/regex/automata/config.cr:Config#prefilter;spec/dfa_dense_spec.cr	Prefilter configuration and start-state specialization are covered.
 src/dfa/dense.rs::method::Config.quit	method	missing	-	auto-generated
 src/dfa/dense.rs::method::Config.specialize_start_states	method	missing	-	auto-generated
 src/dfa/dense.rs::method::Config.start_kind	method	missing	-	auto-generated
@@ -121,7 +121,7 @@ src/dfa/dense.rs::method::DFA<T>.as_ref	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<T>.byte_classes	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<T>.flags	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<T>.fmt	method	missing	-	auto-generated
-src/dfa/dense.rs::method::DFA<T>.get_prefilter	method	missing	-	auto-generated
+src/dfa/dense.rs::method::DFA<T>.get_prefilter	method	ported	src/regex/automata/dfa.cr:DFA#get_prefilter;spec/dfa_dense_spec.cr	Accessor behavior is covered.
 src/dfa/dense.rs::method::DFA<T>.has_empty	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<T>.is_accel_state	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<T>.is_always_start_anchored	method	missing	-	auto-generated
@@ -144,7 +144,7 @@ src/dfa/dense.rs::method::DFA<T>.pattern_len	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<T>.pattern_map	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<T>.quit_id	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<T>.quitset	method	missing	-	auto-generated
-src/dfa/dense.rs::method::DFA<T>.set_prefilter	method	missing	-	auto-generated
+src/dfa/dense.rs::method::DFA<T>.set_prefilter	method	ported	src/regex/automata/dfa.cr:DFA#set_prefilter;spec/dfa_dense_spec.cr	Attach/clear behavior and flags are covered.
 src/dfa/dense.rs::method::DFA<T>.special	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<T>.special_mut	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<T>.start_kind	method	missing	-	auto-generated
