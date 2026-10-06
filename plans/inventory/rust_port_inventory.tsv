@@ -454,49 +454,49 @@ src/dfa/remapper.rs::method::Remapper.remap	method	missing	-	auto-generated
 src/dfa/remapper.rs::method::Remapper.swap	method	missing	-	auto-generated
 src/dfa/sparse.rs::const::LABEL	const	missing	-	auto-generated
 src/dfa/sparse.rs::const::VERSION	const	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<&'a [u8]>.from_bytes	method	missing	-	auto-generated
+src/dfa/sparse.rs::method::DFA<&'a [u8]>.from_bytes	method	ported	src/regex/automata/sparse.cr:Sparse::DFA.from_bytes;spec/dfa_sparse_spec.cr	Crystal checks and decodes the sparse envelope.
 src/dfa/sparse.rs::method::DFA<&'a [u8]>.from_bytes_unchecked	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<T>.accelerator	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<T>.as_ref	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<T>.byte_classes	method	missing	-	auto-generated
+src/dfa/sparse.rs::method::DFA<T>.accelerator	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#accelerator	Delegates accelerator bytes to dense DFA.
+src/dfa/sparse.rs::method::DFA<T>.as_ref	method	intentional_divergence	src/regex/automata/sparse.cr:Sparse::DFA#as_ref	Crystal objects are GC-managed; borrowed view is the same object.
+src/dfa/sparse.rs::method::DFA<T>.byte_classes	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#byte_classes;spec/dfa_sparse_spec.cr	Exposes dense byte-class map.
 src/dfa/sparse.rs::method::DFA<T>.fmt	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<T>.get_prefilter	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<T>.has_empty	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<T>.is_accel_state	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<T>.is_always_start_anchored	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<T>.is_dead_state	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<T>.is_match_state	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<T>.is_quit_state	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<T>.is_special_state	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<T>.is_start_state	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<T>.is_utf8	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<T>.match_len	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<T>.match_pattern	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<T>.memory_usage	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<T>.next_eoi_state	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<T>.next_state	method	missing	-	auto-generated
+src/dfa/sparse.rs::method::DFA<T>.get_prefilter	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#get_prefilter;spec/dfa_sparse_spec.cr	Delegates prefilter access to dense DFA.
+src/dfa/sparse.rs::method::DFA<T>.has_empty	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#has_empty?	Crystal predicate uses ? suffix.
+src/dfa/sparse.rs::method::DFA<T>.is_accel_state	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#is_accel_state?	Crystal predicate uses ? suffix.
+src/dfa/sparse.rs::method::DFA<T>.is_always_start_anchored	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#is_always_start_anchored?	Crystal predicate uses ? suffix.
+src/dfa/sparse.rs::method::DFA<T>.is_dead_state	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#is_dead_state?	Crystal predicate uses ? suffix.
+src/dfa/sparse.rs::method::DFA<T>.is_match_state	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#is_match_state?	Crystal predicate uses ? suffix.
+src/dfa/sparse.rs::method::DFA<T>.is_quit_state	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#is_quit_state?	Crystal predicate uses ? suffix.
+src/dfa/sparse.rs::method::DFA<T>.is_special_state	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#is_special_state?	Crystal predicate uses ? suffix.
+src/dfa/sparse.rs::method::DFA<T>.is_start_state	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#is_start_state?	Crystal predicate uses ? suffix.
+src/dfa/sparse.rs::method::DFA<T>.is_utf8	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#is_utf8?	Crystal predicate uses ? suffix.
+src/dfa/sparse.rs::method::DFA<T>.match_len	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#match_len	Delegates match count to dense DFA.
+src/dfa/sparse.rs::method::DFA<T>.match_pattern	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#match_pattern	Delegates pattern lookup to dense DFA.
+src/dfa/sparse.rs::method::DFA<T>.memory_usage	method	partial	src/regex/automata/sparse.cr:Sparse::DFA#memory_usage;spec/dfa_sparse_spec.cr	Reports serialized representation bytes, not Rust allocation-layout accounting.
+src/dfa/sparse.rs::method::DFA<T>.next_eoi_state	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#next_eoi_state	Delegates EOI transition to dense DFA.
+src/dfa/sparse.rs::method::DFA<T>.next_state	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#next_state	Delegates byte transition to dense DFA.
 src/dfa/sparse.rs::method::DFA<T>.next_state_unchecked	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<T>.pattern_len	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<T>.set_prefilter	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<T>.start_kind	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<T>.start_state	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<T>.starts_for_each_pattern	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<T>.to_bytes	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<T>.to_bytes_big_endian	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<T>.to_bytes_little_endian	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<T>.to_bytes_native_endian	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<T>.to_owned	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<T>.universal_start_state	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<T>.write_to	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<T>.write_to_big_endian	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<T>.write_to_len	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<T>.write_to_little_endian	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<T>.write_to_native_endian	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<Vec<u8>>.always_match	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<Vec<u8>>.from_dense	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<Vec<u8>>.never_match	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<Vec<u8>>.new	method	missing	-	auto-generated
-src/dfa/sparse.rs::method::DFA<Vec<u8>>.new_many	method	missing	-	auto-generated
+src/dfa/sparse.rs::method::DFA<T>.pattern_len	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#pattern_len	Delegates pattern count to dense DFA.
+src/dfa/sparse.rs::method::DFA<T>.set_prefilter	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#set_prefilter;spec/dfa_sparse_spec.cr	Delegates prefilter attachment to dense DFA.
+src/dfa/sparse.rs::method::DFA<T>.start_kind	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#start_kind;spec/dfa_sparse_spec.cr	Exposes the underlying start kind.
+src/dfa/sparse.rs::method::DFA<T>.start_state	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#start_state	Delegates StartConfig lookup to dense DFA.
+src/dfa/sparse.rs::method::DFA<T>.starts_for_each_pattern	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#starts_for_each_pattern;spec/dfa_sparse_spec.cr	Exposes per-pattern start-state configuration.
+src/dfa/sparse.rs::method::DFA<T>.to_bytes	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#to_bytes_native_endian;spec/dfa_sparse_spec.cr	Native-endian byte representation is supplied by the named Crystal helper.
+src/dfa/sparse.rs::method::DFA<T>.to_bytes_big_endian	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#to_bytes_big_endian;spec/dfa_sparse_spec.cr	Checked sparse serialization.
+src/dfa/sparse.rs::method::DFA<T>.to_bytes_little_endian	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#to_bytes_little_endian;spec/dfa_sparse_spec.cr	Checked sparse serialization.
+src/dfa/sparse.rs::method::DFA<T>.to_bytes_native_endian	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#to_bytes_native_endian;spec/dfa_sparse_spec.cr	Checked sparse serialization.
+src/dfa/sparse.rs::method::DFA<T>.to_owned	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#to_owned;spec/dfa_sparse_spec.cr	Crystal returns an independently decoded sparse DFA.
+src/dfa/sparse.rs::method::DFA<T>.universal_start_state	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#universal_start_state	Delegates universal start lookup to dense DFA.
+src/dfa/sparse.rs::method::DFA<T>.write_to	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#write_to_native_endian;spec/dfa_sparse_spec.cr	Native-endian output is supplied by the named Crystal helper.
+src/dfa/sparse.rs::method::DFA<T>.write_to_big_endian	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#write_to_big_endian;spec/dfa_sparse_spec.cr	Writes checked sparse serialization.
+src/dfa/sparse.rs::method::DFA<T>.write_to_len	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#write_to_len;spec/dfa_sparse_spec.cr	Reports required serialized output length.
+src/dfa/sparse.rs::method::DFA<T>.write_to_little_endian	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#write_to_little_endian;spec/dfa_sparse_spec.cr	Writes checked sparse serialization.
+src/dfa/sparse.rs::method::DFA<T>.write_to_native_endian	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#write_to_native_endian;spec/dfa_sparse_spec.cr	Writes checked sparse serialization.
+src/dfa/sparse.rs::method::DFA<Vec<u8>>.always_match	method	ported	src/regex/automata/sparse.cr:Sparse::DFA.always_match;spec/dfa_sparse_spec.cr	Sparse always-match constructor.
+src/dfa/sparse.rs::method::DFA<Vec<u8>>.from_dense	method	ported	src/regex/automata/sparse.cr:Sparse::DFA.from_dense;spec/dfa_sparse_spec.cr	Converts dense serialized representation into sparse wrapper.
+src/dfa/sparse.rs::method::DFA<Vec<u8>>.never_match	method	ported	src/regex/automata/sparse.cr:Sparse::DFA.never_match;spec/dfa_sparse_spec.cr	Sparse never-match constructor.
+src/dfa/sparse.rs::method::DFA<Vec<u8>>.new	method	ported	src/regex/automata/sparse.cr:Sparse::DFA.new;spec/dfa_sparse_spec.cr	Builds a sparse DFA via dense construction.
+src/dfa/sparse.rs::method::DFA<Vec<u8>>.new_many	method	ported	src/regex/automata/sparse.cr:Sparse::DFA.new_many	Builds a multi-pattern sparse DFA via dense construction.
 src/dfa/sparse.rs::method::Seen.contains	method	missing	-	auto-generated
 src/dfa/sparse.rs::method::Seen.insert	method	missing	-	auto-generated
 src/dfa/sparse.rs::method::Seen.new	method	missing	-	auto-generated
