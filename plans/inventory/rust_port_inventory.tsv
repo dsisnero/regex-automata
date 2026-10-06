@@ -1525,25 +1525,25 @@ src/util/determinize/state.rs::method::StateBuilderEmpty.capacity	method	ported	
 src/util/determinize/state.rs::method::StateBuilderEmpty.clear	method	ported	src/regex/automata/determinize_state.cr:StateBuilderEmpty#clear	Builder reuse clears the representation.
 src/util/determinize/state.rs::method::StateBuilderEmpty.into_matches	method	ported	src/regex/automata/determinize_state.cr:StateBuilderEmpty#into_matches;spec/determinize_state_spec.cr	Builder phase transition is covered.
 src/util/determinize/state.rs::method::StateBuilderEmpty.new	method	ported	src/regex/automata/determinize_state.cr:StateBuilderEmpty#initialize;spec/determinize_state_spec.cr	Empty construction is covered.
-src/util/determinize/state.rs::method::StateBuilderMatches.add_match_pattern_id	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::StateBuilderMatches.fmt	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::StateBuilderMatches.into_nfa	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::StateBuilderMatches.look_have	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::StateBuilderMatches.repr	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::StateBuilderMatches.repr_vec	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::StateBuilderMatches.set_is_from_word	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::StateBuilderMatches.set_is_half_crlf	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::StateBuilderMatches.set_look_have	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::StateBuilderNFA.add_nfa_state_id	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::StateBuilderNFA.as_bytes	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::StateBuilderNFA.clear	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::StateBuilderNFA.fmt	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::StateBuilderNFA.look_need	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::StateBuilderNFA.repr	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::StateBuilderNFA.repr_vec	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::StateBuilderNFA.set_look_have	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::StateBuilderNFA.set_look_need	method	missing	-	auto-generated
-src/util/determinize/state.rs::method::StateBuilderNFA.to_state	method	missing	-	auto-generated
+src/util/determinize/state.rs::method::StateBuilderMatches.add_match_pattern_id	method	ported	src/regex/automata/determinize_state.cr:StateBuilderMatches#add_match_pattern_id;spec/determinize_state_spec.cr	Pattern encoding is covered.
+src/util/determinize/state.rs::method::StateBuilderMatches.fmt	method	ported	src/regex/automata/determinize_state.cr:StateBuilderMatches#inspect	Equivalent inspection is implemented.
+src/util/determinize/state.rs::method::StateBuilderMatches.into_nfa	method	ported	src/regex/automata/determinize_state.cr:StateBuilderMatches#into_nfa;spec/determinize_state_spec.cr	Builder phase transition is covered.
+src/util/determinize/state.rs::method::StateBuilderMatches.look_have	method	ported	src/regex/automata/determinize_state.cr:StateBuilderMatches#look_have;spec/determinize_state_spec.cr	Look set access is covered.
+src/util/determinize/state.rs::method::StateBuilderMatches.repr	method	ported	src/regex/automata/determinize_state.cr:StateBuilderMatches#repr	Private representation view is implemented.
+src/util/determinize/state.rs::method::StateBuilderMatches.repr_vec	method	ported	src/regex/automata/determinize_state.cr:StateBuilderMatches#repr_vec	Private mutable representation view is implemented.
+src/util/determinize/state.rs::method::StateBuilderMatches.set_is_from_word	method	ported	src/regex/automata/determinize_state.cr:StateBuilderMatches#set_is_from_word;spec/determinize_state_spec.cr	Flag behavior is covered.
+src/util/determinize/state.rs::method::StateBuilderMatches.set_is_half_crlf	method	ported	src/regex/automata/determinize_state.cr:StateBuilderMatches#set_is_half_crlf;spec/determinize_state_spec.cr	Flag behavior is covered.
+src/util/determinize/state.rs::method::StateBuilderMatches.set_look_have	method	ported	src/regex/automata/determinize_state.cr:StateBuilderMatches#set_look_have;spec/determinize_state_spec.cr	Look-set mutation is covered.
+src/util/determinize/state.rs::method::StateBuilderNFA.add_nfa_state_id	method	ported	src/regex/automata/determinize_state.cr:StateBuilderNFA#add_nfa_state_id;spec/determinize_state_spec.cr	Signed-delta encoding is covered.
+src/util/determinize/state.rs::method::StateBuilderNFA.as_bytes	method	ported	src/regex/automata/determinize_state.cr:StateBuilderNFA#as_bytes	Representation access is implemented.
+src/util/determinize/state.rs::method::StateBuilderNFA.clear	method	ported	src/regex/automata/determinize_state.cr:StateBuilderNFA#clear;spec/determinize_state_spec.cr	Reuse and retained capacity are covered.
+src/util/determinize/state.rs::method::StateBuilderNFA.fmt	method	ported	src/regex/automata/determinize_state.cr:StateBuilderNFA#inspect	Equivalent inspection is implemented.
+src/util/determinize/state.rs::method::StateBuilderNFA.look_need	method	ported	src/regex/automata/determinize_state.cr:StateBuilderNFA#look_need;spec/determinize_state_spec.cr	Look set access is covered.
+src/util/determinize/state.rs::method::StateBuilderNFA.repr	method	ported	src/regex/automata/determinize_state.cr:StateBuilderNFA#repr	Private representation view is implemented.
+src/util/determinize/state.rs::method::StateBuilderNFA.repr_vec	method	ported	src/regex/automata/determinize_state.cr:StateBuilderNFA#repr_vec	Private mutable representation view is implemented.
+src/util/determinize/state.rs::method::StateBuilderNFA.set_look_have	method	ported	src/regex/automata/determinize_state.cr:StateBuilderNFA#set_look_have;spec/determinize_state_spec.cr	Look-set mutation is covered.
+src/util/determinize/state.rs::method::StateBuilderNFA.set_look_need	method	ported	src/regex/automata/determinize_state.cr:StateBuilderNFA#set_look_need;spec/determinize_state_spec.cr	Look-set mutation is covered.
+src/util/determinize/state.rs::method::StateBuilderNFA.to_state	method	ported	src/regex/automata/determinize_state.cr:StateBuilderNFA#to_state;spec/determinize_state_spec.cr	Frozen state construction is covered.
 src/util/escape.rs::method::DebugByte.fmt	method	ported	src/regex/automata/escape.cr:DebugByte#inspect;spec/escape_spec.cr	ASCII, escape, and uppercase hex rendering are covered.
 src/util/escape.rs::method::DebugHaystack<'a>.fmt	method	ported	src/regex/automata/escape.cr:DebugHaystack#inspect;spec/escape_spec.cr	UTF-8, invalid bytes, quote/backslash, and controls are covered.
 src/util/int.rs::method::*const T.as_usize	method	intentional_divergence	-	Rust-private pointer cast auditing has no Crystal pointer conversion use.
