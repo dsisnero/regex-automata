@@ -31,6 +31,20 @@ describe Regex::Automata::Prefilter do
     )
   end
 
+  it "never returns a candidate outside the supplied search span" do
+    haystack = "needle...needle".to_slice
+    pre = Regex::Automata::Prefilter.new(
+      Regex::Automata::MatchKind::LeftmostFirst,
+      ["needle"]
+    ).not_nil!
+
+    pre.find(haystack, Regex::Automata::Span.new(1, 9)).should be_nil
+    pre.find(haystack, Regex::Automata::Span.new(1, haystack.size)).should eq(
+      Regex::Automata::Span.new(9, 15)
+    )
+    pre.prefix(haystack, Regex::Automata::Span.new(1, haystack.size)).should be_nil
+  end
+
   it "extracts prefix literals from HIRs" do
     hir = Regex::Syntax.parse("(Bruce|Patti) \\w+")
     pre = Regex::Automata::Prefilter.from_hir_prefix(
