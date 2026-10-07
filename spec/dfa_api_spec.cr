@@ -5,73 +5,26 @@ require "../src/regex/automata/search"
 describe "DFA API" do
   describe "quit bytes" do
     it "handles quit bytes in forward direction" do
-      # Test that quit bytes in the forward direction work correctly.
-      # This corresponds to the Rust test `quit_fwd` in tests/dfa/api.rs
-
-      # First, test that DFA works without quit bytes
-      # Use a simpler pattern: "abc"
-      dfa_no_quit = Regex::Automata::DFA::Builder.new
-        .build("abc")
-
-      # This should match "abc"
-      result = dfa_no_quit.try_search_fwd("abcxyz".to_slice)
-      result.should_not be_nil
-      result.should_not be_a(Regex::Automata::MatchError)
-      if match = result.as?(Tuple(Int32, Array(Regex::Automata::PatternID)))
-        # match is a Tuple(Int32, Array(PatternID))
-        end_pos, pattern_ids = match
-        end_pos.should eq(3) # "abc" ends at position 3
-      end
-
-      # Now test with quit byte 'x'
-      config = Regex::Automata::Config.new.quit('x'.ord.to_u8, true)
-
       dfa = Regex::Automata::DFA::Builder.new
-        .configure(config)
-        .build("abc")
+        .configure(Regex::Automata::Config.new.quit('x'.ord.to_u8, true))
+        .build("[[:word:]]+$")
+      input = Regex::Automata::Input.new("abcxyz")
+      expected = Regex::Automata::MatchError.quit('x'.ord.to_u8, 3)
 
-      # Test forward search with quit byte
-      # The input is "abcxyz", pattern is "abc"
-      # The DFA should match "abc" (positions 0-2) and NOT see 'x' at position 3
-      # because it stops after matching "abc"
-      # Actually, for quit bytes to be tested, we need a pattern that would
-      # normally continue past 'x'. Let me use pattern "abcd" instead.
-      # With pattern "abcd", when searching "abcxyz", it will see 'x' at position 3
-      # and should quit.
+      dfa.try_search_fwd(input).should eq(expected)
 
-      dfa2 = Regex::Automata::DFA::Builder.new
-        .configure(config)
-        .build("abcd")
-
-      result = dfa2.try_search_fwd("abcxyz".to_slice)
-
-      # Check that we got a MatchError::quit
-      result.should be_a(Regex::Automata::MatchError)
-
-      error = result.as(Regex::Automata::MatchError)
-      error.quit?.should be_true
-      error.byte.should eq('x'.ord.to_u8)
-      error.offset.should eq(3)
+      state = Regex::Automata::OverlappingState.start
+      dfa.try_search_overlapping_fwd(input, state).should eq(expected)
     end
 
     it "handles quit bytes in reverse direction" do
-      # Test that quit bytes in the reverse direction work correctly.
-      # This corresponds to the Rust test `quit_rev` in tests/dfa/api.rs
-      # Note: Using [a-z] instead of [[:word:]] because POSIX classes may not be supported
-
       dfa = Regex::Automata::DFA::Builder.new
         .configure { |config| config.quit('x'.ord.to_u8, true) }
         .thompson { |config| config.reverse(true) }
-        .build("[a-z]+") # Character class a-z (similar to [[:word:]] for ASCII)
+        .build("^[[:word:]]+")
 
-      result = dfa.try_search_rev("abcxyz".to_slice)
-
-      result.should be_a(Regex::Automata::MatchError)
-
-      error = result.as(Regex::Automata::MatchError)
-      error.quit?.should be_true
-      error.byte.should eq('x'.ord.to_u8)
-      error.offset.should eq(3)
+      dfa.try_search_rev(Regex::Automata::Input.new("abcxyz"))
+        .should eq(Regex::Automata::MatchError.quit('x'.ord.to_u8, 3))
     end
 
     it "panics when Unicode word boundaries conflict with quit configuration" do
@@ -100,20 +53,8 @@ describe "DFA API" do
 
       dfa = Regex::Automata::DFA::Builder.new.configure(config).build("\\b")
 
-      # Search for word boundary
-      result = dfa.try_search_fwd(" a".to_slice)
-
-      # Should get a match (not a quit error)
-      result.should_not be_nil
-      result.should_not be_a(Regex::Automata::MatchError)
-
-      if match = result.as?(Tuple(Int32, Array(Regex::Automata::PatternID)))
-        end_pos, pattern_ids = match
-        # We should get a match (either at position 0 or 1)
-        # The important part is that Unicode word boundaries were implicitly enabled
-        end_pos.should be >= 0
-        pattern_ids.should eq([Regex::Automata::PatternID.new(0)])
-      end
+      dfa.try_search_fwd(Regex::Automata::Input.new(" a"))
+        .should eq(Regex::Automata::HalfMatch.must(0, 1))
     end
   end
 
