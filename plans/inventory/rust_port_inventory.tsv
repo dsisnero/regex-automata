@@ -780,10 +780,10 @@ src/meta/regex.rs::method::CapturesMatches<'r, 'h>.count	method	missing	-	auto-g
 src/meta/regex.rs::method::CapturesMatches<'r, 'h>.input	method	missing	-	auto-generated
 src/meta/regex.rs::method::CapturesMatches<'r, 'h>.next	method	missing	-	auto-generated
 src/meta/regex.rs::method::CapturesMatches<'r, 'h>.regex	method	missing	-	auto-generated
-src/meta/regex.rs::method::Config.auto_prefilter	method	missing	-	auto-generated
-src/meta/regex.rs::method::Config.backtrack	method	missing	-	auto-generated
-src/meta/regex.rs::method::Config.byte_classes	method	missing	-	auto-generated
-src/meta/regex.rs::method::Config.dfa	method	missing	-	auto-generated
+src/meta/regex.rs::method::Config.auto_prefilter	method	ported	src/regex/automata/meta.cr:Config#auto_prefilter;spec/meta_regex_spec.cr	Explicit automatic-prefilter control is preserved.
+src/meta/regex.rs::method::Config.backtrack	method	ported	src/regex/automata/meta.cr:Config#backtrack;spec/meta_regex_spec.cr	Explicit engine availability control is preserved.
+src/meta/regex.rs::method::Config.byte_classes	method	ported	src/regex/automata/meta.cr:Config#byte_classes;spec/meta_regex_spec.cr	Explicit byte-class control is preserved.
+src/meta/regex.rs::method::Config.dfa	method	ported	src/regex/automata/meta.cr:Config#dfa;spec/meta_regex_spec.cr	Explicit engine availability control is preserved.
 src/meta/regex.rs::method::Config.dfa_size_limit	method	ported	src/regex/automata/meta.cr:Config#dfa_size_limit;spec/meta_regex_spec.cr	Tracks explicit nil separately from an unset default.
 src/meta/regex.rs::method::Config.dfa_state_limit	method	ported	src/regex/automata/meta.cr:Config#dfa_state_limit;spec/meta_regex_spec.cr	Tracks explicit nil separately from an unset default.
 src/meta/regex.rs::method::Config.get_auto_prefilter	method	missing	-	auto-generated
