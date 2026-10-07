@@ -26,9 +26,9 @@ src/dfa/accel.rs::method::Accels<A>.to_owned	method	ported	src/regex/automata/ac
 src/dfa/accel.rs::method::Accels<A>.validate	method	ported	src/regex/automata/accel.cr:Accels#validate;spec/accel_spec.cr	Validates every fixed accelerator record.
 src/dfa/accel.rs::method::Accels<A>.write_to	method	ported	src/regex/automata/accel.cr:Accels#write_to;spec/accel_spec.cr	Writes serialized bytes to a destination slice.
 src/dfa/accel.rs::method::Accels<A>.write_to_len	method	ported	src/regex/automata/accel.cr:Accels#write_to_len;spec/accel_spec.cr	Reports serialized write length.
-src/dfa/accel.rs::method::Accels<Vec<AccelTy>>.add	method	missing	-	auto-generated
-src/dfa/accel.rs::method::Accels<Vec<AccelTy>>.empty	method	missing	-	auto-generated
-src/dfa/accel.rs::method::Accels<Vec<AccelTy>>.set_len	method	missing	-	auto-generated
+src/dfa/accel.rs::method::Accels<Vec<AccelTy>>.add	method	ported	src/regex/automata/accel.cr:Accels#add;spec/accel_spec.cr	Appends fixed accelerator units and updates the length prefix.
+src/dfa/accel.rs::method::Accels<Vec<AccelTy>>.empty	method	ported	src/regex/automata/accel.cr:Accels.empty;spec/accel_spec.cr	Creates a zero-length prefix collection.
+src/dfa/accel.rs::method::Accels<Vec<AccelTy>>.set_len	method	ported	src/regex/automata/accel.cr:Accels#add;spec/accel_spec.cr	Length-prefix update is internal to Crystal add.
 src/dfa/accel.rs::method::IterAccels<'a, A>.next	method	missing	-	auto-generated
 src/dfa/automaton.rs::method::&'a A.accelerator	method	missing	-	auto-generated
 src/dfa/automaton.rs::method::&'a A.get_prefilter	method	intentional_divergence	src/regex/automata/automaton.cr:Automaton#get_prefilter	Crystal dynamic dispatch does not require Rust reference forwarding.
