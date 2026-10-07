@@ -74,13 +74,13 @@ src/dfa/dense.rs::method::BuildError.too_many_match_pattern_ids	method	partial	s
 src/dfa/dense.rs::method::BuildError.too_many_start_states	method	partial	src/regex/automata/errors.cr:BuildError	Hard-limit failures use generic BuildError messages.
 src/dfa/dense.rs::method::BuildError.too_many_states	method	partial	src/regex/automata/errors.cr:BuildError	Hard-limit failures use generic BuildError messages.
 src/dfa/dense.rs::method::BuildError.unsupported_dfa_word_boundary_unicode	method	partial	src/regex/automata/errors.cr:BuildError;spec/dfa_dense_spec.cr	Unsupported Unicode-boundary builds are classified, without Rust's dense-private constructor.
-src/dfa/dense.rs::method::Builder.build	method	missing	-	auto-generated
-src/dfa/dense.rs::method::Builder.build_from_nfa	method	missing	-	auto-generated
-src/dfa/dense.rs::method::Builder.build_many	method	missing	-	auto-generated
+src/dfa/dense.rs::method::Builder.build	method	ported	src/regex/automata/dfa.cr:Builder#build;spec/dfa_dense_spec.cr	Parses one pattern, compiles an NFA without captures, then determinizes it.
+src/dfa/dense.rs::method::Builder.build_from_nfa	method	ported	src/regex/automata/dfa.cr:Builder.from_nfa;src/regex/automata/dfa.cr:Builder#build;spec/dfa_dense_spec.cr	Crystal binds the NFA when constructing the builder and then builds it with the same configuration.
+src/dfa/dense.rs::method::Builder.build_many	method	ported	src/regex/automata/dfa.cr:Builder#build_many;spec/dfa_dense_spec.cr	Compiles the supplied patterns without captures and preserves their pattern IDs.
 src/dfa/dense.rs::method::Builder.configure	method	ported	src/regex/automata/dfa.cr:Builder#configure;spec/dfa_dense_spec.cr	Successive configuration calls merge with vendored precedence.
-src/dfa/dense.rs::method::Builder.default	method	missing	-	auto-generated
-src/dfa/dense.rs::method::Builder.new	method	missing	-	auto-generated
-src/dfa/dense.rs::method::Builder.syntax	method	missing	-	auto-generated
+src/dfa/dense.rs::method::Builder.default	method	ported	src/regex/automata/dfa.cr:Builder.new;spec/dfa_dense_spec.cr	Crystal's default constructor supplies the vendored default configuration.
+src/dfa/dense.rs::method::Builder.new	method	ported	src/regex/automata/dfa.cr:Builder.new;spec/dfa_dense_spec.cr	Creates a builder with the vendored default configuration.
+src/dfa/dense.rs::method::Builder.syntax	method	ported	src/regex/automata/dfa.cr:Builder#syntax;spec/dfa_dense_spec.cr	Configures the syntax parser before HIR compilation.
 src/dfa/dense.rs::method::Builder.thompson	method	ported	src/regex/automata/dfa.cr:Builder#thompson;spec/dfa_dense_spec.cr	Successive Thompson configuration calls retain prior settings.
 src/dfa/dense.rs::method::Config.accelerate	method	ported	src/regex/automata/config.cr:Config#accelerate;spec/dfa_dense_spec.cr	Configuration setter and default are covered.
 src/dfa/dense.rs::method::Config.byte_classes	method	ported	src/regex/automata/config.cr:Config#byte_classes;spec/dfa_dense_spec.cr	Configuration setter and default are covered.
