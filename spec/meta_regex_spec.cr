@@ -266,6 +266,16 @@ describe Regex::Automata::Meta::Regex do
     end
   end
 
+  it "applies Rust's reverse-inner safety admission rules" do
+    ["\\w+@\\w+", "[A-Z][0-9]@(foo|bar)", "\\w+\\s+Holmes\\s+\\w+", "\\s[A-Za-z]{0,12}ing\\s"].each do |pattern|
+      Regex::Automata::Meta::Regex.new(pattern).is_accelerated.should be_true
+    end
+
+    ["\\s[\\sA-Za-z]{0,12}ing\\s", "\\s*[A-Za-z]{0,12}ing\\s"].each do |pattern|
+      Regex::Automata::Meta::Regex.new(pattern).is_accelerated.should be_false
+    end
+  end
+
   it "disables the large alternation literal bypass when auto prefilters are off" do
     pattern = large_literal_alternation(1000)
     re = Regex::Automata::Meta::Regex.builder

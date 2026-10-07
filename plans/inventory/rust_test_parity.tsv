@@ -51,11 +51,11 @@ src/meta/strategy.rs::test::reverse_anchored_accepts_hybrid_without_full_dfa	por
 src/meta/strategy.rs::test::reverse_anchored_accepts_multiple_end_anchored_patterns	ported	spec/meta_regex_spec.cr	Ports reverse-anchored admission for the upstream Holmes/Watson multi-pattern set.
 src/meta/strategy.rs::test::reverse_anchored_rejects_start_and_end_anchored	ported	spec/meta_regex_spec.cr	Ports rejection of reverse-anchored acceleration for ^\\w+Holmes$.
 src/meta/strategy.rs::test::reverse_anchored_rejects_without_reverse_engine	ported	spec/meta_regex_spec.cr	Ports rejection when both dense and hybrid reverse engines are disabled.
-src/meta/strategy.rs::test::reverse_inner_accepts_disjoint_class_separator	missing	-	baseline
-src/meta/strategy.rs::test::reverse_inner_accepts_disjoint_inner_literal	missing	-	baseline
-src/meta/strategy.rs::test::reverse_inner_accepts_fixed_length_prefix	missing	-	baseline
-src/meta/strategy.rs::test::reverse_inner_accepts_leading_disjoint_class_separator	missing	-	baseline
-src/meta/strategy.rs::test::reverse_inner_leading_class_separator_is_conservative	missing	-	baseline
+src/meta/strategy.rs::test::reverse_inner_accepts_disjoint_class_separator	partial	spec/meta_regex_spec.cr	Public disjoint-separator admission is covered; Rust's private strategy label is not exposed.
+src/meta/strategy.rs::test::reverse_inner_accepts_disjoint_inner_literal	partial	spec/meta_regex_spec.cr	Public disjoint-inner-literal admission is covered; Rust's private strategy label is not exposed.
+src/meta/strategy.rs::test::reverse_inner_accepts_fixed_length_prefix	partial	spec/meta_regex_spec.cr	Public fixed-length-prefix admission is covered; Rust's private strategy label is not exposed.
+src/meta/strategy.rs::test::reverse_inner_accepts_leading_disjoint_class_separator	partial	spec/meta_regex_spec.cr	Public leading-separator admission is covered; Rust's private strategy label is not exposed.
+src/meta/strategy.rs::test::reverse_inner_leading_class_separator_is_conservative	partial	spec/meta_regex_spec.cr	Conservative public rejection is covered; Rust's private strategy label is not exposed.
 src/meta/strategy.rs::test::reverse_inner_rejects_anchored_start	missing	-	baseline
 src/meta/strategy.rs::test::reverse_inner_rejects_auto_prefilter_disabled	missing	-	baseline
 src/meta/strategy.rs::test::reverse_inner_rejects_existing_fast_prefilter	missing	-	baseline
