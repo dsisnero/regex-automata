@@ -86,7 +86,7 @@ src/meta/strategy.rs::test::reverse_suffix_rejects_safe_nfa_overlap	partial	spec
 src/meta/strategy.rs::test::reverse_suffix_rejects_unsafe_overlap	partial	spec/meta_regex_spec.cr	Public unsafe-overlap rejection is covered.
 src/meta/strategy.rs::test::reverse_suffix_rejects_variable_length_prefix	partial	spec/meta_regex_spec.cr	Public variable-prefix rejection is covered; Rust's private strategy label is not exposed.
 src/meta/strategy.rs::test::reverse_suffix_rejects_without_reverse_engine	partial	spec/meta_regex_spec.cr	Public no-reverse-engine guard is covered; Rust's private strategy label is not exposed.
-src/nfa/thompson/backtrack.rs::test::max_haystack_len_overflow	missing	-	baseline
+src/nfa/thompson/backtrack.rs::test::max_haystack_len_overflow	ported	spec/backtrack_spec.cr	Ports the undersized visited-capacity regression with max haystack length zero.
 src/nfa/thompson/builder.rs::test::state_has_small_size	intentional_divergence	src/regex/automata/nfa.cr	Rust-only State struct size assertion; Crystal object layout is not a behavioral contract.
 src/nfa/thompson/compiler.rs::test::compile_alternation	ported	spec/nfa_thompson_spec.cr;spec/nfa_thompson_representation_spec.cr	Ports alternation lowering.
 src/nfa/thompson/compiler.rs::test::compile_captures_all	ported	spec/nfa_thompson_spec.cr	Ports all-captures policy.
