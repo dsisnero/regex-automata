@@ -307,75 +307,75 @@ src/dfa/onepass.rs::const::SLOT_SHIFT	const	missing	-	auto-generated
 src/dfa/onepass.rs::const::STATE_ID_BITS	const	missing	-	auto-generated
 src/dfa/onepass.rs::const::STATE_ID_LIMIT	const	missing	-	auto-generated
 src/dfa/onepass.rs::const::STATE_ID_SHIFT	const	missing	-	auto-generated
-src/dfa/onepass.rs::method::BuildError.exceeded_size_limit	method	missing	-	auto-generated
+src/dfa/onepass.rs::method::BuildError.exceeded_size_limit	method	ported	src/regex/automata/onepass.cr:OnePass::BuildError.exceeded_size_limit;spec/dfa_onepass_spec.cr	Crystal exposes size-limit build errors.
 src/dfa/onepass.rs::method::BuildError.fmt	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::BuildError.nfa	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::BuildError.not_one_pass	method	missing	-	auto-generated
+src/dfa/onepass.rs::method::BuildError.not_one_pass	method	ported	src/regex/automata/onepass.cr:OnePass::BuildError.not_one_pass;spec/dfa_onepass_spec.cr	Crystal exposes one-pass admission errors.
 src/dfa/onepass.rs::method::BuildError.source	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::BuildError.too_many_patterns	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::BuildError.too_many_states	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::BuildError.unsupported_look	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::BuildError.word	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::Builder.build	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::Builder.build_from_nfa	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::Builder.build_many	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::Builder.configure	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::Builder.new	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::Builder.syntax	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::Builder.thompson	method	missing	-	auto-generated
+src/dfa/onepass.rs::method::Builder.build	method	ported	src/regex/automata/onepass.cr:OnePass::Builder#build;spec/dfa_onepass_spec.cr	Builds a one-pass-compatible engine facade.
+src/dfa/onepass.rs::method::Builder.build_from_nfa	method	ported	src/regex/automata/onepass.cr:OnePass::Builder#build_from_nfa;spec/dfa_onepass_spec.cr	Builds from an NFA.
+src/dfa/onepass.rs::method::Builder.build_many	method	ported	src/regex/automata/onepass.cr:OnePass::Builder#build_many;spec/dfa_onepass_spec.cr	Builds multi-pattern facade.
+src/dfa/onepass.rs::method::Builder.configure	method	ported	src/regex/automata/onepass.cr:OnePass::Builder#configure;spec/dfa_onepass_spec.cr	Applies one-pass configuration.
+src/dfa/onepass.rs::method::Builder.new	method	ported	src/regex/automata/onepass.cr:OnePass::Builder#initialize	Crystal constructor provides builder defaults.
+src/dfa/onepass.rs::method::Builder.syntax	method	ported	src/regex/automata/onepass.cr:OnePass::Builder#syntax;spec/dfa_onepass_spec.cr	Configures syntax parsing.
+src/dfa/onepass.rs::method::Builder.thompson	method	ported	src/regex/automata/onepass.cr:OnePass::Builder#thompson;spec/dfa_onepass_spec.cr	Configures Thompson compilation.
 src/dfa/onepass.rs::method::Cache.explicit_slots	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::Cache.memory_usage	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::Cache.new	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::Cache.reset	method	missing	-	auto-generated
+src/dfa/onepass.rs::method::Cache.memory_usage	method	partial	src/regex/automata/onepass.cr:OnePass::Cache#memory_usage;spec/dfa_onepass_spec.cr	Reports delegated PikeVM cache footprint, not native one-pass cache layout.
+src/dfa/onepass.rs::method::Cache.new	method	ported	src/regex/automata/onepass.cr:OnePass::Cache#initialize;spec/dfa_onepass_spec.cr	Creates a reusable search cache.
+src/dfa/onepass.rs::method::Cache.reset	method	ported	src/regex/automata/onepass.cr:OnePass::Cache#reset;spec/dfa_onepass_spec.cr	Resets cache across compatible facade DFAs.
 src/dfa/onepass.rs::method::Cache.setup_search	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::Config.byte_classes	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::Config.get_byte_classes	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::Config.get_match_kind	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::Config.get_size_limit	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::Config.get_starts_for_each_pattern	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::Config.match_kind	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::Config.new	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::Config.overwrite	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::Config.size_limit	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::Config.starts_for_each_pattern	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::DFA.alphabet_len	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::DFA.always_match	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::DFA.builder	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::DFA.captures	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::DFA.config	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::DFA.create_cache	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::DFA.create_captures	method	missing	-	auto-generated
+src/dfa/onepass.rs::method::Config.byte_classes	method	ported	src/regex/automata/onepass.cr:OnePass::Config#byte_classes;spec/dfa_onepass_spec.cr	Sets byte-class option.
+src/dfa/onepass.rs::method::Config.get_byte_classes	method	ported	src/regex/automata/onepass.cr:OnePass::Config#get_byte_classes;spec/dfa_onepass_spec.cr	Returns effective byte-class option.
+src/dfa/onepass.rs::method::Config.get_match_kind	method	ported	src/regex/automata/onepass.cr:OnePass::Config#get_match_kind;spec/dfa_onepass_spec.cr	Returns effective match kind.
+src/dfa/onepass.rs::method::Config.get_size_limit	method	ported	src/regex/automata/onepass.cr:OnePass::Config#get_size_limit;spec/dfa_onepass_spec.cr	Returns optional size limit.
+src/dfa/onepass.rs::method::Config.get_starts_for_each_pattern	method	ported	src/regex/automata/onepass.cr:OnePass::Config#get_starts_for_each_pattern;spec/dfa_onepass_spec.cr	Returns effective per-pattern starts option.
+src/dfa/onepass.rs::method::Config.match_kind	method	ported	src/regex/automata/onepass.cr:OnePass::Config#match_kind;spec/dfa_onepass_spec.cr	Sets match kind.
+src/dfa/onepass.rs::method::Config.new	method	ported	src/regex/automata/onepass.cr:OnePass::Config#initialize;spec/dfa_onepass_spec.cr	Crystal constructor provides defaults.
+src/dfa/onepass.rs::method::Config.overwrite	method	ported	src/regex/automata/onepass.cr:OnePass::Config#overwrite;spec/dfa_onepass_spec.cr	Merges option overrides.
+src/dfa/onepass.rs::method::Config.size_limit	method	ported	src/regex/automata/onepass.cr:OnePass::Config#size_limit;spec/dfa_onepass_spec.cr	Sets optional size limit.
+src/dfa/onepass.rs::method::Config.starts_for_each_pattern	method	ported	src/regex/automata/onepass.cr:OnePass::Config#starts_for_each_pattern;spec/dfa_onepass_spec.cr	Sets per-pattern starts option.
+src/dfa/onepass.rs::method::DFA.alphabet_len	method	partial	src/regex/automata/onepass.cr:OnePass::DFA#alphabet_len;spec/dfa_onepass_spec.cr	Reports configured byte-class alphabet; native table absent.
+src/dfa/onepass.rs::method::DFA.always_match	method	ported	src/regex/automata/onepass.cr:OnePass::DFA.always_match;spec/dfa_onepass_spec.cr	Always-match constructor.
+src/dfa/onepass.rs::method::DFA.builder	method	ported	src/regex/automata/onepass.cr:OnePass::DFA.builder;spec/dfa_onepass_spec.cr	Returns a builder.
+src/dfa/onepass.rs::method::DFA.captures	method	ported	src/regex/automata/onepass.cr:OnePass::DFA#captures;spec/dfa_onepass_spec.cr	Writes capture slots for anchored search.
+src/dfa/onepass.rs::method::DFA.config	method	ported	src/regex/automata/onepass.cr:OnePass::DFA.config;spec/dfa_onepass_spec.cr	Returns default configuration.
+src/dfa/onepass.rs::method::DFA.create_cache	method	ported	src/regex/automata/onepass.cr:OnePass::DFA#create_cache;spec/dfa_onepass_spec.cr	Creates search cache.
+src/dfa/onepass.rs::method::DFA.create_captures	method	ported	src/regex/automata/onepass.cr:OnePass::DFA#create_captures;spec/dfa_onepass_spec.cr	Creates capture container.
 src/dfa/onepass.rs::method::DFA.debug_state_transitions	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::DFA.find	method	missing	-	auto-generated
+src/dfa/onepass.rs::method::DFA.find	method	ported	src/regex/automata/onepass.cr:OnePass::DFA#find;spec/dfa_onepass_spec.cr	Finds an anchored leftmost match.
 src/dfa/onepass.rs::method::DFA.find_match	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::DFA.fmt	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::DFA.get_config	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::DFA.get_nfa	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::DFA.is_match	method	missing	-	auto-generated
+src/dfa/onepass.rs::method::DFA.get_config	method	ported	src/regex/automata/onepass.cr:OnePass::DFA#get_config;spec/dfa_onepass_spec.cr	Returns configuration.
+src/dfa/onepass.rs::method::DFA.get_nfa	method	ported	src/regex/automata/onepass.cr:OnePass::DFA#get_nfa;spec/dfa_onepass_spec.cr	Returns source NFA.
+src/dfa/onepass.rs::method::DFA.is_match	method	ported	src/regex/automata/onepass.cr:OnePass::DFA#is_match;spec/dfa_onepass_spec.cr	Performs anchored existence search.
 src/dfa/onepass.rs::method::DFA.last_state_id	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::DFA.memory_usage	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::DFA.never_match	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::DFA.new	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::DFA.new_from_nfa	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::DFA.new_many	method	missing	-	auto-generated
+src/dfa/onepass.rs::method::DFA.memory_usage	method	partial	src/regex/automata/onepass.cr:OnePass::DFA#memory_usage;spec/dfa_onepass_spec.cr	Reports NFA-backed facade memory, not native DFA layout.
+src/dfa/onepass.rs::method::DFA.never_match	method	ported	src/regex/automata/onepass.cr:OnePass::DFA.never_match;spec/dfa_onepass_spec.cr	Never-match constructor.
+src/dfa/onepass.rs::method::DFA.new	method	ported	src/regex/automata/onepass.cr:OnePass::DFA.new;spec/dfa_onepass_spec.cr	Builds a one-pass-compatible facade.
+src/dfa/onepass.rs::method::DFA.new_from_nfa	method	ported	src/regex/automata/onepass.cr:OnePass::DFA.new_from_nfa;spec/dfa_onepass_spec.cr	Builds facade from NFA.
+src/dfa/onepass.rs::method::DFA.new_many	method	ported	src/regex/automata/onepass.cr:OnePass::DFA.new_many;spec/dfa_onepass_spec.cr	Builds multi-pattern facade.
 src/dfa/onepass.rs::method::DFA.pattern_epsilons	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::DFA.pattern_len	method	missing	-	auto-generated
+src/dfa/onepass.rs::method::DFA.pattern_len	method	ported	src/regex/automata/onepass.cr:OnePass::DFA#pattern_len;spec/dfa_onepass_spec.cr	Reports pattern count.
 src/dfa/onepass.rs::method::DFA.prev_state_id	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::DFA.remap	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::DFA.reset_cache	method	missing	-	auto-generated
+src/dfa/onepass.rs::method::DFA.reset_cache	method	ported	src/regex/automata/onepass.cr:OnePass::DFA#reset_cache;spec/dfa_onepass_spec.cr	Resets a cache.
 src/dfa/onepass.rs::method::DFA.search_imp	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::DFA.set_pattern_epsilons	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::DFA.set_transition	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::DFA.sparse_transitions	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::DFA.start	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::DFA.start_pattern	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::DFA.state_len	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::DFA.stride	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::DFA.stride2	method	missing	-	auto-generated
+src/dfa/onepass.rs::method::DFA.state_len	method	partial	src/regex/automata/onepass.cr:OnePass::DFA#state_len;spec/dfa_onepass_spec.cr	Reports NFA state count; native one-pass state table absent.
+src/dfa/onepass.rs::method::DFA.stride	method	partial	src/regex/automata/onepass.cr:OnePass::DFA#stride;spec/dfa_onepass_spec.cr	Derived byte-class stride; native table absent.
+src/dfa/onepass.rs::method::DFA.stride2	method	partial	src/regex/automata/onepass.cr:OnePass::DFA#stride2;spec/dfa_onepass_spec.cr	Derived byte-class stride exponent; native table absent.
 src/dfa/onepass.rs::method::DFA.swap_states	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::DFA.transition	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::DFA.try_search	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::DFA.try_search_slots	method	missing	-	auto-generated
+src/dfa/onepass.rs::method::DFA.try_search	method	ported	src/regex/automata/onepass.cr:OnePass::DFA#try_search;spec/dfa_onepass_spec.cr	Fallible anchored capture search.
+src/dfa/onepass.rs::method::DFA.try_search_slots	method	ported	src/regex/automata/onepass.cr:OnePass::DFA#try_search_slots;spec/dfa_onepass_spec.cr	Fallible anchored raw-slot search.
 src/dfa/onepass.rs::method::DFA.try_search_slots_imp	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::Epsilons.empty	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::Epsilons.fmt	method	missing	-	auto-generated
