@@ -29,9 +29,9 @@ src/meta/reverse_suffix.rs::test::reverse_suffix_accepts_fixed_length_prefix	par
 src/meta/reverse_suffix.rs::test::reverse_suffix_accepts_prefix_without_internal_suffix	partial	src/regex/automata/meta.cr:Regex#reverse_suffix_has_no_earlier_match?;spec/meta_regex_spec.cr	No-internal-suffix admission is ported but only covered through public strategy behavior.
 src/meta/reverse_suffix.rs::test::reverse_suffix_fixed_length_prefix_is_conservative	partial	src/regex/automata/meta.cr:Regex#reverse_suffix_has_no_earlier_match?;spec/meta_regex_spec.cr	Conservative fixed-length proof is ported but only covered through public strategy behavior.
 src/meta/reverse_suffix.rs::test::suffix_must_be_adjacent	partial	src/regex/automata/meta.cr:Regex#strip_literal_suffix_at;spec/meta_regex_spec.cr	Adjacency rejection is ported; the private helper is not exposed solely for structural tests.
-src/meta/strategy.rs::test::core_selected_when_auto_prefilter_is_disabled	missing	-	baseline
-src/meta/strategy.rs::test::core_selected_when_no_special_strategy_applies	missing	-	baseline
-src/meta/strategy.rs::test::core_selected_when_reverse_engines_are_disabled	missing	-	baseline
+src/meta/strategy.rs::test::core_selected_when_auto_prefilter_is_disabled	ported	spec/meta_regex_spec.cr	Ports the exact \\w+Holmes configuration with auto prefilters disabled and verifies core-only execution.
+src/meta/strategy.rs::test::core_selected_when_no_special_strategy_applies	ported	spec/meta_regex_spec.cr	Ports the [a-z]+ core-strategy fallback and its unaccelerated behavior.
+src/meta/strategy.rs::test::core_selected_when_reverse_engines_are_disabled	ported	spec/meta_regex_spec.cr	Ports the exact \\w+Holmes configuration with both reverse engines disabled and verifies core-only execution.
 src/meta/strategy.rs::test::pre_from_alternation_literals_accepts_large_alternation	missing	-	baseline
 src/meta/strategy.rs::test::pre_from_alternation_literals_rejects_captures	missing	-	baseline
 src/meta/strategy.rs::test::pre_from_alternation_literals_rejects_look_around	missing	-	baseline

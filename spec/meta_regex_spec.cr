@@ -304,6 +304,31 @@ describe Regex::Automata::Meta::Regex do
     re.find("xxBruce Wayne!").should eq(Regex::Automata::Match.must(0, 2...13))
   end
 
+  it "falls back to the core strategy when no special Meta strategy applies" do
+    re = Regex::Automata::Meta::Regex.new("[a-z]+")
+
+    re.is_accelerated.should be_false
+    re.find("123abc").should eq(Regex::Automata::Match.must(0, 3...6))
+  end
+
+  it "falls back to the core strategy when automatic prefilters are disabled" do
+    re = Regex::Automata::Meta::Regex.builder
+      .configure(Regex::Automata::Meta::Regex.config.auto_prefilter(false))
+      .build("\\w+Holmes")
+
+    re.is_accelerated.should be_false
+    re.find("xxSherlockHolmes!").should eq(Regex::Automata::Match.must(0, 0...16))
+  end
+
+  it "falls back to the core strategy when reverse engines are disabled" do
+    re = Regex::Automata::Meta::Regex.builder
+      .configure(Regex::Automata::Meta::Regex.config.dfa(false).hybrid(false))
+      .build("\\w+Holmes")
+
+    re.is_accelerated.should be_false
+    re.find("xxSherlockHolmes!").should eq(Regex::Automata::Match.must(0, 0...16))
+  end
+
   it "lets explicit core prefilters drive acceleration" do
     pre = Regex::Automata::Prefilter.new(
       Regex::Automata::MatchKind::LeftmostFirst,
