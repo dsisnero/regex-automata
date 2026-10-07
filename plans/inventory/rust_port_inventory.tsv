@@ -1782,7 +1782,7 @@ src/util/primitives.rs::method::[T].index	method	intentional_divergence	-	Crysta
 src/util/primitives.rs::method::[T].index_mut	method	intentional_divergence	-	Crystal Slice indexing does not support custom identifier index types.
 src/util/search.rs::method::Anchored.is_anchored	method	ported	src/regex/automata/search.cr:Anchored#is_anchored;spec/search_primitives_spec.cr	Anchored predicate is covered.
 src/util/search.rs::method::Anchored.pattern	method	intentional_divergence	src/regex/automata/search.cr:Input#pattern;spec/search_input_spec.cr	Crystal enums cannot carry the Rust PatternID payload; Input stores it separately and preserves it through clone.
-src/util/search.rs::method::Bad.as_ref	method	missing	-	auto-generated
+src/util/search.rs::method::Bad.as_ref	method	skipped	-	Rust test-only AsRef adversary; Crystal Input construction copies String or Bytes directly.
 src/util/search.rs::method::HalfMatch.must	method	ported	src/regex/automata/search.cr:HalfMatch.must;spec/search_primitives_spec.cr	Numeric pattern-ID constructor is covered with the vendor result primitives.
 src/util/search.rs::method::HalfMatch.new	method	ported	src/regex/automata/search.cr:HalfMatch#initialize;spec/search_primitives_spec.cr	PatternID and offset constructor is represented directly.
 src/util/search.rs::method::HalfMatch.offset	method	ported	src/regex/automata/search.cr:HalfMatch#offset;spec/search_primitives_spec.cr	Offset getter is covered.
@@ -1825,7 +1825,7 @@ src/util/search.rs::method::MatchError.kind	method	ported	src/regex/automata/err
 src/util/search.rs::method::MatchError.new	method	ported	src/regex/automata/errors.cr:MatchError#initialize;spec/match_error_spec.cr	Direct structured construction and equality are covered.
 src/util/search.rs::method::MatchError.quit	method	ported	src/regex/automata/errors.cr:MatchError.quit;spec/match_error_spec.cr	Structured quit payload is covered.
 src/util/search.rs::method::MatchError.unsupported_anchored	method	ported	src/regex/automata/errors.cr:MatchError.unsupported_anchored;spec/match_error_spec.cr	All anchored-mode messages and PatternID context are covered.
-src/util/search.rs::method::MatchKind.continue_past_first_match	method	missing	-	auto-generated
+src/util/search.rs::method::MatchKind.continue_past_first_match	method	ported	src/regex/automata/search.cr:MatchKind#continue_past_first_match;spec/pikevm_spec.cr	MatchKind::All continues while LeftmostFirst stops at the first match.
 src/util/search.rs::method::PatternSet.capacity	method	ported	src/regex/automata/search.cr:PatternSet#capacity;spec/pattern_set_spec.cr	covered
 src/util/search.rs::method::PatternSet.clear	method	ported	src/regex/automata/search.cr:PatternSet#clear;spec/pattern_set_spec.cr	covered
 src/util/search.rs::method::PatternSet.contains	method	ported	src/regex/automata/search.cr:PatternSet#contains;spec/pattern_set_spec.cr	covered
@@ -1840,8 +1840,8 @@ src/util/search.rs::method::PatternSetInsertError.fmt	method	ported	src/regex/au
 src/util/search.rs::method::PatternSetIter<'a>.next	method	ported	src/regex/automata/search.cr:PatternSetIter#next;spec/pattern_set_spec.cr	covered
 src/util/search.rs::method::PatternSetIter<'a>.next_back	method	ported	src/regex/automata/search.cr:PatternSetIter#next_back;spec/pattern_set_spec.cr	covered
 src/util/search.rs::method::PatternSetIter<'a>.size_hint	method	intentional_divergence	src/regex/automata/search.cr:PatternSetIter	Crystal Iterator has no Rust size_hint contract.
-src/util/search.rs::method::Range<usize>.eq	method	missing	-	auto-generated
-src/util/search.rs::method::Range<usize>.from	method	missing	-	auto-generated
+src/util/search.rs::method::Range<usize>.eq	method	intentional_divergence	src/regex/automata/search.cr:Span#range	Crystal Range has native structural equality; Span exposes a Crystal Range.
+src/util/search.rs::method::Range<usize>.from	method	intentional_divergence	src/regex/automata/search.cr:Span#range	Crystal uses native Range construction instead of Rust From traits.
 src/util/search.rs::method::Span.contains	method	ported	src/regex/automata/search.cr:Span#contains;spec/search_primitives_spec.cr	Preserves vendor inclusive-end containment behavior.
 src/util/search.rs::method::Span.eq	method	ported	src/regex/automata/search.cr:Span;spec/search_primitives_spec.cr	Crystal struct value equality supplies the Rust equality behavior.
 src/util/search.rs::method::Span.fmt	method	intentional_divergence	src/regex/automata/search.cr:Span	Rust Debug formatting has no stable Crystal API counterpart; Crystal uses its standard inspect/to_s protocol.
@@ -1850,9 +1850,9 @@ src/util/search.rs::method::Span.is_empty	method	ported	src/regex/automata/searc
 src/util/search.rs::method::Span.len	method	ported	src/regex/automata/search.cr:Span#len;spec/search_primitives_spec.cr	Rust-style saturating length accessor is covered.
 src/util/search.rs::method::Span.offset	method	ported	src/regex/automata/search.cr:Span#offset;spec/search_primitives_spec.cr	Offset construction is covered.
 src/util/search.rs::method::Span.range	method	ported	src/regex/automata/search.cr:Span#range;spec/search_primitives_spec.cr	Half-open range accessor is covered.
-src/util/search.rs::method::[u8].index	method	missing	-	auto-generated
-src/util/search.rs::method::[u8].index_mut	method	missing	-	auto-generated
-src/util/search.rs::method::str.index	method	missing	-	auto-generated
+src/util/search.rs::method::[u8].index	method	intentional_divergence	src/regex/automata/search.cr:Span#range	Crystal Bytes slices accept native ranges; user-defined index traits do not exist.
+src/util/search.rs::method::[u8].index_mut	method	intentional_divergence	src/regex/automata/search.cr:Span#range	Crystal Bytes mutation uses native range slicing; user-defined index traits do not exist.
+src/util/search.rs::method::str.index	method	intentional_divergence	src/regex/automata/search.cr:Span#range	Crystal String uses native ranges and cannot expose Rust Index traits.
 src/util/sparse_set.rs::method::SparseSet.capacity	method	ported	src/regex/automata/sparse_set.cr:SparseSet#capacity;spec/sparse_set_spec.cr	Capacity is covered.
 src/util/sparse_set.rs::method::SparseSet.clear	method	ported	src/regex/automata/sparse_set.cr:SparseSet#clear;spec/sparse_set_spec.cr	Clear behavior is covered.
 src/util/sparse_set.rs::method::SparseSet.contains	method	ported	src/regex/automata/sparse_set.cr:SparseSet#contains;spec/sparse_set_spec.cr	Membership is covered.
