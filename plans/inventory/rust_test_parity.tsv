@@ -184,13 +184,13 @@ tests/dfa/suite.rs::test::unminimized_prefilter	partial	spec/dfa_remaining_parit
 tests/dfa/suite.rs::test::unminimized_specialized_start_states	partial	spec/dfa_remaining_parity_spec.cr	Exercises specialized start states over the curated Crystal fixture; the full regex-test suite matrix remains open.
 tests/fuzz/dense.rs::test::invalid_byte_classes	partial	spec/dfa_remaining_parity_spec.cr	Crystal mutates the byte-class count in its own dense wire format and asserts typed rejection; Rust's fixture bytes use a different format.
 tests/fuzz/dense.rs::test::invalid_byte_classes_min	partial	spec/dfa_remaining_parity_spec.cr	Crystal mutates a minimized dense DFA's byte-class count and asserts typed rejection; Rust's fixture bytes use a different format.
-tests/fuzz/sparse.rs::test::eoi_transition_to_quit_state	missing	-	baseline
-tests/fuzz/sparse.rs::test::invalid_accelerators	missing	-	baseline
-tests/fuzz/sparse.rs::test::invalid_special_state	missing	-	baseline
-tests/fuzz/sparse.rs::test::match_state_inconsistency	missing	-	baseline
-tests/fuzz/sparse.rs::test::start_state_has_valid_transitions	missing	-	baseline
-tests/fuzz/sparse.rs::test::start_state_is_not_match_state	missing	-	baseline
-tests/fuzz/sparse.rs::test::transition_to_invalid_but_valid_state	missing	-	baseline
+tests/fuzz/sparse.rs::test::eoi_transition_to_quit_state	intentional_divergence	src/regex/automata/sparse.cr:Sparse::DFA.from_bytes;spec/dfa_remaining_parity_spec.cr	Crystal sparse serialization wraps a validated dense DFA and has no sparse EOI transition encoding to corrupt.
+tests/fuzz/sparse.rs::test::invalid_accelerators	intentional_divergence	src/regex/automata/sparse.cr:Sparse::DFA.from_bytes;src/regex/automata/dfa.cr:DFA.from_bytes	Crystal sparse serialization wraps a validated dense DFA and has no sparse accelerator table to corrupt.
+tests/fuzz/sparse.rs::test::invalid_special_state	intentional_divergence	src/regex/automata/sparse.cr:Sparse::DFA.from_bytes;src/regex/automata/dfa.cr:DFA.from_bytes	Crystal sparse serialization wraps a validated dense DFA and has no independently encoded sparse special-state range.
+tests/fuzz/sparse.rs::test::match_state_inconsistency	intentional_divergence	src/regex/automata/sparse.cr:Sparse::DFA.from_bytes;src/regex/automata/match_states.cr	Crystal sparse serialization wraps a validated dense DFA and has no sparse match-state encoding.
+tests/fuzz/sparse.rs::test::start_state_has_valid_transitions	intentional_divergence	src/regex/automata/sparse.cr:Sparse::DFA.from_bytes;src/regex/automata/dfa.cr:DFA.from_bytes	Crystal sparse serialization wraps a validated dense DFA and has no sparse start-state transition encoding.
+tests/fuzz/sparse.rs::test::start_state_is_not_match_state	intentional_divergence	src/regex/automata/sparse.cr:Sparse::DFA.from_bytes;src/regex/automata/dfa.cr:DFA.from_bytes	Crystal sparse serialization wraps a validated dense DFA and validates the embedded dense DFA instead of a sparse state layout.
+tests/fuzz/sparse.rs::test::transition_to_invalid_but_valid_state	intentional_divergence	src/regex/automata/sparse.cr:Sparse::DFA.from_bytes;src/regex/automata/dfa.cr:DFA.from_bytes	Crystal sparse serialization wraps a validated dense DFA and has no sparse transition-state IDs to corrupt.
 tests/gen/dense/mod.rs::test::multi_pattern_v2	missing	-	baseline
 tests/gen/sparse/mod.rs::test::multi_pattern_v2	missing	-	baseline
 tests/hybrid/api.rs::test::prefilter_does_not_skip_pending_match	missing	-	baseline
