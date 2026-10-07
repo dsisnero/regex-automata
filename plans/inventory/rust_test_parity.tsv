@@ -154,11 +154,11 @@ src/util/start.rs::test::start_fwd	missing	-	baseline
 src/util/start.rs::test::start_fwd_done_range	missing	-	baseline
 src/util/start.rs::test::start_rev	missing	-	baseline
 src/util/start.rs::test::start_rev_done_range	missing	-	baseline
-src/util/wire.rs::test::bad_label_almost_too_long	missing	-	baseline
-src/util/wire.rs::test::bad_label_interior_nul	missing	-	baseline
-src/util/wire.rs::test::bad_label_too_long	missing	-	baseline
-src/util/wire.rs::test::labels	missing	-	baseline
-src/util/wire.rs::test::padding	missing	-	baseline
+src/util/wire.rs::test::bad_label_almost_too_long	ported	spec/wire_spec.cr	Ports the 255-byte label acceptance boundary.
+src/util/wire.rs::test::bad_label_interior_nul	ported	spec/wire_spec.cr	Ports interior-NUL label rejection.
+src/util/wire.rs::test::bad_label_too_long	ported	spec/wire_spec.cr	Ports the 256-byte label rejection boundary.
+src/util/wire.rs::test::labels	ported	spec/wire_spec.cr	Ports padded label serialization and deserialization.
+src/util/wire.rs::test::padding	ported	spec/wire_spec.cr	Ports four-byte alignment padding values.
 tests/dfa/api.rs::test::quit_fwd	ported	spec/dfa_api_spec.cr	Uses the upstream word-class/end-anchor pattern and checks both forward and stateful overlapping quit errors at byte 3.
 tests/dfa/api.rs::test::quit_panics	ported	spec/dfa_api_spec.cr	Ports the Unicode-word-boundary/non-ASCII quit configuration rejection.
 tests/dfa/api.rs::test::quit_rev	ported	spec/dfa_api_spec.cr	Uses the upstream anchored word-class pattern and reverse quit error at byte 3.

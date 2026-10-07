@@ -1,6 +1,33 @@
 require "./spec_helper"
 
 describe Regex::Automata::Wire do
+  it "round trips aligned serialization labels" do
+    buffer = Bytes.new(1024, 0_u8)
+    written = Regex::Automata::Wire.write_label("fooba", buffer)
+
+    written.should eq(8)
+    buffer[0, written].should eq("fooba\0\0\0".to_slice)
+    Regex::Automata::Wire.read_label(buffer, "fooba").should eq(8)
+  end
+
+  it "rejects invalid serialization labels" do
+    buffer = Bytes.new(1024, 0_u8)
+    Regex::Automata::Wire.write_label("z" * 255, buffer).should be > 0
+
+    expect_raises(ArgumentError, /NUL/) do
+      Regex::Automata::Wire.write_label("foo\0bar", buffer)
+    end
+    expect_raises(ArgumentError, /255/) do
+      Regex::Automata::Wire.write_label("z" * 256, buffer)
+    end
+  end
+
+  it "uses four-byte wire padding" do
+    [0, 3, 2, 1, 0, 3, 2, 1, 0].each_with_index do |expected, index|
+      Regex::Automata::Wire.padding_len(8 + index).should eq(expected)
+    end
+  end
+
   it "uses vendored serialization error text" do
     Regex::Automata::SerializeError.buffer_too_small("bytes").message.should eq("destination buffer is too small to write bytes")
     Regex::Automata::DeserializeError.buffer_too_small("bytes").message.should eq("buffer is too small to read bytes")
