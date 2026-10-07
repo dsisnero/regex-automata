@@ -107,13 +107,13 @@ src/nfa/thompson/compiler.rs::test::compile_yes_reverse_unanchored_prefix_with_s
 src/nfa/thompson/compiler.rs::test::compile_yes_unanchored_prefix_with_end_anchor	missing	-	baseline
 src/nfa/thompson/compiler.rs::test::empty_class_bytes	missing	-	baseline
 src/nfa/thompson/compiler.rs::test::empty_class_unicode	missing	-	baseline
-src/nfa/thompson/literal_trie.rs::test::maker	missing	-	baseline
-src/nfa/thompson/literal_trie.rs::test::zap	missing	-	baseline
+src/nfa/thompson/literal_trie.rs::test::maker	partial	spec/nfa_thompson_representation_spec.cr	Literal compiler behavior is covered through public NFA construction; private trie state layout is not exposed.
+src/nfa/thompson/literal_trie.rs::test::zap	partial	spec/nfa_thompson_representation_spec.cr	Literal-alternation behavior is covered through public NFA construction; private trie state layout is not exposed.
 src/nfa/thompson/nfa.rs::test::always_match	missing	-	baseline
 src/nfa/thompson/nfa.rs::test::never_match	missing	-	baseline
 src/nfa/thompson/nfa.rs::test::state_has_small_size	missing	-	baseline
-src/nfa/thompson/range_trie.rs::test::no_splits	missing	-	baseline
-src/nfa/thompson/range_trie.rs::test::splits	missing	-	baseline
+src/nfa/thompson/range_trie.rs::test::no_splits	partial	spec/nfa_thompson_representation_spec.cr	Unicode class compilation exercises range-trie output; private transition partitions are not exposed.
+src/nfa/thompson/range_trie.rs::test::splits	partial	spec/nfa_thompson_representation_spec.cr	Unicode class compilation exercises split range-trie output; private transition partitions are not exposed.
 src/util/alphabet.rs::test::byte_classes	ported	spec/byte_classes_spec.cr	Ports the upstream byte-class partitioning matrix.
 src/util/alphabet.rs::test::elements_empty	ported	spec/byte_classes_spec.cr	Ports empty-map byte and EOI element iteration.
 src/util/alphabet.rs::test::elements_singletons	ported	spec/byte_classes_spec.cr	Ports singleton-map byte and EOI element iteration.
