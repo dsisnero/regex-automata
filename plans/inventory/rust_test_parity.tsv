@@ -171,17 +171,17 @@ tests/dfa/onepass/suite.rs::test::no_byte_classes	partial	spec/dfa_onepass_spec.
 tests/dfa/onepass/suite.rs::test::starts_for_each_pattern	partial	spec/dfa_onepass_spec.cr	Covers pattern-specific anchoring, not the full upstream suite matrix.
 tests/dfa/regression.rs::test::minimize_sets_correct_match_states	ported	spec/dfa_remaining_parity_spec.cr	Ports the upstream minimized grapheme-subset DFA and invalid UTF-8 anchored input regression.
 tests/dfa/regression.rs::test::prefilter_does_not_skip_pending_match	ported	spec/dfa_dense_spec.cr	Ports the pending leftmost-match regression for both dense and sparse DFA searches.
-tests/dfa/suite.rs::test::minimized_default	missing	-	baseline
-tests/dfa/suite.rs::test::minimized_no_byte_class	missing	-	baseline
-tests/dfa/suite.rs::test::serialization_unminimized_default	missing	-	baseline
-tests/dfa/suite.rs::test::sparse_serialization_unminimized_default	missing	-	baseline
-tests/dfa/suite.rs::test::sparse_unminimized_default	missing	-	baseline
-tests/dfa/suite.rs::test::sparse_unminimized_prefilter	missing	-	baseline
-tests/dfa/suite.rs::test::unminimized_default	missing	-	baseline
-tests/dfa/suite.rs::test::unminimized_nfa_shrink	missing	-	baseline
-tests/dfa/suite.rs::test::unminimized_no_byte_class	missing	-	baseline
-tests/dfa/suite.rs::test::unminimized_prefilter	missing	-	baseline
-tests/dfa/suite.rs::test::unminimized_specialized_start_states	missing	-	baseline
+tests/dfa/suite.rs::test::minimized_default	partial	spec/dfa_remaining_parity_spec.cr	Exercises the minimized configuration over the curated Crystal fixture; the full regex-test suite matrix remains open.
+tests/dfa/suite.rs::test::minimized_no_byte_class	partial	spec/dfa_remaining_parity_spec.cr	Exercises minimized singleton byte classes over the curated Crystal fixture; the full regex-test suite matrix remains open.
+tests/dfa/suite.rs::test::serialization_unminimized_default	partial	spec/dfa_remaining_parity_spec.cr	Exercises dense native-endian round trips over the curated Crystal fixture; the full regex-test suite matrix remains open.
+tests/dfa/suite.rs::test::sparse_serialization_unminimized_default	partial	spec/dfa_remaining_parity_spec.cr	Exercises sparse native-endian round trips over the curated Crystal fixture; the full regex-test suite matrix remains open.
+tests/dfa/suite.rs::test::sparse_unminimized_default	partial	spec/dfa_remaining_parity_spec.cr	Exercises the sparse conversion over the curated Crystal fixture; the full regex-test suite matrix remains open.
+tests/dfa/suite.rs::test::sparse_unminimized_prefilter	partial	spec/dfa_remaining_parity_spec.cr	Exercises sparse prefilter conversion over the curated Crystal fixture; the full regex-test suite matrix remains open.
+tests/dfa/suite.rs::test::unminimized_default	partial	spec/dfa_remaining_parity_spec.cr	Exercises default dense configuration over the curated Crystal fixture; the full regex-test suite matrix remains open.
+tests/dfa/suite.rs::test::unminimized_nfa_shrink	partial	spec/dfa_remaining_parity_spec.cr	Exercises Thompson shrinking over the curated Crystal fixture; the full regex-test suite matrix remains open.
+tests/dfa/suite.rs::test::unminimized_no_byte_class	partial	spec/dfa_remaining_parity_spec.cr	Exercises singleton byte classes over the curated Crystal fixture; the full regex-test suite matrix remains open.
+tests/dfa/suite.rs::test::unminimized_prefilter	partial	spec/dfa_remaining_parity_spec.cr	Exercises explicit prefilter use over the curated Crystal fixture; the full regex-test suite matrix remains open.
+tests/dfa/suite.rs::test::unminimized_specialized_start_states	partial	spec/dfa_remaining_parity_spec.cr	Exercises specialized start states over the curated Crystal fixture; the full regex-test suite matrix remains open.
 tests/fuzz/dense.rs::test::invalid_byte_classes	missing	-	baseline
 tests/fuzz/dense.rs::test::invalid_byte_classes_min	missing	-	baseline
 tests/fuzz/sparse.rs::test::eoi_transition_to_quit_state	missing	-	baseline
