@@ -150,10 +150,10 @@ src/util/pool.rs::test::thread_owner_sync	intentional_divergence	src/regex/autom
 src/util/search.rs::test::incorrect_asref_guard	missing	-	baseline
 src/util/search.rs::test::match_error_kind_size	missing	-	baseline
 src/util/search.rs::test::match_error_size	missing	-	baseline
-src/util/start.rs::test::start_fwd	missing	-	baseline
-src/util/start.rs::test::start_fwd_done_range	missing	-	baseline
-src/util/start.rs::test::start_rev	missing	-	baseline
-src/util/start.rs::test::start_rev_done_range	missing	-	baseline
+src/util/start.rs::test::start_fwd	ported	spec/start_config_spec.cr	Ports forward look-behind start classification.
+src/util/start.rs::test::start_fwd_done_range	ported	spec/start_config_spec.cr	Ports the forward empty/done-range text-start case.
+src/util/start.rs::test::start_rev	ported	spec/start_config_spec.cr	Ports reverse look-ahead start classification.
+src/util/start.rs::test::start_rev_done_range	ported	spec/start_config_spec.cr	Ports the reverse empty/done-range text-start case.
 src/util/wire.rs::test::bad_label_almost_too_long	ported	spec/wire_spec.cr	Ports the 255-byte label acceptance boundary.
 src/util/wire.rs::test::bad_label_interior_nul	ported	spec/wire_spec.cr	Ports interior-NUL label rejection.
 src/util/wire.rs::test::bad_label_too_long	ported	spec/wire_spec.cr	Ports the 256-byte label rejection boundary.
