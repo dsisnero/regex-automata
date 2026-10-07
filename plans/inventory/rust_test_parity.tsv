@@ -87,7 +87,7 @@ src/meta/strategy.rs::test::reverse_suffix_rejects_unsafe_overlap	missing	-	base
 src/meta/strategy.rs::test::reverse_suffix_rejects_variable_length_prefix	partial	spec/meta_regex_spec.cr	Public variable-prefix rejection is covered; Rust's private strategy label is not exposed.
 src/meta/strategy.rs::test::reverse_suffix_rejects_without_reverse_engine	partial	spec/meta_regex_spec.cr	Public no-reverse-engine guard is covered; Rust's private strategy label is not exposed.
 src/nfa/thompson/backtrack.rs::test::max_haystack_len_overflow	missing	-	baseline
-src/nfa/thompson/builder.rs::test::state_has_small_size	missing	-	baseline
+src/nfa/thompson/builder.rs::test::state_has_small_size	intentional_divergence	src/regex/automata/nfa.cr	Rust-only State struct size assertion; Crystal object layout is not a behavioral contract.
 src/nfa/thompson/compiler.rs::test::compile_alternation	ported	spec/nfa_thompson_spec.cr;spec/nfa_thompson_representation_spec.cr	Ports alternation lowering.
 src/nfa/thompson/compiler.rs::test::compile_captures_all	ported	spec/nfa_thompson_spec.cr	Ports all-captures policy.
 src/nfa/thompson/compiler.rs::test::compile_captures_implicit	ported	spec/nfa_thompson_spec.cr;spec/nfa_thompson_representation_spec.cr	Ports implicit-captures policy.
@@ -109,9 +109,9 @@ src/nfa/thompson/compiler.rs::test::empty_class_bytes	ported	spec/nfa_thompson_r
 src/nfa/thompson/compiler.rs::test::empty_class_unicode	ported	spec/nfa_thompson_representation_spec.cr	Ports empty Unicode class lowering.
 src/nfa/thompson/literal_trie.rs::test::maker	partial	spec/nfa_thompson_representation_spec.cr	Literal compiler behavior is covered through public NFA construction; private trie state layout is not exposed.
 src/nfa/thompson/literal_trie.rs::test::zap	partial	spec/nfa_thompson_representation_spec.cr	Literal-alternation behavior is covered through public NFA construction; private trie state layout is not exposed.
-src/nfa/thompson/nfa.rs::test::always_match	missing	-	baseline
-src/nfa/thompson/nfa.rs::test::never_match	missing	-	baseline
-src/nfa/thompson/nfa.rs::test::state_has_small_size	missing	-	baseline
+src/nfa/thompson/nfa.rs::test::always_match	ported	spec/nfa_thompson_spec.cr	Ports always-match NFA construction and searching.
+src/nfa/thompson/nfa.rs::test::never_match	ported	spec/nfa_thompson_spec.cr	Ports never-match NFA construction and searching.
+src/nfa/thompson/nfa.rs::test::state_has_small_size	intentional_divergence	src/regex/automata/nfa.cr	Rust-only State struct size assertion; Crystal object layout is not a behavioral contract.
 src/nfa/thompson/range_trie.rs::test::no_splits	partial	spec/nfa_thompson_representation_spec.cr	Unicode class compilation exercises range-trie output; private transition partitions are not exposed.
 src/nfa/thompson/range_trie.rs::test::splits	partial	spec/nfa_thompson_representation_spec.cr	Unicode class compilation exercises split range-trie output; private transition partitions are not exposed.
 src/util/alphabet.rs::test::byte_classes	ported	spec/byte_classes_spec.cr	Ports the upstream byte-class partitioning matrix.
@@ -120,7 +120,7 @@ src/util/alphabet.rs::test::elements_singletons	ported	spec/byte_classes_spec.cr
 src/util/alphabet.rs::test::elements_typical	ported	spec/byte_classes_spec.cr	Ports typical partition element iteration.
 src/util/alphabet.rs::test::full_byte_classes	ported	spec/byte_classes_spec.cr	Ports the full singleton partition alphabet length.
 src/util/alphabet.rs::test::representatives	ported	spec/byte_classes_spec.cr	Ports representative iteration, including bounds and EOI.
-src/util/interpolate.rs::test::interpolate_string	missing	-	baseline
+src/util/interpolate.rs::test::interpolate_string	ported	spec/interpolate_spec.cr	Ports named, numbered, malformed, escaped, and Unicode string interpolation.
 src/util/lazy.rs::test::oibits	intentional_divergence	src/regex/automata/lazy.cr	Rust-only Send/Sync/UnwindSafe compile-time trait assertion; Crystal has no equivalent trait system.
 src/util/lazy.rs::test::sync_not_send	intentional_divergence	src/regex/automata/lazy.cr	Rust-only Sync-not-Send trait assertion; Crystal concurrency ownership is not expressed through these traits.
 src/util/look.rs::test::look_matches_end_line	ported	spec/look_spec.cr	Ports end-line assertions.
