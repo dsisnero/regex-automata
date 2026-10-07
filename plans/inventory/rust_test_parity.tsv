@@ -1,11 +1,11 @@
 # source_test_id	status	crystal_refs	notes
 src/dfa/automaton.rs::test::object_safe	missing	-	baseline
-src/dfa/dense.rs::test::errors_with_unicode_word_boundary	missing	-	baseline
-src/dfa/dense.rs::test::heuristic_unicode_reverse	missing	-	baseline
-src/dfa/dense.rs::test::regression_start_state_not_match	missing	-	baseline
-src/dfa/dense.rs::test::regression_validation_order	missing	-	baseline
-src/dfa/dense.rs::test::roundtrip_always_match	missing	-	baseline
-src/dfa/dense.rs::test::roundtrip_never_match	missing	-	baseline
+src/dfa/dense.rs::test::errors_with_unicode_word_boundary	ported	spec/dfa_dense_spec.cr	Covers rejection of Unicode word boundaries without heuristic support and the ASCII boundary alternative.
+src/dfa/dense.rs::test::heuristic_unicode_reverse	ported	spec/dfa_dense_spec.cr	Ports both upstream reverse ranges and their exact UTF-8 quit-byte offsets.
+src/dfa/dense.rs::test::regression_start_state_not_match	ported	spec/dfa_dense_spec.cr	Corrupts every serialized start-table entry to a match state and asserts typed rejection.
+src/dfa/dense.rs::test::regression_validation_order	partial	spec/dfa_remaining_parity_spec.cr	Covers typed malformed dense-wire rejection, but does not yet construct Rust's exact empty match-state table corruption.
+src/dfa/dense.rs::test::roundtrip_always_match	ported	spec/dfa_dense_spec.cr	Ports native-endian round-trip and the empty half match at offset zero.
+src/dfa/dense.rs::test::roundtrip_never_match	ported	spec/dfa_dense_spec.cr	Ports native-endian round-trip and no-match search behavior.
 src/dfa/onepass.rs::test::assertions	ported	spec/dfa_onepass_spec.cr	Ports supported assertion-pattern admission.
 src/dfa/onepass.rs::test::fail_conflicting_transition	ported	spec/dfa_onepass_spec.cr	Ports conflicting-transition rejection.
 src/dfa/onepass.rs::test::fail_multiple_epsilon	ported	spec/dfa_onepass_spec.cr	Ports multiple-epsilon rejection.
