@@ -171,12 +171,16 @@ describe Regex::Automata::Meta::Regex do
     cache = re.create_cache
     input = Regex::Automata::Input.new("xxfoo123yy")
 
+    cache.memory_usage.should be > 0
+
     re.search_with(cache, input).should eq(Regex::Automata::Match.must(0, 2...8))
     re.search_half_with(cache, input).should eq(Regex::Automata::HalfMatch.must(0, 8))
 
     caps = re.create_captures
     re.search_captures_with(cache, input, caps)
     caps.get_match.should eq(Regex::Automata::Match.must(0, 2...8))
+    cache.reset(re)
+    re.search_with(cache, input).should eq(Regex::Automata::Match.must(0, 2...8))
     caps.get_group_by_name("num").should eq(Regex::Automata::Span.new(5, 8))
   end
 
