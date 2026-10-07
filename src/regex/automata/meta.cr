@@ -1644,6 +1644,14 @@ module Regex::Automata::Meta
       @it.advance { |input| @regex.search_with(@cache, input) }
     end
 
+    def count : Int32
+      total = 0
+      while self.next
+        total += 1
+      end
+      total
+    end
+
     def each(&block : ::Regex::Automata::Match ->) : Nil
       while match = self.next
         yield match
@@ -1671,6 +1679,14 @@ module Regex::Automata::Meta
       return nil unless @caps.is_match
 
       @caps.clone
+    end
+
+    def count : Int32
+      total = 0
+      while self.next
+        total += 1
+      end
+      total
     end
 
     def each(&block : ::Regex::Automata::Captures ->) : Nil

@@ -609,6 +609,10 @@ describe Regex::Automata::Meta::Regex do
       iterator_input.haystack.should eq(input.haystack)
       iterator_input.get_span.should eq(input.get_span)
     end
+    re.find_iter(input).regex.should be(re)
+    re.captures_iter(input).regex.should be(re)
+    re.find_iter(input).count.should eq(2)
+    re.captures_iter(input).count.should eq(2)
 
     re.captures_iter("foo1 foo12").map(&.get_group_by_name("num")).to_a.should eq([
       Regex::Automata::Span.new(3, 4),
