@@ -19,16 +19,16 @@ src/dfa/sparse.rs::test::heuristic_unicode_reverse	ported	spec/dfa_sparse_spec.c
 src/dfa/sparse.rs::test::regression_start_state_not_match	intentional_divergence	src/regex/automata/sparse.cr:Sparse::DFA.from_bytes;src/regex/automata/dfa.cr:DFA.from_bytes	Crystal sparse serialization wraps a dense DFA; malformed sparse start-table bytes cannot be constructed, while the embedded dense start-state validation is covered.
 src/hybrid/dfa.rs::test::heuristic_unicode_reverse	ported	spec/hybrid_spec.cr	Ports both reverse contextual ranges, exact UTF-8 quit bytes and offsets, and cache reuse.
 src/meta/regex.rs::test::regression_suffix_literal_count	missing	-	baseline
-src/meta/reverse_suffix.rs::test::capture	missing	-	baseline
-src/meta/reverse_suffix.rs::test::concat	missing	-	baseline
-src/meta/reverse_suffix.rs::test::literal	missing	-	baseline
-src/meta/reverse_suffix.rs::test::mismatch	missing	-	baseline
-src/meta/reverse_suffix.rs::test::repetition	missing	-	baseline
-src/meta/reverse_suffix.rs::test::repetition_must_be_required	missing	-	baseline
-src/meta/reverse_suffix.rs::test::reverse_suffix_accepts_fixed_length_prefix	missing	-	baseline
-src/meta/reverse_suffix.rs::test::reverse_suffix_accepts_prefix_without_internal_suffix	missing	-	baseline
-src/meta/reverse_suffix.rs::test::reverse_suffix_fixed_length_prefix_is_conservative	missing	-	baseline
-src/meta/reverse_suffix.rs::test::suffix_must_be_adjacent	missing	-	baseline
+src/meta/reverse_suffix.rs::test::capture	partial	src/regex/automata/meta.cr:Regex#strip_literal_suffix_at;spec/meta_regex_spec.cr	Capture stripping is ported and capture reruns are integration-tested; Crystal does not expose Rust's private AST helper for its exact structural assertion.
+src/meta/reverse_suffix.rs::test::concat	partial	src/regex/automata/meta.cr:Regex#strip_literal_suffix_at;spec/meta_regex_spec.cr	Concatenation stripping is ported; public fixed-prefix integration coverage does not assert each rewritten HIR.
+src/meta/reverse_suffix.rs::test::literal	partial	src/regex/automata/meta.cr:Regex#strip_literal_suffix_at;spec/meta_regex_spec.cr	Literal suffix stripping is ported; public fixed-prefix integration coverage does not assert each rewritten HIR.
+src/meta/reverse_suffix.rs::test::mismatch	partial	src/regex/automata/meta.cr:Regex#strip_literal_suffix_at;spec/meta_regex_spec.cr	Mismatch rejection is ported; the private helper is not exposed solely for structural tests.
+src/meta/reverse_suffix.rs::test::repetition	partial	src/regex/automata/meta.cr:Regex#strip_repetition_literal_suffix;spec/meta_regex_spec.cr	Required repetition stripping is ported; the private helper is not exposed solely for structural tests.
+src/meta/reverse_suffix.rs::test::repetition_must_be_required	partial	src/regex/automata/meta.cr:Regex#strip_repetition_literal_suffix;spec/meta_regex_spec.cr	Optional repetition rejection is ported; the private helper is not exposed solely for structural tests.
+src/meta/reverse_suffix.rs::test::reverse_suffix_accepts_fixed_length_prefix	partial	src/regex/automata/meta.cr:Regex#reverse_suffix_has_no_earlier_match?;spec/meta_regex_spec.cr	Fixed-length reverse-suffix admission is integration-tested; the private proof helper has no public test hook.
+src/meta/reverse_suffix.rs::test::reverse_suffix_accepts_prefix_without_internal_suffix	partial	src/regex/automata/meta.cr:Regex#reverse_suffix_has_no_earlier_match?;spec/meta_regex_spec.cr	No-internal-suffix admission is ported but only covered through public strategy behavior.
+src/meta/reverse_suffix.rs::test::reverse_suffix_fixed_length_prefix_is_conservative	partial	src/regex/automata/meta.cr:Regex#reverse_suffix_has_no_earlier_match?;spec/meta_regex_spec.cr	Conservative fixed-length proof is ported but only covered through public strategy behavior.
+src/meta/reverse_suffix.rs::test::suffix_must_be_adjacent	partial	src/regex/automata/meta.cr:Regex#strip_literal_suffix_at;spec/meta_regex_spec.cr	Adjacency rejection is ported; the private helper is not exposed solely for structural tests.
 src/meta/strategy.rs::test::core_selected_when_auto_prefilter_is_disabled	missing	-	baseline
 src/meta/strategy.rs::test::core_selected_when_no_special_strategy_applies	missing	-	baseline
 src/meta/strategy.rs::test::core_selected_when_reverse_engines_are_disabled	missing	-	baseline
