@@ -182,8 +182,8 @@ tests/dfa/suite.rs::test::unminimized_nfa_shrink	partial	spec/dfa_remaining_pari
 tests/dfa/suite.rs::test::unminimized_no_byte_class	partial	spec/dfa_remaining_parity_spec.cr	Exercises singleton byte classes over the curated Crystal fixture; the full regex-test suite matrix remains open.
 tests/dfa/suite.rs::test::unminimized_prefilter	partial	spec/dfa_remaining_parity_spec.cr	Exercises explicit prefilter use over the curated Crystal fixture; the full regex-test suite matrix remains open.
 tests/dfa/suite.rs::test::unminimized_specialized_start_states	partial	spec/dfa_remaining_parity_spec.cr	Exercises specialized start states over the curated Crystal fixture; the full regex-test suite matrix remains open.
-tests/fuzz/dense.rs::test::invalid_byte_classes	missing	-	baseline
-tests/fuzz/dense.rs::test::invalid_byte_classes_min	missing	-	baseline
+tests/fuzz/dense.rs::test::invalid_byte_classes	partial	spec/dfa_remaining_parity_spec.cr	Crystal mutates the byte-class count in its own dense wire format and asserts typed rejection; Rust's fixture bytes use a different format.
+tests/fuzz/dense.rs::test::invalid_byte_classes_min	partial	spec/dfa_remaining_parity_spec.cr	Crystal mutates a minimized dense DFA's byte-class count and asserts typed rejection; Rust's fixture bytes use a different format.
 tests/fuzz/sparse.rs::test::eoi_transition_to_quit_state	missing	-	baseline
 tests/fuzz/sparse.rs::test::invalid_accelerators	missing	-	baseline
 tests/fuzz/sparse.rs::test::invalid_special_state	missing	-	baseline
