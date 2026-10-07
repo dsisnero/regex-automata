@@ -236,4 +236,16 @@ describe Regex::Automata::DFA::OnePass::DFA do
         .build("abc")
     end
   end
+
+  it "does not report UTF-8 empty matches inside a code point" do
+    input = Regex::Automata::Input.new("☃").span(1...2)
+
+    utf8 = Regex::Automata::DFA::OnePass::DFA.new("a*")
+    utf8.is_match(utf8.create_cache, input).should be_false
+
+    binary = Regex::Automata::DFA::OnePass::DFA.builder
+      .thompson(Regex::Automata::NFA::NFA.config.utf8(false))
+      .build("a*")
+    binary.is_match(binary.create_cache, input).should be_true
+  end
 end
