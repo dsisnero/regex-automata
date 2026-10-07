@@ -147,9 +147,9 @@ src/util/pool.rs::test::thread_owner_distinct	ported	spec/pool_spec.cr	Ports the
 src/util/pool.rs::test::thread_owner_optimization	intentional_divergence	src/regex/automata/pool.cr	Crystal uses one mutex-protected bounded stack rather than Rust's thread-owner optimization; observable pooling semantics are covered.
 src/util/pool.rs::test::thread_owner_send_drop	intentional_divergence	src/regex/automata/pool.cr	Rust-only cross-thread owner/drop optimization; Crystal's guard has explicit put semantics and a mutex-backed pool.
 src/util/pool.rs::test::thread_owner_sync	intentional_divergence	src/regex/automata/pool.cr	Rust-only thread-owner synchronization implementation detail; Crystal's mutex provides the applicable synchronization contract.
-src/util/search.rs::test::incorrect_asref_guard	missing	-	baseline
-src/util/search.rs::test::match_error_kind_size	missing	-	baseline
-src/util/search.rs::test::match_error_size	missing	-	baseline
+src/util/search.rs::test::incorrect_asref_guard	intentional_divergence	src/regex/automata/search.cr	Rust-only AsRef misuse guard; Crystal APIs use concrete String/Bytes/Input overloads.
+src/util/search.rs::test::match_error_kind_size	intentional_divergence	src/regex/automata/search.cr	Rust-only enum memory-layout assertion; Crystal object layout is not a behavioral contract.
+src/util/search.rs::test::match_error_size	intentional_divergence	src/regex/automata/search.cr	Rust-only error representation size assertion; Crystal object layout is not a behavioral contract.
 src/util/start.rs::test::start_fwd	ported	spec/start_config_spec.cr	Ports forward look-behind start classification.
 src/util/start.rs::test::start_fwd_done_range	ported	spec/start_config_spec.cr	Ports the forward empty/done-range text-start case.
 src/util/start.rs::test::start_rev	ported	spec/start_config_spec.cr	Ports reverse look-ahead start classification.
