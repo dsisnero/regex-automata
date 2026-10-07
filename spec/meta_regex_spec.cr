@@ -625,6 +625,12 @@ describe Regex::Automata::Meta::Regex do
       Regex::Automata::Span.new(2, 3),
       Regex::Automata::Span.new(5, 6),
     ])
+    splitter.splitn(0, "a b").to_a.should be_empty
+    splitter.splitn(1, "a b").to_a.should eq([Regex::Automata::Span.new(0, 3)])
+    splitter.splitn(2, "a b c").to_a.should eq([
+      Regex::Automata::Span.new(0, 1),
+      Regex::Automata::Span.new(2, 5),
+    ])
   end
 
   it "counts one match for suffix literal regressions" do

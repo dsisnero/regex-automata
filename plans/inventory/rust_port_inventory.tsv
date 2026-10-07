@@ -864,10 +864,10 @@ src/meta/regex.rs::method::RegexInfo.pattern_len	method	missing	-	auto-generated
 src/meta/regex.rs::method::RegexInfo.props	method	missing	-	auto-generated
 src/meta/regex.rs::method::RegexInfo.props_union	method	missing	-	auto-generated
 src/meta/regex.rs::method::Split<'r, 'h>.input	method	ported	src/regex/automata/meta.cr:Split#input;spec/meta_regex_spec.cr	Exposes the iterator's current owned Input state.
-src/meta/regex.rs::method::Split<'r, 'h>.next	method	missing	-	auto-generated
+src/meta/regex.rs::method::Split<'r, 'h>.next	method	ported	src/regex/automata/meta.cr:Split#next;spec/meta_regex_spec.cr	Yields the spans between non-overlapping matches, including the final span.
 src/meta/regex.rs::method::SplitN<'r, 'h>.input	method	ported	src/regex/automata/meta.cr:SplitN#input;spec/meta_regex_spec.cr	Exposes the iterator's current owned Input state.
-src/meta/regex.rs::method::SplitN<'r, 'h>.next	method	missing	-	auto-generated
-src/meta/regex.rs::method::SplitN<'r, 'h>.size_hint	method	missing	-	auto-generated
+src/meta/regex.rs::method::SplitN<'r, 'h>.next	method	ported	src/regex/automata/meta.cr:SplitN#next;spec/meta_regex_spec.cr	Honors Rust splitn zero, one, and bounded limits.
+src/meta/regex.rs::method::SplitN<'r, 'h>.size_hint	method	intentional_divergence	src/regex/automata/meta.cr:SplitN	Crystal Iterator does not expose Rust's size_hint protocol.
 src/meta/reverse_inner.rs::method::InnerPrefilter.new	method	missing	-	auto-generated
 src/meta/strategy.rs::method::Core.create_cache	method	missing	-	auto-generated
 src/meta/strategy.rs::method::Core.group_info	method	missing	-	auto-generated

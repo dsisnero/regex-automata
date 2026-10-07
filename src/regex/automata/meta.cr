@@ -1698,6 +1698,7 @@ module Regex::Automata::Meta
 
   class Split
     include Iterator(::Regex::Automata::Span)
+    getter last_end : Int32
 
     def initialize(@regex : Regex, @input : ::Regex::Automata::Input)
       @matches = @regex.find_iter(@input)
@@ -1746,7 +1747,7 @@ module Regex::Automata::Meta
       return stop if span.is_a?(Iterator::Stop)
 
       typed = span.as(::Regex::Automata::Span)
-      @last_end = typed.end
+      @last_end = @split.last_end
       @remaining -= 1 if @remaining > 0
       typed
     end
