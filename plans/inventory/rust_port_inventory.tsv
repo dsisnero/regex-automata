@@ -784,21 +784,21 @@ src/meta/regex.rs::method::Config.auto_prefilter	method	missing	-	auto-generated
 src/meta/regex.rs::method::Config.backtrack	method	missing	-	auto-generated
 src/meta/regex.rs::method::Config.byte_classes	method	missing	-	auto-generated
 src/meta/regex.rs::method::Config.dfa	method	missing	-	auto-generated
-src/meta/regex.rs::method::Config.dfa_size_limit	method	missing	-	auto-generated
-src/meta/regex.rs::method::Config.dfa_state_limit	method	missing	-	auto-generated
+src/meta/regex.rs::method::Config.dfa_size_limit	method	ported	src/regex/automata/meta.cr:Config#dfa_size_limit;spec/meta_regex_spec.cr	Tracks explicit nil separately from an unset default.
+src/meta/regex.rs::method::Config.dfa_state_limit	method	ported	src/regex/automata/meta.cr:Config#dfa_state_limit;spec/meta_regex_spec.cr	Tracks explicit nil separately from an unset default.
 src/meta/regex.rs::method::Config.get_auto_prefilter	method	missing	-	auto-generated
 src/meta/regex.rs::method::Config.get_backtrack	method	missing	-	auto-generated
 src/meta/regex.rs::method::Config.get_byte_classes	method	missing	-	auto-generated
 src/meta/regex.rs::method::Config.get_dfa	method	missing	-	auto-generated
-src/meta/regex.rs::method::Config.get_dfa_size_limit	method	missing	-	auto-generated
-src/meta/regex.rs::method::Config.get_dfa_state_limit	method	missing	-	auto-generated
+src/meta/regex.rs::method::Config.get_dfa_size_limit	method	ported	src/regex/automata/meta.cr:Config#get_dfa_size_limit;spec/meta_regex_spec.cr	Defaults to Rust's 40 KiB DFA budget.
+src/meta/regex.rs::method::Config.get_dfa_state_limit	method	ported	src/regex/automata/meta.cr:Config#get_dfa_state_limit;spec/meta_regex_spec.cr	Defaults to Rust's 30-state admission budget.
 src/meta/regex.rs::method::Config.get_hybrid	method	missing	-	auto-generated
 src/meta/regex.rs::method::Config.get_hybrid_cache_capacity	method	missing	-	auto-generated
 src/meta/regex.rs::method::Config.get_line_terminator	method	missing	-	auto-generated
 src/meta/regex.rs::method::Config.get_match_kind	method	missing	-	auto-generated
-src/meta/regex.rs::method::Config.get_nfa_size_limit	method	missing	-	auto-generated
+src/meta/regex.rs::method::Config.get_nfa_size_limit	method	ported	src/regex/automata/meta.cr:Config#get_nfa_size_limit;spec/meta_regex_spec.cr	Defaults to Rust's 10 MiB NFA budget.
 src/meta/regex.rs::method::Config.get_onepass	method	missing	-	auto-generated
-src/meta/regex.rs::method::Config.get_onepass_size_limit	method	missing	-	auto-generated
+src/meta/regex.rs::method::Config.get_onepass_size_limit	method	ported	src/regex/automata/meta.cr:Config#get_onepass_size_limit;spec/meta_regex_spec.cr	Defaults to Rust's 1 MiB one-pass budget.
 src/meta/regex.rs::method::Config.get_pool_capacity	method	missing	-	auto-generated
 src/meta/regex.rs::method::Config.get_prefilter	method	missing	-	auto-generated
 src/meta/regex.rs::method::Config.get_utf8_empty	method	missing	-	auto-generated
@@ -808,10 +808,10 @@ src/meta/regex.rs::method::Config.hybrid_cache_capacity	method	missing	-	auto-ge
 src/meta/regex.rs::method::Config.line_terminator	method	missing	-	auto-generated
 src/meta/regex.rs::method::Config.match_kind	method	missing	-	auto-generated
 src/meta/regex.rs::method::Config.new	method	missing	-	auto-generated
-src/meta/regex.rs::method::Config.nfa_size_limit	method	missing	-	auto-generated
+src/meta/regex.rs::method::Config.nfa_size_limit	method	ported	src/regex/automata/meta.cr:Config#nfa_size_limit;spec/meta_regex_spec.cr	Tracks explicit nil separately from an unset default.
 src/meta/regex.rs::method::Config.onepass	method	missing	-	auto-generated
-src/meta/regex.rs::method::Config.onepass_size_limit	method	missing	-	auto-generated
-src/meta/regex.rs::method::Config.overwrite	method	missing	-	auto-generated
+src/meta/regex.rs::method::Config.onepass_size_limit	method	ported	src/regex/automata/meta.cr:Config#onepass_size_limit;spec/meta_regex_spec.cr	Tracks explicit nil separately from an unset default.
+src/meta/regex.rs::method::Config.overwrite	method	ported	src/regex/automata/meta.cr:Config#overwrite;spec/meta_regex_spec.cr	Explicit limit disabling wins during configuration overwrite.
 src/meta/regex.rs::method::Config.pool_capacity	method	missing	-	auto-generated
 src/meta/regex.rs::method::Config.prefilter	method	missing	-	auto-generated
 src/meta/regex.rs::method::Config.to_thompson_config	method	missing	-	auto-generated
