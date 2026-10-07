@@ -212,10 +212,10 @@ tests/meta/suite.rs::test::no_dfa	ported	spec/meta_regex_spec.cr	Ports Meta oper
 tests/meta/suite.rs::test::no_dfa_hybrid	ported	spec/meta_regex_spec.cr	Ports Meta operation with dense and hybrid DFAs disabled.
 tests/meta/suite.rs::test::no_dfa_hybrid_onepass	ported	spec/meta_regex_spec.cr	Ports Meta operation with DFA, hybrid, and one-pass engines disabled.
 tests/meta/suite.rs::test::no_dfa_hybrid_onepass_backtrack	ported	spec/meta_regex_spec.cr	Ports PikeVM-only Meta fallback configuration.
-tests/nfa/thompson/backtrack/regression.rs::test::too_many_slots_normal_pattern	missing	-	baseline
-tests/nfa/thompson/backtrack/suite.rs::test::default	missing	-	baseline
-tests/nfa/thompson/backtrack/suite.rs::test::min_visited_capacity	missing	-	baseline
-tests/nfa/thompson/backtrack/suite.rs::test::prefilter	missing	-	baseline
-tests/nfa/thompson/pikevm/regression.rs::test::too_many_slots_normal_pattern	missing	-	baseline
-tests/nfa/thompson/pikevm/suite.rs::test::default	missing	-	baseline
-tests/nfa/thompson/pikevm/suite.rs::test::prefilter	missing	-	baseline
+tests/nfa/thompson/backtrack/regression.rs::test::too_many_slots_normal_pattern	ported	spec/backtrack_spec.cr	Ports normal capture-slot search behavior.
+tests/nfa/thompson/backtrack/suite.rs::test::default	ported	spec/backtrack_spec.cr	Ports default bounded-backtracker workflow.
+tests/nfa/thompson/backtrack/suite.rs::test::min_visited_capacity	ported	spec/backtrack_spec.cr	Ports visited-capacity guard behavior.
+tests/nfa/thompson/backtrack/suite.rs::test::prefilter	ported	spec/backtrack_spec.cr	Ports backtracker prefilter workflow.
+tests/nfa/thompson/pikevm/regression.rs::test::too_many_slots_normal_pattern	ported	spec/pikevm_spec.cr	Ports normal capture-slot search behavior.
+tests/nfa/thompson/pikevm/suite.rs::test::default	ported	spec/pikevm_spec.cr	Ports default PikeVM workflow.
+tests/nfa/thompson/pikevm/suite.rs::test::prefilter	ported	spec/pikevm_spec.cr	Ports PikeVM prefilter workflow.
