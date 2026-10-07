@@ -6,14 +6,14 @@ src/dfa/dense.rs::test::regression_start_state_not_match	missing	-	baseline
 src/dfa/dense.rs::test::regression_validation_order	missing	-	baseline
 src/dfa/dense.rs::test::roundtrip_always_match	missing	-	baseline
 src/dfa/dense.rs::test::roundtrip_never_match	missing	-	baseline
-src/dfa/onepass.rs::test::assertions	missing	-	baseline
-src/dfa/onepass.rs::test::fail_conflicting_transition	missing	-	baseline
-src/dfa/onepass.rs::test::fail_multiple_epsilon	missing	-	baseline
-src/dfa/onepass.rs::test::fail_multiple_match	missing	-	baseline
-src/dfa/onepass.rs::test::is_not_one_pass	missing	-	baseline
-src/dfa/onepass.rs::test::is_not_one_pass_bigger	missing	-	baseline
-src/dfa/onepass.rs::test::is_one_pass	missing	-	baseline
-src/dfa/onepass.rs::test::max_slots	missing	-	baseline
+src/dfa/onepass.rs::test::assertions	ported	spec/dfa_onepass_spec.cr	Ports supported assertion-pattern admission.
+src/dfa/onepass.rs::test::fail_conflicting_transition	ported	spec/dfa_onepass_spec.cr	Ports conflicting-transition rejection.
+src/dfa/onepass.rs::test::fail_multiple_epsilon	ported	spec/dfa_onepass_spec.cr	Ports multiple-epsilon rejection.
+src/dfa/onepass.rs::test::fail_multiple_match	ported	spec/dfa_onepass_spec.cr	Ports multiple-match epsilon rejection.
+src/dfa/onepass.rs::test::is_not_one_pass	ported	spec/dfa_onepass_spec.cr	Ports representative non-one-pass rejection cases.
+src/dfa/onepass.rs::test::is_not_one_pass_bigger	partial	spec/dfa_onepass_spec.cr	Crystal covers representative ambiguity cases; native one-pass construction remains open.
+src/dfa/onepass.rs::test::is_one_pass	partial	spec/dfa_onepass_spec.cr	Crystal covers representative accepted patterns; native one-pass construction remains open.
+src/dfa/onepass.rs::test::max_slots	ported	spec/dfa_onepass_spec.cr	Ports capture-slot limit assertion.
 src/dfa/sparse.rs::test::heuristic_unicode_forward	missing	-	baseline
 src/dfa/sparse.rs::test::heuristic_unicode_reverse	missing	-	baseline
 src/dfa/sparse.rs::test::regression_start_state_not_match	missing	-	baseline
@@ -164,11 +164,11 @@ tests/dfa/api.rs::test::quit_panics	missing	-	baseline
 tests/dfa/api.rs::test::quit_rev	missing	-	baseline
 tests/dfa/api.rs::test::unicode_word_implicitly_works	missing	-	baseline
 tests/dfa/api.rs::test::universal_start_search	missing	-	baseline
-tests/dfa/onepass/regression.rs::test::too_many_slots_normal_pattern	missing	-	baseline
-tests/dfa/onepass/regression.rs::test::zero_repetition_capture_group	missing	-	baseline
-tests/dfa/onepass/suite.rs::test::default	missing	-	baseline
-tests/dfa/onepass/suite.rs::test::no_byte_classes	missing	-	baseline
-tests/dfa/onepass/suite.rs::test::starts_for_each_pattern	missing	-	baseline
+tests/dfa/onepass/regression.rs::test::too_many_slots_normal_pattern	ported	spec/dfa_onepass_spec.cr	Ports extra-slot regression.
+tests/dfa/onepass/regression.rs::test::zero_repetition_capture_group	ported	spec/dfa_onepass_spec.cr	Ports zero-repetition capture regression.
+tests/dfa/onepass/suite.rs::test::default	partial	spec/dfa_onepass_spec.cr	Focused Crystal contract coverage; full upstream regex-test suite matrix is still open.
+tests/dfa/onepass/suite.rs::test::no_byte_classes	partial	spec/dfa_onepass_spec.cr	Covers singleton byte-class configuration, not the full upstream suite matrix.
+tests/dfa/onepass/suite.rs::test::starts_for_each_pattern	partial	spec/dfa_onepass_spec.cr	Covers pattern-specific anchoring, not the full upstream suite matrix.
 tests/dfa/regression.rs::test::minimize_sets_correct_match_states	missing	-	baseline
 tests/dfa/regression.rs::test::prefilter_does_not_skip_pending_match	missing	-	baseline
 tests/dfa/suite.rs::test::minimized_default	missing	-	baseline
