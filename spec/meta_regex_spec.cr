@@ -88,6 +88,15 @@ describe Regex::Automata::Meta::Regex do
     re.find("zzbarzz").should eq(Regex::Automata::Match.must(0, 2...5))
   end
 
+  it "uses the configured line terminator for multiline anchors" do
+    re = Regex::Automata::Meta::Regex.builder
+      .syntax(Regex::Automata::Syntax::Config.new.multi_line(true))
+      .configure(Regex::Automata::Meta::Regex.config.line_terminator(0_u8))
+      .build("^foo$")
+
+    re.find("\0foo\0").should eq(Regex::Automata::Match.must(0, 1...4))
+  end
+
   it "no_dfa_hybrid" do
     re = Regex::Automata::Meta::Regex.builder
       .configure(
