@@ -169,8 +169,8 @@ tests/dfa/onepass/regression.rs::test::zero_repetition_capture_group	ported	spec
 tests/dfa/onepass/suite.rs::test::default	partial	spec/dfa_onepass_spec.cr	Focused Crystal contract coverage; full upstream regex-test suite matrix is still open.
 tests/dfa/onepass/suite.rs::test::no_byte_classes	partial	spec/dfa_onepass_spec.cr	Covers singleton byte-class configuration, not the full upstream suite matrix.
 tests/dfa/onepass/suite.rs::test::starts_for_each_pattern	partial	spec/dfa_onepass_spec.cr	Covers pattern-specific anchoring, not the full upstream suite matrix.
-tests/dfa/regression.rs::test::minimize_sets_correct_match_states	missing	-	baseline
-tests/dfa/regression.rs::test::prefilter_does_not_skip_pending_match	missing	-	baseline
+tests/dfa/regression.rs::test::minimize_sets_correct_match_states	ported	spec/dfa_remaining_parity_spec.cr	Ports the upstream minimized grapheme-subset DFA and invalid UTF-8 anchored input regression.
+tests/dfa/regression.rs::test::prefilter_does_not_skip_pending_match	ported	spec/dfa_dense_spec.cr	Ports the pending leftmost-match regression for both dense and sparse DFA searches.
 tests/dfa/suite.rs::test::minimized_default	missing	-	baseline
 tests/dfa/suite.rs::test::minimized_no_byte_class	missing	-	baseline
 tests/dfa/suite.rs::test::serialization_unminimized_default	missing	-	baseline
