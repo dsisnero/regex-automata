@@ -43,7 +43,11 @@ module Regex::Automata::Meta
     end
 
     def memory_usage : Int32
-      @cache.memory_usage
+      @cache.memory_usage +
+        (@reverse_anchored_hybrid_cache.try(&.memory_usage) || 0) +
+        (@reverse_suffix_hybrid_cache.try(&.memory_usage) || 0) +
+        (@reverse_inner_hybrid_cache.try(&.memory_usage) || 0) +
+        (@reverse_inner_forward_hybrid_cache.try(&.memory_usage) || 0)
     end
 
     getter raw_cache : ::Regex::Automata::NFA::PikeVM::Cache do

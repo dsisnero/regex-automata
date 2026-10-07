@@ -256,6 +256,19 @@ describe Regex::Automata::Meta::Regex do
     re.find("xx 123XYZ yy").should eq(Regex::Automata::Match.must(0, 3...9))
   end
 
+  it "accounts for lazy Meta strategy caches" do
+    re = Regex::Automata::Meta::Regex.builder
+      .configure(Regex::Automata::Meta::Regex.config.dfa(false))
+      .build("\\d+XYZ")
+    cache = re.create_cache
+    before = cache.memory_usage
+
+    re.search_with(cache, Regex::Automata::Input.new("xx 123XYZ yy")).should eq(
+      Regex::Automata::Match.must(0, 3...9)
+    )
+    cache.memory_usage.should be >= before
+  end
+
   it "applies Rust's reverse-suffix safety admission rules" do
     ["\\d+XYZ", "[A-Z][0-9]XYZ", "\\w+\\s+Holmes"].each do |pattern|
       Regex::Automata::Meta::Regex.new(pattern).is_accelerated.should be_true
