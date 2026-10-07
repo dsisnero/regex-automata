@@ -786,10 +786,10 @@ src/meta/regex.rs::method::Config.byte_classes	method	ported	src/regex/automata/
 src/meta/regex.rs::method::Config.dfa	method	ported	src/regex/automata/meta.cr:Config#dfa;spec/meta_regex_spec.cr	Explicit engine availability control is preserved.
 src/meta/regex.rs::method::Config.dfa_size_limit	method	ported	src/regex/automata/meta.cr:Config#dfa_size_limit;spec/meta_regex_spec.cr	Tracks explicit nil separately from an unset default.
 src/meta/regex.rs::method::Config.dfa_state_limit	method	ported	src/regex/automata/meta.cr:Config#dfa_state_limit;spec/meta_regex_spec.cr	Tracks explicit nil separately from an unset default.
-src/meta/regex.rs::method::Config.get_auto_prefilter	method	missing	-	auto-generated
-src/meta/regex.rs::method::Config.get_backtrack	method	missing	-	auto-generated
-src/meta/regex.rs::method::Config.get_byte_classes	method	missing	-	auto-generated
-src/meta/regex.rs::method::Config.get_dfa	method	missing	-	auto-generated
+src/meta/regex.rs::method::Config.get_auto_prefilter	method	ported	src/regex/automata/meta.cr:Config#get_auto_prefilter;spec/meta_regex_spec.cr	Default and explicit values are covered.
+src/meta/regex.rs::method::Config.get_backtrack	method	ported	src/regex/automata/meta.cr:Config#get_backtrack;spec/meta_regex_spec.cr	Default and explicit values are covered.
+src/meta/regex.rs::method::Config.get_byte_classes	method	ported	src/regex/automata/meta.cr:Config#get_byte_classes;spec/meta_regex_spec.cr	Default and explicit values are covered.
+src/meta/regex.rs::method::Config.get_dfa	method	ported	src/regex/automata/meta.cr:Config#get_dfa;spec/meta_regex_spec.cr	Default and explicit values are covered.
 src/meta/regex.rs::method::Config.get_dfa_size_limit	method	ported	src/regex/automata/meta.cr:Config#get_dfa_size_limit;spec/meta_regex_spec.cr	Defaults to Rust's 40 KiB DFA budget.
 src/meta/regex.rs::method::Config.get_dfa_state_limit	method	ported	src/regex/automata/meta.cr:Config#get_dfa_state_limit;spec/meta_regex_spec.cr	Defaults to Rust's 30-state admission budget.
 src/meta/regex.rs::method::Config.get_hybrid	method	missing	-	auto-generated
