@@ -30,32 +30,32 @@ src/dfa/accel.rs::method::Accels<Vec<AccelTy>>.add	method	ported	src/regex/autom
 src/dfa/accel.rs::method::Accels<Vec<AccelTy>>.empty	method	ported	src/regex/automata/accel.cr:Accels.empty;spec/accel_spec.cr	Creates a zero-length prefix collection.
 src/dfa/accel.rs::method::Accels<Vec<AccelTy>>.set_len	method	ported	src/regex/automata/accel.cr:Accels#add;spec/accel_spec.cr	Length-prefix update is internal to Crystal add.
 src/dfa/accel.rs::method::IterAccels<'a, A>.next	method	intentional_divergence	src/regex/automata/accel.cr:Accels#get;spec/accel_spec.cr	Crystal uses indexed collection access instead of Rust's private iterator-trait wrapper.
-src/dfa/automaton.rs::method::&'a A.accelerator	method	missing	-	auto-generated
+src/dfa/automaton.rs::method::&'a A.accelerator	method	intentional_divergence	src/regex/automata/automaton.cr;spec/dfa_api_spec.cr	Rust reference-trait forwarding has no Crystal counterpart; instance dispatch is direct.
 src/dfa/automaton.rs::method::&'a A.get_prefilter	method	intentional_divergence	src/regex/automata/automaton.cr:Automaton#get_prefilter	Crystal dynamic dispatch does not require Rust reference forwarding.
-src/dfa/automaton.rs::method::&'a A.has_empty	method	missing	-	auto-generated
-src/dfa/automaton.rs::method::&'a A.is_accel_state	method	missing	-	auto-generated
-src/dfa/automaton.rs::method::&'a A.is_always_start_anchored	method	missing	-	auto-generated
-src/dfa/automaton.rs::method::&'a A.is_dead_state	method	missing	-	auto-generated
-src/dfa/automaton.rs::method::&'a A.is_match_state	method	missing	-	auto-generated
-src/dfa/automaton.rs::method::&'a A.is_quit_state	method	missing	-	auto-generated
-src/dfa/automaton.rs::method::&'a A.is_special_state	method	missing	-	auto-generated
-src/dfa/automaton.rs::method::&'a A.is_start_state	method	missing	-	auto-generated
-src/dfa/automaton.rs::method::&'a A.is_utf8	method	missing	-	auto-generated
-src/dfa/automaton.rs::method::&'a A.match_len	method	missing	-	auto-generated
-src/dfa/automaton.rs::method::&'a A.match_pattern	method	missing	-	auto-generated
-src/dfa/automaton.rs::method::&'a A.next_eoi_state	method	missing	-	auto-generated
-src/dfa/automaton.rs::method::&'a A.next_state	method	missing	-	auto-generated
-src/dfa/automaton.rs::method::&'a A.next_state_unchecked	method	missing	-	auto-generated
-src/dfa/automaton.rs::method::&'a A.pattern_len	method	missing	-	auto-generated
-src/dfa/automaton.rs::method::&'a A.start_state	method	missing	-	auto-generated
-src/dfa/automaton.rs::method::&'a A.start_state_forward	method	missing	-	auto-generated
-src/dfa/automaton.rs::method::&'a A.start_state_reverse	method	missing	-	auto-generated
-src/dfa/automaton.rs::method::&'a A.try_search_fwd	method	missing	-	auto-generated
-src/dfa/automaton.rs::method::&'a A.try_search_overlapping_fwd	method	missing	-	auto-generated
-src/dfa/automaton.rs::method::&'a A.try_search_overlapping_rev	method	missing	-	auto-generated
-src/dfa/automaton.rs::method::&'a A.try_search_rev	method	missing	-	auto-generated
-src/dfa/automaton.rs::method::&'a A.try_which_overlapping_matches	method	missing	-	auto-generated
-src/dfa/automaton.rs::method::&'a A.universal_start_state	method	missing	-	auto-generated
+src/dfa/automaton.rs::method::&'a A.has_empty	method	intentional_divergence	src/regex/automata/automaton.cr;spec/dfa_api_spec.cr	Rust reference-trait forwarding has no Crystal counterpart; instance dispatch is direct.
+src/dfa/automaton.rs::method::&'a A.is_accel_state	method	intentional_divergence	src/regex/automata/automaton.cr;spec/dfa_api_spec.cr	Rust reference-trait forwarding has no Crystal counterpart; instance dispatch is direct.
+src/dfa/automaton.rs::method::&'a A.is_always_start_anchored	method	intentional_divergence	src/regex/automata/automaton.cr;spec/dfa_api_spec.cr	Rust reference-trait forwarding has no Crystal counterpart; instance dispatch is direct.
+src/dfa/automaton.rs::method::&'a A.is_dead_state	method	intentional_divergence	src/regex/automata/automaton.cr;spec/dfa_api_spec.cr	Rust reference-trait forwarding has no Crystal counterpart; instance dispatch is direct.
+src/dfa/automaton.rs::method::&'a A.is_match_state	method	intentional_divergence	src/regex/automata/automaton.cr;spec/dfa_api_spec.cr	Rust reference-trait forwarding has no Crystal counterpart; instance dispatch is direct.
+src/dfa/automaton.rs::method::&'a A.is_quit_state	method	intentional_divergence	src/regex/automata/automaton.cr;spec/dfa_api_spec.cr	Rust reference-trait forwarding has no Crystal counterpart; instance dispatch is direct.
+src/dfa/automaton.rs::method::&'a A.is_special_state	method	intentional_divergence	src/regex/automata/automaton.cr;spec/dfa_api_spec.cr	Rust reference-trait forwarding has no Crystal counterpart; instance dispatch is direct.
+src/dfa/automaton.rs::method::&'a A.is_start_state	method	intentional_divergence	src/regex/automata/automaton.cr;spec/dfa_api_spec.cr	Rust reference-trait forwarding has no Crystal counterpart; instance dispatch is direct.
+src/dfa/automaton.rs::method::&'a A.is_utf8	method	intentional_divergence	src/regex/automata/automaton.cr;spec/dfa_api_spec.cr	Rust reference-trait forwarding has no Crystal counterpart; instance dispatch is direct.
+src/dfa/automaton.rs::method::&'a A.match_len	method	intentional_divergence	src/regex/automata/automaton.cr;spec/dfa_api_spec.cr	Rust reference-trait forwarding has no Crystal counterpart; instance dispatch is direct.
+src/dfa/automaton.rs::method::&'a A.match_pattern	method	intentional_divergence	src/regex/automata/automaton.cr;spec/dfa_api_spec.cr	Rust reference-trait forwarding has no Crystal counterpart; instance dispatch is direct.
+src/dfa/automaton.rs::method::&'a A.next_eoi_state	method	intentional_divergence	src/regex/automata/automaton.cr;spec/dfa_api_spec.cr	Rust reference-trait forwarding has no Crystal counterpart; instance dispatch is direct.
+src/dfa/automaton.rs::method::&'a A.next_state	method	intentional_divergence	src/regex/automata/automaton.cr;spec/dfa_api_spec.cr	Rust reference-trait forwarding has no Crystal counterpart; instance dispatch is direct.
+src/dfa/automaton.rs::method::&'a A.next_state_unchecked	method	intentional_divergence	src/regex/automata/automaton.cr;spec/dfa_api_spec.cr	Rust reference-trait forwarding has no Crystal counterpart; instance dispatch is direct.
+src/dfa/automaton.rs::method::&'a A.pattern_len	method	intentional_divergence	src/regex/automata/automaton.cr;spec/dfa_api_spec.cr	Rust reference-trait forwarding has no Crystal counterpart; instance dispatch is direct.
+src/dfa/automaton.rs::method::&'a A.start_state	method	intentional_divergence	src/regex/automata/automaton.cr;spec/dfa_api_spec.cr	Rust reference-trait forwarding has no Crystal counterpart; instance dispatch is direct.
+src/dfa/automaton.rs::method::&'a A.start_state_forward	method	intentional_divergence	src/regex/automata/automaton.cr;spec/dfa_api_spec.cr	Rust reference-trait forwarding has no Crystal counterpart; instance dispatch is direct.
+src/dfa/automaton.rs::method::&'a A.start_state_reverse	method	intentional_divergence	src/regex/automata/automaton.cr;spec/dfa_api_spec.cr	Rust reference-trait forwarding has no Crystal counterpart; instance dispatch is direct.
+src/dfa/automaton.rs::method::&'a A.try_search_fwd	method	intentional_divergence	src/regex/automata/automaton.cr;spec/dfa_api_spec.cr	Rust reference-trait forwarding has no Crystal counterpart; instance dispatch is direct.
+src/dfa/automaton.rs::method::&'a A.try_search_overlapping_fwd	method	intentional_divergence	src/regex/automata/automaton.cr;spec/dfa_api_spec.cr	Rust reference-trait forwarding has no Crystal counterpart; instance dispatch is direct.
+src/dfa/automaton.rs::method::&'a A.try_search_overlapping_rev	method	intentional_divergence	src/regex/automata/automaton.cr;spec/dfa_api_spec.cr	Rust reference-trait forwarding has no Crystal counterpart; instance dispatch is direct.
+src/dfa/automaton.rs::method::&'a A.try_search_rev	method	intentional_divergence	src/regex/automata/automaton.cr;spec/dfa_api_spec.cr	Rust reference-trait forwarding has no Crystal counterpart; instance dispatch is direct.
+src/dfa/automaton.rs::method::&'a A.try_which_overlapping_matches	method	intentional_divergence	src/regex/automata/automaton.cr;spec/dfa_api_spec.cr	Rust reference-trait forwarding has no Crystal counterpart; instance dispatch is direct.
+src/dfa/automaton.rs::method::&'a A.universal_start_state	method	intentional_divergence	src/regex/automata/automaton.cr;spec/dfa_api_spec.cr	Rust reference-trait forwarding has no Crystal counterpart; instance dispatch is direct.
 src/dfa/automaton.rs::method::OverlappingState.get_match	method	ported	src/regex/automata/search.cr:OverlappingState#get_match;spec/dfa_api_spec.cr	Reports the most recent overlapping half match or nil.
 src/dfa/automaton.rs::method::OverlappingState.start	method	ported	src/regex/automata/search.cr:OverlappingState.start;spec/dfa_api_spec.cr	Creates fresh overlapping-search state.
 src/dfa/automaton.rs::method::StartError.fmt	method	missing	-	auto-generated
