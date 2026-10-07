@@ -114,12 +114,12 @@ src/nfa/thompson/nfa.rs::test::never_match	missing	-	baseline
 src/nfa/thompson/nfa.rs::test::state_has_small_size	missing	-	baseline
 src/nfa/thompson/range_trie.rs::test::no_splits	missing	-	baseline
 src/nfa/thompson/range_trie.rs::test::splits	missing	-	baseline
-src/util/alphabet.rs::test::byte_classes	missing	-	baseline
-src/util/alphabet.rs::test::elements_empty	missing	-	baseline
-src/util/alphabet.rs::test::elements_singletons	missing	-	baseline
-src/util/alphabet.rs::test::elements_typical	missing	-	baseline
-src/util/alphabet.rs::test::full_byte_classes	missing	-	baseline
-src/util/alphabet.rs::test::representatives	missing	-	baseline
+src/util/alphabet.rs::test::byte_classes	ported	spec/byte_classes_spec.cr	Ports the upstream byte-class partitioning matrix.
+src/util/alphabet.rs::test::elements_empty	ported	spec/byte_classes_spec.cr	Ports empty-map byte and EOI element iteration.
+src/util/alphabet.rs::test::elements_singletons	ported	spec/byte_classes_spec.cr	Ports singleton-map byte and EOI element iteration.
+src/util/alphabet.rs::test::elements_typical	ported	spec/byte_classes_spec.cr	Ports typical partition element iteration.
+src/util/alphabet.rs::test::full_byte_classes	ported	spec/byte_classes_spec.cr	Ports the full singleton partition alphabet length.
+src/util/alphabet.rs::test::representatives	ported	spec/byte_classes_spec.cr	Ports representative iteration, including bounds and EOI.
 src/util/interpolate.rs::test::interpolate_string	missing	-	baseline
 src/util/lazy.rs::test::oibits	missing	-	baseline
 src/util/lazy.rs::test::sync_not_send	missing	-	baseline
