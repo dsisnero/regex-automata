@@ -835,7 +835,7 @@ src/meta/regex.rs::method::Regex.get_config	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.group_info	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.is_accelerated	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.is_match	method	missing	-	auto-generated
-src/meta/regex.rs::method::Regex.memory_usage	method	missing	-	auto-generated
+src/meta/regex.rs::method::Regex.memory_usage	method	ported	src/regex/automata/meta.cr:Regex#memory_usage;spec/meta_regex_spec.cr	Accounts for the active PikeVM, prefilter, and compiled reverse-DFA strategy components.
 src/meta/regex.rs::method::Regex.new	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.new_many	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.pattern_len	method	missing	-	auto-generated
