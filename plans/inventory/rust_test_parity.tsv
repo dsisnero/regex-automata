@@ -123,25 +123,25 @@ src/util/alphabet.rs::test::representatives	ported	spec/byte_classes_spec.cr	Por
 src/util/interpolate.rs::test::interpolate_string	missing	-	baseline
 src/util/lazy.rs::test::oibits	intentional_divergence	src/regex/automata/lazy.cr	Rust-only Send/Sync/UnwindSafe compile-time trait assertion; Crystal has no equivalent trait system.
 src/util/lazy.rs::test::sync_not_send	intentional_divergence	src/regex/automata/lazy.cr	Rust-only Sync-not-Send trait assertion; Crystal concurrency ownership is not expressed through these traits.
-src/util/look.rs::test::look_matches_end_line	missing	-	baseline
-src/util/look.rs::test::look_matches_end_text	missing	-	baseline
-src/util/look.rs::test::look_matches_start_line	missing	-	baseline
-src/util/look.rs::test::look_matches_start_text	missing	-	baseline
-src/util/look.rs::test::look_matches_word_ascii	missing	-	baseline
-src/util/look.rs::test::look_matches_word_ascii_negate	missing	-	baseline
-src/util/look.rs::test::look_matches_word_end_ascii	missing	-	baseline
-src/util/look.rs::test::look_matches_word_end_half_ascii	missing	-	baseline
-src/util/look.rs::test::look_matches_word_end_half_unicode	missing	-	baseline
-src/util/look.rs::test::look_matches_word_end_unicode	missing	-	baseline
-src/util/look.rs::test::look_matches_word_start_ascii	missing	-	baseline
-src/util/look.rs::test::look_matches_word_start_half_ascii	missing	-	baseline
-src/util/look.rs::test::look_matches_word_start_half_unicode	missing	-	baseline
-src/util/look.rs::test::look_matches_word_start_unicode	missing	-	baseline
-src/util/look.rs::test::look_matches_word_unicode	missing	-	baseline
-src/util/look.rs::test::look_matches_word_unicode_negate	missing	-	baseline
-src/util/look.rs::test::look_set	missing	-	baseline
-src/util/look.rs::test::look_set_debug	missing	-	baseline
-src/util/look.rs::test::look_set_iter	missing	-	baseline
+src/util/look.rs::test::look_matches_end_line	ported	spec/look_spec.cr	Ports end-line assertions.
+src/util/look.rs::test::look_matches_end_text	ported	spec/look_spec.cr	Ports end-text assertions.
+src/util/look.rs::test::look_matches_start_line	ported	spec/look_spec.cr	Ports start-line assertions.
+src/util/look.rs::test::look_matches_start_text	ported	spec/look_spec.cr	Ports start-text assertions.
+src/util/look.rs::test::look_matches_word_ascii	ported	spec/look_spec.cr	Ports ASCII word assertions.
+src/util/look.rs::test::look_matches_word_ascii_negate	ported	spec/look_spec.cr	Ports negated ASCII word assertions.
+src/util/look.rs::test::look_matches_word_end_ascii	ported	spec/look_spec.cr	Ports ASCII word-end assertions.
+src/util/look.rs::test::look_matches_word_end_half_ascii	ported	spec/look_spec.cr	Ports ASCII half word-end assertions.
+src/util/look.rs::test::look_matches_word_end_half_unicode	ported	spec/look_spec.cr	Ports Unicode half word-end assertions.
+src/util/look.rs::test::look_matches_word_end_unicode	ported	spec/look_spec.cr	Ports Unicode word-end assertions.
+src/util/look.rs::test::look_matches_word_start_ascii	ported	spec/look_spec.cr	Ports ASCII word-start assertions.
+src/util/look.rs::test::look_matches_word_start_half_ascii	ported	spec/look_spec.cr	Ports ASCII half word-start assertions.
+src/util/look.rs::test::look_matches_word_start_half_unicode	ported	spec/look_spec.cr	Ports Unicode half word-start assertions.
+src/util/look.rs::test::look_matches_word_start_unicode	ported	spec/look_spec.cr	Ports Unicode word-start assertions.
+src/util/look.rs::test::look_matches_word_unicode	ported	spec/look_spec.cr	Ports Unicode word assertions.
+src/util/look.rs::test::look_matches_word_unicode_negate	ported	spec/look_spec.cr	Ports negated Unicode word assertions.
+src/util/look.rs::test::look_set	ported	spec/look_spec.cr	Ports look-set operations and matching.
+src/util/look.rs::test::look_set_debug	ported	spec/look_spec.cr	Ports look-set debug rendering.
+src/util/look.rs::test::look_set_iter	ported	spec/look_spec.cr	Ports look-set iteration order.
 src/util/pool.rs::test::oibits	intentional_divergence	src/regex/automata/pool.cr	Rust-only Send/Sync/UnwindSafe compile-time trait assertion; Crystal has no equivalent trait system.
 src/util/pool.rs::test::thread_owner_distinct	ported	spec/pool_spec.cr	Ports the observable distinct-guard invariant for simultaneous gets.
 src/util/pool.rs::test::thread_owner_optimization	intentional_divergence	src/regex/automata/pool.cr	Crystal uses one mutex-protected bounded stack rather than Rust's thread-owner optimization; observable pooling semantics are covered.
