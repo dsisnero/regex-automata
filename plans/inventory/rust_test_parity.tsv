@@ -88,25 +88,25 @@ src/meta/strategy.rs::test::reverse_suffix_rejects_variable_length_prefix	partia
 src/meta/strategy.rs::test::reverse_suffix_rejects_without_reverse_engine	partial	spec/meta_regex_spec.cr	Public no-reverse-engine guard is covered; Rust's private strategy label is not exposed.
 src/nfa/thompson/backtrack.rs::test::max_haystack_len_overflow	missing	-	baseline
 src/nfa/thompson/builder.rs::test::state_has_small_size	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_alternation	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_captures_all	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_captures_implicit	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_captures_none	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_class_ascii	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_class_unicode	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_empty	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_group	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_literal	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_many_start_pattern	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_no_reverse_unanchored_prefix_with_end_anchor	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_no_unanchored_prefix_with_start_anchor	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_non_binary_union	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_repetition	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_unanchored_prefix	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_yes_reverse_unanchored_prefix_with_start_anchor	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::compile_yes_unanchored_prefix_with_end_anchor	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::empty_class_bytes	missing	-	baseline
-src/nfa/thompson/compiler.rs::test::empty_class_unicode	missing	-	baseline
+src/nfa/thompson/compiler.rs::test::compile_alternation	ported	spec/nfa_thompson_spec.cr;spec/nfa_thompson_representation_spec.cr	Ports alternation lowering.
+src/nfa/thompson/compiler.rs::test::compile_captures_all	ported	spec/nfa_thompson_spec.cr	Ports all-captures policy.
+src/nfa/thompson/compiler.rs::test::compile_captures_implicit	ported	spec/nfa_thompson_spec.cr;spec/nfa_thompson_representation_spec.cr	Ports implicit-captures policy.
+src/nfa/thompson/compiler.rs::test::compile_captures_none	ported	spec/nfa_thompson_spec.cr;spec/nfa_thompson_representation_spec.cr	Ports no-captures policy.
+src/nfa/thompson/compiler.rs::test::compile_class_ascii	ported	spec/nfa_thompson_representation_spec.cr	Ports ASCII class lowering.
+src/nfa/thompson/compiler.rs::test::compile_class_unicode	ported	spec/nfa_thompson_representation_spec.cr	Ports Unicode class lowering.
+src/nfa/thompson/compiler.rs::test::compile_empty	ported	spec/nfa_thompson_representation_spec.cr	Ports empty expression lowering.
+src/nfa/thompson/compiler.rs::test::compile_group	ported	spec/nfa_thompson_spec.cr	Ports group compilation.
+src/nfa/thompson/compiler.rs::test::compile_literal	ported	spec/nfa_thompson_representation_spec.cr	Ports literal lowering.
+src/nfa/thompson/compiler.rs::test::compile_many_start_pattern	ported	spec/nfa_thompson_spec.cr	Ports multi-pattern starts.
+src/nfa/thompson/compiler.rs::test::compile_no_reverse_unanchored_prefix_with_end_anchor	ported	spec/nfa_thompson_spec.cr	Ports reverse end-anchor prefix configuration.
+src/nfa/thompson/compiler.rs::test::compile_no_unanchored_prefix_with_start_anchor	ported	spec/nfa_thompson_spec.cr	Ports start-anchor prefix configuration.
+src/nfa/thompson/compiler.rs::test::compile_non_binary_union	ported	spec/nfa_thompson_spec.cr	Ports non-binary union compilation.
+src/nfa/thompson/compiler.rs::test::compile_repetition	ported	spec/nfa_thompson_spec.cr	Ports repetition compilation.
+src/nfa/thompson/compiler.rs::test::compile_unanchored_prefix	ported	spec/nfa_thompson_spec.cr	Ports unanchored prefix compilation.
+src/nfa/thompson/compiler.rs::test::compile_yes_reverse_unanchored_prefix_with_start_anchor	ported	spec/nfa_thompson_spec.cr	Ports reverse start-anchor prefix configuration.
+src/nfa/thompson/compiler.rs::test::compile_yes_unanchored_prefix_with_end_anchor	ported	spec/nfa_thompson_spec.cr	Ports end-anchor prefix configuration.
+src/nfa/thompson/compiler.rs::test::empty_class_bytes	ported	spec/nfa_thompson_representation_spec.cr	Ports empty byte class lowering.
+src/nfa/thompson/compiler.rs::test::empty_class_unicode	ported	spec/nfa_thompson_representation_spec.cr	Ports empty Unicode class lowering.
 src/nfa/thompson/literal_trie.rs::test::maker	partial	spec/nfa_thompson_representation_spec.cr	Literal compiler behavior is covered through public NFA construction; private trie state layout is not exposed.
 src/nfa/thompson/literal_trie.rs::test::zap	partial	spec/nfa_thompson_representation_spec.cr	Literal-alternation behavior is covered through public NFA construction; private trie state layout is not exposed.
 src/nfa/thompson/nfa.rs::test::always_match	missing	-	baseline
