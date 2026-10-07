@@ -42,6 +42,47 @@ module Regex::Automata::Meta
       mat || at
     end
 
+    def hybrid_try_search_half_fwd(
+      dfa : ::Regex::Automata::Hybrid::DFA,
+      cache : ::Regex::Automata::Hybrid::Cache,
+      input : ::Regex::Automata::Input,
+    ) : ::Regex::Automata::HalfMatch | Int32 | RetryFailError
+      sid = dfa.start_state_forward(cache, input)
+      return RetryFailError.from_match_error(sid) if sid.is_a?(::Regex::Automata::MatchError)
+
+      current = sid.as(::Regex::Automata::Hybrid::LazyStateID)
+      mat = nil.as(::Regex::Automata::HalfMatch?)
+      at = input.start
+      while at < input.end
+        next_state = dfa.next_state(cache, current, input.haystack[at])
+        return RetryFailError.new(at) if next_state.is_a?(::Regex::Automata::Hybrid::CacheError)
+        current = next_state.as(::Regex::Automata::Hybrid::LazyStateID)
+        if current.is_match
+          mat = ::Regex::Automata::HalfMatch.new(dfa.match_pattern(cache, current, 0), at)
+          return mat if input.earliest
+        elsif current.is_dead
+          return mat || at
+        elsif current.is_quit
+          return RetryFailError.new(at)
+        end
+        at += 1
+      end
+
+      next_state = if byte = input.haystack[input.end]?
+                     dfa.next_state(cache, current, byte)
+                   else
+                     dfa.next_eoi_state(cache, current)
+                   end
+      return RetryFailError.new(input.end) if next_state.is_a?(::Regex::Automata::Hybrid::CacheError)
+      current = next_state.as(::Regex::Automata::Hybrid::LazyStateID)
+      if current.is_match
+        mat = ::Regex::Automata::HalfMatch.new(dfa.match_pattern(cache, current, 0), input.end)
+      elsif current.is_quit && input.end < input.haystack.size
+        return RetryFailError.new(input.end)
+      end
+      mat || at
+    end
+
     private def dfa_eoi_fwd(
       dfa : ::Regex::Automata::DFA::DFA,
       input : ::Regex::Automata::Input,
