@@ -777,7 +777,7 @@ src/meta/regex.rs::method::Cache.memory_usage	method	missing	-	auto-generated
 src/meta/regex.rs::method::Cache.new	method	missing	-	auto-generated
 src/meta/regex.rs::method::Cache.reset	method	missing	-	auto-generated
 src/meta/regex.rs::method::CapturesMatches<'r, 'h>.count	method	missing	-	auto-generated
-src/meta/regex.rs::method::CapturesMatches<'r, 'h>.input	method	missing	-	auto-generated
+src/meta/regex.rs::method::CapturesMatches<'r, 'h>.input	method	ported	src/regex/automata/meta.cr:CapturesMatches#input;spec/meta_regex_spec.cr	Exposes the iterator's current owned Input state.
 src/meta/regex.rs::method::CapturesMatches<'r, 'h>.next	method	missing	-	auto-generated
 src/meta/regex.rs::method::CapturesMatches<'r, 'h>.regex	method	missing	-	auto-generated
 src/meta/regex.rs::method::Config.auto_prefilter	method	ported	src/regex/automata/meta.cr:Config#auto_prefilter;spec/meta_regex_spec.cr	Explicit automatic-prefilter control is preserved.
@@ -818,7 +818,7 @@ src/meta/regex.rs::method::Config.to_thompson_config	method	missing	-	auto-gener
 src/meta/regex.rs::method::Config.utf8_empty	method	missing	-	auto-generated
 src/meta/regex.rs::method::Config.which_captures	method	missing	-	auto-generated
 src/meta/regex.rs::method::FindMatches<'r, 'h>.count	method	missing	-	auto-generated
-src/meta/regex.rs::method::FindMatches<'r, 'h>.input	method	missing	-	auto-generated
+src/meta/regex.rs::method::FindMatches<'r, 'h>.input	method	ported	src/regex/automata/meta.cr:FindMatches#input;spec/meta_regex_spec.cr	Exposes the iterator's current owned Input state.
 src/meta/regex.rs::method::FindMatches<'r, 'h>.next	method	missing	-	auto-generated
 src/meta/regex.rs::method::FindMatches<'r, 'h>.regex	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.builder	method	missing	-	auto-generated
@@ -863,9 +863,9 @@ src/meta/regex.rs::method::RegexInfo.new	method	missing	-	auto-generated
 src/meta/regex.rs::method::RegexInfo.pattern_len	method	missing	-	auto-generated
 src/meta/regex.rs::method::RegexInfo.props	method	missing	-	auto-generated
 src/meta/regex.rs::method::RegexInfo.props_union	method	missing	-	auto-generated
-src/meta/regex.rs::method::Split<'r, 'h>.input	method	missing	-	auto-generated
+src/meta/regex.rs::method::Split<'r, 'h>.input	method	ported	src/regex/automata/meta.cr:Split#input;spec/meta_regex_spec.cr	Exposes the iterator's current owned Input state.
 src/meta/regex.rs::method::Split<'r, 'h>.next	method	missing	-	auto-generated
-src/meta/regex.rs::method::SplitN<'r, 'h>.input	method	missing	-	auto-generated
+src/meta/regex.rs::method::SplitN<'r, 'h>.input	method	ported	src/regex/automata/meta.cr:SplitN#input;spec/meta_regex_spec.cr	Exposes the iterator's current owned Input state.
 src/meta/regex.rs::method::SplitN<'r, 'h>.next	method	missing	-	auto-generated
 src/meta/regex.rs::method::SplitN<'r, 'h>.size_hint	method	missing	-	auto-generated
 src/meta/reverse_inner.rs::method::InnerPrefilter.new	method	missing	-	auto-generated
