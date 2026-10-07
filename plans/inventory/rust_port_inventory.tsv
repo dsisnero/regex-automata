@@ -773,9 +773,9 @@ src/meta/regex.rs::method::Builder.build_many_from_hir	method	missing	-	auto-gen
 src/meta/regex.rs::method::Builder.configure	method	missing	-	auto-generated
 src/meta/regex.rs::method::Builder.new	method	missing	-	auto-generated
 src/meta/regex.rs::method::Builder.syntax	method	missing	-	auto-generated
-src/meta/regex.rs::method::Cache.memory_usage	method	missing	-	auto-generated
-src/meta/regex.rs::method::Cache.new	method	missing	-	auto-generated
-src/meta/regex.rs::method::Cache.reset	method	missing	-	auto-generated
+src/meta/regex.rs::method::Cache.memory_usage	method	intentional_divergence	src/regex/automata/meta.cr:Cache#memory_usage;spec/meta_regex_spec.cr	Reports PikeVM scratch only because this port's Meta execution model does not retain Rust hybrid, backtrack, and one-pass cache objects.
+src/meta/regex.rs::method::Cache.new	method	ported	src/regex/automata/meta.cr:Cache#initialize;spec/meta_regex_spec.cr	Creates reusable PikeVM scratch for the owning meta regex.
+src/meta/regex.rs::method::Cache.reset	method	ported	src/regex/automata/meta.cr:Cache#reset;spec/meta_regex_spec.cr	Resets reusable scratch and permits subsequent searches.
 src/meta/regex.rs::method::CapturesMatches<'r, 'h>.count	method	ported	src/regex/automata/meta.cr:CapturesMatches#count;spec/meta_regex_spec.cr	Consumes the iterator and returns its match count.
 src/meta/regex.rs::method::CapturesMatches<'r, 'h>.input	method	ported	src/regex/automata/meta.cr:CapturesMatches#input;spec/meta_regex_spec.cr	Exposes the iterator's current owned Input state.
 src/meta/regex.rs::method::CapturesMatches<'r, 'h>.next	method	ported	src/regex/automata/meta.cr:CapturesMatches#next;spec/meta_regex_spec.cr	Yields independent capture snapshots while advancing the shared Input.
