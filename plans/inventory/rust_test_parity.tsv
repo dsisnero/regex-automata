@@ -121,8 +121,8 @@ src/util/alphabet.rs::test::elements_typical	ported	spec/byte_classes_spec.cr	Po
 src/util/alphabet.rs::test::full_byte_classes	ported	spec/byte_classes_spec.cr	Ports the full singleton partition alphabet length.
 src/util/alphabet.rs::test::representatives	ported	spec/byte_classes_spec.cr	Ports representative iteration, including bounds and EOI.
 src/util/interpolate.rs::test::interpolate_string	missing	-	baseline
-src/util/lazy.rs::test::oibits	missing	-	baseline
-src/util/lazy.rs::test::sync_not_send	missing	-	baseline
+src/util/lazy.rs::test::oibits	intentional_divergence	src/regex/automata/lazy.cr	Rust-only Send/Sync/UnwindSafe compile-time trait assertion; Crystal has no equivalent trait system.
+src/util/lazy.rs::test::sync_not_send	intentional_divergence	src/regex/automata/lazy.cr	Rust-only Sync-not-Send trait assertion; Crystal concurrency ownership is not expressed through these traits.
 src/util/look.rs::test::look_matches_end_line	missing	-	baseline
 src/util/look.rs::test::look_matches_end_text	missing	-	baseline
 src/util/look.rs::test::look_matches_start_line	missing	-	baseline
