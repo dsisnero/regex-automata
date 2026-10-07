@@ -61,7 +61,7 @@ src/meta/strategy.rs::test::reverse_inner_rejects_auto_prefilter_disabled	partia
 src/meta/strategy.rs::test::reverse_inner_rejects_existing_fast_prefilter	missing	-	baseline
 src/meta/strategy.rs::test::reverse_inner_rejects_internal_separator_alignment	partial	spec/meta_regex_spec.cr	Public unsafe separator-alignment rejection is covered.
 src/meta/strategy.rs::test::reverse_inner_rejects_literal_crossing_prefix_boundary	partial	spec/meta_regex_spec.cr	Public prefix-boundary crossing rejection is covered.
-src/meta/strategy.rs::test::reverse_inner_rejects_multiple_patterns	missing	-	baseline
+src/meta/strategy.rs::test::reverse_inner_rejects_multiple_patterns	partial	spec/meta_regex_spec.cr	Public multi-pattern rejection is covered; Rust's private strategy label is not exposed.
 src/meta/strategy.rs::test::reverse_inner_rejects_no_top_level_concat	partial	spec/meta_regex_spec.cr	Public no-top-level-concat rejection is covered.
 src/meta/strategy.rs::test::reverse_inner_rejects_non_leftmost_first	partial	spec/meta_regex_spec.cr	Public MatchKind::All guard is covered through reverse strategy behavior; Rust's private selector is not exposed.
 src/meta/strategy.rs::test::reverse_inner_rejects_unsafe_overlap	missing	-	baseline
@@ -77,9 +77,9 @@ src/meta/strategy.rs::test::reverse_suffix_rejects_existing_fast_prefilter	missi
 src/meta/strategy.rs::test::reverse_suffix_rejects_fully_absorbed_literal	partial	spec/meta_regex_spec.cr	Public fully absorbed literal rejection is covered.
 src/meta/strategy.rs::test::reverse_suffix_rejects_internal_candidate_before_absorber	partial	spec/meta_regex_spec.cr	Public internal-candidate rejection is covered.
 src/meta/strategy.rs::test::reverse_suffix_rejects_internal_suffix_with_word_boundary	partial	spec/meta_regex_spec.cr	Public word-boundary rejection is covered; Rust's private strategy label is not exposed.
-src/meta/strategy.rs::test::reverse_suffix_rejects_multiple_patterns_when_first_looks_safe	missing	-	baseline
-src/meta/strategy.rs::test::reverse_suffix_rejects_multiple_patterns_with_common_suffix	missing	-	baseline
-src/meta/strategy.rs::test::reverse_suffix_rejects_multiple_patterns_without_common_suffix	missing	-	baseline
+src/meta/strategy.rs::test::reverse_suffix_rejects_multiple_patterns_when_first_looks_safe	partial	spec/meta_regex_spec.cr	Public unsafe multi-pattern rejection is covered; Rust's private strategy label is not exposed.
+src/meta/strategy.rs::test::reverse_suffix_rejects_multiple_patterns_with_common_suffix	partial	spec/meta_regex_spec.cr	Public common-suffix multi-pattern rejection is covered; Rust's private strategy label is not exposed.
+src/meta/strategy.rs::test::reverse_suffix_rejects_multiple_patterns_without_common_suffix	partial	spec/meta_regex_spec.cr	Public no-common-suffix multi-pattern rejection is covered; Rust's private strategy label is not exposed.
 src/meta/strategy.rs::test::reverse_suffix_rejects_no_literal_suffix	partial	spec/meta_regex_spec.cr	Public no-suffix rejection is covered; Rust's private strategy label is not exposed.
 src/meta/strategy.rs::test::reverse_suffix_rejects_non_leftmost_first	partial	spec/meta_regex_spec.cr	Public MatchKind::All guard is covered; Rust's private strategy label is not exposed.
 src/meta/strategy.rs::test::reverse_suffix_rejects_safe_nfa_overlap	missing	-	baseline

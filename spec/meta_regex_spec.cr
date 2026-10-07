@@ -300,6 +300,15 @@ describe Regex::Automata::Meta::Regex do
     end
   end
 
+  it "rejects reverse strategies for unsafe multi-pattern sets" do
+    [
+      ["\\w+@\\w+", "\\w+#\\w+"], ["\\d+XYZ", "\\w+XYZ"],
+      ["\\d+XYZ", "\\w+ABC"], ["\\d+b", ".bb|b"], ["\\d+b", "ab"],
+    ].each do |patterns|
+      Regex::Automata::Meta::Regex.builder.build_many(patterns).is_accelerated.should be_false
+    end
+  end
+
   it "disables the large alternation literal bypass when auto prefilters are off" do
     pattern = large_literal_alternation(1000)
     re = Regex::Automata::Meta::Regex.builder
