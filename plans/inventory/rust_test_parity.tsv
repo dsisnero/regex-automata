@@ -207,11 +207,11 @@ tests/hybrid/suite.rs::test::no_cache_clearing	ported	spec/hybrid_spec.cr	Ports 
 tests/hybrid/suite.rs::test::prefilter	ported	spec/hybrid_spec.cr	Ports prefilter workflow.
 tests/hybrid/suite.rs::test::specialize_start_states	ported	spec/hybrid_spec.cr	Ports specialized start-state behavior.
 tests/hybrid/suite.rs::test::starts_for_each_pattern	ported	spec/hybrid_spec.cr	Ports starts-for-each-pattern workflow.
-tests/meta/suite.rs::test::default	missing	-	baseline
-tests/meta/suite.rs::test::no_dfa	missing	-	baseline
-tests/meta/suite.rs::test::no_dfa_hybrid	missing	-	baseline
-tests/meta/suite.rs::test::no_dfa_hybrid_onepass	missing	-	baseline
-tests/meta/suite.rs::test::no_dfa_hybrid_onepass_backtrack	missing	-	baseline
+tests/meta/suite.rs::test::default	ported	spec/meta_regex_spec.cr	Ports default Meta construction/search behavior.
+tests/meta/suite.rs::test::no_dfa	ported	spec/meta_regex_spec.cr	Ports Meta operation with dense DFAs disabled.
+tests/meta/suite.rs::test::no_dfa_hybrid	ported	spec/meta_regex_spec.cr	Ports Meta operation with dense and hybrid DFAs disabled.
+tests/meta/suite.rs::test::no_dfa_hybrid_onepass	ported	spec/meta_regex_spec.cr	Ports Meta operation with DFA, hybrid, and one-pass engines disabled.
+tests/meta/suite.rs::test::no_dfa_hybrid_onepass_backtrack	ported	spec/meta_regex_spec.cr	Ports PikeVM-only Meta fallback configuration.
 tests/nfa/thompson/backtrack/regression.rs::test::too_many_slots_normal_pattern	missing	-	baseline
 tests/nfa/thompson/backtrack/suite.rs::test::default	missing	-	baseline
 tests/nfa/thompson/backtrack/suite.rs::test::min_visited_capacity	missing	-	baseline
