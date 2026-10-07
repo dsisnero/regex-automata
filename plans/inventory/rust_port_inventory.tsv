@@ -58,9 +58,9 @@ src/dfa/automaton.rs::method::&'a A.try_which_overlapping_matches	method	intenti
 src/dfa/automaton.rs::method::&'a A.universal_start_state	method	intentional_divergence	src/regex/automata/automaton.cr;spec/dfa_api_spec.cr	Rust reference-trait forwarding has no Crystal counterpart; instance dispatch is direct.
 src/dfa/automaton.rs::method::OverlappingState.get_match	method	ported	src/regex/automata/search.cr:OverlappingState#get_match;spec/dfa_api_spec.cr	Reports the most recent overlapping half match or nil.
 src/dfa/automaton.rs::method::OverlappingState.start	method	ported	src/regex/automata/search.cr:OverlappingState.start;spec/dfa_api_spec.cr	Creates fresh overlapping-search state.
-src/dfa/automaton.rs::method::StartError.fmt	method	missing	-	auto-generated
-src/dfa/automaton.rs::method::StartError.quit	method	missing	-	auto-generated
-src/dfa/automaton.rs::method::StartError.unsupported_anchored	method	missing	-	auto-generated
+src/dfa/automaton.rs::method::StartError.fmt	method	intentional_divergence	src/regex/automata/automaton.cr:StartError;src/regex/automata/automaton.cr:QuitStartError;src/regex/automata/automaton.cr:UnsupportedAnchoredStartError	Crystal exception messages replace Rust Display formatting for the two start-error variants.
+src/dfa/automaton.rs::method::StartError.quit	method	ported	src/regex/automata/automaton.cr:QuitStartError#initialize;src/regex/automata/dfa.cr:DFA#start_state;spec/dfa_api_spec.cr	The DFA constructs QuitStartError from the same look-behind byte.
+src/dfa/automaton.rs::method::StartError.unsupported_anchored	method	ported	src/regex/automata/automaton.cr:UnsupportedAnchoredStartError#initialize;src/regex/automata/dfa.cr:DFA#start_state;spec/dfa_api_spec.cr	The DFA constructs UnsupportedAnchoredStartError from the unsupported anchored configuration.
 src/dfa/dense.rs::const::LABEL	const	missing	-	auto-generated
 src/dfa/dense.rs::const::VERSION	const	missing	-	auto-generated
 src/dfa/dense.rs::method::BuildError.determinize_exceeded_size_limit	method	partial	src/regex/automata/errors.cr:BuildError;src/regex/automata/dfa.cr	Crystal emits a generic size-limit BuildError rather than a dense-private constructor.
