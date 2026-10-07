@@ -193,20 +193,20 @@ tests/fuzz/sparse.rs::test::start_state_is_not_match_state	intentional_divergenc
 tests/fuzz/sparse.rs::test::transition_to_invalid_but_valid_state	intentional_divergence	src/regex/automata/sparse.cr:Sparse::DFA.from_bytes;src/regex/automata/dfa.cr:DFA.from_bytes	Crystal sparse serialization wraps a validated dense DFA and has no sparse transition-state IDs to corrupt.
 tests/gen/dense/mod.rs::test::multi_pattern_v2	missing	-	baseline
 tests/gen/sparse/mod.rs::test::multi_pattern_v2	missing	-	baseline
-tests/hybrid/api.rs::test::prefilter_does_not_skip_pending_match	missing	-	baseline
-tests/hybrid/api.rs::test::quit_fwd	missing	-	baseline
-tests/hybrid/api.rs::test::quit_panics	missing	-	baseline
-tests/hybrid/api.rs::test::quit_rev	missing	-	baseline
-tests/hybrid/api.rs::test::too_many_cache_resets_cause_quit	missing	-	baseline
-tests/hybrid/api.rs::test::unicode_word_implicitly_works	missing	-	baseline
-tests/hybrid/suite.rs::test::default	missing	-	baseline
-tests/hybrid/suite.rs::test::min_cache_capacity	missing	-	baseline
-tests/hybrid/suite.rs::test::nfa_shrink	missing	-	baseline
-tests/hybrid/suite.rs::test::no_byte_classes	missing	-	baseline
-tests/hybrid/suite.rs::test::no_cache_clearing	missing	-	baseline
-tests/hybrid/suite.rs::test::prefilter	missing	-	baseline
-tests/hybrid/suite.rs::test::specialize_start_states	missing	-	baseline
-tests/hybrid/suite.rs::test::starts_for_each_pattern	missing	-	baseline
+tests/hybrid/api.rs::test::prefilter_does_not_skip_pending_match	ported	spec/hybrid_spec.cr	Ports pending leftmost match preservation across prefilter starts.
+tests/hybrid/api.rs::test::quit_fwd	ported	spec/hybrid_spec.cr	Ports forward quit behavior.
+tests/hybrid/api.rs::test::quit_panics	ported	spec/hybrid_spec.cr	Ports quit configuration error behavior.
+tests/hybrid/api.rs::test::quit_rev	ported	spec/hybrid_spec.cr	Ports reverse quit behavior.
+tests/hybrid/api.rs::test::too_many_cache_resets_cause_quit	ported	spec/hybrid_spec.cr	Ports lazy cache reset/give-up behavior.
+tests/hybrid/api.rs::test::unicode_word_implicitly_works	ported	spec/hybrid_spec.cr	Ports implicit Unicode word-boundary support.
+tests/hybrid/suite.rs::test::default	ported	spec/hybrid_spec.cr	Ports default hybrid workflow.
+tests/hybrid/suite.rs::test::min_cache_capacity	ported	spec/hybrid_spec.cr	Ports minimum cache capacity validation.
+tests/hybrid/suite.rs::test::nfa_shrink	ported	spec/hybrid_spec.cr	Ports NFA shrink workflow.
+tests/hybrid/suite.rs::test::no_byte_classes	ported	spec/hybrid_spec.cr	Ports no-byte-classes workflow.
+tests/hybrid/suite.rs::test::no_cache_clearing	ported	spec/hybrid_spec.cr	Ports no-cache-clearing workflow.
+tests/hybrid/suite.rs::test::prefilter	ported	spec/hybrid_spec.cr	Ports prefilter workflow.
+tests/hybrid/suite.rs::test::specialize_start_states	ported	spec/hybrid_spec.cr	Ports specialized start-state behavior.
+tests/hybrid/suite.rs::test::starts_for_each_pattern	ported	spec/hybrid_spec.cr	Ports starts-for-each-pattern workflow.
 tests/meta/suite.rs::test::default	missing	-	baseline
 tests/meta/suite.rs::test::no_dfa	missing	-	baseline
 tests/meta/suite.rs::test::no_dfa_hybrid	missing	-	baseline
