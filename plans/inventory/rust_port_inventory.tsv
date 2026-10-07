@@ -776,7 +776,7 @@ src/meta/regex.rs::method::Builder.syntax	method	missing	-	auto-generated
 src/meta/regex.rs::method::Cache.memory_usage	method	missing	-	auto-generated
 src/meta/regex.rs::method::Cache.new	method	missing	-	auto-generated
 src/meta/regex.rs::method::Cache.reset	method	missing	-	auto-generated
-src/meta/regex.rs::method::CapturesMatches<'r, 'h>.count	method	missing	-	auto-generated
+src/meta/regex.rs::method::CapturesMatches<'r, 'h>.count	method	ported	src/regex/automata/meta.cr:CapturesMatches#count;spec/meta_regex_spec.cr	Consumes the iterator and returns its match count.
 src/meta/regex.rs::method::CapturesMatches<'r, 'h>.input	method	ported	src/regex/automata/meta.cr:CapturesMatches#input;spec/meta_regex_spec.cr	Exposes the iterator's current owned Input state.
 src/meta/regex.rs::method::CapturesMatches<'r, 'h>.next	method	missing	-	auto-generated
 src/meta/regex.rs::method::CapturesMatches<'r, 'h>.regex	method	missing	-	auto-generated
@@ -817,7 +817,7 @@ src/meta/regex.rs::method::Config.prefilter	method	missing	-	auto-generated
 src/meta/regex.rs::method::Config.to_thompson_config	method	missing	-	auto-generated
 src/meta/regex.rs::method::Config.utf8_empty	method	missing	-	auto-generated
 src/meta/regex.rs::method::Config.which_captures	method	missing	-	auto-generated
-src/meta/regex.rs::method::FindMatches<'r, 'h>.count	method	missing	-	auto-generated
+src/meta/regex.rs::method::FindMatches<'r, 'h>.count	method	ported	src/regex/automata/meta.cr:FindMatches#count;spec/meta_regex_spec.cr	Consumes the iterator and returns its match count.
 src/meta/regex.rs::method::FindMatches<'r, 'h>.input	method	ported	src/regex/automata/meta.cr:FindMatches#input;spec/meta_regex_spec.cr	Exposes the iterator's current owned Input state.
 src/meta/regex.rs::method::FindMatches<'r, 'h>.next	method	missing	-	auto-generated
 src/meta/regex.rs::method::FindMatches<'r, 'h>.regex	method	missing	-	auto-generated
