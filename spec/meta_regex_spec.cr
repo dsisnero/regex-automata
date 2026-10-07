@@ -247,6 +247,15 @@ describe Regex::Automata::Meta::Regex do
     re.find("xx user@example.com yy").should eq(Regex::Automata::Match.must(0, 3...15))
   end
 
+  it "uses hybrid reverse-suffix acceleration when dense DFAs are disabled" do
+    re = Regex::Automata::Meta::Regex.builder
+      .configure(Regex::Automata::Meta::Regex.config.dfa(false))
+      .build("\\d+XYZ")
+
+    re.is_accelerated.should be_true
+    re.find("xx 123XYZ yy").should eq(Regex::Automata::Match.must(0, 3...9))
+  end
+
   it "disables the large alternation literal bypass when auto prefilters are off" do
     pattern = large_literal_alternation(1000)
     re = Regex::Automata::Meta::Regex.builder
