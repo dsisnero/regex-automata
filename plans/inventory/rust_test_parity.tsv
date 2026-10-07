@@ -46,11 +46,11 @@ src/meta/strategy.rs::test::pre_from_prefixes_rejects_look_around	missing	-	base
 src/meta/strategy.rs::test::pre_from_prefixes_rejects_multiple_patterns	missing	-	baseline
 src/meta/strategy.rs::test::pre_from_prefixes_rejects_non_leftmost_first	missing	-	baseline
 src/meta/strategy.rs::test::rebar_benchmarks	missing	-	baseline
-src/meta/strategy.rs::test::reverse_anchored_accepts_end_anchored	missing	-	baseline
-src/meta/strategy.rs::test::reverse_anchored_accepts_hybrid_without_full_dfa	missing	-	baseline
-src/meta/strategy.rs::test::reverse_anchored_accepts_multiple_end_anchored_patterns	missing	-	baseline
-src/meta/strategy.rs::test::reverse_anchored_rejects_start_and_end_anchored	missing	-	baseline
-src/meta/strategy.rs::test::reverse_anchored_rejects_without_reverse_engine	missing	-	baseline
+src/meta/strategy.rs::test::reverse_anchored_accepts_end_anchored	ported	spec/meta_regex_spec.cr	Ports reverse-anchored admission for the upstream \\w+Holmes$ pattern.
+src/meta/strategy.rs::test::reverse_anchored_accepts_hybrid_without_full_dfa	ported	spec/meta_regex_spec.cr	Ports hybrid reverse-anchored fallback when dense DFA construction is disabled.
+src/meta/strategy.rs::test::reverse_anchored_accepts_multiple_end_anchored_patterns	ported	spec/meta_regex_spec.cr	Ports reverse-anchored admission for the upstream Holmes/Watson multi-pattern set.
+src/meta/strategy.rs::test::reverse_anchored_rejects_start_and_end_anchored	ported	spec/meta_regex_spec.cr	Ports rejection of reverse-anchored acceleration for ^\\w+Holmes$.
+src/meta/strategy.rs::test::reverse_anchored_rejects_without_reverse_engine	ported	spec/meta_regex_spec.cr	Ports rejection when both dense and hybrid reverse engines are disabled.
 src/meta/strategy.rs::test::reverse_inner_accepts_disjoint_class_separator	missing	-	baseline
 src/meta/strategy.rs::test::reverse_inner_accepts_disjoint_inner_literal	missing	-	baseline
 src/meta/strategy.rs::test::reverse_inner_accepts_fixed_length_prefix	missing	-	baseline

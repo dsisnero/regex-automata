@@ -360,6 +360,26 @@ describe Regex::Automata::Meta::Regex do
     slots.should eq([2, 5])
   end
 
+  it "uses hybrid reverse-anchored fallback when dense construction is unavailable" do
+    Regex::Automata::Meta::Regex.new("\\w+Holmes$").is_accelerated.should be_true
+
+    multi = Regex::Automata::Meta::Regex.builder
+      .build_many(["\\w+Holmes$", "\\w+Watson$"] of String)
+    multi.is_accelerated.should be_true
+
+    hybrid_only = Regex::Automata::Meta::Regex.builder
+      .configure(Regex::Automata::Meta::Regex.config.dfa(false))
+      .build("\\w+Holmes$")
+    hybrid_only.is_accelerated.should be_true
+
+    no_reverse = Regex::Automata::Meta::Regex.builder
+      .configure(Regex::Automata::Meta::Regex.config.dfa(false).hybrid(false))
+      .build("\\w+Holmes$")
+    no_reverse.is_accelerated.should be_false
+
+    Regex::Automata::Meta::Regex.new("^\\w+Holmes$").is_accelerated.should be_false
+  end
+
   it "reruns capture searches after reverse anchored start discovery" do
     re = Regex::Automata::Meta::Regex.new("(?P<word>foo)$")
     cache = re.create_cache
