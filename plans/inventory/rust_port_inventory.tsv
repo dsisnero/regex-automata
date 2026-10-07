@@ -29,7 +29,7 @@ src/dfa/accel.rs::method::Accels<A>.write_to_len	method	ported	src/regex/automat
 src/dfa/accel.rs::method::Accels<Vec<AccelTy>>.add	method	ported	src/regex/automata/accel.cr:Accels#add;spec/accel_spec.cr	Appends fixed accelerator units and updates the length prefix.
 src/dfa/accel.rs::method::Accels<Vec<AccelTy>>.empty	method	ported	src/regex/automata/accel.cr:Accels.empty;spec/accel_spec.cr	Creates a zero-length prefix collection.
 src/dfa/accel.rs::method::Accels<Vec<AccelTy>>.set_len	method	ported	src/regex/automata/accel.cr:Accels#add;spec/accel_spec.cr	Length-prefix update is internal to Crystal add.
-src/dfa/accel.rs::method::IterAccels<'a, A>.next	method	missing	-	auto-generated
+src/dfa/accel.rs::method::IterAccels<'a, A>.next	method	intentional_divergence	src/regex/automata/accel.cr:Accels#get;spec/accel_spec.cr	Crystal uses indexed collection access instead of Rust's private iterator-trait wrapper.
 src/dfa/automaton.rs::method::&'a A.accelerator	method	missing	-	auto-generated
 src/dfa/automaton.rs::method::&'a A.get_prefilter	method	intentional_divergence	src/regex/automata/automaton.cr:Automaton#get_prefilter	Crystal dynamic dispatch does not require Rust reference forwarding.
 src/dfa/automaton.rs::method::&'a A.has_empty	method	missing	-	auto-generated
