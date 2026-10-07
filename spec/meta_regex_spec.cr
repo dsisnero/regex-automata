@@ -256,6 +256,16 @@ describe Regex::Automata::Meta::Regex do
     re.find("xx 123XYZ yy").should eq(Regex::Automata::Match.must(0, 3...9))
   end
 
+  it "applies Rust's reverse-suffix safety admission rules" do
+    ["\\d+XYZ", "[A-Z][0-9]XYZ", "\\w+\\s+Holmes"].each do |pattern|
+      Regex::Automata::Meta::Regex.new(pattern).is_accelerated.should be_true
+    end
+
+    ["\\b\\w+nn\\b", "^\\d+XYZ", "(?:[A-Za-z]ab)?b", "[a-z]+"].each do |pattern|
+      Regex::Automata::Meta::Regex.new(pattern).is_accelerated.should be_false
+    end
+  end
+
   it "disables the large alternation literal bypass when auto prefilters are off" do
     pattern = large_literal_alternation(1000)
     re = Regex::Automata::Meta::Regex.builder
