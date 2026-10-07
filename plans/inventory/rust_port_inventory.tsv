@@ -750,21 +750,21 @@ src/hybrid/regex.rs::method::Regex.pattern_len	method	missing	-	auto-generated
 src/hybrid/regex.rs::method::Regex.reset_cache	method	missing	-	auto-generated
 src/hybrid/regex.rs::method::Regex.reverse	method	missing	-	auto-generated
 src/hybrid/regex.rs::method::Regex.try_search	method	missing	-	auto-generated
-src/meta/error.rs::method::BuildError.ast	method	missing	-	auto-generated
-src/meta/error.rs::method::BuildError.fmt	method	missing	-	auto-generated
-src/meta/error.rs::method::BuildError.hir	method	missing	-	auto-generated
-src/meta/error.rs::method::BuildError.nfa	method	missing	-	auto-generated
-src/meta/error.rs::method::BuildError.pattern	method	missing	-	auto-generated
-src/meta/error.rs::method::BuildError.size_limit	method	missing	-	auto-generated
-src/meta/error.rs::method::BuildError.source	method	missing	-	auto-generated
-src/meta/error.rs::method::BuildError.syntax_error	method	missing	-	auto-generated
-src/meta/error.rs::method::RetryError.fmt	method	missing	-	auto-generated
-src/meta/error.rs::method::RetryError.from	method	missing	-	auto-generated
-src/meta/error.rs::method::RetryFailError.fmt	method	missing	-	auto-generated
-src/meta/error.rs::method::RetryFailError.from	method	missing	-	auto-generated
-src/meta/error.rs::method::RetryFailError.from_offset	method	missing	-	auto-generated
-src/meta/error.rs::method::RetryQuadraticError.fmt	method	missing	-	auto-generated
-src/meta/error.rs::method::RetryQuadraticError.new	method	missing	-	auto-generated
+src/meta/error.rs::method::BuildError.ast	method	skipped	src/regex/automata/meta_error.cr:BuildError.syntax_error	Rust-private AST conversion; Crystal's regex-syntax parser supplies a unified syntax error.
+src/meta/error.rs::method::BuildError.fmt	method	intentional_divergence	src/regex/automata/meta_error.cr:BuildError	Crystal Exception formatting replaces Rust Display.
+src/meta/error.rs::method::BuildError.hir	method	skipped	src/regex/automata/meta_error.cr:BuildError.syntax_error	Rust-private HIR conversion; Crystal's regex-syntax parser supplies a unified syntax error.
+src/meta/error.rs::method::BuildError.nfa	method	ported	src/regex/automata/meta.cr:Builder.build_many_from_hir;src/regex/automata/meta_error.cr:BuildError.size_limit;spec/meta_regex_spec.cr	Preserves NFA build classification and configured size limit.
+src/meta/error.rs::method::BuildError.pattern	method	ported	src/regex/automata/meta_error.cr:BuildError#pattern;spec/meta_regex_spec.cr	Syntax failures retain the failing pattern ID.
+src/meta/error.rs::method::BuildError.size_limit	method	ported	src/regex/automata/meta_error.cr:BuildError#size_limit;spec/meta_regex_spec.cr	NFA size failures retain their configured byte limit.
+src/meta/error.rs::method::BuildError.source	method	intentional_divergence	src/regex/automata/meta_error.cr:BuildError	Crystal Exception has no Rust Error::source analogue.
+src/meta/error.rs::method::BuildError.syntax_error	method	ported	src/regex/automata/meta_error.cr:BuildError#syntax_error;spec/meta_regex_spec.cr	Only parser failures expose a syntax error.
+src/meta/error.rs::method::RetryError.fmt	method	intentional_divergence	src/regex/automata/meta_error.cr:RetryError	Crystal exception messages replace Rust Display.
+src/meta/error.rs::method::RetryError.from	method	ported	src/regex/automata/meta_error.cr:RetryFailError.from_match_error;spec/meta_regex_spec.cr	Retryable quit and gave-up MatchError values become retry failures.
+src/meta/error.rs::method::RetryFailError.fmt	method	intentional_divergence	src/regex/automata/meta_error.cr:RetryFailError	Crystal exception messages replace Rust Display.
+src/meta/error.rs::method::RetryFailError.from	method	ported	src/regex/automata/meta_error.cr:RetryFailError.from_match_error;spec/meta_regex_spec.cr	Quit and gave-up errors preserve their offset.
+src/meta/error.rs::method::RetryFailError.from_offset	method	ported	src/regex/automata/meta_error.cr:RetryFailError#initialize;spec/meta_limited_spec.cr	Reverse DFA quit paths construct failures at the observed offset.
+src/meta/error.rs::method::RetryQuadraticError.fmt	method	intentional_divergence	src/regex/automata/meta_error.cr:RetryQuadraticError	Crystal exception messages replace Rust Display.
+src/meta/error.rs::method::RetryQuadraticError.new	method	ported	src/regex/automata/meta_error.cr:RetryQuadraticError#initialize;spec/meta_limited_spec.cr	Minimum-start and false-positive guards produce retry errors.
 src/meta/regex.rs::const::DEFAULT_POOL_CAPACITY	const	missing	-	auto-generated
 src/meta/regex.rs::method::Builder.build	method	missing	-	auto-generated
 src/meta/regex.rs::method::Builder.build_from_hir	method	missing	-	auto-generated

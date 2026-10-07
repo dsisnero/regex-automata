@@ -94,7 +94,7 @@
 
 - [ ] Meta regex engine, strategy selection, and guards
   - Scope: `src/meta/{error,limited,literal,prefix,regex,reverse_inner,reverse_suffix,stopat,strategy,wrappers}.rs` and `tests/meta/**`.
-  - Work: prove engine selection/fallback, literal and prefix acceleration, reverse DFA/suffix/inner safety proofs, limited/stop-at guards, captures and multi-pattern behavior, configured engine restrictions, cache/pool behavior, and error propagation. Retain the recently added reverse safety tests, but revalidate every helper and private admission condition against Rust before treating the strategy family as complete.
+  - Work: prove engine selection/fallback, literal and prefix acceleration, reverse DFA/suffix/inner safety proofs, limited/stop-at guards, captures and multi-pattern behavior, configured engine restrictions, cache/pool behavior, and error propagation. Meta NFA size failures now retain their configured limit and remain distinct from syntax failures; reverse limited searches cover both minimum-start and quit-offset guards. Retain the recently added reverse safety tests, but revalidate every helper and private admission condition against Rust before treating the strategy family as complete.
 
 - [ ] Cross-engine conformance and adversarial regression suite
   - Scope: all engine-facing tests in `tests/dfa/**`, `tests/hybrid/**`, `tests/meta/**`, `tests/nfa/**`, plus fuzz/generated fixtures and Rust unit tests under `src/**`.
