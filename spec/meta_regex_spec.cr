@@ -14,6 +14,7 @@ describe Regex::Automata::Meta::Regex do
     caps = re.create_captures
     re.captures("bar", caps)
     caps.get_match.should eq(Regex::Automata::Match.must(1, 0...3))
+    re.memory_usage.should be > 0
   end
 
   it "preserves pool-capacity configuration through builder overwrite" do
