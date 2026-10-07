@@ -1,18 +1,18 @@
 # source_id	kind	status	crystal_refs	notes
-src/dfa/accel.rs::const::ACCEL_CAP	const	missing	-	auto-generated
-src/dfa/accel.rs::const::ACCEL_LEN	const	missing	-	auto-generated
-src/dfa/accel.rs::const::ACCEL_TY_SIZE	const	missing	-	auto-generated
-src/dfa/accel.rs::method::Accel.add	method	missing	-	auto-generated
-src/dfa/accel.rs::method::Accel.as_accel_tys	method	missing	-	auto-generated
-src/dfa/accel.rs::method::Accel.contains	method	missing	-	auto-generated
-src/dfa/accel.rs::method::Accel.fmt	method	missing	-	auto-generated
-src/dfa/accel.rs::method::Accel.from_bytes	method	missing	-	auto-generated
-src/dfa/accel.rs::method::Accel.from_bytes_unchecked	method	missing	-	auto-generated
-src/dfa/accel.rs::method::Accel.from_slice	method	missing	-	auto-generated
-src/dfa/accel.rs::method::Accel.is_empty	method	missing	-	auto-generated
-src/dfa/accel.rs::method::Accel.len	method	missing	-	auto-generated
-src/dfa/accel.rs::method::Accel.needles	method	missing	-	auto-generated
-src/dfa/accel.rs::method::Accel.new	method	missing	-	auto-generated
+src/dfa/accel.rs::const::ACCEL_CAP	const	ported	src/regex/automata/accel.cr:ACCEL_CAP;spec/accel_spec.cr	Eight-byte fixed accelerator layout.
+src/dfa/accel.rs::const::ACCEL_LEN	const	ported	src/regex/automata/accel.cr:ACCEL_LEN;spec/accel_spec.cr	Four-byte serialized accelerator prefix.
+src/dfa/accel.rs::const::ACCEL_TY_SIZE	const	ported	src/regex/automata/accel.cr:ACCEL_TY_SIZE;spec/accel_spec.cr	System-endian UInt32 accelerator unit size.
+src/dfa/accel.rs::method::Accel.add	method	ported	src/regex/automata/accel.cr:Accel#add;spec/accel_spec.cr	Enforces capacity, duplicate, and ASCII-space admission rules.
+src/dfa/accel.rs::method::Accel.as_accel_tys	method	ported	src/regex/automata/accel.cr:Accel#as_accel_tys;spec/accel_spec.cr	Converts the fixed layout to two UInt32 units.
+src/dfa/accel.rs::method::Accel.contains	method	ported	src/regex/automata/accel.cr:Accel#contains?;spec/accel_spec.cr	Checks accelerator needle membership.
+src/dfa/accel.rs::method::Accel.fmt	method	intentional_divergence	src/regex/automata/accel.cr:Accel#to_s	Crystal string formatting replaces Rust Debug.
+src/dfa/accel.rs::method::Accel.from_bytes	method	intentional_divergence	src/regex/automata/accel.cr:Accel.from_slice;spec/accel_spec.cr	Crystal exposes checked fixed-slice decoding rather than Rust's pointer abstraction.
+src/dfa/accel.rs::method::Accel.from_bytes_unchecked	method	intentional_divergence	src/regex/automata/accel.cr:Accel.from_slice;spec/accel_spec.cr	Crystal's bounds-checked Slice cannot expose Rust unchecked pointer decoding.
+src/dfa/accel.rs::method::Accel.from_slice	method	ported	src/regex/automata/accel.cr:Accel.from_slice;spec/accel_spec.cr	Validates fixed accelerator slices.
+src/dfa/accel.rs::method::Accel.is_empty	method	ported	src/regex/automata/accel.cr:Accel#empty?;spec/accel_spec.cr	Reports zero needle length.
+src/dfa/accel.rs::method::Accel.len	method	ported	src/regex/automata/accel.cr:Accel#len;spec/accel_spec.cr	Reports the encoded needle count.
+src/dfa/accel.rs::method::Accel.needles	method	ported	src/regex/automata/accel.cr:Accel#needles;spec/accel_spec.cr	Returns the encoded needle slice.
+src/dfa/accel.rs::method::Accel.new	method	ported	src/regex/automata/accel.cr:Accel#initialize;spec/accel_spec.cr	Constructs the fixed accelerator representation.
 src/dfa/accel.rs::method::Accels<&'a [AccelTy]>.from_bytes_unchecked	method	missing	-	auto-generated
 src/dfa/accel.rs::method::Accels<A>.as_bytes	method	missing	-	auto-generated
 src/dfa/accel.rs::method::Accels<A>.as_ref	method	missing	-	auto-generated
