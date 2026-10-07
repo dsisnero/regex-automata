@@ -12,7 +12,7 @@ module Regex::Automata::Meta
       @syntax_error : String? = nil,
       size_limit_exceeded : Bool = false,
     )
-      super(message, size_limit_exceeded)
+      super(message, size_limit_exceeded, @size_limit)
     end
 
     def self.syntax_error(pid : ::Regex::Automata::PatternID, error) : BuildError
@@ -31,7 +31,6 @@ module Regex::Automata::Meta
       BuildError.new(
         message: "error building NFA",
         size_limit: limit,
-        syntax_error: error.try(&.message),
         size_limit_exceeded: true
       )
     end

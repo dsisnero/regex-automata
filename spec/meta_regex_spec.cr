@@ -82,6 +82,35 @@ describe Regex::Automata::Meta::Regex do
     end
   end
 
+  it "preserves Meta build-error introspection for NFA limits" do
+    error = expect_raises(Regex::Automata::Meta::BuildError) do
+      Regex::Automata::Meta::Regex.builder
+        .configure(Regex::Automata::Meta::Regex.config.nfa_size_limit(0_i64))
+        .build("abc")
+    end
+
+    error.pattern.should be_nil
+    error.size_limit.should eq(0_i64)
+    error.syntax_error.should be_nil
+    error.is_size_limit_exceeded.should be_true
+    error.message.should eq("error building NFA")
+  end
+
+  it "converts only retryable match errors to Meta retry failures" do
+    Regex::Automata::Meta::RetryFailError
+      .from_match_error(Regex::Automata::MatchError.quit('x'.ord.to_u8, 7))
+      .offset.should eq(7)
+    Regex::Automata::Meta::RetryFailError
+      .from_match_error(Regex::Automata::MatchError.gave_up(9))
+      .offset.should eq(9)
+
+    expect_raises(Exception, /impossible meta retry failure/) do
+      Regex::Automata::Meta::RetryFailError.from_match_error(
+        Regex::Automata::MatchError.haystack_too_long(4)
+      )
+    end
+  end
+
   it "supports explicit cache-backed searching" do
     re = Regex::Automata::Meta::Regex.new("foo(?P<num>[0-9]+)")
     cache = re.create_cache

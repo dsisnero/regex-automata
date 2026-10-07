@@ -359,10 +359,12 @@ module Regex::Automata::Meta
         props_union
       )
     rescue ex : ::Regex::Automata::BuildError
-      if ex.is_size_limit_exceeded && (limit = @config.get_nfa_size_limit)
-        raise BuildError.size_limit(limit, ex)
+      if ex.is_size_limit_exceeded
+        if limit = @config.get_nfa_size_limit
+          raise BuildError.size_limit(limit, ex)
+        end
       end
-      raise BuildError.new(message: "error building NFA", syntax_error: ex.message, size_limit_exceeded: ex.is_size_limit_exceeded)
+      raise BuildError.new(message: "error building NFA", size_limit_exceeded: ex.is_size_limit_exceeded)
     end
 
     private def effective_which_captures : ::Regex::Automata::NFA::WhichCaptures
