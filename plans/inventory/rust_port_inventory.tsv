@@ -114,8 +114,8 @@ src/dfa/dense.rs::method::DFA<&'a [u32]>.write_to	method	missing	-	auto-generate
 src/dfa/dense.rs::method::DFA<&[u32]>.builder	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<&[u32]>.config	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<T>.accelerator	method	ported	src/regex/automata/dfa.cr:DFA#accelerator;spec/dfa_api_spec.cr	Crystal exposes accelerator bytes for a state.
-src/dfa/dense.rs::method::DFA<T>.accelerator_index	method	missing	-	auto-generated
-src/dfa/dense.rs::method::DFA<T>.accels	method	missing	-	auto-generated
+src/dfa/dense.rs::method::DFA<T>.accelerator_index	method	ported	src/regex/automata/dfa.cr:DFA#accelerator;src/regex/automata/dfa.cr:DFA#is_accel_state?	Both operations convert the premultiplied state ID to a transition-table index before direct accelerator-array access.
+src/dfa/dense.rs::method::DFA<T>.accels	method	ported	src/regex/automata/dfa.cr:DFA#accelerators;src/regex/automata/dfa.cr:DFA#accelerator	Crystal keeps the accelerator collection as a direct per-state array.
 src/dfa/dense.rs::method::DFA<T>.alphabet_len	method	ported	src/regex/automata/dfa.cr:DFA#alphabet_len;spec/dfa_dense_spec.cr	Crystal reports the transition-table alphabet length.
 src/dfa/dense.rs::method::DFA<T>.as_ref	method	intentional_divergence	src/regex/automata/dfa.cr:DFA#as_ref;spec/dfa_dense_spec.cr	Crystal objects are GC-managed; borrowed DFA view is the same object.
 src/dfa/dense.rs::method::DFA<T>.byte_classes	method	ported	src/regex/automata/dfa.cr:DFA#byte_classifier;spec/dfa_dense_spec.cr	Crystal exposes the byte-class map as byte_classifier.
@@ -133,8 +133,8 @@ src/dfa/dense.rs::method::DFA<T>.is_start_state	method	ported	src/regex/automata
 src/dfa/dense.rs::method::DFA<T>.is_utf8	method	ported	src/regex/automata/dfa.cr:DFA#is_utf8?	Crystal predicate uses ? suffix.
 src/dfa/dense.rs::method::DFA<T>.match_len	method	ported	src/regex/automata/dfa.cr:DFA#match_len	Crystal reports matches held by a state.
 src/dfa/dense.rs::method::DFA<T>.match_pattern	method	ported	src/regex/automata/dfa.cr:DFA#match_pattern	Crystal returns the indexed matching pattern.
-src/dfa/dense.rs::method::DFA<T>.match_pattern_len	method	missing	-	auto-generated
-src/dfa/dense.rs::method::DFA<T>.match_state_index	method	missing	-	auto-generated
+src/dfa/dense.rs::method::DFA<T>.match_pattern_len	method	ported	src/regex/automata/match_states.cr:MatchStates#match_len;src/regex/automata/dfa.cr:DFA#match_len	The flattened match metadata resolves the transition-table state index directly.
+src/dfa/dense.rs::method::DFA<T>.match_state_index	method	ported	src/regex/automata/match_states.cr:MatchStates#match_index	Crystal uses the same transition-table index to address the match slice directly.
 src/dfa/dense.rs::method::DFA<T>.memory_usage	method	partial	src/regex/automata/dfa.cr:DFA#memory_usage;spec/dfa_dense_spec.cr	Reports serialized representation bytes, not Rust allocation-layout accounting.
 src/dfa/dense.rs::method::DFA<T>.next_eoi_state	method	ported	src/regex/automata/dfa.cr:DFA#next_eoi_state;spec/dfa_api_spec.cr	Crystal computes the EOI transition.
 src/dfa/dense.rs::method::DFA<T>.next_state	method	ported	src/regex/automata/dfa.cr:DFA#next_state;spec/dfa_api_spec.cr	Crystal computes a byte transition.

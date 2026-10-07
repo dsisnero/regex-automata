@@ -5,22 +5,23 @@ module Regex::Automata
   # Flattened storage for match state pattern IDs.
   #
   # Rust's dense DFA stores match metadata separately from its transition
-  # table. We keep the same flattened representation here, but use an explicit
-  # state->slice index because this port does not yet reorder match states into
-  # one contiguous region.
+  # table. We keep the same flattened representation here. The slice index is
+  # keyed by the transition-table state index so searches avoid a hash lookup
+  # when resolving a match state.
   class MatchStates
     getter pattern_len : Int32
 
-    @state_to_match_index : Hash(Int32, Int32)
+    @state_to_match_index : Array(Int32?)
+    @tt : TransitionTable?
     @slices : Array(Tuple(Int32, Int32))
     @pattern_ids : Array(PatternID)
 
     def self.empty(pattern_len : Int32 = 0) : MatchStates
-      new({} of Int32 => Int32, [] of Tuple(Int32, Int32), [] of PatternID, pattern_len)
+      new([] of Int32?, [] of Tuple(Int32, Int32), [] of PatternID, pattern_len, nil)
     end
 
     def self.from_states(states : Array(Regex::Automata::DFA::State), tt : TransitionTable?, pattern_len : Int32? = nil) : MatchStates
-      state_to_match_index = {} of Int32 => Int32
+      state_to_match_index = Array(Int32?).new(states.size, nil)
       slices = [] of Tuple(Int32, Int32)
       pattern_ids = [] of PatternID
       max_pattern_id = -1
@@ -31,25 +32,24 @@ module Regex::Automata
         end
         next if state.match.empty?
 
-        public_state_id = tt ? tt.not_nil!.to_state_id(index) : state.id
-        state_to_match_index[public_state_id.to_i] = slices.size
+        state_to_match_index[index] = slices.size
         slices << {pattern_ids.size, state.match.size}
         pattern_ids.concat(state.match)
       end
 
       inferred_pattern_len = max_pattern_id >= 0 ? max_pattern_id + 1 : 0
-      new(state_to_match_index, slices, pattern_ids, pattern_len || inferred_pattern_len)
+      new(state_to_match_index, slices, pattern_ids, pattern_len || inferred_pattern_len, tt)
     end
 
-    def initialize(@state_to_match_index : Hash(Int32, Int32), @slices : Array(Tuple(Int32, Int32)), @pattern_ids : Array(PatternID), @pattern_len : Int32)
+    def initialize(@state_to_match_index : Array(Int32?), @slices : Array(Tuple(Int32, Int32)), @pattern_ids : Array(PatternID), @pattern_len : Int32, @tt : TransitionTable?)
     end
 
     def match_state?(id : StateID) : Bool
-      @state_to_match_index.has_key?(id.to_i)
+      !match_index(id).nil?
     end
 
     def match_len(id : StateID) : Int32
-      index = @state_to_match_index[id.to_i]?
+      index = match_index(id)
       return 0 unless index
 
       _, len = @slices[index]
@@ -59,12 +59,23 @@ module Regex::Automata
     def match_pattern(id : StateID, index : Int32) : PatternID
       return PatternID.new(0) if @pattern_len == 1
 
-      slice_index = @state_to_match_index[id.to_i]?
+      slice_index = match_index(id)
       raise IndexError.new unless slice_index
 
       start, len = @slices[slice_index]
       raise IndexError.new unless 0 <= index < len
       @pattern_ids[start + index]
+    end
+
+    private def match_index(id : StateID) : Int32?
+      state_index = if tt = @tt
+                      tt.to_index(id)
+                    else
+                      id.to_i
+                    end
+      return nil if state_index < 0 || state_index >= @state_to_match_index.size
+
+      @state_to_match_index[state_index]
     end
   end
 end
