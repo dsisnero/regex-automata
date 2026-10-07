@@ -778,8 +778,8 @@ src/meta/regex.rs::method::Cache.new	method	missing	-	auto-generated
 src/meta/regex.rs::method::Cache.reset	method	missing	-	auto-generated
 src/meta/regex.rs::method::CapturesMatches<'r, 'h>.count	method	ported	src/regex/automata/meta.cr:CapturesMatches#count;spec/meta_regex_spec.cr	Consumes the iterator and returns its match count.
 src/meta/regex.rs::method::CapturesMatches<'r, 'h>.input	method	ported	src/regex/automata/meta.cr:CapturesMatches#input;spec/meta_regex_spec.cr	Exposes the iterator's current owned Input state.
-src/meta/regex.rs::method::CapturesMatches<'r, 'h>.next	method	missing	-	auto-generated
-src/meta/regex.rs::method::CapturesMatches<'r, 'h>.regex	method	missing	-	auto-generated
+src/meta/regex.rs::method::CapturesMatches<'r, 'h>.next	method	ported	src/regex/automata/meta.cr:CapturesMatches#next;spec/meta_regex_spec.cr	Yields independent capture snapshots while advancing the shared Input.
+src/meta/regex.rs::method::CapturesMatches<'r, 'h>.regex	method	ported	src/regex/automata/meta.cr:CapturesMatches#regex;spec/meta_regex_spec.cr	Exposes the originating regex.
 src/meta/regex.rs::method::Config.auto_prefilter	method	ported	src/regex/automata/meta.cr:Config#auto_prefilter;spec/meta_regex_spec.cr	Explicit automatic-prefilter control is preserved.
 src/meta/regex.rs::method::Config.backtrack	method	ported	src/regex/automata/meta.cr:Config#backtrack;spec/meta_regex_spec.cr	Explicit engine availability control is preserved.
 src/meta/regex.rs::method::Config.byte_classes	method	ported	src/regex/automata/meta.cr:Config#byte_classes;spec/meta_regex_spec.cr	Explicit byte-class control is preserved.
@@ -819,8 +819,8 @@ src/meta/regex.rs::method::Config.utf8_empty	method	missing	-	auto-generated
 src/meta/regex.rs::method::Config.which_captures	method	missing	-	auto-generated
 src/meta/regex.rs::method::FindMatches<'r, 'h>.count	method	ported	src/regex/automata/meta.cr:FindMatches#count;spec/meta_regex_spec.cr	Consumes the iterator and returns its match count.
 src/meta/regex.rs::method::FindMatches<'r, 'h>.input	method	ported	src/regex/automata/meta.cr:FindMatches#input;spec/meta_regex_spec.cr	Exposes the iterator's current owned Input state.
-src/meta/regex.rs::method::FindMatches<'r, 'h>.next	method	missing	-	auto-generated
-src/meta/regex.rs::method::FindMatches<'r, 'h>.regex	method	missing	-	auto-generated
+src/meta/regex.rs::method::FindMatches<'r, 'h>.next	method	ported	src/regex/automata/meta.cr:FindMatches#next;spec/meta_regex_spec.cr	Yields non-overlapping matches while advancing the shared Input.
+src/meta/regex.rs::method::FindMatches<'r, 'h>.regex	method	ported	src/regex/automata/meta.cr:FindMatches#regex;spec/meta_regex_spec.cr	Exposes the originating regex.
 src/meta/regex.rs::method::Regex.builder	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.captures	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.captures_iter	method	missing	-	auto-generated
