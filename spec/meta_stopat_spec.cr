@@ -1,14 +1,17 @@
 require "./spec_helper"
 
-private def build_forward_meta_dfa(pattern : String) : Regex::Automata::DFA::DFA
-  builder = Regex::Automata::DFA::Builder.new
-    .thompson do |config|
-      config
+private def build_forward_meta_dfa(
+  pattern : String,
+  config : Regex::Automata::DFA::Config = Regex::Automata::DFA::DFA.config,
+) : Regex::Automata::DFA::DFA
+  Regex::Automata::DFA::Builder.new
+    .thompson do |thompson|
+      thompson
         .which_captures(Regex::Automata::NFA::WhichCaptures::None)
         .unanchored_prefix(false)
     end
     .configure(
-      Regex::Automata::DFA::DFA.config
+      config
         .match_kind(Regex::Automata::MatchKind::All)
         .prefilter(nil)
         .accelerate(false)
@@ -16,27 +19,39 @@ private def build_forward_meta_dfa(pattern : String) : Regex::Automata::DFA::DFA
         .starts_for_each_pattern(false)
         .specialize_start_states(false)
     )
-  builder.build(pattern)
+    .build(pattern)
 end
 
 describe Regex::Automata::Meta::StopAt do
-  it "returns the stop offset when a forward anchored search fails late" do
-    dfa = build_forward_meta_dfa("\\d+XYZ\\d+")
-    input = Regex::Automata::Input.new("123XYZabc")
-      .span(0...9)
+  it "reports the point where an anchored forward search becomes dead" do
+    dfa = build_forward_meta_dfa("foo")
+    input = Regex::Automata::Input.new("bar")
+      .span(0...3)
       .anchored(Regex::Automata::Anchored::Yes)
 
-    Regex::Automata::Meta::StopAt.dfa_try_search_half_fwd(dfa, input).should eq(6)
+    Regex::Automata::Meta::StopAt.dfa_try_search_half_fwd(dfa, input).should eq(0)
   end
 
-  it "returns a half match when a forward anchored search succeeds" do
-    dfa = build_forward_meta_dfa("\\d+XYZ\\d+")
-    input = Regex::Automata::Input.new("123XYZ456")
-      .span(0...9)
+  it "reports an end-of-input match at the complete haystack length" do
+    dfa = build_forward_meta_dfa("foo$")
+    input = Regex::Automata::Input.new("foo")
+      .span(0...3)
       .anchored(Regex::Automata::Anchored::Yes)
 
     Regex::Automata::Meta::StopAt.dfa_try_search_half_fwd(dfa, input).should eq(
-      Regex::Automata::HalfMatch.must(0, 9)
+      Regex::Automata::HalfMatch.must(0, 3)
     )
+  end
+
+  it "preserves the byte offset when the forward DFA quits" do
+    config = Regex::Automata::DFA::DFA.config.quit('x'.ord.to_u8, true)
+    dfa = build_forward_meta_dfa("foo", config)
+    input = Regex::Automata::Input.new("xfoo")
+      .span(0...4)
+      .anchored(Regex::Automata::Anchored::Yes)
+
+    result = Regex::Automata::Meta::StopAt.dfa_try_search_half_fwd(dfa, input)
+    result.should be_a(Regex::Automata::Meta::RetryFailError)
+    result.as(Regex::Automata::Meta::RetryFailError).offset.should eq(0)
   end
 end
