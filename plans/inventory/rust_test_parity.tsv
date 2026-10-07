@@ -56,13 +56,13 @@ src/meta/strategy.rs::test::reverse_inner_accepts_disjoint_inner_literal	partial
 src/meta/strategy.rs::test::reverse_inner_accepts_fixed_length_prefix	partial	spec/meta_regex_spec.cr	Public fixed-length-prefix admission is covered; Rust's private strategy label is not exposed.
 src/meta/strategy.rs::test::reverse_inner_accepts_leading_disjoint_class_separator	partial	spec/meta_regex_spec.cr	Public leading-separator admission is covered; Rust's private strategy label is not exposed.
 src/meta/strategy.rs::test::reverse_inner_leading_class_separator_is_conservative	partial	spec/meta_regex_spec.cr	Conservative public rejection is covered; Rust's private strategy label is not exposed.
-src/meta/strategy.rs::test::reverse_inner_rejects_anchored_start	missing	-	baseline
+src/meta/strategy.rs::test::reverse_inner_rejects_anchored_start	partial	spec/meta_regex_spec.cr	Public anchored-start rejection is covered; Rust's private strategy label is not exposed.
 src/meta/strategy.rs::test::reverse_inner_rejects_auto_prefilter_disabled	partial	spec/meta_regex_spec.cr	Public auto-prefilter guard is covered; Rust's private strategy label is not exposed.
 src/meta/strategy.rs::test::reverse_inner_rejects_existing_fast_prefilter	missing	-	baseline
-src/meta/strategy.rs::test::reverse_inner_rejects_internal_separator_alignment	missing	-	baseline
-src/meta/strategy.rs::test::reverse_inner_rejects_literal_crossing_prefix_boundary	missing	-	baseline
+src/meta/strategy.rs::test::reverse_inner_rejects_internal_separator_alignment	partial	spec/meta_regex_spec.cr	Public unsafe separator-alignment rejection is covered.
+src/meta/strategy.rs::test::reverse_inner_rejects_literal_crossing_prefix_boundary	partial	spec/meta_regex_spec.cr	Public prefix-boundary crossing rejection is covered.
 src/meta/strategy.rs::test::reverse_inner_rejects_multiple_patterns	missing	-	baseline
-src/meta/strategy.rs::test::reverse_inner_rejects_no_top_level_concat	missing	-	baseline
+src/meta/strategy.rs::test::reverse_inner_rejects_no_top_level_concat	partial	spec/meta_regex_spec.cr	Public no-top-level-concat rejection is covered.
 src/meta/strategy.rs::test::reverse_inner_rejects_non_leftmost_first	partial	spec/meta_regex_spec.cr	Public MatchKind::All guard is covered through reverse strategy behavior; Rust's private selector is not exposed.
 src/meta/strategy.rs::test::reverse_inner_rejects_unsafe_overlap	missing	-	baseline
 src/meta/strategy.rs::test::reverse_inner_rejects_without_reverse_engine	partial	spec/meta_regex_spec.cr	Public no-reverse-engine guard is covered; Rust's private strategy label is not exposed.
@@ -72,10 +72,10 @@ src/meta/strategy.rs::test::reverse_suffix_accepts_prefix_without_internal_suffi
 src/meta/strategy.rs::test::reverse_suffix_class_separator_is_conservative	partial	spec/meta_regex_spec.cr	Conservative public rejection is covered; Rust's private strategy label is not exposed.
 src/meta/strategy.rs::test::reverse_suffix_rejects_anchored_start	partial	spec/meta_regex_spec.cr	Public anchored-start rejection is covered; Rust's private strategy label is not exposed.
 src/meta/strategy.rs::test::reverse_suffix_rejects_auto_prefilter_disabled	partial	spec/meta_regex_spec.cr	Public auto-prefilter guard is covered; Rust's private strategy label is not exposed.
-src/meta/strategy.rs::test::reverse_suffix_rejects_disjoint_trailing_component	missing	-	baseline
+src/meta/strategy.rs::test::reverse_suffix_rejects_disjoint_trailing_component	partial	spec/meta_regex_spec.cr	Public disjoint-trailing-component rejection is covered.
 src/meta/strategy.rs::test::reverse_suffix_rejects_existing_fast_prefilter	missing	-	baseline
-src/meta/strategy.rs::test::reverse_suffix_rejects_fully_absorbed_literal	missing	-	baseline
-src/meta/strategy.rs::test::reverse_suffix_rejects_internal_candidate_before_absorber	missing	-	baseline
+src/meta/strategy.rs::test::reverse_suffix_rejects_fully_absorbed_literal	partial	spec/meta_regex_spec.cr	Public fully absorbed literal rejection is covered.
+src/meta/strategy.rs::test::reverse_suffix_rejects_internal_candidate_before_absorber	partial	spec/meta_regex_spec.cr	Public internal-candidate rejection is covered.
 src/meta/strategy.rs::test::reverse_suffix_rejects_internal_suffix_with_word_boundary	partial	spec/meta_regex_spec.cr	Public word-boundary rejection is covered; Rust's private strategy label is not exposed.
 src/meta/strategy.rs::test::reverse_suffix_rejects_multiple_patterns_when_first_looks_safe	missing	-	baseline
 src/meta/strategy.rs::test::reverse_suffix_rejects_multiple_patterns_with_common_suffix	missing	-	baseline
@@ -83,7 +83,7 @@ src/meta/strategy.rs::test::reverse_suffix_rejects_multiple_patterns_without_com
 src/meta/strategy.rs::test::reverse_suffix_rejects_no_literal_suffix	partial	spec/meta_regex_spec.cr	Public no-suffix rejection is covered; Rust's private strategy label is not exposed.
 src/meta/strategy.rs::test::reverse_suffix_rejects_non_leftmost_first	partial	spec/meta_regex_spec.cr	Public MatchKind::All guard is covered; Rust's private strategy label is not exposed.
 src/meta/strategy.rs::test::reverse_suffix_rejects_safe_nfa_overlap	missing	-	baseline
-src/meta/strategy.rs::test::reverse_suffix_rejects_unsafe_overlap	missing	-	baseline
+src/meta/strategy.rs::test::reverse_suffix_rejects_unsafe_overlap	partial	spec/meta_regex_spec.cr	Public unsafe-overlap rejection is covered.
 src/meta/strategy.rs::test::reverse_suffix_rejects_variable_length_prefix	partial	spec/meta_regex_spec.cr	Public variable-prefix rejection is covered; Rust's private strategy label is not exposed.
 src/meta/strategy.rs::test::reverse_suffix_rejects_without_reverse_engine	partial	spec/meta_regex_spec.cr	Public no-reverse-engine guard is covered; Rust's private strategy label is not exposed.
 src/nfa/thompson/backtrack.rs::test::max_haystack_len_overflow	missing	-	baseline

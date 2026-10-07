@@ -289,6 +289,17 @@ describe Regex::Automata::Meta::Regex do
     end
   end
 
+  it "rejects unsafe reverse inner and suffix candidates" do
+    [
+      "^\\w+@\\w+", "\\w+", "(?:[ac-z]{3}|[ac-z])(?:aba|baa)",
+      "(?:.abc)?[a]+[b]+c.*", "(?:[ac-z]{2}b[ac-z])?[ac-z]b",
+      "(?:[a-wyz]{3}|[a-wyz]).b", "(?:[a-z]cb|c)[a-z]*b",
+      ".abb|b", ".bb|b",
+    ].each do |pattern|
+      Regex::Automata::Meta::Regex.new(pattern).is_accelerated.should be_false
+    end
+  end
+
   it "disables the large alternation literal bypass when auto prefilters are off" do
     pattern = large_literal_alternation(1000)
     re = Regex::Automata::Meta::Regex.builder
