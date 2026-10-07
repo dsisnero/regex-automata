@@ -45,7 +45,7 @@ src/meta/strategy.rs::test::pre_from_prefixes_rejects_inexact_literal	partial	sr
 src/meta/strategy.rs::test::pre_from_prefixes_rejects_look_around	partial	src/regex/automata/meta.cr:Regex#exact_literal_strategy;spec/meta_regex_spec.cr	Look-around guard is implemented; private strategy choice is not public.
 src/meta/strategy.rs::test::pre_from_prefixes_rejects_multiple_patterns	partial	src/regex/automata/meta.cr:Regex#exact_literal_strategy;spec/meta_regex_spec.cr	Multi-pattern guard is implemented; public acceleration also includes other strategies.
 src/meta/strategy.rs::test::pre_from_prefixes_rejects_non_leftmost_first	partial	src/regex/automata/meta.cr:Regex#exact_literal_strategy;spec/meta_regex_spec.cr	Match-kind guard is implemented; private strategy choice is not public.
-src/meta/strategy.rs::test::rebar_benchmarks	missing	-	baseline
+src/meta/strategy.rs::test::rebar_benchmarks	intentional_divergence	vendor/regex/regex-automata/src/meta/strategy.rs	Rust benchmark registration is not a correctness test and has no Crystal benchmark harness counterpart.
 src/meta/strategy.rs::test::reverse_anchored_accepts_end_anchored	ported	spec/meta_regex_spec.cr	Ports reverse-anchored admission for the upstream \\w+Holmes$ pattern.
 src/meta/strategy.rs::test::reverse_anchored_accepts_hybrid_without_full_dfa	ported	spec/meta_regex_spec.cr	Ports hybrid reverse-anchored fallback when dense DFA construction is disabled.
 src/meta/strategy.rs::test::reverse_anchored_accepts_multiple_end_anchored_patterns	ported	spec/meta_regex_spec.cr	Ports reverse-anchored admission for the upstream Holmes/Watson multi-pattern set.
