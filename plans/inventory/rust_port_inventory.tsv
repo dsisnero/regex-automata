@@ -279,7 +279,7 @@ src/dfa/minimize.rs::method::Minimizer<'a>.fmt	method	missing	-	auto-generated
 src/dfa/minimize.rs::method::Minimizer<'a>.incoming_transitions	method	missing	-	auto-generated
 src/dfa/minimize.rs::method::Minimizer<'a>.initial_partitions	method	missing	-	auto-generated
 src/dfa/minimize.rs::method::Minimizer<'a>.new	method	missing	-	auto-generated
-src/dfa/minimize.rs::method::Minimizer<'a>.run	method	missing	-	auto-generated
+src/dfa/minimize.rs::method::Minimizer<'a>.run	method	ported	src/regex/automata/minimize.cr:Minimizer#run;spec/dfa_dense_spec.cr	Partitions equivalent states and remaps observable DFA metadata; minimized start-table serialization is covered.
 src/dfa/minimize.rs::method::StateSet.add	method	missing	-	auto-generated
 src/dfa/minimize.rs::method::StateSet.canonicalize	method	missing	-	auto-generated
 src/dfa/minimize.rs::method::StateSet.clear	method	missing	-	auto-generated
