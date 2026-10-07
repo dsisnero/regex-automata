@@ -604,6 +604,12 @@ describe Regex::Automata::Meta::Regex do
   it "iterates captures and split spans" do
     re = Regex::Automata::Meta::Regex.new("foo(?P<num>[0-9]+)")
 
+    input = Regex::Automata::Input.new("foo1 foo12")
+    [re.find_iter(input).input, re.captures_iter(input).input, re.split(input).input, re.splitn(2, input).input].each do |iterator_input|
+      iterator_input.haystack.should eq(input.haystack)
+      iterator_input.get_span.should eq(input.get_span)
+    end
+
     re.captures_iter("foo1 foo12").map(&.get_group_by_name("num")).to_a.should eq([
       Regex::Automata::Span.new(3, 4),
       Regex::Automata::Span.new(8, 10),

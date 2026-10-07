@@ -1636,6 +1636,10 @@ module Regex::Automata::Meta
     def initialize(@regex : Regex, @cache : Cache, @it : ::Regex::Automata::Searcher)
     end
 
+    def input : ::Regex::Automata::Input
+      @it.input
+    end
+
     def next : ::Regex::Automata::Match?
       @it.advance { |input| @regex.search_with(@cache, input) }
     end
@@ -1653,6 +1657,10 @@ module Regex::Automata::Meta
     getter regex : Regex
 
     def initialize(@regex : Regex, @cache : Cache, @caps : ::Regex::Automata::Captures, @it : ::Regex::Automata::Searcher)
+    end
+
+    def input : ::Regex::Automata::Input
+      @it.input
     end
 
     def next : ::Regex::Automata::Captures?
@@ -1681,6 +1689,8 @@ module Regex::Automata::Meta
       @done = false
     end
 
+    getter input : ::Regex::Automata::Input
+
     def next
       return stop if @done
 
@@ -1703,6 +1713,10 @@ module Regex::Automata::Meta
       @split = Split.new(@regex, @input)
       @done = limit <= 0
       @last_end = @input.start
+    end
+
+    def input : ::Regex::Automata::Input
+      @split.input
     end
 
     def next
