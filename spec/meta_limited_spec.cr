@@ -1,6 +1,9 @@
 require "./spec_helper"
 
-private def build_reverse_meta_dfa(pattern : String) : Regex::Automata::DFA::DFA
+private def build_reverse_meta_dfa(
+  pattern : String,
+  config : Regex::Automata::DFA::Config = Regex::Automata::DFA::DFA.config,
+) : Regex::Automata::DFA::DFA
   builder = Regex::Automata::DFA::Builder.new
     .thompson do |config|
       config
@@ -9,7 +12,7 @@ private def build_reverse_meta_dfa(pattern : String) : Regex::Automata::DFA::DFA
         .unanchored_prefix(false)
     end
     .configure(
-      Regex::Automata::DFA::DFA.config
+      config
         .match_kind(Regex::Automata::MatchKind::All)
         .prefilter(nil)
         .accelerate(false)
@@ -40,5 +43,27 @@ describe Regex::Automata::Meta::Limited do
     Regex::Automata::Meta::Limited.dfa_try_search_half_rev(dfa, input, 0).should eq(
       Regex::Automata::HalfMatch.must(0, 0)
     )
+  end
+
+  it "retries when the reverse search would pass its minimum start" do
+    dfa = build_reverse_meta_dfa("foo")
+    input = Regex::Automata::Input.new("foo")
+      .span(0...3)
+      .anchored(Regex::Automata::Anchored::Yes)
+
+    result = Regex::Automata::Meta::Limited.dfa_try_search_half_rev(dfa, input, 2)
+    result.should be_a(Regex::Automata::Meta::RetryQuadraticError)
+  end
+
+  it "preserves the byte offset when a reverse DFA quits" do
+    config = Regex::Automata::DFA::DFA.config.quit('x'.ord.to_u8, true)
+    dfa = build_reverse_meta_dfa("foo", config)
+    input = Regex::Automata::Input.new("foox")
+      .span(0...4)
+      .anchored(Regex::Automata::Anchored::Yes)
+
+    result = Regex::Automata::Meta::Limited.dfa_try_search_half_rev(dfa, input, 0)
+    result.should be_a(Regex::Automata::Meta::RetryFailError)
+    result.as(Regex::Automata::Meta::RetryFailError).offset.should eq(3)
   end
 end
