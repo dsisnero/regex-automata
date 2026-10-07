@@ -56,8 +56,8 @@ src/dfa/automaton.rs::method::&'a A.try_search_overlapping_rev	method	missing	-	
 src/dfa/automaton.rs::method::&'a A.try_search_rev	method	missing	-	auto-generated
 src/dfa/automaton.rs::method::&'a A.try_which_overlapping_matches	method	missing	-	auto-generated
 src/dfa/automaton.rs::method::&'a A.universal_start_state	method	missing	-	auto-generated
-src/dfa/automaton.rs::method::OverlappingState.get_match	method	missing	-	auto-generated
-src/dfa/automaton.rs::method::OverlappingState.start	method	missing	-	auto-generated
+src/dfa/automaton.rs::method::OverlappingState.get_match	method	ported	src/regex/automata/search.cr:OverlappingState#get_match;spec/dfa_api_spec.cr	Reports the most recent overlapping half match or nil.
+src/dfa/automaton.rs::method::OverlappingState.start	method	ported	src/regex/automata/search.cr:OverlappingState.start;spec/dfa_api_spec.cr	Creates fresh overlapping-search state.
 src/dfa/automaton.rs::method::StartError.fmt	method	missing	-	auto-generated
 src/dfa/automaton.rs::method::StartError.quit	method	missing	-	auto-generated
 src/dfa/automaton.rs::method::StartError.unsupported_anchored	method	missing	-	auto-generated
