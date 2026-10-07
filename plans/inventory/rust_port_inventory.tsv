@@ -823,14 +823,14 @@ src/meta/regex.rs::method::FindMatches<'r, 'h>.next	method	ported	src/regex/auto
 src/meta/regex.rs::method::FindMatches<'r, 'h>.regex	method	ported	src/regex/automata/meta.cr:FindMatches#regex;spec/meta_regex_spec.cr	Exposes the originating regex.
 src/meta/regex.rs::method::Regex.builder	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.captures	method	missing	-	auto-generated
-src/meta/regex.rs::method::Regex.captures_iter	method	missing	-	auto-generated
+src/meta/regex.rs::method::Regex.captures_iter	method	ported	src/regex/automata/meta.cr:Regex#captures_iter;spec/meta_regex_spec.cr	Creates capture iterators with mutable input state and zero-argument count.
 src/meta/regex.rs::method::Regex.captures_len	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.clone	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.config	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.create_cache	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.create_captures	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.find	method	missing	-	auto-generated
-src/meta/regex.rs::method::Regex.find_iter	method	missing	-	auto-generated
+src/meta/regex.rs::method::Regex.find_iter	method	ported	src/regex/automata/meta.cr:Regex#find_iter;spec/meta_regex_spec.cr	Creates non-overlapping match iterators with mutable input state and zero-argument count.
 src/meta/regex.rs::method::Regex.get_config	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.group_info	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.is_accelerated	method	missing	-	auto-generated
@@ -847,8 +847,8 @@ src/meta/regex.rs::method::Regex.search_half_with	method	missing	-	auto-generate
 src/meta/regex.rs::method::Regex.search_slots	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.search_slots_with	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.search_with	method	missing	-	auto-generated
-src/meta/regex.rs::method::Regex.split	method	missing	-	auto-generated
-src/meta/regex.rs::method::Regex.splitn	method	missing	-	auto-generated
+src/meta/regex.rs::method::Regex.split	method	ported	src/regex/automata/meta.cr:Regex#split;spec/meta_regex_spec.cr	Yields spans between non-overlapping matches.
+src/meta/regex.rs::method::Regex.splitn	method	ported	src/regex/automata/meta.cr:Regex#splitn;spec/meta_regex_spec.cr	Honors zero, one, and bounded split limits.
 src/meta/regex.rs::method::Regex.static_captures_len	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.which_overlapping_matches	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.which_overlapping_matches_with	method	missing	-	auto-generated
