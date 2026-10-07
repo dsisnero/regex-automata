@@ -47,6 +47,38 @@ describe Regex::Automata::Meta::Regex do
     defaults.overwrite(disabled).get_dfa_state_limit.should be_nil
   end
 
+  it "preserves explicit Meta configuration values through overwrite" do
+    prefilter = Regex::Automata::Prefilter.new(Regex::Automata::MatchKind::LeftmostFirst, ["foo"])
+    configured = Regex::Automata::Meta::Regex.config
+      .match_kind(Regex::Automata::MatchKind::All)
+      .utf8_empty(false)
+      .auto_prefilter(false)
+      .prefilter(prefilter)
+      .which_captures(Regex::Automata::NFA::WhichCaptures::None)
+      .hybrid_cache_capacity(1024)
+      .hybrid(false)
+      .dfa(false)
+      .onepass(false)
+      .backtrack(false)
+      .byte_classes(false)
+      .line_terminator(0_u8)
+
+    configured.get_match_kind.should eq(Regex::Automata::MatchKind::All)
+    configured.get_utf8_empty.should be_false
+    configured.get_auto_prefilter.should be_false
+    configured.get_prefilter.should be(prefilter)
+    configured.get_which_captures.should eq(Regex::Automata::NFA::WhichCaptures::None)
+    configured.get_hybrid_cache_capacity.should eq(1024)
+    configured.get_hybrid.should be_false
+    configured.get_dfa.should be_false
+    configured.get_onepass.should be_false
+    configured.get_backtrack.should be_false
+    configured.get_byte_classes.should be_false
+    configured.get_line_terminator.should eq(0_u8)
+
+    Regex::Automata::Meta::Regex.config.overwrite(configured).get_prefilter.should be(prefilter)
+  end
+
   it "no_dfa" do
     re = Regex::Automata::Meta::Regex.builder
       .configure(Regex::Automata::Meta::Regex.config.dfa(false))
