@@ -59,64 +59,42 @@ describe "DFA API" do
   end
 
   describe "universal start search" do
-    it "supports universal start states" do
-      # A variant of `Automaton::is_special_state`'s doctest, but with universal
-      # start states.
-      # See: https://github.com/rust-lang/regex/pull/1195
-      # This corresponds to the Rust test `universal_start_search` in tests/dfa/api.rs
+    it "walks dense universal start states like the Rust automaton contract" do
+      find = ->(dfa : Regex::Automata::DFA::DFA, haystack : String) do
+        state = dfa.universal_start_state(Regex::Automata::Anchored::No).not_nil!
+        last_match : Regex::Automata::HalfMatch? = nil
 
-      # Simple test: build a DFA and check that universal start state methods work
-      # Enable specialize_start_states to make start states special
-      config = Regex::Automata::Config.new.specialize_start_states(true)
-      dfa = Regex::Automata::DFA::Builder.new.configure(config).build("[a-z]+")
+        haystack.to_slice.each_with_index do |byte, index|
+          state = dfa.next_state(state, byte)
+          next unless dfa.is_special_state?(state)
 
-      # Check that universal_start_state returns a state
-      start_state = dfa.universal_start_state(Regex::Automata::Anchored::No)
-      start_state.should_not be_nil
-
-      # Check that is_special_state works
-      dfa.is_special_state?(start_state.not_nil!).should be_true # Start state is special
-
-      # Check that next_state works
-      next_state = dfa.next_state(start_state.not_nil!, 'a'.ord.to_u8)
-      next_state.should_not be_nil
-
-      # Check that is_match_state works
-      # The start state is not a match state (empty string doesn't match [a-z]+)
-      dfa.is_match_state?(start_state.not_nil!).should be_false
-
-      # Check that is_dead_state and is_quit_state work
-      dfa.is_dead_state?(start_state.not_nil!).should be_false
-      dfa.is_dead_state?(Regex::Automata::DFA::DEAD_STATE_ID).should be_true
-
-      dfa.is_quit_state?(start_state.not_nil!).should be_false
-      dfa.is_quit_state?(Regex::Automata::DFA::QUIT_STATE_ID).should be_true
-
-      # Check that next_eoi_state works
-      eoi_state = dfa.next_eoi_state(start_state.not_nil!)
-      eoi_state.should_not be_nil
-
-      # Check that match_pattern works (when state is a match state)
-      # First, find a match state by searching
-      result = dfa.try_search_fwd("abc".to_slice)
-      result.should_not be_nil
-      result.should_not be_a(Regex::Automata::MatchError)
-
-      if match = result.as?(Tuple(Int32, Array(Regex::Automata::PatternID)))
-        end_pos, pattern_ids = match
-        end_pos.should eq(3) # "abc" ends at position 3
-        pattern_ids.should eq([Regex::Automata::PatternID.new(0)])
-
-        # Check match_pattern - we need a match state ID to test this
-        match_state = dfa.universal_start_state(Regex::Automata::Anchored::No).not_nil!
-        "abc".to_slice.each do |byte|
-          match_state = dfa.next_state(match_state, byte)
+          if dfa.is_match_state?(state)
+            last_match = Regex::Automata::HalfMatch.new(dfa.match_pattern(state, 0), index)
+          elsif dfa.is_dead_state?(state)
+            break
+          elsif dfa.is_quit_state?(state)
+            break if last_match
+            raise "unexpected quit state at #{index}"
+          end
         end
-        dfa.is_match_state?(match_state).should be_true
-        dfa.match_len(match_state).should eq(1)
-        dfa.match_pattern(match_state, 0).should eq(Regex::Automata::PatternID.new(0))
-        pattern_ids[0].should eq(Regex::Automata::PatternID.new(0))
+
+        state = dfa.next_eoi_state(state)
+        last_match = Regex::Automata::HalfMatch.new(dfa.match_pattern(state, 0), haystack.bytesize) if dfa.is_match_state?(state)
+        last_match
       end
+
+      check = ->(pattern : String, haystack : String, pattern_id : Int32, offset : Int32) do
+        match = find.call(Regex::Automata::DFA::DFA.new(pattern), haystack)
+        match.should eq(Regex::Automata::HalfMatch.must(pattern_id, offset))
+      end
+
+      check.call("[a-z]+", "123 foobar 4567", 0, 10)
+      check.call("[0-9]{4}", "123 foobar 4567", 0, 15)
+
+      dfa = Regex::Automata::DFA::DFA.new_many(["[a-z]+", "[0-9]+"])
+      find.call(dfa, "123 foobar 4567").should eq(Regex::Automata::HalfMatch.must(1, 3))
+      find.call(dfa, " foobar 4567").should eq(Regex::Automata::HalfMatch.must(0, 7))
+      find.call(dfa, " 4567").should eq(Regex::Automata::HalfMatch.must(1, 5))
     end
   end
 
