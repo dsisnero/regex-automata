@@ -24,6 +24,29 @@ describe Regex::Automata::Meta::Regex do
     merged.get_pool_capacity.should eq(1)
   end
 
+  it "uses Rust's finite Meta engine limits unless explicitly disabled" do
+    defaults = Regex::Automata::Meta::Regex.config
+    defaults.get_nfa_size_limit.should eq(10_i64 * (1_i64 << 20))
+    defaults.get_onepass_size_limit.should eq(1_i64 * (1_i64 << 20))
+    defaults.get_dfa_size_limit.should eq(40_i64 * (1_i64 << 10))
+    defaults.get_dfa_state_limit.should eq(30_i64)
+
+    disabled = defaults
+      .nfa_size_limit(nil)
+      .onepass_size_limit(nil)
+      .dfa_size_limit(nil)
+      .dfa_state_limit(nil)
+    disabled.get_nfa_size_limit.should be_nil
+    disabled.get_onepass_size_limit.should be_nil
+    disabled.get_dfa_size_limit.should be_nil
+    disabled.get_dfa_state_limit.should be_nil
+
+    defaults.overwrite(disabled).get_nfa_size_limit.should be_nil
+    defaults.overwrite(disabled).get_onepass_size_limit.should be_nil
+    defaults.overwrite(disabled).get_dfa_size_limit.should be_nil
+    defaults.overwrite(disabled).get_dfa_state_limit.should be_nil
+  end
+
   it "no_dfa" do
     re = Regex::Automata::Meta::Regex.builder
       .configure(Regex::Automata::Meta::Regex.config.dfa(false))
@@ -308,14 +331,18 @@ describe Regex::Automata::Meta::Regex do
   end
 
   it "uses reverse suffix acceleration after a fixed-length prefix" do
-    re = Regex::Automata::Meta::Regex.new("[a-z]shing")
+    re = Regex::Automata::Meta::Regex.builder
+      .configure(Regex::Automata::Meta::Regex.config.dfa_size_limit(1_i64 << 20).dfa_state_limit(nil))
+      .build("[a-z]shing")
 
     re.is_accelerated.should be_true
     re.find("fshing").should eq(Regex::Automata::Match.must(0, 0...6))
   end
 
   it "uses a disjoint class separator to preserve reverse suffix ordering" do
-    re = Regex::Automata::Meta::Regex.new("\\w+\\s+Holmes")
+    re = Regex::Automata::Meta::Regex.builder
+      .configure(Regex::Automata::Meta::Regex.config.dfa_size_limit(20_i64 << 20).dfa_state_limit(nil))
+      .build("\\w+\\s+Holmes")
 
     re.is_accelerated.should be_true
     re.find("Sherlock Holmes").should eq(Regex::Automata::Match.must(0, 0...15))
@@ -345,7 +372,9 @@ describe Regex::Automata::Meta::Regex do
   end
 
   it "uses reverse inner acceleration for inner literal matches" do
-    re = Regex::Automata::Meta::Regex.new("[a-z]+XYZ\\d+")
+    re = Regex::Automata::Meta::Regex.builder
+      .configure(Regex::Automata::Meta::Regex.config.dfa_size_limit(1_i64 << 20).dfa_state_limit(nil))
+      .build("[a-z]+XYZ\\d+")
     cache = re.create_cache
     input = Regex::Automata::Input.new("abcXYZ123")
     slots = [nil, nil] of Int32?

@@ -38,12 +38,16 @@ module Regex::Automata::Meta
     @prefilter_explicit : Bool
     @which_captures : ::Regex::Automata::NFA::WhichCaptures?
     @nfa_size_limit : Int64?
+    @nfa_size_limit_set : Bool
     @onepass_size_limit : Int64?
+    @onepass_size_limit_set : Bool
     @hybrid_cache_capacity : Int32?
     @hybrid : Bool?
     @dfa : Bool?
     @dfa_size_limit : Int64?
+    @dfa_size_limit_set : Bool
     @dfa_state_limit : Int64?
+    @dfa_state_limit_set : Bool
     @onepass : Bool?
     @backtrack : Bool?
     @byte_classes : Bool?
@@ -59,12 +63,16 @@ module Regex::Automata::Meta
       @prefilter_explicit : Bool = false,
       @which_captures : ::Regex::Automata::NFA::WhichCaptures? = nil,
       @nfa_size_limit : Int64? = nil,
+      @nfa_size_limit_set : Bool = false,
       @onepass_size_limit : Int64? = nil,
+      @onepass_size_limit_set : Bool = false,
       @hybrid_cache_capacity : Int32? = nil,
       @hybrid : Bool? = nil,
       @dfa : Bool? = nil,
       @dfa_size_limit : Int64? = nil,
+      @dfa_size_limit_set : Bool = false,
       @dfa_state_limit : Int64? = nil,
+      @dfa_state_limit_set : Bool = false,
       @onepass : Bool? = nil,
       @backtrack : Bool? = nil,
       @byte_classes : Bool? = nil,
@@ -94,11 +102,11 @@ module Regex::Automata::Meta
     end
 
     def nfa_size_limit(limit : Int64?) : Config
-      copy(nfa_size_limit: limit)
+      copy(nfa_size_limit: limit, nfa_size_limit_set: true)
     end
 
     def onepass_size_limit(limit : Int64?) : Config
-      copy(onepass_size_limit: limit)
+      copy(onepass_size_limit: limit, onepass_size_limit_set: true)
     end
 
     def hybrid_cache_capacity(capacity : Int32) : Config
@@ -114,11 +122,11 @@ module Regex::Automata::Meta
     end
 
     def dfa_size_limit(limit : Int64?) : Config
-      copy(dfa_size_limit: limit)
+      copy(dfa_size_limit: limit, dfa_size_limit_set: true)
     end
 
     def dfa_state_limit(limit : Int64?) : Config
-      copy(dfa_state_limit: limit)
+      copy(dfa_state_limit: limit, dfa_state_limit_set: true)
     end
 
     def onepass(yes : Bool) : Config
@@ -165,11 +173,11 @@ module Regex::Automata::Meta
     end
 
     def get_nfa_size_limit : Int64?
-      @nfa_size_limit
+      @nfa_size_limit_set ? @nfa_size_limit : 10_i64 * (1_i64 << 20)
     end
 
     def get_onepass_size_limit : Int64?
-      @onepass_size_limit
+      @onepass_size_limit_set ? @onepass_size_limit : 1_i64 * (1_i64 << 20)
     end
 
     def get_hybrid_cache_capacity : Int32
@@ -185,11 +193,11 @@ module Regex::Automata::Meta
     end
 
     def get_dfa_size_limit : Int64?
-      @dfa_size_limit
+      @dfa_size_limit_set ? @dfa_size_limit : 40_i64 * (1_i64 << 10)
     end
 
     def get_dfa_state_limit : Int64?
-      @dfa_state_limit
+      @dfa_state_limit_set ? @dfa_state_limit : 30_i64
     end
 
     def get_onepass : Bool
@@ -220,13 +228,17 @@ module Regex::Automata::Meta
         prefilter: other.@prefilter_explicit ? other.@prefilter : @prefilter,
         prefilter_explicit: other.@prefilter_explicit || @prefilter_explicit,
         which_captures: other.@which_captures.nil? ? @which_captures : other.@which_captures,
-        nfa_size_limit: other.@nfa_size_limit.nil? ? @nfa_size_limit : other.@nfa_size_limit,
-        onepass_size_limit: other.@onepass_size_limit.nil? ? @onepass_size_limit : other.@onepass_size_limit,
+        nfa_size_limit: other.@nfa_size_limit_set ? other.@nfa_size_limit : @nfa_size_limit,
+        nfa_size_limit_set: other.@nfa_size_limit_set || @nfa_size_limit_set,
+        onepass_size_limit: other.@onepass_size_limit_set ? other.@onepass_size_limit : @onepass_size_limit,
+        onepass_size_limit_set: other.@onepass_size_limit_set || @onepass_size_limit_set,
         hybrid_cache_capacity: other.@hybrid_cache_capacity.nil? ? @hybrid_cache_capacity : other.@hybrid_cache_capacity,
         hybrid: other.@hybrid.nil? ? @hybrid : other.@hybrid,
         dfa: other.@dfa.nil? ? @dfa : other.@dfa,
-        dfa_size_limit: other.@dfa_size_limit.nil? ? @dfa_size_limit : other.@dfa_size_limit,
-        dfa_state_limit: other.@dfa_state_limit.nil? ? @dfa_state_limit : other.@dfa_state_limit,
+        dfa_size_limit: other.@dfa_size_limit_set ? other.@dfa_size_limit : @dfa_size_limit,
+        dfa_size_limit_set: other.@dfa_size_limit_set || @dfa_size_limit_set,
+        dfa_state_limit: other.@dfa_state_limit_set ? other.@dfa_state_limit : @dfa_state_limit,
+        dfa_state_limit_set: other.@dfa_state_limit_set || @dfa_state_limit_set,
         onepass: other.@onepass.nil? ? @onepass : other.@onepass,
         backtrack: other.@backtrack.nil? ? @backtrack : other.@backtrack,
         byte_classes: other.@byte_classes.nil? ? @byte_classes : other.@byte_classes,
@@ -244,12 +256,16 @@ module Regex::Automata::Meta
       prefilter_explicit : Bool = @prefilter_explicit,
       which_captures : ::Regex::Automata::NFA::WhichCaptures? = @which_captures,
       nfa_size_limit : Int64? = @nfa_size_limit,
+      nfa_size_limit_set : Bool = @nfa_size_limit_set,
       onepass_size_limit : Int64? = @onepass_size_limit,
+      onepass_size_limit_set : Bool = @onepass_size_limit_set,
       hybrid_cache_capacity : Int32? = @hybrid_cache_capacity,
       hybrid : Bool? = @hybrid,
       dfa : Bool? = @dfa,
       dfa_size_limit : Int64? = @dfa_size_limit,
+      dfa_size_limit_set : Bool = @dfa_size_limit_set,
       dfa_state_limit : Int64? = @dfa_state_limit,
+      dfa_state_limit_set : Bool = @dfa_state_limit_set,
       onepass : Bool? = @onepass,
       backtrack : Bool? = @backtrack,
       byte_classes : Bool? = @byte_classes,
@@ -264,12 +280,16 @@ module Regex::Automata::Meta
         prefilter_explicit: prefilter_explicit,
         which_captures: which_captures,
         nfa_size_limit: nfa_size_limit,
+        nfa_size_limit_set: nfa_size_limit_set,
         onepass_size_limit: onepass_size_limit,
+        onepass_size_limit_set: onepass_size_limit_set,
         hybrid_cache_capacity: hybrid_cache_capacity,
         hybrid: hybrid,
         dfa: dfa,
         dfa_size_limit: dfa_size_limit,
+        dfa_size_limit_set: dfa_size_limit_set,
         dfa_state_limit: dfa_state_limit,
+        dfa_state_limit_set: dfa_state_limit_set,
         onepass: onepass,
         backtrack: backtrack,
         byte_classes: byte_classes,
