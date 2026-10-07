@@ -32,19 +32,19 @@ src/meta/reverse_suffix.rs::test::suffix_must_be_adjacent	partial	src/regex/auto
 src/meta/strategy.rs::test::core_selected_when_auto_prefilter_is_disabled	ported	spec/meta_regex_spec.cr	Ports the exact \\w+Holmes configuration with auto prefilters disabled and verifies core-only execution.
 src/meta/strategy.rs::test::core_selected_when_no_special_strategy_applies	ported	spec/meta_regex_spec.cr	Ports the [a-z]+ core-strategy fallback and its unaccelerated behavior.
 src/meta/strategy.rs::test::core_selected_when_reverse_engines_are_disabled	ported	spec/meta_regex_spec.cr	Ports the exact \\w+Holmes configuration with both reverse engines disabled and verifies core-only execution.
-src/meta/strategy.rs::test::pre_from_alternation_literals_accepts_large_alternation	missing	-	baseline
-src/meta/strategy.rs::test::pre_from_alternation_literals_rejects_captures	missing	-	baseline
-src/meta/strategy.rs::test::pre_from_alternation_literals_rejects_look_around	missing	-	baseline
-src/meta/strategy.rs::test::pre_from_alternation_literals_rejects_multiple_patterns	missing	-	baseline
-src/meta/strategy.rs::test::pre_from_alternation_literals_rejects_non_leftmost_first	missing	-	baseline
-src/meta/strategy.rs::test::pre_from_alternation_literals_rejects_small_alternation	missing	-	baseline
-src/meta/strategy.rs::test::pre_from_prefixes_accepts_exact_literal	missing	-	baseline
-src/meta/strategy.rs::test::pre_from_prefixes_rejects_captures	missing	-	baseline
-src/meta/strategy.rs::test::pre_from_prefixes_rejects_empty_literal	missing	-	baseline
-src/meta/strategy.rs::test::pre_from_prefixes_rejects_inexact_literal	missing	-	baseline
-src/meta/strategy.rs::test::pre_from_prefixes_rejects_look_around	missing	-	baseline
-src/meta/strategy.rs::test::pre_from_prefixes_rejects_multiple_patterns	missing	-	baseline
-src/meta/strategy.rs::test::pre_from_prefixes_rejects_non_leftmost_first	missing	-	baseline
+src/meta/strategy.rs::test::pre_from_alternation_literals_accepts_large_alternation	partial	src/regex/automata/meta.cr:Regex#alternation_literals;spec/meta_regex_spec.cr	Large-alternation bypass is integration-tested; Crystal does not expose Rust's private strategy name.
+src/meta/strategy.rs::test::pre_from_alternation_literals_rejects_captures	partial	src/regex/automata/meta.cr:Regex#exact_literal_strategy;spec/meta_regex_spec.cr	Capture admission is implemented; public acceleration also includes non-literal strategies.
+src/meta/strategy.rs::test::pre_from_alternation_literals_rejects_look_around	partial	src/regex/automata/meta.cr:Regex#exact_literal_strategy;spec/meta_regex_spec.cr	Look-around admission is implemented; private strategy choice is not public.
+src/meta/strategy.rs::test::pre_from_alternation_literals_rejects_multiple_patterns	partial	src/regex/automata/meta.cr:Regex#exact_literal_strategy;spec/meta_regex_spec.cr	Multi-pattern admission is implemented; private strategy choice is not public.
+src/meta/strategy.rs::test::pre_from_alternation_literals_rejects_non_leftmost_first	partial	src/regex/automata/meta.cr:Regex#exact_literal_strategy;spec/meta_regex_spec.cr	Match-kind guard is implemented; private strategy choice is not public.
+src/meta/strategy.rs::test::pre_from_alternation_literals_rejects_small_alternation	partial	src/regex/automata/meta.cr:Regex#alternation_literals;spec/meta_regex_spec.cr	Small/large alternation threshold is implemented; private strategy name is not public.
+src/meta/strategy.rs::test::pre_from_prefixes_accepts_exact_literal	partial	src/regex/automata/meta.cr:Regex#exact_literal_strategy;spec/meta_regex_spec.cr	Exact literals are integration-tested; Crystal does not expose Rust's private selector name.
+src/meta/strategy.rs::test::pre_from_prefixes_rejects_captures	partial	src/regex/automata/meta.cr:Regex#exact_literal_strategy;spec/meta_regex_spec.cr	Capture guard is implemented; public acceleration also includes other strategies.
+src/meta/strategy.rs::test::pre_from_prefixes_rejects_empty_literal	partial	src/regex/automata/meta.cr:Regex#exact_literal_strategy;spec/meta_regex_spec.cr	Empty literal guard is implemented; public acceleration also includes other strategies.
+src/meta/strategy.rs::test::pre_from_prefixes_rejects_inexact_literal	partial	src/regex/automata/meta.cr:Regex#exact_literal_strategy;spec/meta_regex_spec.cr	Inexact literals may use a valid core prefilter, so private-selector rejection is not directly observable.
+src/meta/strategy.rs::test::pre_from_prefixes_rejects_look_around	partial	src/regex/automata/meta.cr:Regex#exact_literal_strategy;spec/meta_regex_spec.cr	Look-around guard is implemented; private strategy choice is not public.
+src/meta/strategy.rs::test::pre_from_prefixes_rejects_multiple_patterns	partial	src/regex/automata/meta.cr:Regex#exact_literal_strategy;spec/meta_regex_spec.cr	Multi-pattern guard is implemented; public acceleration also includes other strategies.
+src/meta/strategy.rs::test::pre_from_prefixes_rejects_non_leftmost_first	partial	src/regex/automata/meta.cr:Regex#exact_literal_strategy;spec/meta_regex_spec.cr	Match-kind guard is implemented; private strategy choice is not public.
 src/meta/strategy.rs::test::rebar_benchmarks	missing	-	baseline
 src/meta/strategy.rs::test::reverse_anchored_accepts_end_anchored	ported	spec/meta_regex_spec.cr	Ports reverse-anchored admission for the upstream \\w+Holmes$ pattern.
 src/meta/strategy.rs::test::reverse_anchored_accepts_hybrid_without_full_dfa	ported	spec/meta_regex_spec.cr	Ports hybrid reverse-anchored fallback when dense DFA construction is disabled.
