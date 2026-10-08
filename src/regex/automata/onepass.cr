@@ -631,6 +631,7 @@ module Regex::Automata::DFA
 
       def is_match(cache : Cache, haystack : String | Bytes | ::Regex::Automata::Input) : Bool
         input = normalize_and_anchor(haystack)
+        input.set_earliest(true)
         result = try_search_slots(cache, input, [] of ::Regex::Automata::NonMaxUsize?)
         raise result if result.is_a?(::Regex::Automata::MatchError)
 

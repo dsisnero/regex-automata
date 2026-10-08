@@ -110,6 +110,14 @@ describe Regex::Automata::DFA::OnePass::DFA do
     err.mode.should eq(Regex::Automata::Anchored::Pattern)
   end
 
+  it "uses an internal earliest search for existence checks" do
+    re = Regex::Automata::DFA::OnePass::DFA.new("(abc)+")
+    input = Regex::Automata::Input.new("abcabc")
+
+    re.is_match(re.create_cache, input).should be_true
+    input.get_earliest.should be_false
+  end
+
   it "supports starts_for_each_pattern for anchored pattern searches" do
     re = Regex::Automata::DFA::OnePass::DFA.builder
       .configure(
