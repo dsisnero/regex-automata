@@ -263,6 +263,22 @@ describe Regex::Automata::DFA::OnePass::DFA do
     end
   end
 
+  it "executes compiled one-pass assertion transitions and match states" do
+    boundary = Regex::Automata::DFA::OnePass::DFA.new("(?-u:\\b)abc")
+    cache = boundary.create_cache
+    boundary.find(cache, Regex::Automata::Input.new("abc").anchored(Regex::Automata::Anchored::Yes)).should eq(
+      Regex::Automata::Match.must(0, 0...3)
+    )
+    boundary.find(cache, Regex::Automata::Input.new("zabc").span(1...4).anchored(Regex::Automata::Anchored::Yes)).should be_nil
+
+    end_anchor = Regex::Automata::DFA::OnePass::DFA.new("abc$")
+    cache = end_anchor.create_cache
+    end_anchor.find(cache, Regex::Automata::Input.new("abc").anchored(Regex::Automata::Anchored::Yes)).should eq(
+      Regex::Automata::Match.must(0, 0...3)
+    )
+    end_anchor.find(cache, Regex::Automata::Input.new("abcx").anchored(Regex::Automata::Anchored::Yes)).should be_nil
+  end
+
   it "honors one-pass size limits" do
     expect_raises(Regex::Automata::DFA::OnePass::BuildError, /size limit/) do
       Regex::Automata::DFA::OnePass::DFA.builder

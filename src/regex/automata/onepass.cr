@@ -117,10 +117,9 @@ module Regex::Automata::DFA
     end
 
     # Builds the same one-pass admission graph as Rust's InternalBuilder.
-    # The public DFA still delegates execution to PikeVM for now, but admission
-    # is deliberately derived from the Thompson NFA rather than a table of
-    # pattern-string exceptions. This is the prerequisite for replacing that
-    # execution path with the compiled table.
+    # The compiled table handles regular assertion-bearing searches. PikeVM is
+    # retained only for UTF-8 empty-match handling, whose character-boundary
+    # rule requires its existing searcher support.
     private class Admission
       PATTERN_ID_LIMIT    = 0xFFFF_i32
       EXPLICIT_SLOT_LIMIT =     32_i32
@@ -137,14 +136,38 @@ module Regex::Automata::DFA
       @matched : Bool
 
       private struct Epsilons
-        getter looks : UInt32
+        getter looks : ::Regex::Automata::LookSet
         getter slots : UInt32
 
-        def initialize(@looks : UInt32 = 0_u32, @slots : UInt32 = 0_u32)
+        def initialize(@looks : ::Regex::Automata::LookSet = ::Regex::Automata::LookSet.empty, @slots : UInt32 = 0_u32)
         end
 
         def with_look(kind : NFA::Look::Kind) : Epsilons
-          Epsilons.new(@looks | (1_u32 << kind.value), @slots)
+          look = case kind
+                 when NFA::Look::Kind::StartLF              then ::Regex::Automata::Look::StartLF
+                 when NFA::Look::Kind::EndLF                then ::Regex::Automata::Look::EndLF
+                 when NFA::Look::Kind::StartCRLF            then ::Regex::Automata::Look::StartCRLF
+                 when NFA::Look::Kind::EndCRLF              then ::Regex::Automata::Look::EndCRLF
+                 when NFA::Look::Kind::WordBoundaryAscii    then ::Regex::Automata::Look::WordAscii
+                 when NFA::Look::Kind::NonWordBoundaryAscii then ::Regex::Automata::Look::WordAsciiNegate
+                 when NFA::Look::Kind::WordBoundaryUnicode  then ::Regex::Automata::Look::WordUnicode
+                 when NFA::Look::Kind::NonWordBoundaryUnicode
+                   ::Regex::Automata::Look::WordUnicodeNegate
+                 when NFA::Look::Kind::WordStartAscii       then ::Regex::Automata::Look::WordStartAscii
+                 when NFA::Look::Kind::WordEndAscii         then ::Regex::Automata::Look::WordEndAscii
+                 when NFA::Look::Kind::WordStartUnicode     then ::Regex::Automata::Look::WordStartUnicode
+                 when NFA::Look::Kind::WordEndUnicode       then ::Regex::Automata::Look::WordEndUnicode
+                 when NFA::Look::Kind::WordStartHalfAscii   then ::Regex::Automata::Look::WordStartHalfAscii
+                 when NFA::Look::Kind::WordEndHalfAscii     then ::Regex::Automata::Look::WordEndHalfAscii
+                 when NFA::Look::Kind::WordStartHalfUnicode then ::Regex::Automata::Look::WordStartHalfUnicode
+                 when NFA::Look::Kind::WordEndHalfUnicode   then ::Regex::Automata::Look::WordEndHalfUnicode
+                 when NFA::Look::Kind::StartText            then ::Regex::Automata::Look::Start
+                 when NFA::Look::Kind::EndText              then ::Regex::Automata::Look::End
+                 when NFA::Look::Kind::EndTextWithNewline   then ::Regex::Automata::Look::EndLF
+                 else
+                   raise "unreachable one-pass look assertion: #{kind}"
+                 end
+          Epsilons.new(@looks.insert(look), @slots)
         end
 
         def with_slot(slot : Int32) : Epsilons
@@ -216,8 +239,7 @@ module Regex::Automata::DFA
       end
 
       def supports_table_execution? : Bool
-        @nfa.look_set_any.is_empty &&
-          !(@nfa.has_empty && @nfa.is_utf8)
+        !(@nfa.has_empty && @nfa.is_utf8)
       end
 
       def start(pattern : PatternID? = nil) : StateID
@@ -241,10 +263,20 @@ module Regex::Automata::DFA
         @table[state_id.to_i][@classes[byte]].try(&.epsilons).try(&.apply_slots(slots, at))
       end
 
+      def transition_looks_match?(state_id : StateID, byte : UInt8, haystack : Bytes, at : Int32) : Bool
+        epsilons = @table[state_id.to_i][@classes[byte]].try(&.epsilons)
+        !epsilons || epsilons.looks.is_empty || @nfa.look_matcher.matches_set(epsilons.looks, haystack, at)
+      end
+
       def apply_match_slots(state_id : StateID, slots : Array(Int32?), at : Int32) : Nil
         if epsilons = @match_epsilons[state_id.to_i]?
           epsilons.apply_slots(slots, at)
         end
+      end
+
+      def match_looks_match?(state_id : StateID, haystack : Bytes, at : Int32) : Bool
+        epsilons = @match_epsilons[state_id.to_i]?
+        !epsilons || epsilons.looks.is_empty || @nfa.look_matcher.matches_set(epsilons.looks, haystack, at)
       end
 
       private def add_start_state(nfa_id : StateID) : StateID
@@ -627,20 +659,26 @@ module Regex::Automata::DFA
         matched = nil.as(::Regex::Automata::PatternID?)
         at = input.start
         while at < input.end
+          byte = input.haystack[at]
+          next_state = @admission.next_state(state, byte)
+          match_wins = @admission.transition_match_wins?(state, byte)
           if pattern_id = @admission.match_pattern(state)
-            matched = record_compiled_match(state, pattern_id, at, slots, cache)
+            if @admission.match_looks_match?(state, input.haystack, at)
+              matched = record_compiled_match(state, pattern_id, at, slots, cache)
+              return matched if input.get_earliest || match_wins
+            end
           end
 
-          byte = input.haystack[at]
-          match_wins = @admission.transition_match_wins?(state, byte)
+          return matched if state.to_i == 0 || !@admission.transition_looks_match?(state, byte, input.haystack, at)
           @admission.apply_transition_slots(state, byte, cache.compiled_slots, at)
-          state = @admission.next_state(state, byte)
-          return matched if matched && (input.get_earliest || match_wins || state.to_i == 0)
+          state = next_state
           at += 1
         end
 
         if pattern_id = @admission.match_pattern(state)
-          matched = record_compiled_match(state, pattern_id, input.end, slots, cache)
+          if @admission.match_looks_match?(state, input.haystack, input.end)
+            matched = record_compiled_match(state, pattern_id, input.end, slots, cache)
+          end
         end
         matched
       end

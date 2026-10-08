@@ -363,7 +363,7 @@ src/dfa/onepass.rs::method::DFA.pattern_len	method	ported	src/regex/automata/one
 src/dfa/onepass.rs::method::DFA.prev_state_id	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::DFA.remap	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::DFA.reset_cache	method	ported	src/regex/automata/onepass.cr:OnePass::DFA#reset_cache;spec/dfa_onepass_spec.cr	Resets a cache.
-src/dfa/onepass.rs::method::DFA.search_imp	method	partial	src/regex/automata/onepass.cr:DFA#search_compiled;spec/dfa_onepass_spec.cr	Executes retained admission rows for ordinary no-look/no-explicit-capture searches; PikeVM handles the remaining paths.
+src/dfa/onepass.rs::method::DFA.search_imp	method	partial	src/regex/automata/onepass.cr:DFA#search_compiled;spec/dfa_onepass_spec.cr	Executes retained admission rows, look assertions, and explicit capture slots; PikeVM only handles UTF-8 empty-match boundary filtering.
 src/dfa/onepass.rs::method::DFA.set_pattern_epsilons	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::DFA.set_transition	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::DFA.sparse_transitions	method	missing	-	auto-generated
@@ -376,12 +376,12 @@ src/dfa/onepass.rs::method::DFA.swap_states	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::DFA.transition	method	partial	src/regex/automata/onepass.cr:Admission#next_state;spec/dfa_onepass_spec.cr	Reads compiled byte-class transitions for supported table searches.
 src/dfa/onepass.rs::method::DFA.try_search	method	ported	src/regex/automata/onepass.cr:OnePass::DFA#try_search;spec/dfa_onepass_spec.cr	Fallible anchored capture search.
 src/dfa/onepass.rs::method::DFA.try_search_slots	method	ported	src/regex/automata/onepass.cr:OnePass::DFA#try_search_slots;spec/dfa_onepass_spec.cr	Fallible anchored raw-slot search.
-src/dfa/onepass.rs::method::DFA.try_search_slots_imp	method	partial	src/regex/automata/onepass.cr:DFA#search_compiled;spec/dfa_onepass_spec.cr	Uses table execution for the no-look/no-explicit-capture subset and PikeVM otherwise.
+src/dfa/onepass.rs::method::DFA.try_search_slots_imp	method	partial	src/regex/automata/onepass.cr:DFA#search_compiled;spec/dfa_onepass_spec.cr	Uses table execution for assertion-bearing and explicit-capture searches; PikeVM remains for UTF-8 empty-match boundary filtering.
 src/dfa/onepass.rs::method::Epsilons.empty	method	partial	src/regex/automata/onepass.cr:Admission::Epsilons#initialize	Defaults to no looks or explicit slots.
 src/dfa/onepass.rs::method::Epsilons.fmt	method	intentional_divergence	-	Private Rust debug formatting has no Crystal runtime counterpart.
-src/dfa/onepass.rs::method::Epsilons.is_empty	method	partial	src/regex/automata/onepass.cr:Admission#supports_table_execution	Look-free admission selects table execution; no public empty query is needed.
-src/dfa/onepass.rs::method::Epsilons.looks	method	partial	src/regex/automata/onepass.cr:Admission::Epsilons#looks	Retains look bits; table execution intentionally falls back while they are non-empty.
-src/dfa/onepass.rs::method::Epsilons.set_looks	method	partial	src/regex/automata/onepass.cr:Admission::Epsilons#with_look	Accumulates NFA look assertions during admission.
+src/dfa/onepass.rs::method::Epsilons.is_empty	method	partial	src/regex/automata/onepass.cr:Admission::Epsilons#initialize	A typed LookSet and slot mask model an empty epsilon payload; no public empty query is needed.
+src/dfa/onepass.rs::method::Epsilons.looks	method	partial	src/regex/automata/onepass.cr:Admission::Epsilons#looks	Retains typed look assertions and evaluates them in the compiled table loop.
+src/dfa/onepass.rs::method::Epsilons.set_looks	method	partial	src/regex/automata/onepass.cr:Admission::Epsilons#with_look	Maps NFA look kinds to the shared LookSet representation during admission.
 src/dfa/onepass.rs::method::Epsilons.set_slots	method	partial	src/regex/automata/onepass.cr:Admission::Epsilons#with_slot	Accumulates explicit capture slot bits during admission.
 src/dfa/onepass.rs::method::Epsilons.slots	method	partial	src/regex/automata/onepass.cr:Admission::Epsilons#apply_slots;spec/dfa_onepass_spec.cr	Applies retained explicit slot bits during compiled search.
 src/dfa/onepass.rs::method::InternalBuilder<'a>.add_dfa_state_for_nfa_state	method	partial	src/regex/automata/onepass.cr:Admission#add_dfa_state	Builds the NFA-to-admission-state map; execution still delegates to PikeVM.
