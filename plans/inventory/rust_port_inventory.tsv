@@ -648,39 +648,39 @@ src/hybrid/dfa.rs::method::DFA.try_which_overlapping_matches	method	missing	-	au
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.add_builder_state	method	missing	-	auto-generated
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.add_state	method	missing	-	auto-generated
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.as_ref	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Lazy<'i, 'c>.cache_next_state	method	missing	-	auto-generated
+src/hybrid/dfa.rs::method::Lazy<'i, 'c>.cache_next_state	method	ported	src/regex/automata/hybrid.cr:819;spec/hybrid_spec.cr	preserves active state through cold cache clears
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.cache_start_group	method	missing	-	auto-generated
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.cache_start_one	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Lazy<'i, 'c>.clear_cache	method	missing	-	auto-generated
+src/hybrid/dfa.rs::method::Lazy<'i, 'c>.clear_cache	method	ported	src/regex/automata/hybrid.cr:719;spec/hybrid_spec.cr	preserves active state through cold cache clears
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.get_state_builder	method	missing	-	auto-generated
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.init_cache	method	missing	-	auto-generated
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.new	method	missing	-	auto-generated
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.next_state_id	method	missing	-	auto-generated
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.put_state_builder	method	missing	-	auto-generated
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.reset_cache	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Lazy<'i, 'c>.save_state	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Lazy<'i, 'c>.saved_state_id	method	missing	-	auto-generated
+src/hybrid/dfa.rs::method::Lazy<'i, 'c>.save_state	method	ported	src/regex/automata/hybrid.cr:958;spec/hybrid_spec.cr	cold cache-clear state preservation
+src/hybrid/dfa.rs::method::Lazy<'i, 'c>.saved_state_id	method	ported	src/regex/automata/hybrid.cr:962;spec/hybrid_spec.cr	cold cache-clear state preservation
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.set_all_transitions	method	missing	-	auto-generated
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.set_start_state	method	missing	-	auto-generated
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.set_transition	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Lazy<'i, 'c>.try_clear_cache	method	missing	-	auto-generated
+src/hybrid/dfa.rs::method::Lazy<'i, 'c>.try_clear_cache	method	ported	src/regex/automata/hybrid.cr:741;spec/hybrid_spec.cr	matches Rust clear-limit and efficiency checks
 src/hybrid/dfa.rs::method::LazyRef<'i, 'c>.dead_id	method	missing	-	auto-generated
 src/hybrid/dfa.rs::method::LazyRef<'i, 'c>.get_cached_start_id	method	missing	-	auto-generated
 src/hybrid/dfa.rs::method::LazyRef<'i, 'c>.get_cached_state	method	missing	-	auto-generated
 src/hybrid/dfa.rs::method::LazyRef<'i, 'c>.is_sentinel	method	missing	-	auto-generated
 src/hybrid/dfa.rs::method::LazyRef<'i, 'c>.is_valid	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::LazyRef<'i, 'c>.memory_usage_for_one_more_state	method	missing	-	auto-generated
+src/hybrid/dfa.rs::method::LazyRef<'i, 'c>.memory_usage_for_one_more_state	method	ported	src/regex/automata/hybrid.cr:951;spec/hybrid_spec.cr	used by cold cache-clear prediction
 src/hybrid/dfa.rs::method::LazyRef<'i, 'c>.new	method	missing	-	auto-generated
 src/hybrid/dfa.rs::method::LazyRef<'i, 'c>.quit_id	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::LazyRef<'i, 'c>.state_builder_fits_in_cache	method	missing	-	auto-generated
+src/hybrid/dfa.rs::method::LazyRef<'i, 'c>.state_builder_fits_in_cache	method	ported	src/regex/automata/hybrid.cr:944;spec/hybrid_spec.cr	predicts cache clear before determinized state insertion
 src/hybrid/dfa.rs::method::LazyRef<'i, 'c>.state_fits_in_cache	method	missing	-	auto-generated
 src/hybrid/dfa.rs::method::LazyRef<'i, 'c>.unknown_id	method	missing	-	auto-generated
 src/hybrid/dfa.rs::method::OverlappingState.get_match	method	missing	-	auto-generated
 src/hybrid/dfa.rs::method::OverlappingState.start	method	missing	-	auto-generated
 src/hybrid/dfa.rs::method::SearchProgress.len	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::StateSaver.none	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::StateSaver.take_saved	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::StateSaver.take_to_save	method	missing	-	auto-generated
+src/hybrid/dfa.rs::method::StateSaver.none	method	ported	src/regex/automata/hybrid.cr:649;spec/hybrid_spec.cr	cold cache-clear state preservation
+src/hybrid/dfa.rs::method::StateSaver.take_saved	method	ported	src/regex/automata/hybrid.cr:668;spec/hybrid_spec.cr	cold cache-clear state preservation
+src/hybrid/dfa.rs::method::StateSaver.take_to_save	method	ported	src/regex/automata/hybrid.cr:661;spec/hybrid_spec.cr	cold cache-clear state preservation
 src/hybrid/error.rs::method::BuildError.fmt	method	missing	-	auto-generated
 src/hybrid/error.rs::method::BuildError.insufficient_cache_capacity	method	missing	-	auto-generated
 src/hybrid/error.rs::method::BuildError.insufficient_state_id_capacity	method	missing	-	auto-generated

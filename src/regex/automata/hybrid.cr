@@ -546,6 +546,7 @@ module Regex::Automata::Hybrid
     property memory_usage_state : Int32
     property bytes_searched : Int32
     property progress : SearchProgress?
+    property state_saver : StateSaver
 
     def initialize(@dfa : DFA)
       @trans = [] of LazyStateID
@@ -559,6 +560,7 @@ module Regex::Automata::Hybrid
       @clear_count = 0
       @bytes_searched = 0
       @progress = nil
+      @state_saver = StateSaver.none
       @phase = 0
       Lazy.new(@dfa, self).init_cache
     end
@@ -633,6 +635,45 @@ module Regex::Automata::Hybrid
     end
   end
 
+  # Carries the currently executing state through a cache clear. This mirrors
+  # Rust's StateSaver: the cold cache-clear path preserves the state whose
+  # transition triggered the clear, so the next transition remains cached.
+  private class StateSaver
+    def initialize(
+      @to_save : Tuple(LazyStateID, ::Regex::Automata::Determinize::State)? = nil,
+      @saved : LazyStateID? = nil,
+    )
+    end
+
+    def self.none : StateSaver
+      new
+    end
+
+    def save(id : LazyStateID, state : ::Regex::Automata::Determinize::State) : Nil
+      @to_save = {id, state}
+      @saved = nil
+    end
+
+    def save_id(id : LazyStateID) : Nil
+      @to_save = nil
+      @saved = id
+    end
+
+    def take_to_save : Tuple(LazyStateID, ::Regex::Automata::Determinize::State)?
+      result = @to_save
+      @to_save = nil
+      @saved = nil
+      result
+    end
+
+    def take_saved : LazyStateID?
+      result = @saved || @to_save.try(&.[0])
+      @to_save = nil
+      @saved = nil
+      result
+    end
+  end
+
   private class Lazy
     def initialize(@dfa : DFA, @cache : Cache)
     end
@@ -665,6 +706,7 @@ module Regex::Automata::Hybrid
     end
 
     def reset_cache : Nil
+      @cache.state_saver = StateSaver.none
       clear_cache
       @cache.sparses.resize(@dfa.get_nfa.states.size.to_i32)
       @cache.clear_count = 0
@@ -687,6 +729,27 @@ module Regex::Automata::Hybrid
         progress.at = progress.start
       end
       init_cache
+      if saved = @cache.state_saver.take_to_save
+        old_id, state = saved
+        raise "cannot save hybrid sentinel state" if as_ref.is_sentinel(old_id)
+        new_id = add_state(state) { |id| old_id.is_start ? id.to_start : id }
+        raise new_id if new_id.is_a?(CacheError)
+        @cache.state_saver.save_id(new_id.as(LazyStateID))
+      end
+    end
+
+    private def try_clear_cache : Nil | CacheError
+      config = @dfa.get_config
+      if minimum = config.get_minimum_cache_clear_count
+        if @cache.clear_count >= minimum
+          if bytes_per_state = config.get_minimum_bytes_per_state
+            return CacheError.bad_efficiency if @cache.search_total_len < bytes_per_state * @cache.states.size
+          else
+            return CacheError.too_many_cache_clears
+          end
+        end
+      end
+      clear_cache
     end
 
     def start_state(config : ::Regex::Automata::StartConfig) : LazyStateID | StartError
@@ -716,8 +779,8 @@ module Regex::Automata::Hybrid
       &idmap : LazyStateID -> LazyStateID
     ) : LazyStateID | CacheError
       unless state_fits_in_cache(state.memory_usage)
-        return CacheError.too_many_cache_clears if @dfa.get_config.get_minimum_cache_clear_count == 0
-        clear_cache
+        result = try_clear_cache
+        return result if result.is_a?(CacheError)
       end
       id = idmap.call(next_state_id)
       id = id.to_match if state.is_match?
@@ -768,8 +831,13 @@ module Regex::Automata::Hybrid
         unit,
         get_state_builder
       )
+      save_state = !state_builder_fits_in_cache(builder)
+      save_state ||= @cache.trans.size >= LazyStateID::MAX
+      self.save_state(current) if save_state
       next_sid = add_builder_state(builder, &.itself)
       return next_sid if next_sid.is_a?(CacheError)
+
+      current = saved_state_id if save_state
 
       set_transition(current, unit, next_sid.as(LazyStateID))
       next_sid
@@ -871,6 +939,28 @@ module Regex::Automata::Hybrid
                (sizeof(::Regex::Automata::Determinize::State).to_i32 + sizeof(LazyStateID).to_i32) +
                state_heap_size
       needed <= @dfa.cache_capacity
+    end
+
+    private def state_builder_fits_in_cache(builder : ::Regex::Automata::Determinize::StateBuilderNFA) : Bool
+      return true if @dfa.get_config.get_skip_cache_capacity_check
+
+      needed = @cache.memory_usage + memory_usage_for_one_more_state(builder.as_bytes.size.to_i32)
+      needed <= @dfa.cache_capacity
+    end
+
+    private def memory_usage_for_one_more_state(state_heap_size : Int32) : Int32
+      (@dfa.stride * sizeof(LazyStateID).to_i32) +
+        sizeof(::Regex::Automata::Determinize::State).to_i32 +
+        (sizeof(::Regex::Automata::Determinize::State).to_i32 + sizeof(LazyStateID).to_i32) +
+        state_heap_size
+    end
+
+    private def save_state(id : LazyStateID) : Nil
+      @cache.state_saver.save(id, as_ref.get_cached_state(id))
+    end
+
+    private def saved_state_id : LazyStateID
+      @cache.state_saver.take_saved || raise "hybrid state saver has no saved state ID"
     end
 
     private def set_all_transitions(from : LazyStateID, to : LazyStateID) : Nil

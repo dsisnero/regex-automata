@@ -163,6 +163,21 @@ describe Regex::Automata::Hybrid::DFA do
     cache.clear_count.should eq(0)
   end
 
+  it "preserves the active lazy state across constrained-cache clears" do
+    pattern = "[ab]{20}"
+    seed = Regex::Automata::Hybrid::DFA.new(pattern)
+    capacity = Regex::Automata::Hybrid::DFA.config.get_minimum_cache_capacity(seed.get_nfa)
+    dfa = Regex::Automata::Hybrid::Builder.new
+      .configure(Regex::Automata::Hybrid::DFA.config.cache_capacity(capacity))
+      .build(pattern)
+    cache = dfa.create_cache
+
+    dfa.try_search_fwd(cache, Regex::Automata::Input.new("a" * 20)).should eq(
+      Regex::Automata::HalfMatch.must(0, 20)
+    )
+    cache.clear_count.should be > 0
+  end
+
   it "merges repeated builder configuration calls with vendored overwrite semantics" do
     pre = Regex::Automata::Prefilter.new(
       Regex::Automata::MatchKind::LeftmostFirst,
