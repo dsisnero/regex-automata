@@ -11,8 +11,8 @@ src/dfa/onepass.rs::test::fail_conflicting_transition	ported	spec/dfa_onepass_sp
 src/dfa/onepass.rs::test::fail_multiple_epsilon	ported	spec/dfa_onepass_spec.cr	Ports multiple-epsilon rejection.
 src/dfa/onepass.rs::test::fail_multiple_match	ported	spec/dfa_onepass_spec.cr	Ports multiple-match epsilon rejection.
 src/dfa/onepass.rs::test::is_not_one_pass	ported	spec/dfa_onepass_spec.cr	Ports representative non-one-pass rejection cases.
-src/dfa/onepass.rs::test::is_not_one_pass_bigger	partial	spec/dfa_onepass_spec.cr	Crystal covers representative ambiguity cases; native one-pass construction remains open.
-src/dfa/onepass.rs::test::is_one_pass	partial	spec/dfa_onepass_spec.cr	Crystal covers representative accepted patterns; native one-pass construction remains open.
+src/dfa/onepass.rs::test::is_not_one_pass_bigger	ported	spec/dfa_onepass_spec.cr	Ports the Unicode \w*\s ambiguity rejection through the native compiled one-pass table.
+src/dfa/onepass.rs::test::is_one_pass	ported	spec/dfa_onepass_spec.cr	Ports the complete upstream acceptance matrix, including Unicode \w and binary dot-star construction.
 src/dfa/onepass.rs::test::max_slots	ported	spec/dfa_onepass_spec.cr	Ports capture-slot limit assertion.
 src/dfa/sparse.rs::test::heuristic_unicode_forward	ported	spec/dfa_sparse_spec.cr	Ports both upstream ranges and UTF-8 quit-byte offsets through the sparse wrapper's forward search.
 src/dfa/sparse.rs::test::heuristic_unicode_reverse	ported	spec/dfa_sparse_spec.cr	Ports both upstream ranges and UTF-8 quit-byte offsets through the sparse wrapper's reverse search.

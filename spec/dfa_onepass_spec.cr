@@ -201,6 +201,7 @@ describe Regex::Automata::DFA::OnePass::DFA do
 
   it "matches the upstream build-time one-pass checks and limits" do
     Regex::Automata::DFA::OnePass::DFA.new("a*b")
+    Regex::Automata::DFA::OnePass::DFA.new("\\w")
     Regex::Automata::DFA::OnePass::DFA.new("(?-u)\\w*\\s")
     Regex::Automata::DFA::OnePass::DFA.new("(?s:.)*?")
     Regex::Automata::DFA::OnePass::DFA.builder
