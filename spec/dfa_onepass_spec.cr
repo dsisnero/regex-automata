@@ -282,6 +282,14 @@ describe Regex::Automata::DFA::OnePass::DFA do
     end
   end
 
+  it "rejects assertions outside Rust's one-pass transition representation" do
+    error = expect_raises(Regex::Automata::DFA::OnePass::BuildError) do
+      Regex::Automata::DFA::OnePass::DFA.new("\\b{start}")
+    end
+    error.kind.should eq(Regex::Automata::DFA::OnePass::BuildError::Kind::UnsupportedLook)
+    error.look.should eq(Regex::Automata::Look::WordStartUnicode)
+  end
+
   it "executes compiled one-pass assertion transitions and match states" do
     boundary = Regex::Automata::DFA::OnePass::DFA.new("(?-u:\\b)abc")
     cache = boundary.create_cache

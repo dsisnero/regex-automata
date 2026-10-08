@@ -314,7 +314,7 @@ src/dfa/onepass.rs::method::BuildError.not_one_pass	method	ported	src/regex/auto
 src/dfa/onepass.rs::method::BuildError.source	method	ported	src/regex/automata/onepass.cr:BuildError#source;spec/dfa_onepass_spec.cr	Exposes NFA and Unicode-word causes.
 src/dfa/onepass.rs::method::BuildError.too_many_patterns	method	ported	src/regex/automata/onepass.cr:BuildError.too_many_patterns	Constructs the representational pattern-limit error.
 src/dfa/onepass.rs::method::BuildError.too_many_states	method	ported	src/regex/automata/onepass.cr:BuildError.too_many_states	Constructs the representational state-limit error.
-src/dfa/onepass.rs::method::BuildError.unsupported_look	method	ported	src/regex/automata/onepass.cr:BuildError.unsupported_look	Constructs an unsupported-look error retaining the look value.
+src/dfa/onepass.rs::method::BuildError.unsupported_look	method	ported	src/regex/automata/onepass.cr:BuildError.unsupported_look;Admission#run;spec/dfa_onepass_spec.cr	Rejects look assertions outside Rust's packed one-pass transition representation and retains the triggering look.
 src/dfa/onepass.rs::method::BuildError.word	method	ported	src/regex/automata/onepass.cr:BuildError.word	Preserves the Unicode-word-boundary cause.
 src/dfa/onepass.rs::method::Builder.build	method	ported	src/regex/automata/onepass.cr:OnePass::Builder#build;spec/dfa_onepass_spec.cr	Builds a one-pass-compatible engine facade.
 src/dfa/onepass.rs::method::Builder.build_from_nfa	method	ported	src/regex/automata/onepass.cr:OnePass::Builder#build_from_nfa;spec/dfa_onepass_spec.cr	Builds from an NFA.
@@ -387,10 +387,10 @@ src/dfa/onepass.rs::method::Epsilons.slots	method	partial	src/regex/automata/one
 src/dfa/onepass.rs::method::InternalBuilder<'a>.add_dfa_state_for_nfa_state	method	partial	src/regex/automata/onepass.cr:Admission#add_dfa_state	Builds the NFA-to-admission-state map; execution still delegates to PikeVM.
 src/dfa/onepass.rs::method::InternalBuilder<'a>.add_empty_state	method	partial	src/regex/automata/onepass.cr:Admission#add_empty_state	Allocates dense admission rows; execution still delegates to PikeVM.
 src/dfa/onepass.rs::method::InternalBuilder<'a>.add_start_state	method	partial	src/regex/automata/onepass.cr:Admission#add_start_state	Adds all-pattern and configured pattern starts to admission.
-src/dfa/onepass.rs::method::InternalBuilder<'a>.build	method	partial	src/regex/automata/onepass.cr:Admission#run;spec/dfa_onepass_spec.cr	Performs genuine NFA admission and ambiguity checks; compiled rows are not yet the executor.
+src/dfa/onepass.rs::method::InternalBuilder<'a>.build	method	partial	src/regex/automata/onepass.cr:Admission#run;spec/dfa_onepass_spec.cr	Performs genuine NFA admission, Rust-compatible look-representation checks, ambiguity checks, and compiled-table setup.
 src/dfa/onepass.rs::method::InternalBuilder<'a>.compile_transition	method	partial	src/regex/automata/onepass.cr:Admission#compile_transition;spec/dfa_onepass_spec.cr	Compares class transitions for ambiguity; compiled rows are not yet the executor.
 src/dfa/onepass.rs::method::InternalBuilder<'a>.new	method	partial	src/regex/automata/onepass.cr:Admission#initialize	Initializes byte classes, state mapping, and dense admission rows.
-src/dfa/onepass.rs::method::InternalBuilder<'a>.shuffle_states	method	missing	-	auto-generated
+src/dfa/onepass.rs::method::InternalBuilder<'a>.shuffle_states	method	partial	src/regex/automata/onepass.cr:Admission#shuffle_states	Remaps transitions, starts, match metadata, and match-side epsilons so match states form a contiguous tail.
 src/dfa/onepass.rs::method::InternalBuilder<'a>.stack_push	method	partial	src/regex/automata/onepass.cr:Admission#stack_push;spec/dfa_onepass_spec.cr	Rejects ambiguous epsilon paths while traversing each admission state.
 src/dfa/onepass.rs::method::PatternEpsilons.empty	method	partial	src/regex/automata/onepass.cr:Admission#add_empty_state	Non-match states initialize with no pattern and no match-side slots.
 src/dfa/onepass.rs::method::PatternEpsilons.epsilons	method	partial	src/regex/automata/onepass.cr:Admission#apply_match_slots;spec/dfa_onepass_spec.cr	Applies match-side explicit slots through the compiled cache.

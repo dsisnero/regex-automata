@@ -211,6 +211,11 @@ module Regex::Automata::DFA
 
       def run : Nil
         @nfa.look_set_any.available
+        @nfa.look_set_any.each do |look|
+          if look.as_repr > ::Regex::Automata::Look::WordUnicodeNegate.as_repr
+            raise BuildError.unsupported_look(look)
+          end
+        end
         if @nfa.pattern_len > PATTERN_ID_LIMIT
           raise BuildError.too_many_patterns(PATTERN_ID_LIMIT)
         end
