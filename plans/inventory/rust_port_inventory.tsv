@@ -1854,19 +1854,19 @@ src/util/search.rs::method::[u8].index	method	intentional_divergence	src/regex/a
 src/util/search.rs::method::[u8].index_mut	method	intentional_divergence	src/regex/automata/search.cr:Span#range	Crystal Bytes mutation uses native range slicing; user-defined index traits do not exist.
 src/util/search.rs::method::str.index	method	intentional_divergence	src/regex/automata/search.cr:Span#range	Crystal String uses native ranges and cannot expose Rust Index traits.
 src/util/sparse_set.rs::method::SparseSet.capacity	method	ported	src/regex/automata/sparse_set.cr:SparseSet#capacity;spec/sparse_set_spec.cr	Capacity is covered.
-src/util/sparse_set.rs::method::SparseSet.clear	method	ported	src/regex/automata/sparse_set.cr:SparseSet#clear;spec/sparse_set_spec.cr	Clear behavior is covered.
+src/util/sparse_set.rs::method::SparseSet.clear	method	ported	src/regex/automata/sparse_set.cr:SparseSet#clear;spec/sparse_set_spec.cr	Logical-length clear is O(1), preserves backing storage, and invalidates prior sparse indices like Rust.
 src/util/sparse_set.rs::method::SparseSet.contains	method	ported	src/regex/automata/sparse_set.cr:SparseSet#contains;spec/sparse_set_spec.cr	Membership is covered.
 src/util/sparse_set.rs::method::SparseSet.fmt	method	intentional_divergence	src/regex/automata/sparse_set.cr	Rust Debug-only tuple formatting has no Crystal equivalent.
 src/util/sparse_set.rs::method::SparseSet.insert	method	ported	src/regex/automata/sparse_set.cr:SparseSet#insert;spec/sparse_set_spec.cr	Order and idempotence are covered.
 src/util/sparse_set.rs::method::SparseSet.is_empty	method	ported	src/regex/automata/sparse_set.cr:SparseSet#is_empty;spec/sparse_set_spec.cr	Empty state is covered.
 src/util/sparse_set.rs::method::SparseSet.iter	method	ported	src/regex/automata/sparse_set.cr:SparseSet#iter;spec/sparse_set_spec.cr	Insertion-order iteration is covered.
 src/util/sparse_set.rs::method::SparseSet.len	method	ported	src/regex/automata/sparse_set.cr:SparseSet#len;spec/sparse_set_spec.cr	Length is covered.
-src/util/sparse_set.rs::method::SparseSet.memory_usage	method	partial	src/regex/automata/sparse_set.cr:SparseSet#memory_usage	Crystal allocation estimate differs from Rust layout accounting.
+src/util/sparse_set.rs::method::SparseSet.memory_usage	method	ported	src/regex/automata/sparse_set.cr:SparseSet#memory_usage	Counts the fixed dense and sparse StateID arrays, matching Rust's representation-level accounting.
 src/util/sparse_set.rs::method::SparseSet.new	method	ported	src/regex/automata/sparse_set.cr:SparseSet#initialize;spec/sparse_set_spec.cr	Construction is covered.
 src/util/sparse_set.rs::method::SparseSet.resize	method	ported	src/regex/automata/sparse_set.cr:SparseSet#resize;spec/sparse_set_spec.cr	Resize clears entries as upstream.
 src/util/sparse_set.rs::method::SparseSetIter<'a>.next	method	ported	src/regex/automata/sparse_set.cr:SparseSetIter#next	Crystal Array iterator provides equivalent iteration.
 src/util/sparse_set.rs::method::SparseSets.clear	method	ported	src/regex/automata/sparse_set.cr:SparseSets#clear;spec/sparse_set_spec.cr	Pair clearing is covered.
-src/util/sparse_set.rs::method::SparseSets.memory_usage	method	partial	src/regex/automata/sparse_set.cr:SparseSets#memory_usage	Crystal allocation estimate differs from Rust layout accounting.
+src/util/sparse_set.rs::method::SparseSets.memory_usage	method	ported	src/regex/automata/sparse_set.cr:SparseSets#memory_usage	Sums the two fixed-capacity sparse-set allocations.
 src/util/sparse_set.rs::method::SparseSets.new	method	ported	src/regex/automata/sparse_set.cr:SparseSets#initialize;spec/sparse_set_spec.cr	Pair construction is covered.
 src/util/sparse_set.rs::method::SparseSets.resize	method	ported	src/regex/automata/sparse_set.cr:SparseSets#resize;spec/sparse_set_spec.cr	Paired resize uses clearing semantics.
 src/util/sparse_set.rs::method::SparseSets.swap	method	ported	src/regex/automata/sparse_set.cr:SparseSets#swap;spec/sparse_set_spec.cr	Swap is covered.

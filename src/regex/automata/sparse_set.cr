@@ -3,18 +3,23 @@ require "./types"
 module Regex::Automata
   class SparseSet
     @dense : Array(StateID)
-    @sparse : Array(Int32?)
+    @sparse : Array(StateID)
+    @len : Int32
 
     def initialize(capacity : Int32)
       @dense = [] of StateID
-      @sparse = Array(Int32?).new(capacity, nil)
+      @sparse = [] of StateID
+      @len = 0
+      resize(capacity)
     end
 
     def resize(capacity : Int32) : Nil
       raise ArgumentError.new("sparse set capacity cannot be negative") if capacity < 0
+      raise ArgumentError.new("sparse set capacity cannot exceed #{StateID::LIMIT}") if capacity.to_i64 > StateID::LIMIT
 
-      @dense.clear
-      @sparse = Array(Int32?).new(capacity, nil)
+      @len = 0
+      @dense = Array(StateID).new(capacity, StateID.new(0))
+      @sparse = Array(StateID).new(capacity, StateID.new(0))
     end
 
     def capacity : Int32
@@ -22,34 +27,35 @@ module Regex::Automata
     end
 
     def len : Int32
-      @dense.size.to_i32
+      @len
     end
 
     def contains(id : StateID) : Bool
       index = id.to_i
       return false if index < 0 || index >= @sparse.size
 
-      @sparse[index]?.try { |dense_index| @dense[dense_index]? == id } || false
+      dense_index = @sparse[index]
+      dense_index.to_i < @len && @dense[dense_index.to_i] == id
     end
 
     def clear : Nil
-      @dense.clear
-      @sparse.fill(nil)
+      @len = 0
     end
 
     def insert(id : StateID) : Bool
       index = id.to_i
       return false if index < 0 || index >= @sparse.size
       return false if contains(id)
-      raise IndexError.new("sparse set capacity exceeded") if @dense.size >= @sparse.size
+      raise IndexError.new("sparse set capacity exceeded") if @len >= @dense.size
 
-      @sparse[index] = @dense.size.to_i32
-      @dense << id
+      @sparse[index] = StateID.new(@len)
+      @dense[@len] = id
+      @len += 1
       true
     end
 
     def is_empty : Bool
-      @dense.empty?
+      @len == 0
     end
 
     def empty? : Bool
@@ -57,15 +63,15 @@ module Regex::Automata
     end
 
     def iter
-      @dense.each
+      @dense[0, @len].each
     end
 
     def each(& : StateID ->) : Nil
-      @dense.each { |sid| yield sid }
+      @dense[0, @len].each { |sid| yield sid }
     end
 
     def memory_usage : Int32
-      ((@dense.size * sizeof(StateID)) + (@sparse.size * sizeof(Int32))).to_i32
+      ((@dense.size * sizeof(StateID)) + (@sparse.size * sizeof(StateID))).to_i32
     end
   end
 

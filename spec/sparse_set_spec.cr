@@ -27,6 +27,18 @@ describe Regex::Automata::SparseSet do
     set.iter.to_a.should be_empty
   end
 
+  it "forgets prior sparse indices with a logical clear" do
+    set = Regex::Automata::SparseSet.new(4)
+    old = Regex::Automata::StateID.new(3)
+    fresh = Regex::Automata::StateID.new(1)
+    set.insert(old)
+    set.clear
+    set.insert(fresh).should be_true
+
+    set.contains(old).should be_false
+    set.iter.to_a.should eq([fresh])
+  end
+
   it "clears and swaps paired sets" do
     sets = Regex::Automata::SparseSets.new(3)
     sets.set1.insert(Regex::Automata::StateID.new(1))
