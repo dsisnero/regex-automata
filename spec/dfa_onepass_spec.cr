@@ -323,6 +323,23 @@ describe Regex::Automata::DFA::OnePass::DFA do
     ).should eq(Regex::Automata::Match.must(0, 2...5))
   end
 
+  it "uses longest-match semantics for MatchKind::All" do
+    default = Regex::Automata::DFA::OnePass::DFA.new("(abc)+?")
+    default.find(default.create_cache, "abcabc").should eq(
+      Regex::Automata::Match.must(0, 0...3)
+    )
+
+    longest = Regex::Automata::DFA::OnePass::DFA.builder
+      .configure(
+        Regex::Automata::DFA::OnePass::DFA.config
+          .match_kind(Regex::Automata::MatchKind::All)
+      )
+      .build("(abc)+?")
+    longest.find(longest.create_cache, "abcabc").should eq(
+      Regex::Automata::Match.must(0, 0...6)
+    )
+  end
+
   it "honors one-pass size limits" do
     expect_raises(Regex::Automata::DFA::OnePass::BuildError, /size limit/) do
       Regex::Automata::DFA::OnePass::DFA.builder

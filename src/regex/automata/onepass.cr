@@ -731,7 +731,9 @@ module Regex::Automata::DFA
             if pattern_id = @admission.match_pattern(state)
               if @admission.match_looks_match?(state, input.haystack, at)
                 matched = record_compiled_match(state, pattern_id, at, slots, cache)
-                return matched if input.get_earliest || match_wins
+                return matched if input.get_earliest || (
+                                    @config.get_match_kind == ::Regex::Automata::MatchKind::LeftmostFirst && match_wins
+                                  )
               end
             end
           end
