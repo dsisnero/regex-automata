@@ -715,6 +715,9 @@ module Regex::Automata::NFA
 
     # Add a new state and return its ID
     def add_state(state : State) : StateID
+      if @states.size.to_i64 >= StateID::LIMIT
+        raise BuildError.too_many_states(@states.size.to_i64)
+      end
       id = StateID.new(@states.size)
       @states << state
       id

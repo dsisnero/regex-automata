@@ -114,6 +114,18 @@ describe Regex::Automata::NFA::NFA do
     end
     captures.kind.should eq(Regex::Automata::NFA::BuildError::Kind::UnsupportedCaptures)
     captures.message.should eq("currently captures must be disabled when compiling a reverse NFA")
+
+    patterns = Regex::Automata::NFA::BuildError.too_many_patterns(
+      Regex::Automata::PatternID::LIMIT
+    )
+    patterns.kind.should eq(Regex::Automata::NFA::BuildError::Kind::TooManyPatterns)
+    patterns.message.not_nil!.should contain("which exceeds the limit")
+
+    states = Regex::Automata::NFA::BuildError.too_many_states(
+      Regex::Automata::StateID::LIMIT
+    )
+    states.kind.should eq(Regex::Automata::NFA::BuildError::Kind::TooManyStates)
+    states.message.not_nil!.should contain("which exceeds the limit")
   end
 
   it "builds always-match and never-match NFAs" do

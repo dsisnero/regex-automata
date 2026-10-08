@@ -215,6 +215,7 @@ module Regex::Automata
       hirs_array = hirs.to_a
       raise NFA::BuildError.unsupported_captures if @config.reverse && @config.which_captures.is_any
       return finalize_build(NFA::NFA.never_match) if hirs_array.empty?
+      raise NFA::BuildError.too_many_patterns(hirs_array.size.to_i64) if hirs_array.size.to_i64 >= PatternID::LIMIT
 
       reset_builder
       pattern_hirs = hirs_array.map_with_index { |hir, i| {PatternID.new(i.to_i32), hir} }
@@ -265,6 +266,7 @@ module Regex::Automata
     def compile_multi(hirs : Array(Regex::Syntax::Hir::Hir)) : NFA::NFA
       reset_builder
       return finalize_build(NFA::NFA.never_match) if hirs.empty?
+      raise NFA::BuildError.too_many_patterns(hirs.size.to_i64) if hirs.size.to_i64 >= PatternID::LIMIT
 
       pattern_hirs = hirs.map_with_index { |hir, i| {PatternID.new(i.to_i32), hir} }
       @group_info = build_group_info(pattern_hirs)
