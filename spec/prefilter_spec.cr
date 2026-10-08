@@ -110,6 +110,9 @@ describe Regex::Automata::Prefilter do
       ["a", "b", "c"]
     ).not_nil!
     fast.is_fast.should be_true
+    fast.find("zzcbax".to_slice, Regex::Automata::Span.new(0, 6)).should eq(
+      Regex::Automata::Span.new(2, 3)
+    )
 
     slow = Regex::Automata::Prefilter.new(
       Regex::Automata::MatchKind::All,

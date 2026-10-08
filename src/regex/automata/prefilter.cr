@@ -60,6 +60,8 @@ module Regex::Automata
     def find(haystack : Bytes, span : Span) : Span?
       return nil unless valid_span?(haystack, span)
 
+      return find_byte_needles(haystack, span) if @needles.size <= 3 && @needles.all? { |needle| needle.size == 1 }
+
       best_span = nil.as(Span?)
       best_index = Int32::MAX
       @needles.each_with_index do |needle, index|
@@ -111,6 +113,25 @@ module Regex::Automata
 
     private def valid_span?(haystack : Bytes, span : Span) : Bool
       span.start >= 0 && span.end >= span.start && span.end <= haystack.size
+    end
+
+    # This is the Crystal equivalent of Rust's memchr/memchr2/memchr3 choice.
+    # Searching each of at most three bytes with the runtime's indexed lookup
+    # avoids repeatedly comparing all needles at every haystack offset.
+    private def find_byte_needles(haystack : Bytes, span : Span) : Span?
+      best_span = nil.as(Span?)
+      best_index = Int32::MAX
+      @needles.each_with_index do |needle, index|
+        found = haystack.index(needle[0], span.start)
+        next unless found && found < span.end
+
+        candidate = Span.new(found, found + 1)
+        if better_match?(candidate, index.to_i32, best_span, best_index)
+          best_span = candidate
+          best_index = index.to_i32
+        end
+      end
+      best_span
     end
 
     private def better_match?(candidate : Span, index : Int32, current : Span?, current_index : Int32) : Bool
