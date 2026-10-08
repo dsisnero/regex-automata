@@ -383,6 +383,17 @@ describe "DFA::Dense" do
     dfa.memory_usage.should eq(dfa.to_bytes_native_endian[0].size)
   end
 
+  it "round-trips dense state indexes through premultiplied IDs" do
+    dfa = Regex::Automata::DFA::Builder.new.build("(?:foo|bar|baz)[0-9]+")
+
+    dfa.state_len.should eq(dfa.size)
+    dfa.state_len.times do |index|
+      id = dfa.to_state_id(index)
+      dfa.to_index(id).should eq(index)
+      dfa[id].id.should eq(id)
+    end
+  end
+
   it "round-trips little, big, and native-endian dense bytes" do
     dfa = Regex::Automata::DFA::Builder.new
       .configure { |config| config.starts_for_each_pattern(true) }

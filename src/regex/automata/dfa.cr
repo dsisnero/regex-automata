@@ -917,6 +917,25 @@ module Regex::Automata::DFA
       @states.size
     end
 
+    # Returns the total number of states in this DFA.
+    #
+    # State IDs are premultiplied transition-table offsets, so callers that
+    # need to index a side table should use `to_index` instead of treating an
+    # ID as an array index directly.
+    def state_len : Int32
+      @tt.not_nil!.len
+    end
+
+    # Converts a premultiplied state ID to its transition-table index.
+    def to_index(id : StateID) : Int32
+      @tt.not_nil!.to_index(id)
+    end
+
+    # Converts a transition-table index to its premultiplied state ID.
+    def to_state_id(index : Int32) : StateID
+      @tt.not_nil!.to_state_id(index)
+    end
+
     # Get state by ID
     def [](id : StateID) : State
       state_idx = id.to_i
