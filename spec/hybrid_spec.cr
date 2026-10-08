@@ -18,6 +18,24 @@ describe Regex::Automata::Hybrid::LazyStateID do
     sid.to_match.as_usize_unchecked.should be > Regex::Automata::Hybrid::LazyStateID::MAX
     sid.to_match.as_usize_untagged.should eq(7)
   end
+
+  it "preserves every Rust lazy-state tag independently" do
+    sid = Regex::Automata::Hybrid::LazyStateID.new_unchecked(7)
+
+    {
+      sid.to_unknown => ->(value : Regex::Automata::Hybrid::LazyStateID) { value.is_unknown },
+      sid.to_dead    => ->(value : Regex::Automata::Hybrid::LazyStateID) { value.is_dead },
+      sid.to_quit    => ->(value : Regex::Automata::Hybrid::LazyStateID) { value.is_quit },
+      sid.to_start   => ->(value : Regex::Automata::Hybrid::LazyStateID) { value.is_start },
+      sid.to_match   => ->(value : Regex::Automata::Hybrid::LazyStateID) { value.is_match },
+    }.each do |tagged, predicate|
+      tagged.is_tagged.should be_true
+      predicate.call(tagged).should be_true
+      tagged.as_usize_untagged.should eq(7)
+    end
+
+    sid.is_tagged.should be_false
+  end
 end
 
 describe Regex::Automata::Hybrid::BuildError do

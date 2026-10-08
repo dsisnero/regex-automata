@@ -570,81 +570,81 @@ src/dfa/start.rs::method::StartKind.has_anchored	method	intentional_divergence	s
 src/dfa/start.rs::method::StartKind.has_unanchored	method	intentional_divergence	src/regex/automata/start_table.cr:113	StartTable applies unanchored capability directly; no extra predicate is needed on the enum hot path
 src/dfa/start.rs::method::StartKind.write_to	method	intentional_divergence	src/regex/automata/dfa.cr:622	Crystal's versioned DFA wire format writes flags and full start tables instead of a standalone StartKind field
 src/dfa/start.rs::method::StartKind.write_to_len	method	intentional_divergence	src/regex/automata/dfa.cr:622	Crystal's versioned DFA wire format sizes flags and full start tables instead of a standalone StartKind field
-src/hybrid/dfa.rs::const::ID_SIZE	const	missing	-	auto-generated
-src/hybrid/dfa.rs::const::MIN_STATES	const	missing	-	auto-generated
-src/hybrid/dfa.rs::const::SENTINEL_STATES	const	missing	-	auto-generated
-src/hybrid/dfa.rs::const::STATE_SIZE	const	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Builder.build	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Builder.build_from_nfa	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Builder.build_many	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Builder.configure	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Builder.new	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Builder.syntax	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Builder.thompson	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Cache.clear_count	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Cache.memory_usage	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Cache.new	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Cache.reset	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Cache.search_finish	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Cache.search_start	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Cache.search_total_len	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Cache.search_update	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Config.byte_classes	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Config.byte_classes_from_nfa	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Config.cache_capacity	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Config.get_byte_classes	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Config.get_cache_capacity	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Config.get_match_kind	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Config.get_minimum_bytes_per_state	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Config.get_minimum_cache_capacity	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Config.get_minimum_cache_clear_count	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Config.get_prefilter	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Config.get_quit	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Config.get_skip_cache_capacity_check	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Config.get_specialize_start_states	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Config.get_starts_for_each_pattern	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Config.get_unicode_word_boundary	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Config.match_kind	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Config.minimum_bytes_per_state	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Config.minimum_cache_clear_count	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Config.new	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Config.overwrite	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Config.prefilter	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Config.quit	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Config.quit_set_from_nfa	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Config.skip_cache_capacity_check	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Config.specialize_start_states	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Config.starts_for_each_pattern	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::Config.unicode_word_boundary	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::DFA.always_match	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::DFA.builder	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::DFA.byte_classes	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::DFA.config	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::DFA.create_cache	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::DFA.get_config	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::DFA.get_nfa	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::DFA.match_len	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::DFA.match_pattern	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::DFA.memory_usage	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::DFA.never_match	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::DFA.new	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::DFA.new_many	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::DFA.next_eoi_state	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::DFA.next_state	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::DFA.next_state_untagged	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::DFA.next_state_untagged_unchecked	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::DFA.pattern_len	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::DFA.reset_cache	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::DFA.start_state	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::DFA.start_state_forward	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::DFA.start_state_reverse	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::DFA.stride	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::DFA.stride2	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::DFA.try_search_fwd	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::DFA.try_search_overlapping_fwd	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::DFA.try_search_overlapping_rev	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::DFA.try_search_rev	method	missing	-	auto-generated
-src/hybrid/dfa.rs::method::DFA.try_which_overlapping_matches	method	missing	-	auto-generated
+src/hybrid/dfa.rs::const::ID_SIZE	const	intentional_divergence	src/regex/automata/hybrid.cr:109	Crystal's tagged Int32 state IDs have no Rust byte-layout constant.
+src/hybrid/dfa.rs::const::MIN_STATES	const	ported	src/regex/automata/hybrid.cr:8;spec/hybrid_spec.cr	Uses the same sentinel-plus-start minimum-state invariant.
+src/hybrid/dfa.rs::const::SENTINEL_STATES	const	ported	src/regex/automata/hybrid.cr:7;spec/hybrid_spec.cr	Preserves the three lazy sentinel states.
+src/hybrid/dfa.rs::const::STATE_SIZE	const	intentional_divergence	src/regex/automata/hybrid.cr	Crystal object layout is not a stable storage contract.
+src/hybrid/dfa.rs::method::Builder.build	method	ported	src/regex/automata/hybrid.cr:1717;spec/hybrid_spec.cr	Builds configured lazy DFAs.
+src/hybrid/dfa.rs::method::Builder.build_from_nfa	method	ported	src/regex/automata/hybrid.cr:1739;spec/hybrid_spec.cr	Builds from a precompiled Thompson NFA.
+src/hybrid/dfa.rs::method::Builder.build_many	method	ported	src/regex/automata/hybrid.cr:1721;spec/hybrid_spec.cr	Builds multi-pattern lazy DFAs.
+src/hybrid/dfa.rs::method::Builder.configure	method	ported	src/regex/automata/hybrid.cr:1702;spec/hybrid_spec.cr	Merges configuration with Rust overwrite semantics.
+src/hybrid/dfa.rs::method::Builder.new	method	ported	src/regex/automata/hybrid.cr:1698;spec/hybrid_spec.cr	Default builder constructor.
+src/hybrid/dfa.rs::method::Builder.syntax	method	ported	src/regex/automata/hybrid.cr:1707;spec/hybrid_spec.cr	Applies syntax configuration.
+src/hybrid/dfa.rs::method::Builder.thompson	method	ported	src/regex/automata/hybrid.cr:1712;spec/hybrid_spec.cr	Applies Thompson configuration.
+src/hybrid/dfa.rs::method::Cache.clear_count	method	ported	src/regex/automata/hybrid.cr:544;spec/hybrid_spec.cr	Tracks lazy-cache clears.
+src/hybrid/dfa.rs::method::Cache.memory_usage	method	ported	src/regex/automata/hybrid.cr:614;spec/hybrid_spec.cr	Reports cache storage accounting.
+src/hybrid/dfa.rs::method::Cache.new	method	ported	src/regex/automata/hybrid.cr:575;spec/hybrid_spec.cr	Creates cache coupled to a lazy DFA.
+src/hybrid/dfa.rs::method::Cache.reset	method	ported	src/regex/automata/hybrid.cr:579;spec/hybrid_spec.cr	Resets cache ownership and reusable state.
+src/hybrid/dfa.rs::method::Cache.search_finish	method	ported	src/regex/automata/hybrid.cr:600;spec/hybrid_spec.cr	Maintains directional search progress.
+src/hybrid/dfa.rs::method::Cache.search_start	method	ported	src/regex/automata/hybrid.cr:585;spec/hybrid_spec.cr	Maintains directional search progress.
+src/hybrid/dfa.rs::method::Cache.search_total_len	method	ported	src/regex/automata/hybrid.cr:610;spec/hybrid_spec.cr	Reports absolute directional search length.
+src/hybrid/dfa.rs::method::Cache.search_update	method	ported	src/regex/automata/hybrid.cr:592;spec/hybrid_spec.cr	Maintains directional search progress.
+src/hybrid/dfa.rs::method::Config.byte_classes	method	ported	src/regex/automata/hybrid.cr:344;spec/hybrid_spec.cr	Configures byte classes.
+src/hybrid/dfa.rs::method::Config.byte_classes_from_nfa	method	ported	src/regex/automata/hybrid.cr:448;spec/hybrid_spec.cr	Derives effective byte classes from the NFA.
+src/hybrid/dfa.rs::method::Config.cache_capacity	method	ported	src/regex/automata/hybrid.cr:288;spec/hybrid_spec.cr	Configures lazy-cache capacity.
+src/hybrid/dfa.rs::method::Config.get_byte_classes	method	ported	src/regex/automata/hybrid.cr:395;spec/hybrid_spec.cr	Returns effective byte-class setting.
+src/hybrid/dfa.rs::method::Config.get_cache_capacity	method	ported	src/regex/automata/hybrid.cr:351;spec/hybrid_spec.cr	Returns effective cache capacity.
+src/hybrid/dfa.rs::method::Config.get_match_kind	method	ported	src/regex/automata/hybrid.cr:383;spec/hybrid_spec.cr	Returns effective match kind.
+src/hybrid/dfa.rs::method::Config.get_minimum_bytes_per_state	method	ported	src/regex/automata/hybrid.cr:367;spec/hybrid_spec.cr	Returns optional clear-efficiency threshold.
+src/hybrid/dfa.rs::method::Config.get_minimum_cache_capacity	method	ported	src/regex/automata/hybrid.cr:475;spec/hybrid_spec.cr	Computes NFA-dependent minimum cache capacity.
+src/hybrid/dfa.rs::method::Config.get_minimum_cache_clear_count	method	ported	src/regex/automata/hybrid.cr:363;spec/hybrid_spec.cr	Returns optional clear-count threshold.
+src/hybrid/dfa.rs::method::Config.get_prefilter	method	ported	src/regex/automata/hybrid.cr:371;spec/hybrid_spec.cr	Returns configured prefilter.
+src/hybrid/dfa.rs::method::Config.get_quit	method	ported	src/regex/automata/hybrid.cr:375;spec/hybrid_spec.cr	Queries the effective quit byte set.
+src/hybrid/dfa.rs::method::Config.get_skip_cache_capacity_check	method	ported	src/regex/automata/hybrid.cr:355;spec/hybrid_spec.cr	Returns cache-capacity-check setting.
+src/hybrid/dfa.rs::method::Config.get_specialize_start_states	method	ported	src/regex/automata/hybrid.cr:387;spec/hybrid_spec.cr	Returns specialized-start setting.
+src/hybrid/dfa.rs::method::Config.get_starts_for_each_pattern	method	ported	src/regex/automata/hybrid.cr:391;spec/hybrid_spec.cr	Returns per-pattern-start setting.
+src/hybrid/dfa.rs::method::Config.get_unicode_word_boundary	method	ported	src/regex/automata/hybrid.cr:379;spec/hybrid_spec.cr	Returns Unicode-boundary heuristic setting.
+src/hybrid/dfa.rs::method::Config.match_kind	method	ported	src/regex/automata/hybrid.cr:323;spec/hybrid_spec.cr	Configures match kind.
+src/hybrid/dfa.rs::method::Config.minimum_bytes_per_state	method	ported	src/regex/automata/hybrid.cr:310;spec/hybrid_spec.cr	Configures clear-efficiency threshold.
+src/hybrid/dfa.rs::method::Config.minimum_cache_clear_count	method	ported	src/regex/automata/hybrid.cr:304;spec/hybrid_spec.cr	Configures clear-count threshold.
+src/hybrid/dfa.rs::method::Config.new	method	ported	src/regex/automata/hybrid.cr:268;spec/hybrid_spec.cr	Default hybrid configuration.
+src/hybrid/dfa.rs::method::Config.overwrite	method	ported	src/regex/automata/hybrid.cr:485;spec/hybrid_spec.cr	Preserves explicit configuration overwrite rules.
+src/hybrid/dfa.rs::method::Config.prefilter	method	ported	src/regex/automata/hybrid.cr:281;spec/hybrid_spec.cr	Configures a prefilter.
+src/hybrid/dfa.rs::method::Config.quit	method	ported	src/regex/automata/hybrid.cr:272;spec/hybrid_spec.cr	Configures individual quit bytes.
+src/hybrid/dfa.rs::method::Config.quit_set_from_nfa	method	ported	src/regex/automata/hybrid.cr:430;spec/hybrid_spec.cr	Derives quit bytes from an NFA.
+src/hybrid/dfa.rs::method::Config.skip_cache_capacity_check	method	ported	src/regex/automata/hybrid.cr:299;spec/hybrid_spec.cr	Configures capacity-check bypass.
+src/hybrid/dfa.rs::method::Config.specialize_start_states	method	ported	src/regex/automata/hybrid.cr:330;spec/hybrid_spec.cr	Configures specialized starts.
+src/hybrid/dfa.rs::method::Config.starts_for_each_pattern	method	ported	src/regex/automata/hybrid.cr:337;spec/hybrid_spec.cr	Configures per-pattern starts.
+src/hybrid/dfa.rs::method::Config.unicode_word_boundary	method	ported	src/regex/automata/hybrid.cr:316;spec/hybrid_spec.cr	Configures Unicode-boundary heuristic.
+src/hybrid/dfa.rs::method::DFA.always_match	method	ported	src/regex/automata/hybrid.cr:1075;spec/hybrid_spec.cr	Constructs an always-match lazy DFA.
+src/hybrid/dfa.rs::method::DFA.builder	method	ported	src/regex/automata/hybrid.cr:1087;spec/hybrid_spec.cr	Creates a hybrid builder.
+src/hybrid/dfa.rs::method::DFA.byte_classes	method	ported	src/regex/automata/hybrid.cr:1141;spec/hybrid_spec.cr	Returns effective byte classes.
+src/hybrid/dfa.rs::method::DFA.config	method	ported	src/regex/automata/hybrid.cr:1083;spec/hybrid_spec.cr	Creates default hybrid configuration.
+src/hybrid/dfa.rs::method::DFA.create_cache	method	ported	src/regex/automata/hybrid.cr:1091;spec/hybrid_spec.cr	Creates a coupled cache.
+src/hybrid/dfa.rs::method::DFA.get_config	method	ported	src/regex/automata/hybrid.cr:1099;spec/hybrid_spec.cr	Returns effective configuration.
+src/hybrid/dfa.rs::method::DFA.get_nfa	method	ported	src/regex/automata/hybrid.cr:1103;spec/hybrid_spec.cr	Returns source NFA.
+src/hybrid/dfa.rs::method::DFA.match_len	method	ported	src/regex/automata/hybrid.cr:1157;spec/hybrid_spec.cr	Returns match-pattern count for a cached state.
+src/hybrid/dfa.rs::method::DFA.match_pattern	method	ported	src/regex/automata/hybrid.cr:1162;spec/hybrid_spec.cr	Returns a matched pattern ID for a cached state.
+src/hybrid/dfa.rs::method::DFA.memory_usage	method	partial	src/regex/automata/hybrid.cr:1133;spec/hybrid_spec.cr	Reports static DFA accounting; dynamic lazy-cache storage is reported by Cache.
+src/hybrid/dfa.rs::method::DFA.never_match	method	ported	src/regex/automata/hybrid.cr:1079;spec/hybrid_spec.cr	Constructs a never-match lazy DFA.
+src/hybrid/dfa.rs::method::DFA.new	method	ported	src/regex/automata/hybrid.cr:1067;spec/hybrid_spec.cr	Builds a default lazy DFA.
+src/hybrid/dfa.rs::method::DFA.new_many	method	ported	src/regex/automata/hybrid.cr:1071;spec/hybrid_spec.cr	Builds a default multi-pattern lazy DFA.
+src/hybrid/dfa.rs::method::DFA.next_eoi_state	method	ported	src/regex/automata/hybrid.cr:1216;spec/hybrid_spec.cr	Computes EOI transition through the cache.
+src/hybrid/dfa.rs::method::DFA.next_state	method	ported	src/regex/automata/hybrid.cr:1206;spec/hybrid_spec.cr	Computes cached byte transitions.
+src/hybrid/dfa.rs::method::DFA.next_state_untagged	method	ported	src/regex/automata/hybrid.cr:1210;spec/hybrid_spec.cr	Computes cached untagged byte transitions.
+src/hybrid/dfa.rs::method::DFA.next_state_untagged_unchecked	method	intentional_divergence	src/regex/automata/hybrid.cr:1210	Crystal retains bounds-checked state access instead of Rust unsafe indexing.
+src/hybrid/dfa.rs::method::DFA.pattern_len	method	ported	src/regex/automata/hybrid.cr:1129;spec/hybrid_spec.cr	Returns pattern count.
+src/hybrid/dfa.rs::method::DFA.reset_cache	method	ported	src/regex/automata/hybrid.cr:1095;spec/hybrid_spec.cr	Retargets reusable cache.
+src/hybrid/dfa.rs::method::DFA.start_state	method	ported	src/regex/automata/hybrid.cr:1174;spec/hybrid_spec.cr	Builds start state from input context.
+src/hybrid/dfa.rs::method::DFA.start_state_forward	method	ported	src/regex/automata/hybrid.cr:1178;spec/hybrid_spec.cr	Builds forward start state with errors.
+src/hybrid/dfa.rs::method::DFA.start_state_reverse	method	ported	src/regex/automata/hybrid.cr:1192;spec/hybrid_spec.cr	Builds reverse start state with errors.
+src/hybrid/dfa.rs::method::DFA.stride	method	ported	src/regex/automata/hybrid.cr:1153;spec/hybrid_spec.cr	Reports lazy transition stride.
+src/hybrid/dfa.rs::method::DFA.stride2	method	ported	src/regex/automata/hybrid.cr:1149;spec/hybrid_spec.cr	Reports log2 transition stride.
+src/hybrid/dfa.rs::method::DFA.try_search_fwd	method	ported	src/regex/automata/hybrid.cr:1220;spec/hybrid_spec.cr	Runs forward lazy search.
+src/hybrid/dfa.rs::method::DFA.try_search_overlapping_fwd	method	ported	src/regex/automata/hybrid.cr:1365;spec/hybrid_spec.cr	Runs forward overlapping search.
+src/hybrid/dfa.rs::method::DFA.try_search_overlapping_rev	method	ported	src/regex/automata/hybrid.cr:1467;spec/hybrid_spec.cr	Runs reverse overlapping search.
+src/hybrid/dfa.rs::method::DFA.try_search_rev	method	ported	src/regex/automata/hybrid.cr:1304;spec/hybrid_spec.cr	Runs reverse lazy search.
+src/hybrid/dfa.rs::method::DFA.try_which_overlapping_matches	method	ported	src/regex/automata/hybrid.cr:1558;spec/hybrid_spec.cr	Runs overlapping pattern-set search.
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.add_builder_state	method	missing	-	auto-generated
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.add_state	method	missing	-	auto-generated
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.as_ref	method	missing	-	auto-generated
@@ -695,30 +695,30 @@ src/hybrid/error.rs::method::StartError.fmt	method	ported	src/regex/automata/hyb
 src/hybrid/error.rs::method::StartError.quit	method	ported	src/regex/automata/hybrid.cr:Hybrid::StartError.quit;spec/hybrid_spec.cr	Quit-byte start error.
 src/hybrid/error.rs::method::StartError.source	method	ported	src/regex/automata/hybrid.cr:Hybrid::StartError#source;spec/hybrid_spec.cr	Exposes cache cause.
 src/hybrid/error.rs::method::StartError.unsupported_anchored	method	ported	src/regex/automata/hybrid.cr:Hybrid::StartError.unsupported_anchored;spec/hybrid_spec.cr	Anchoring error with optional pattern ID.
-src/hybrid/id.rs::const::MASK_DEAD	const	missing	-	auto-generated
-src/hybrid/id.rs::const::MASK_MATCH	const	missing	-	auto-generated
-src/hybrid/id.rs::const::MASK_QUIT	const	missing	-	auto-generated
-src/hybrid/id.rs::const::MASK_START	const	missing	-	auto-generated
-src/hybrid/id.rs::const::MASK_UNKNOWN	const	missing	-	auto-generated
-src/hybrid/id.rs::const::MAX	const	missing	-	auto-generated
-src/hybrid/id.rs::const::MAX_BIT	const	missing	-	auto-generated
-src/hybrid/id.rs::method::LazyStateID.as_usize_unchecked	method	missing	-	auto-generated
-src/hybrid/id.rs::method::LazyStateID.as_usize_untagged	method	missing	-	auto-generated
-src/hybrid/id.rs::method::LazyStateID.is_dead	method	missing	-	auto-generated
-src/hybrid/id.rs::method::LazyStateID.is_match	method	missing	-	auto-generated
-src/hybrid/id.rs::method::LazyStateID.is_quit	method	missing	-	auto-generated
-src/hybrid/id.rs::method::LazyStateID.is_start	method	missing	-	auto-generated
-src/hybrid/id.rs::method::LazyStateID.is_tagged	method	missing	-	auto-generated
-src/hybrid/id.rs::method::LazyStateID.is_unknown	method	missing	-	auto-generated
-src/hybrid/id.rs::method::LazyStateID.new	method	missing	-	auto-generated
-src/hybrid/id.rs::method::LazyStateID.new_unchecked	method	missing	-	auto-generated
-src/hybrid/id.rs::method::LazyStateID.to_dead	method	missing	-	auto-generated
-src/hybrid/id.rs::method::LazyStateID.to_match	method	missing	-	auto-generated
-src/hybrid/id.rs::method::LazyStateID.to_quit	method	missing	-	auto-generated
-src/hybrid/id.rs::method::LazyStateID.to_start	method	missing	-	auto-generated
-src/hybrid/id.rs::method::LazyStateID.to_unknown	method	missing	-	auto-generated
-src/hybrid/id.rs::method::LazyStateIDError.attempted	method	missing	-	auto-generated
-src/hybrid/id.rs::method::LazyStateIDError.fmt	method	missing	-	auto-generated
+src/hybrid/id.rs::const::MASK_DEAD	const	ported	src/regex/automata/hybrid.cr:104;spec/hybrid_spec.cr	Preserves the dead-state tag bit.
+src/hybrid/id.rs::const::MASK_MATCH	const	ported	src/regex/automata/hybrid.cr:106;spec/hybrid_spec.cr	Preserves the match-state tag bit.
+src/hybrid/id.rs::const::MASK_QUIT	const	ported	src/regex/automata/hybrid.cr:105;spec/hybrid_spec.cr	Preserves the quit-state tag bit.
+src/hybrid/id.rs::const::MASK_START	const	ported	src/regex/automata/hybrid.cr:106;spec/hybrid_spec.cr	Preserves the start-state tag bit.
+src/hybrid/id.rs::const::MASK_UNKNOWN	const	ported	src/regex/automata/hybrid.cr:103;spec/hybrid_spec.cr	Preserves the unknown-state tag bit.
+src/hybrid/id.rs::const::MAX	const	ported	src/regex/automata/hybrid.cr:108;spec/hybrid_spec.cr	Matches the untagged lazy-state upper bound.
+src/hybrid/id.rs::const::MAX_BIT	const	ported	src/regex/automata/hybrid.cr:102;spec/hybrid_spec.cr	Uses the 32-bit target tag layout.
+src/hybrid/id.rs::method::LazyStateID.as_usize_unchecked	method	ported	src/regex/automata/hybrid.cr:131;spec/hybrid_spec.cr	Exposes raw tagged value for internal search paths.
+src/hybrid/id.rs::method::LazyStateID.as_usize_untagged	method	ported	src/regex/automata/hybrid.cr:127;spec/hybrid_spec.cr	Strips tag bits while retaining state ID.
+src/hybrid/id.rs::method::LazyStateID.is_dead	method	ported	src/regex/automata/hybrid.cr:163;spec/hybrid_spec.cr	Checks the dead tag.
+src/hybrid/id.rs::method::LazyStateID.is_match	method	ported	src/regex/automata/hybrid.cr:175;spec/hybrid_spec.cr	Checks the match tag.
+src/hybrid/id.rs::method::LazyStateID.is_quit	method	ported	src/regex/automata/hybrid.cr:167;spec/hybrid_spec.cr	Checks the quit tag.
+src/hybrid/id.rs::method::LazyStateID.is_start	method	ported	src/regex/automata/hybrid.cr:171;spec/hybrid_spec.cr	Checks the start tag.
+src/hybrid/id.rs::method::LazyStateID.is_tagged	method	ported	src/regex/automata/hybrid.cr:155;spec/hybrid_spec.cr	Checks for any lazy-state tag.
+src/hybrid/id.rs::method::LazyStateID.is_unknown	method	ported	src/regex/automata/hybrid.cr:159;spec/hybrid_spec.cr	Checks the unknown tag.
+src/hybrid/id.rs::method::LazyStateID.new	method	ported	src/regex/automata/hybrid.cr:112;spec/hybrid_spec.cr	Returns typed overflow errors for invalid IDs.
+src/hybrid/id.rs::method::LazyStateID.new_unchecked	method	ported	src/regex/automata/hybrid.cr:119;spec/hybrid_spec.cr	Constructs internal tagged-state IDs.
+src/hybrid/id.rs::method::LazyStateID.to_dead	method	ported	src/regex/automata/hybrid.cr:139;spec/hybrid_spec.cr	Adds the dead tag.
+src/hybrid/id.rs::method::LazyStateID.to_match	method	ported	src/regex/automata/hybrid.cr:151;spec/hybrid_spec.cr	Adds the match tag.
+src/hybrid/id.rs::method::LazyStateID.to_quit	method	ported	src/regex/automata/hybrid.cr:143;spec/hybrid_spec.cr	Adds the quit tag.
+src/hybrid/id.rs::method::LazyStateID.to_start	method	ported	src/regex/automata/hybrid.cr:147;spec/hybrid_spec.cr	Adds the start tag.
+src/hybrid/id.rs::method::LazyStateID.to_unknown	method	ported	src/regex/automata/hybrid.cr:135;spec/hybrid_spec.cr	Adds the unknown tag.
+src/hybrid/id.rs::method::LazyStateIDError.attempted	method	ported	src/regex/automata/hybrid.cr:90;spec/hybrid_spec.cr	Exposes attempted overflowing ID.
+src/hybrid/id.rs::method::LazyStateIDError.fmt	method	ported	src/regex/automata/hybrid.cr:93;spec/hybrid_spec.cr	Preserves Rust-compatible overflow diagnostic text.
 src/hybrid/regex.rs::method::Builder.build	method	missing	-	auto-generated
 src/hybrid/regex.rs::method::Builder.build_from_dfas	method	missing	-	auto-generated
 src/hybrid/regex.rs::method::Builder.build_many	method	missing	-	auto-generated
