@@ -936,6 +936,16 @@ module Regex::Automata::DFA
       @tt.not_nil!.to_state_id(index)
     end
 
+    # Returns the identifier of the dedicated quit state.
+    def quit_id : StateID
+      @special.quit_id
+    end
+
+    # Returns the supported start-state modes for this DFA.
+    def start_kind : StartKind
+      @st.kind
+    end
+
     # Get state by ID
     def [](id : StateID) : State
       state_idx = id.to_i

@@ -157,6 +157,10 @@ describe "DFA API" do
         .build("abc")
 
       dfa.is_always_start_anchored?.should be_true
+      dfa.start_kind.should eq(Regex::Automata::StartKind::Anchored)
+      dfa.quit_id.should eq(dfa.to_state_id(1))
+      dfa.quitset.empty?.should be_true
+      dfa.special.quit_id.should eq(dfa.quit_id)
       dfa.start_state(Regex::Automata::StartConfig.new(nil, Regex::Automata::Anchored::No))
         .should be_a(Regex::Automata::UnsupportedAnchoredStartError)
     end
