@@ -172,6 +172,25 @@ describe Regex::Automata::DFA::OnePass::DFA do
     slots[1].not_nil!.get.should eq(3)
   end
 
+  it "sizes compiled capture scratch space to each search buffer" do
+    re = Regex::Automata::DFA::OnePass::DFA.new("(a)(b)")
+    cache = re.create_cache
+
+    re.is_match(cache, "ab").should be_true
+    cache.compiled_slot_len.should eq(0)
+
+    slots = Array(Regex::Automata::NonMaxUsize?).new(3, nil)
+    re.try_search_slots(
+      cache,
+      Regex::Automata::Input.new("ab").anchored(Regex::Automata::Anchored::Yes),
+      slots
+    ).should eq(onepass_pid(0))
+    cache.compiled_slot_len.should eq(1)
+    slots[0].not_nil!.get.should eq(0)
+    slots[1].not_nil!.get.should eq(2)
+    slots[2].not_nil!.get.should eq(0)
+  end
+
   it "matches the upstream build-time one-pass checks and limits" do
     Regex::Automata::DFA::OnePass::DFA.new("a*b")
     Regex::Automata::DFA::OnePass::DFA.new("(?-u)\\w*\\s")

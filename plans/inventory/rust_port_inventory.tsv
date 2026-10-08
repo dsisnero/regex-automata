@@ -323,11 +323,11 @@ src/dfa/onepass.rs::method::Builder.configure	method	ported	src/regex/automata/o
 src/dfa/onepass.rs::method::Builder.new	method	ported	src/regex/automata/onepass.cr:OnePass::Builder#initialize	Crystal constructor provides builder defaults.
 src/dfa/onepass.rs::method::Builder.syntax	method	ported	src/regex/automata/onepass.cr:OnePass::Builder#syntax;spec/dfa_onepass_spec.cr	Configures syntax parsing.
 src/dfa/onepass.rs::method::Builder.thompson	method	ported	src/regex/automata/onepass.cr:OnePass::Builder#thompson;spec/dfa_onepass_spec.cr	Configures Thompson compilation.
-src/dfa/onepass.rs::method::Cache.explicit_slots	method	partial	src/regex/automata/onepass.cr:Cache#compiled_slots	Retains reusable explicit-capture scratch slots for compiled-table searches; assertion paths still use PikeVM cache state.
+src/dfa/onepass.rs::method::Cache.explicit_slots	method	partial	src/regex/automata/onepass.cr:Cache#compiled_slots;Cache#compiled_slot_len	Retains reusable explicit-capture scratch slots and an active per-search length for compiled-table searches.
 src/dfa/onepass.rs::method::Cache.memory_usage	method	partial	src/regex/automata/onepass.cr:OnePass::Cache#memory_usage;spec/dfa_onepass_spec.cr	Reports delegated PikeVM cache footprint, not native one-pass cache layout.
 src/dfa/onepass.rs::method::Cache.new	method	ported	src/regex/automata/onepass.cr:OnePass::Cache#initialize;spec/dfa_onepass_spec.cr	Creates a reusable search cache.
 src/dfa/onepass.rs::method::Cache.reset	method	ported	src/regex/automata/onepass.cr:OnePass::Cache#reset;spec/dfa_onepass_spec.cr	Resets cache across compatible facade DFAs.
-src/dfa/onepass.rs::method::Cache.setup_search	method	partial	src/regex/automata/onepass.cr:Cache#reset;DFA#search_compiled	Sizes and clears reusable compiled capture slots; per-search caller-length trimming remains pending.
+src/dfa/onepass.rs::method::Cache.setup_search	method	partial	src/regex/automata/onepass.cr:Cache#setup_search;DFA#search_compiled;spec/dfa_onepass_spec.cr	Limits reusable compiled capture scratch to the caller's explicit-slot capacity for each search.
 src/dfa/onepass.rs::method::Config.byte_classes	method	ported	src/regex/automata/onepass.cr:OnePass::Config#byte_classes;spec/dfa_onepass_spec.cr	Sets byte-class option.
 src/dfa/onepass.rs::method::Config.get_byte_classes	method	ported	src/regex/automata/onepass.cr:OnePass::Config#get_byte_classes;spec/dfa_onepass_spec.cr	Returns effective byte-class option.
 src/dfa/onepass.rs::method::Config.get_match_kind	method	ported	src/regex/automata/onepass.cr:OnePass::Config#get_match_kind;spec/dfa_onepass_spec.cr	Returns effective match kind.

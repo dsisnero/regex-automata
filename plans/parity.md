@@ -86,7 +86,7 @@
 
 - [ ] One-pass DFA engine
   - Scope: `src/dfa/onepass.rs` and `tests/dfa/onepass/**`.
-  - Work: replace or fully justify PikeVM delegation; prove one-pass admission, transition/state tables, epsilon/look handling, capture slots, cache behavior, limits, all builder/config APIs, and search error semantics. Admission now traverses the Thompson NFA and rejects duplicate epsilon paths and conflicting byte-class transitions instead of relying on a list of pattern-string exceptions. The retained table executes anchored searches with explicit capture slots and look assertions through a reusable cache; only UTF-8 empty-match boundary filtering still delegates to PikeVM. Complete match-state shuffling, per-search cache sizing, and remaining regression cases before closing the feature.
+  - Work: replace or fully justify PikeVM delegation; prove one-pass admission, transition/state tables, epsilon/look handling, capture slots, cache behavior, limits, all builder/config APIs, and search error semantics. Admission now traverses the Thompson NFA and rejects duplicate epsilon paths and conflicting byte-class transitions instead of relying on a list of pattern-string exceptions. The retained table executes anchored searches with explicit capture slots and look assertions through a reusable cache, sizing its scratch slots to each caller buffer; only UTF-8 empty-match boundary filtering still delegates to PikeVM. Complete match-state shuffling and remaining regression cases before closing the feature.
 
 - [ ] Lazy (hybrid) DFA engine
   - Scope: `src/hybrid/{dfa,error,id,regex,search}.rs` and `tests/hybrid/**`.

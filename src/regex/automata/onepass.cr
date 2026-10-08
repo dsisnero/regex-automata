@@ -174,11 +174,11 @@ module Regex::Automata::DFA
           Epsilons.new(@looks, @slots | (1_u32 << slot))
         end
 
-        def apply_slots(slots : Array(Int32?), at : Int32) : Nil
+        def apply_slots(slots : Array(Int32?), at : Int32, limit : Int32 = slots.size) : Nil
           bits = @slots
           slot = 0
           while bits != 0_u32
-            slots[slot] = at if (bits & 1_u32) != 0_u32 && slot < slots.size
+            slots[slot] = at if (bits & 1_u32) != 0_u32 && slot < limit
             bits >>= 1
             slot += 1
           end
@@ -259,8 +259,10 @@ module Regex::Automata::DFA
         @matches[state_id.to_i]?
       end
 
-      def apply_transition_slots(state_id : StateID, byte : UInt8, slots : Array(Int32?), at : Int32) : Nil
-        @table[state_id.to_i][@classes[byte]].try(&.epsilons).try(&.apply_slots(slots, at))
+      def apply_transition_slots(state_id : StateID, byte : UInt8, slots : Array(Int32?), at : Int32, limit : Int32 = slots.size) : Nil
+        if epsilons = @table[state_id.to_i][@classes[byte]].try(&.epsilons)
+          epsilons.apply_slots(slots, at, limit)
+        end
       end
 
       def transition_looks_match?(state_id : StateID, byte : UInt8, haystack : Bytes, at : Int32) : Bool
@@ -268,9 +270,9 @@ module Regex::Automata::DFA
         !epsilons || epsilons.looks.is_empty || @nfa.look_matcher.matches_set(epsilons.looks, haystack, at)
       end
 
-      def apply_match_slots(state_id : StateID, slots : Array(Int32?), at : Int32) : Nil
+      def apply_match_slots(state_id : StateID, slots : Array(Int32?), at : Int32, limit : Int32 = slots.size) : Nil
         if epsilons = @match_epsilons[state_id.to_i]?
-          epsilons.apply_slots(slots, at)
+          epsilons.apply_slots(slots, at, limit)
         end
       end
 
@@ -445,10 +447,12 @@ module Regex::Automata::DFA
     class Cache
       getter inner : ::Regex::Automata::NFA::PikeVM::Cache
       getter compiled_slots : Array(Int32?)
+      getter compiled_slot_len : Int32
 
       def initialize(re : DFA)
         @inner = re.pikevm.create_cache
         @compiled_slots = [] of Int32?
+        @compiled_slot_len = 0
         reset(re)
       end
 
@@ -466,6 +470,15 @@ module Regex::Automata::DFA
           @compiled_slots.pop
         end
         @compiled_slots.fill(nil)
+        @compiled_slot_len = required
+      end
+
+      # Retain capacity when a caller supplies fewer explicit slots. This
+      # mirrors Rust's per-search active length and avoids maintaining captures
+      # that cannot be observed by the caller.
+      def setup_search(explicit_slot_len : Int32) : Nil
+        @compiled_slot_len = Math.min(@compiled_slots.size, Math.max(explicit_slot_len, 0))
+        @compiled_slots[0, @compiled_slot_len].fill(nil) if @compiled_slot_len > 0
       end
 
       def memory_usage : Int32
@@ -644,7 +657,7 @@ module Regex::Automata::DFA
 
       private def search_compiled(cache : Cache, input : ::Regex::Automata::Input, slots : Array(Int32?)) : ::Regex::Automata::PatternID?
         slots.fill(nil)
-        cache.compiled_slots.fill(nil)
+        cache.setup_search(slots.size - @nfa.pattern_len * 2)
         @nfa.patterns.each do |pattern_id|
           start_slot = pattern_id.to_i * 2
           slots[start_slot] = input.start if start_slot < slots.size
@@ -670,7 +683,7 @@ module Regex::Automata::DFA
           end
 
           return matched if state.to_i == 0 || !@admission.transition_looks_match?(state, byte, input.haystack, at)
-          @admission.apply_transition_slots(state, byte, cache.compiled_slots, at)
+          @admission.apply_transition_slots(state, byte, cache.compiled_slots, at, cache.compiled_slot_len)
           state = next_state
           at += 1
         end
@@ -688,8 +701,8 @@ module Regex::Automata::DFA
         slots[end_slot] = at if end_slot < slots.size
         explicit_start = @nfa.pattern_len * 2
         if explicit_start < slots.size
-          @admission.apply_match_slots(state, cache.compiled_slots, at)
-          copy_len = Math.min(cache.compiled_slots.size, slots.size - explicit_start)
+          @admission.apply_match_slots(state, cache.compiled_slots, at, cache.compiled_slot_len)
+          copy_len = Math.min(cache.compiled_slot_len, slots.size - explicit_start)
           copy_len.times { |index| slots[explicit_start + index] = cache.compiled_slots[index] }
         end
         pattern_id
