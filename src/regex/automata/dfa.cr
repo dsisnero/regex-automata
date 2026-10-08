@@ -1641,6 +1641,33 @@ module Regex::Automata::DFA
       is_half_crlf : Bool,
       matches : Array(PatternID)
 
+    # Maps the original dense-state indexes to their final positions after a
+    # partitioning pass. Unlike Rust's swap-based Remapper, Crystal rebuilds
+    # the dense tables once in their final order, so the machine is never
+    # temporarily left with stale transition IDs.
+    private class StatePermutation
+      @old_to_new : Array(Int32)
+
+      def initialize(order : Array(Int32))
+        @old_to_new = Array.new(order.size, -1)
+        order.each_with_index do |old_index, new_index|
+          @old_to_new[old_index] = new_index
+        end
+      end
+
+      def new_index(old_index : Int32) : Int32
+        @old_to_new[old_index]
+      end
+
+      def remap_state_id(id : StateID) : StateID
+        StateID.new(new_index(id.to_i))
+      end
+
+      def remap_transition(id : StateID, table : TransitionTable) : StateID
+        table.to_state_id(new_index(table.to_index(id)))
+      end
+    end
+
     @nfa : NFA::NFA?
     @dfa_states : Array(State)
     @dfa_state_count : Int32
@@ -2594,10 +2621,7 @@ module Regex::Automata::DFA
       end
 
       new_order = [DEAD_STATE_ID.to_i, QUIT_STATE_ID.to_i] + match_indices + start_only_indices + other_indices
-      old_to_new = {} of Int32 => Int32
-      new_order.each_with_index do |old_index, new_index|
-        old_to_new[old_index] = new_index
-      end
+      permutation = StatePermutation.new(new_order)
 
       reordered_metas = Array(StateMeta).new(state_count)
       reordered_tt = TransitionTable.new(tt.classes, tt.stride2, state_count)
@@ -2608,19 +2632,19 @@ module Regex::Automata::DFA
         new_tt_id = reordered_tt.to_state_id(new_index)
         (tt.classes.alphabet_len - 1).times do |byte_class|
           old_next = tt.next_state_by_class(old_tt_id, byte_class)
-          reordered_tt.set_transition_by_class(new_tt_id, byte_class, reordered_tt.to_state_id(old_to_new[tt.to_index(old_next)]))
+          reordered_tt.set_transition_by_class(new_tt_id, byte_class, permutation.remap_transition(old_next, reordered_tt))
         end
-        reordered_tt.set_eoi_transition(new_tt_id, reordered_tt.to_state_id(old_to_new[tt.to_index(tt.next_eoi_state(old_tt_id))]))
+        reordered_tt.set_eoi_transition(new_tt_id, permutation.remap_transition(tt.next_eoi_state(old_tt_id), reordered_tt))
       end
 
       {
         reordered_metas,
         reordered_tt,
-        StateID.new(old_to_new[unanchored_start_id.to_i]),
-        StateID.new(old_to_new[anchored_start_id.to_i]),
-        remap_start_state_ids(unanchored_start_states, old_to_new),
-        remap_start_state_ids(anchored_start_states, old_to_new),
-        remap_pattern_start_state_ids(pattern_start_states, old_to_new),
+        permutation.remap_state_id(unanchored_start_id),
+        permutation.remap_state_id(anchored_start_id),
+        remap_start_state_ids(unanchored_start_states, permutation),
+        remap_start_state_ids(anchored_start_states, permutation),
+        remap_pattern_start_state_ids(pattern_start_states, permutation),
       }
     end
 
@@ -2663,10 +2687,7 @@ module Regex::Automata::DFA
                   match_nonaccel + match_accel + normal_accel + start_accel + start_nonaccel + normal_nonaccel
       return {metas, tt, unanchored_start_id, anchored_start_id, unanchored_start_states, anchored_start_states, pattern_start_states, accelerators} if new_order == (0...state_count).to_a
 
-      old_to_new = {} of Int32 => Int32
-      new_order.each_with_index do |old_index, new_index|
-        old_to_new[old_index] = new_index
-      end
+      permutation = StatePermutation.new(new_order)
 
       reordered_metas = Array(StateMeta).new(state_count)
       reordered_tt = TransitionTable.new(tt.classes, tt.stride2, state_count)
@@ -2680,19 +2701,19 @@ module Regex::Automata::DFA
         new_tt_id = reordered_tt.to_state_id(new_index)
         (tt.classes.alphabet_len - 1).times do |byte_class|
           old_next = tt.next_state_by_class(old_tt_id, byte_class)
-          reordered_tt.set_transition_by_class(new_tt_id, byte_class, reordered_tt.to_state_id(old_to_new[tt.to_index(old_next)]))
+          reordered_tt.set_transition_by_class(new_tt_id, byte_class, permutation.remap_transition(old_next, reordered_tt))
         end
-        reordered_tt.set_eoi_transition(new_tt_id, reordered_tt.to_state_id(old_to_new[tt.to_index(tt.next_eoi_state(old_tt_id))]))
+        reordered_tt.set_eoi_transition(new_tt_id, permutation.remap_transition(tt.next_eoi_state(old_tt_id), reordered_tt))
       end
 
       {
         reordered_metas,
         reordered_tt,
-        StateID.new(old_to_new[unanchored_start_id.to_i]),
-        StateID.new(old_to_new[anchored_start_id.to_i]),
-        remap_start_state_ids(unanchored_start_states, old_to_new),
-        remap_start_state_ids(anchored_start_states, old_to_new),
-        remap_pattern_start_state_ids(pattern_start_states, old_to_new),
+        permutation.remap_state_id(unanchored_start_id),
+        permutation.remap_state_id(anchored_start_id),
+        remap_start_state_ids(unanchored_start_states, permutation),
+        remap_start_state_ids(anchored_start_states, permutation),
+        remap_pattern_start_state_ids(pattern_start_states, permutation),
         reordered_accels,
       }
     end
@@ -2722,15 +2743,15 @@ module Regex::Automata::DFA
       states
     end
 
-    private def remap_start_state_ids(starts : Hash(Start, StateID), old_to_new : Hash(Int32, Int32)) : Hash(Start, StateID)
+    private def remap_start_state_ids(starts : Hash(Start, StateID), permutation : StatePermutation) : Hash(Start, StateID)
       starts.transform_values do |id|
-        StateID.new(old_to_new[id.to_i])
+        permutation.remap_state_id(id)
       end
     end
 
-    private def remap_pattern_start_state_ids(pattern_starts : Hash(PatternID, Hash(Start, StateID)), old_to_new : Hash(Int32, Int32)) : Hash(PatternID, Hash(Start, StateID))
+    private def remap_pattern_start_state_ids(pattern_starts : Hash(PatternID, Hash(Start, StateID)), permutation : StatePermutation) : Hash(PatternID, Hash(Start, StateID))
       pattern_starts.transform_values do |starts|
-        remap_start_state_ids(starts, old_to_new)
+        remap_start_state_ids(starts, permutation)
       end
     end
   end

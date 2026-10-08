@@ -439,19 +439,19 @@ src/dfa/regex.rs::method::Regex<A>.try_search	method	ported	src/regex/automata/d
 src/dfa/regex.rs::method::Regex<dense::DFA<&'static [u32]>>.builder	method	ported	src/regex/automata/dfa_regex.cr:Regex.builder;spec/dfa_regex_spec.cr	Returns the default Crystal RegexBuilder.
 src/dfa/regex.rs::method::Regex<sparse::DFA<Vec<u8>>>.new_many_sparse	method	ported	src/regex/automata/dfa_regex.cr:Regex.new_many_sparse;spec/dfa_regex_spec.cr	Sparse multi-pattern convenience constructor.
 src/dfa/regex.rs::method::Regex<sparse::DFA<Vec<u8>>>.new_sparse	method	ported	src/regex/automata/dfa_regex.cr:Regex.new_sparse;spec/dfa_regex_spec.cr	Sparse convenience constructor.
-src/dfa/remapper.rs::method::DFA.remap	method	missing	-	auto-generated
-src/dfa/remapper.rs::method::DFA.state_len	method	missing	-	auto-generated
-src/dfa/remapper.rs::method::DFA.stride2	method	missing	-	auto-generated
-src/dfa/remapper.rs::method::DFA.swap_states	method	missing	-	auto-generated
-src/dfa/remapper.rs::method::IndexMapper.to_index	method	missing	-	auto-generated
-src/dfa/remapper.rs::method::IndexMapper.to_state_id	method	missing	-	auto-generated
-src/dfa/remapper.rs::method::OwnedDFA.remap	method	missing	-	auto-generated
-src/dfa/remapper.rs::method::OwnedDFA.state_len	method	missing	-	auto-generated
-src/dfa/remapper.rs::method::OwnedDFA.stride2	method	missing	-	auto-generated
-src/dfa/remapper.rs::method::OwnedDFA.swap_states	method	missing	-	auto-generated
-src/dfa/remapper.rs::method::Remapper.new	method	missing	-	auto-generated
-src/dfa/remapper.rs::method::Remapper.remap	method	missing	-	auto-generated
-src/dfa/remapper.rs::method::Remapper.swap	method	missing	-	auto-generated
+src/dfa/remapper.rs::method::DFA.remap	method	partial	src/regex/automata/dfa.cr:Builder::StatePermutation	Dense construction rebuilds every transition and start reference from the final permutation; OnePass remains PikeVM-backed.
+src/dfa/remapper.rs::method::DFA.state_len	method	partial	src/regex/automata/dfa.cr:DFA#state_len;Builder::StatePermutation	Dense state count is mapped; OnePass has no compiled state table.
+src/dfa/remapper.rs::method::DFA.stride2	method	partial	src/regex/automata/dfa.cr:DFA#stride2;Builder::StatePermutation	Dense premultiplication is mapped; OnePass has no compiled state table.
+src/dfa/remapper.rs::method::DFA.swap_states	method	partial	src/regex/automata/dfa.cr:Builder::StatePermutation	Dense uses a final permutation instead of temporary swap-and-repair; OnePass remains PikeVM-backed.
+src/dfa/remapper.rs::method::IndexMapper.to_index	method	partial	src/regex/automata/dfa.cr:DFA#to_index;Builder::StatePermutation	Dense state-ID/index mapping is explicit; OnePass remains PikeVM-backed.
+src/dfa/remapper.rs::method::IndexMapper.to_state_id	method	partial	src/regex/automata/dfa.cr:DFA#to_state_id;Builder::StatePermutation	Dense state-ID/index mapping is explicit; OnePass remains PikeVM-backed.
+src/dfa/remapper.rs::method::OwnedDFA.remap	method	partial	src/regex/automata/dfa.cr:Builder::StatePermutation	Dense construction rebuilds every transition and start reference from the final permutation.
+src/dfa/remapper.rs::method::OwnedDFA.state_len	method	partial	src/regex/automata/dfa.cr:DFA#state_len;Builder::StatePermutation	Dense state count is mapped; Rust ownership distinction has no Crystal counterpart.
+src/dfa/remapper.rs::method::OwnedDFA.stride2	method	partial	src/regex/automata/dfa.cr:DFA#stride2;Builder::StatePermutation	Dense premultiplication is mapped; Rust ownership distinction has no Crystal counterpart.
+src/dfa/remapper.rs::method::OwnedDFA.swap_states	method	partial	src/regex/automata/dfa.cr:Builder::StatePermutation	Dense uses a final permutation instead of temporary swap-and-repair.
+src/dfa/remapper.rs::method::Remapper.new	method	partial	src/regex/automata/dfa.cr:Builder::StatePermutation#initialize	Builds an original-index to final-index mapping for dense state partitions.
+src/dfa/remapper.rs::method::Remapper.remap	method	partial	src/regex/automata/dfa.cr:Builder::StatePermutation#remap_transition;spec/dfa_dense_spec.cr	Rewrites dense transitions and start IDs in the one rebuild pass; OnePass is deferred.
+src/dfa/remapper.rs::method::Remapper.swap	method	partial	src/regex/automata/dfa.cr:Builder::StatePermutation	Final-order mapping replaces pairwise swaps for dense construction; OnePass is deferred.
 src/dfa/sparse.rs::const::LABEL	const	missing	-	auto-generated
 src/dfa/sparse.rs::const::VERSION	const	missing	-	auto-generated
 src/dfa/sparse.rs::method::DFA<&'a [u8]>.from_bytes	method	ported	src/regex/automata/sparse.cr:Sparse::DFA.from_bytes;spec/dfa_sparse_spec.cr	Crystal checks and decodes the sparse envelope.

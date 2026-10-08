@@ -394,6 +394,28 @@ describe "DFA::Dense" do
     end
   end
 
+  it "keeps transition and start IDs coherent after state partitioning" do
+    dfa = Regex::Automata::DFA::Builder.new
+      .configure { |config| config.starts_for_each_pattern(true).specialize_start_states(true) }
+      .build_many(["a[^x]*x", "(?-u:\\b)foo", "bar$"])
+
+    dfa.states.each_index do |index|
+      id = dfa.to_state_id(index)
+      (dfa.alphabet_len - 1).times do |byte_class|
+        next_id = dfa.tt.not_nil!.next_state_by_class(id, byte_class)
+        dfa.to_index(next_id).should be >= 0
+        dfa.to_index(next_id).should be < dfa.state_len
+      end
+      eoi_id = dfa.next_eoi_state(id)
+      dfa.to_index(eoi_id).should be >= 0
+      dfa.to_index(eoi_id).should be < dfa.state_len
+    end
+
+    %w[aZZx foo bar].each do |haystack|
+      dfa.try_search_fwd(haystack.to_slice).should_not be_a(Regex::Automata::MatchError)
+    end
+  end
+
   it "round-trips little, big, and native-endian dense bytes" do
     dfa = Regex::Automata::DFA::Builder.new
       .configure { |config| config.starts_for_each_pattern(true) }

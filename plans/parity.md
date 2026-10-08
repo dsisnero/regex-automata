@@ -78,7 +78,7 @@
 
 - [ ] Dense DFA compilation, transformations, and serialization
   - Scope: `src/dfa/{determinize,minimize,remapper}.rs` plus mutation/serialization portions of `src/dfa/dense.rs`.
-  - Work: prove limits and failure precedence; remap/minimize/truncate/swap/shuffle state-ID invariants; transition, EOI, start-table, special-state, match-map, accelerator, and pattern-map coherence; all native/little/big-endian read/write paths; and malformed-wire rejection. Keep the current premultiplied ID representation only if every relevant Rust transformation result is equivalent.
+  - Work: prove limits and failure precedence; remap/minimize/truncate/swap/shuffle state-ID invariants; transition, EOI, start-table, special-state, match-map, accelerator, and pattern-map coherence; all native/little/big-endian read/write paths; and malformed-wire rejection. Dense construction now applies a compact final-order permutation while rebuilding transition and start tables, rather than Rust's temporary swap-and-repair cycle; it preserves the premultiplied-ID invariant and avoids hash lookups in the remap pass. One-pass still needs its real compiled-table implementation before the remapper family can close.
 
 - [ ] Dense and sparse regex wrappers
   - Scope: `src/dfa/{regex,sparse}.rs` and all dense/sparse integration, fuzz, generated, and suite tests under `tests/dfa/**`, `tests/fuzz/**`, and `tests/gen/**`.
