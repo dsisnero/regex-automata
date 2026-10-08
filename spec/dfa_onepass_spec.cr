@@ -53,7 +53,7 @@ describe Regex::Automata::DFA::OnePass::DFA do
     re.state_len.should be > 0
     re.pattern_len.should eq(1)
     re.memory_usage.should be > 0
-    re.create_cache.memory_usage.should be > 0
+    re.create_cache.memory_usage.should eq(0)
 
     always = Regex::Automata::DFA::OnePass::DFA.always_match
     cache = always.create_cache
@@ -353,6 +353,11 @@ describe Regex::Automata::DFA::OnePass::DFA do
 
     utf8 = Regex::Automata::DFA::OnePass::DFA.new("a*")
     utf8.is_match(utf8.create_cache, input).should be_false
+    utf8.try_search_slots(
+      utf8.create_cache,
+      input.anchored(Regex::Automata::Anchored::Yes),
+      [] of Regex::Automata::NonMaxUsize?
+    ).should be_nil
 
     binary = Regex::Automata::DFA::OnePass::DFA.builder
       .thompson(Regex::Automata::NFA::NFA.config.utf8(false))

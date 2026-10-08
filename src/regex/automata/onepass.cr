@@ -1,4 +1,4 @@
-require "./pikevm"
+require "./nfa"
 
 module Regex::Automata::DFA
   module OnePass
@@ -117,9 +117,8 @@ module Regex::Automata::DFA
     end
 
     # Builds the same one-pass admission graph as Rust's InternalBuilder.
-    # The compiled table handles regular assertion-bearing searches. PikeVM is
-    # retained only for UTF-8 empty-match handling, whose character-boundary
-    # rule requires its existing searcher support.
+    # The compiled table handles every supported one-pass search, including
+    # assertion-bearing and UTF-8-empty cases.
     private class Admission
       PATTERN_ID_LIMIT    = 0xFFFF_i32
       EXPLICIT_SLOT_LIMIT =     32_i32
@@ -244,10 +243,6 @@ module Regex::Automata::DFA
 
       def memory_usage : Int32
         (@table.size * @alphabet_len * sizeof(Transition) + @starts.size * sizeof(StateID)).to_i32
-      end
-
-      def supports_table_execution? : Bool
-        !(@nfa.has_empty && @nfa.is_utf8)
       end
 
       def start(pattern : PatternID? = nil) : StateID
@@ -497,12 +492,10 @@ module Regex::Automata::DFA
     end
 
     class Cache
-      getter inner : ::Regex::Automata::NFA::PikeVM::Cache
       getter compiled_slots : Array(Int32?)
       getter compiled_slot_len : Int32
 
       def initialize(re : DFA)
-        @inner = re.pikevm.create_cache
         @compiled_slots = [] of Int32?
         @compiled_slot_len = 0
         reset(re)
@@ -513,7 +506,6 @@ module Regex::Automata::DFA
       end
 
       def reset(re : DFA) : Nil
-        re.pikevm.reset_cache(@inner)
         required = re.get_nfa.group_info.explicit_slot_len
         while @compiled_slots.size < required
           @compiled_slots << nil
@@ -534,24 +526,16 @@ module Regex::Automata::DFA
       end
 
       def memory_usage : Int32
-        @inner.memory_usage + @compiled_slots.size.to_i32 * sizeof(Int32?).to_i32
+        @compiled_slots.size.to_i32 * sizeof(Int32?).to_i32
       end
     end
 
     class DFA
-      getter pikevm : ::Regex::Automata::NFA::PikeVM
-
       @config : Config
       @nfa : ::Regex::Automata::NFA::NFA
       @byte_classes : ::Regex::Automata::ByteClasses
 
       def initialize(@config : Config, @nfa : ::Regex::Automata::NFA::NFA, @admission : Admission)
-        @pikevm = ::Regex::Automata::NFA::PikeVM.builder
-          .configure(
-            ::Regex::Automata::NFA::PikeVM.config
-              .match_kind(@config.get_match_kind)
-          )
-          .build_from_nfa(@nfa)
         @byte_classes = if @config.get_byte_classes
                           @nfa.byte_classes
                         else
@@ -688,23 +672,17 @@ module Regex::Automata::DFA
         validation = validate_input(input)
         return validation if validation
 
-        if @admission.supports_table_execution?
-          return search_compiled(cache, input, slots)
-        end
-        @pikevm.search_slots(cache.inner, input, slots)
+        search_compiled_with_utf8_empty(cache, input, slots)
       end
 
       def try_search_slots(cache : Cache, input : ::Regex::Automata::Input, slots : Array(::Regex::Automata::NonMaxUsize?)) : ::Regex::Automata::PatternID? | ::Regex::Automata::MatchError
         validation = validate_input(input)
         return validation if validation
 
-        if @admission.supports_table_execution?
-          plain_slots = slots.map { |slot| slot.try(&.get) }
-          result = search_compiled(cache, input, plain_slots)
-          plain_slots.each_with_index { |slot, index| slots[index] = slot.try { |offset| ::Regex::Automata::NonMaxUsize.new(offset) } }
-          return result
-        end
-        @pikevm.search_slots(cache.inner, input, slots)
+        plain_slots = slots.map { |slot| slot.try(&.get) }
+        result = search_compiled_with_utf8_empty(cache, input, plain_slots)
+        plain_slots.each_with_index { |slot, index| slots[index] = slot.try { |offset| ::Regex::Automata::NonMaxUsize.new(offset) } }
+        result
       end
 
       private def search_compiled(cache : Cache, input : ::Regex::Automata::Input, slots : Array(Int32?)) : ::Regex::Automata::PatternID?
@@ -752,6 +730,36 @@ module Regex::Automata::DFA
           end
         end
         matched
+      end
+
+      # A UTF-8 one-pass search needs overall-match slots even when its caller
+      # asks only for existence. Rust uses this scratch to reject a zero-width
+      # match that starts inside a code point, while still letting the table do
+      # the search itself.
+      private def search_compiled_with_utf8_empty(cache : Cache, input : ::Regex::Automata::Input, slots : Array(Int32?)) : ::Regex::Automata::PatternID?
+        unless @nfa.has_empty && @nfa.is_utf8
+          return search_compiled(cache, input, slots)
+        end
+
+        implicit_slot_len = @nfa.group_info.implicit_slot_len
+        if slots.size >= implicit_slot_len
+          return filter_utf8_empty_match(input, search_compiled(cache, input, slots), slots)
+        end
+
+        enough_slots = Array(Int32?).new(implicit_slot_len, nil)
+        result = search_compiled(cache, input, enough_slots)
+        slots.size.times { |index| slots[index] = enough_slots[index] }
+        filter_utf8_empty_match(input, result, enough_slots)
+      end
+
+      private def filter_utf8_empty_match(input : ::Regex::Automata::Input, pattern_id : ::Regex::Automata::PatternID?, slots : Array(Int32?)) : ::Regex::Automata::PatternID?
+        return nil unless pattern_id
+
+        slot_start = pattern_id.to_i * 2
+        start = slots[slot_start]
+        finish = slots[slot_start + 1]
+        return pattern_id unless start && finish
+        start == finish && !input.is_char_boundary(start) ? nil : pattern_id
       end
 
       private def record_compiled_match(state : StateID, pattern_id : ::Regex::Automata::PatternID, at : Int32, slots : Array(Int32?), cache : Cache) : ::Regex::Automata::PatternID
