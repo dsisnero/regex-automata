@@ -384,14 +384,14 @@ src/dfa/onepass.rs::method::Epsilons.looks	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::Epsilons.set_looks	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::Epsilons.set_slots	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::Epsilons.slots	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::InternalBuilder<'a>.add_dfa_state_for_nfa_state	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::InternalBuilder<'a>.add_empty_state	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::InternalBuilder<'a>.add_start_state	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::InternalBuilder<'a>.build	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::InternalBuilder<'a>.compile_transition	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::InternalBuilder<'a>.new	method	missing	-	auto-generated
+src/dfa/onepass.rs::method::InternalBuilder<'a>.add_dfa_state_for_nfa_state	method	partial	src/regex/automata/onepass.cr:Admission#add_dfa_state	Builds the NFA-to-admission-state map; execution still delegates to PikeVM.
+src/dfa/onepass.rs::method::InternalBuilder<'a>.add_empty_state	method	partial	src/regex/automata/onepass.cr:Admission#add_empty_state	Allocates dense admission rows; execution still delegates to PikeVM.
+src/dfa/onepass.rs::method::InternalBuilder<'a>.add_start_state	method	partial	src/regex/automata/onepass.cr:Admission#add_start_state	Adds all-pattern and configured pattern starts to admission.
+src/dfa/onepass.rs::method::InternalBuilder<'a>.build	method	partial	src/regex/automata/onepass.cr:Admission#run;spec/dfa_onepass_spec.cr	Performs genuine NFA admission and ambiguity checks; compiled rows are not yet the executor.
+src/dfa/onepass.rs::method::InternalBuilder<'a>.compile_transition	method	partial	src/regex/automata/onepass.cr:Admission#compile_transition;spec/dfa_onepass_spec.cr	Compares class transitions for ambiguity; compiled rows are not yet the executor.
+src/dfa/onepass.rs::method::InternalBuilder<'a>.new	method	partial	src/regex/automata/onepass.cr:Admission#initialize	Initializes byte classes, state mapping, and dense admission rows.
 src/dfa/onepass.rs::method::InternalBuilder<'a>.shuffle_states	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::InternalBuilder<'a>.stack_push	method	missing	-	auto-generated
+src/dfa/onepass.rs::method::InternalBuilder<'a>.stack_push	method	partial	src/regex/automata/onepass.cr:Admission#stack_push;spec/dfa_onepass_spec.cr	Rejects ambiguous epsilon paths while traversing each admission state.
 src/dfa/onepass.rs::method::PatternEpsilons.empty	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::PatternEpsilons.epsilons	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::PatternEpsilons.fmt	method	missing	-	auto-generated

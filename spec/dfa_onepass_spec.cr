@@ -212,6 +212,17 @@ describe Regex::Automata::DFA::OnePass::DFA do
     )
   end
 
+  it "derives one-pass conflicts from the Thompson NFA" do
+    expect_raises(Regex::Automata::DFA::OnePass::BuildError, /conflicting transition/) do
+      Regex::Automata::DFA::OnePass::DFA.new("[ab]*a")
+    end
+    expect_raises(Regex::Automata::DFA::OnePass::BuildError, /conflicting transition/) do
+      Regex::Automata::DFA::OnePass::DFA.new("(?:ab|a)b")
+    end
+
+    Regex::Automata::DFA::OnePass::DFA.new("(?:foo|fo)bar")
+  end
+
   it "preserves upstream one-pass build error kinds and causes" do
     error = expect_raises(Regex::Automata::DFA::OnePass::BuildError) do
       Regex::Automata::DFA::OnePass::DFA.new("a*[ab]")
