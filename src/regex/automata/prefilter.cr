@@ -152,8 +152,11 @@ module Regex::Automata
       limit = span.end - needle.size
       at = span.start
       while at <= limit
-        return at if starts_with?(haystack, at, needle)
-        at += 1
+        found = haystack.index(needle[0], at)
+        return nil unless found && found <= limit
+        return found if starts_with?(haystack, found, needle)
+
+        at = found + 1
       end
       nil
     end

@@ -128,5 +128,15 @@ describe Regex::Automata::Prefilter do
     ).not_nil!
 
     pre.is_fast.should be_true
+
+    # The first `a` is only a candidate; the search must continue to the
+    # later complete literal without scanning every non-candidate offset.
+    pre = Regex::Automata::Prefilter.new(
+      Regex::Automata::MatchKind::All,
+      ["aba"]
+    ).not_nil!
+    pre.find("a---aba".to_slice, Regex::Automata::Span.new(0, 7)).should eq(
+      Regex::Automata::Span.new(4, 7)
+    )
   end
 end

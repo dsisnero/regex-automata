@@ -1725,7 +1725,7 @@ src/util/prefilter/memchr.rs::method::Memchr3.memory_usage	method	partial	src/re
 src/util/prefilter/memchr.rs::method::Memchr3.name	method	intentional_divergence	-	Concrete Rust strategy names are not exposed by the Crystal generic prefilter.
 src/util/prefilter/memchr.rs::method::Memchr3.new	method	partial	src/regex/automata/prefilter.cr:Prefilter.new	Three-byte validation is represented without concrete strategy selection.
 src/util/prefilter/memchr.rs::method::Memchr3.prefix	method	partial	src/regex/automata/prefilter.cr:Prefilter#prefix;spec/prefilter_spec.cr	Generic prefix semantics are covered.
-src/util/prefilter/memmem.rs::method::Memmem.find	method	partial	src/regex/automata/prefilter.cr:Prefilter#find;spec/prefilter_spec.cr	Generic candidate search covers behavior; memmem dispatch is absent.
+src/util/prefilter/memmem.rs::method::Memmem.find	method	partial	src/regex/automata/prefilter.cr:Prefilter#find_needle;spec/prefilter_spec.cr	Single multi-byte literals scan indexed first-byte candidates before confirming the full literal, preserving bounded memmem semantics without a separate compiled finder.
 src/util/prefilter/memmem.rs::method::Memmem.is_fast	method	partial	src/regex/automata/prefilter.cr:Prefilter#is_fast	Generic heuristic differs from memmem capability.
 src/util/prefilter/memmem.rs::method::Memmem.memory_usage	method	partial	src/regex/automata/prefilter.cr:Prefilter#memory_usage	Needle-byte accounting differs from compiled finder storage.
 src/util/prefilter/memmem.rs::method::Memmem.name	method	intentional_divergence	-	Concrete Rust strategy names are not exposed by the Crystal generic prefilter.
