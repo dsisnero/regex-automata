@@ -149,6 +149,19 @@ describe Regex::Automata::NFA::NFA do
     never.states.should eq([s_fail])
   end
 
+  it "builds reverse Unicode classes with bounded suffix-cache semantics" do
+    nfa = Regex::Automata::NFA::NFA.compiler
+      .configure(
+        Regex::Automata::NFA::NFA.config
+          .reverse(true)
+          .which_captures(Regex::Automata::NFA::WhichCaptures::None)
+      )
+      .build("[α-ω]+")
+
+    nfa.reverse?.should be_true
+    nfa.states.should_not be_empty
+  end
+
   it "matches always-match and never-match NFAs through PikeVM over ranged input" do
     always = Regex::Automata::NFA::PikeVM.new_from_nfa(Regex::Automata::NFA::NFA.always_match)
     always_cache = always.create_cache

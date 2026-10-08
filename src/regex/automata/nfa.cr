@@ -308,12 +308,131 @@ module Regex::Automata::NFA
     end
   end
 
+  # These bounded maps are caches, not general maps: a collision may evict an
+  # entry, which only makes the generated UTF-8 NFA less compact. Keeping a
+  # fixed slot count matches Rust's compilation-time/memory trade-off.
+  UTF8_MAP_PRIME =          1_099_511_628_211_u64
+  UTF8_MAP_INIT  = 14_695_981_039_346_656_037_u64
+
+  private struct Utf8BoundedEntry
+    property version : UInt16
+    property key : Array(Transition)
+    property val : StateID
+
+    def initialize(@version : UInt16 = 0_u16, @key : Array(Transition) = [] of Transition, @val : StateID = StateID.new(0))
+    end
+  end
+
+  private class Utf8BoundedMap
+    @version : UInt16
+    @capacity : Int32
+    @map : Array(Utf8BoundedEntry)
+
+    def initialize(@capacity : Int32)
+      raise ArgumentError.new("UTF-8 bounded map capacity must be positive") unless @capacity > 0
+
+      @version = 0_u16
+      @map = [] of Utf8BoundedEntry
+    end
+
+    def clear : Nil
+      if @map.empty?
+        @map = Array.new(@capacity) { Utf8BoundedEntry.new }
+      else
+        @version &+= 1_u16
+        @map = Array.new(@capacity) { Utf8BoundedEntry.new } if @version == 0_u16
+      end
+    end
+
+    def hash(key : Array(Transition)) : Int32
+      hash = UTF8_MAP_INIT
+      key.each do |transition|
+        hash = (hash ^ transition.start.to_u64) &* UTF8_MAP_PRIME
+        hash = (hash ^ transition.end.to_u64) &* UTF8_MAP_PRIME
+        hash = (hash ^ transition.next.as_u64) &* UTF8_MAP_PRIME
+      end
+      (hash % @map.size.to_u64).to_i32
+    end
+
+    def get(key : Array(Transition), hash : Int32) : StateID?
+      entry = @map[hash]
+      return nil unless entry.version == @version
+      return nil unless entry.key == key
+
+      entry.val
+    end
+
+    def set(key : Array(Transition), hash : Int32, state_id : StateID) : Nil
+      @map[hash] = Utf8BoundedEntry.new(@version, key, state_id)
+    end
+  end
+
+  private struct Utf8SuffixKey
+    getter from : StateID
+    getter start : UInt8
+    getter end : UInt8
+
+    def initialize(@from : StateID, @start : UInt8, @end : UInt8)
+    end
+  end
+
+  private struct Utf8SuffixEntry
+    property version : UInt16
+    property key : Utf8SuffixKey
+    property val : StateID
+
+    def initialize(@version : UInt16 = 0_u16, @key : Utf8SuffixKey = Utf8SuffixKey.new(StateID.new(0), 0_u8, 0_u8), @val : StateID = StateID.new(0))
+    end
+  end
+
+  private class Utf8SuffixMap
+    @version : UInt16
+    @capacity : Int32
+    @map : Array(Utf8SuffixEntry)
+
+    def initialize(@capacity : Int32)
+      raise ArgumentError.new("UTF-8 suffix map capacity must be positive") unless @capacity > 0
+
+      @version = 0_u16
+      @map = [] of Utf8SuffixEntry
+    end
+
+    def clear : Nil
+      if @map.empty?
+        @map = Array.new(@capacity) { Utf8SuffixEntry.new }
+      else
+        @version &+= 1_u16
+        @map = Array.new(@capacity) { Utf8SuffixEntry.new } if @version == 0_u16
+      end
+    end
+
+    def hash(key : Utf8SuffixKey) : Int32
+      hash = UTF8_MAP_INIT
+      hash = (hash ^ key.from.as_u64) &* UTF8_MAP_PRIME
+      hash = (hash ^ key.start.to_u64) &* UTF8_MAP_PRIME
+      hash = (hash ^ key.end.to_u64) &* UTF8_MAP_PRIME
+      (hash % @map.size.to_u64).to_i32
+    end
+
+    def get(key : Utf8SuffixKey, hash : Int32) : StateID?
+      entry = @map[hash]
+      return nil unless entry.version == @version
+      return nil unless entry.key == key
+
+      entry.val
+    end
+
+    def set(key : Utf8SuffixKey, hash : Int32, state_id : StateID) : Nil
+      @map[hash] = Utf8SuffixEntry.new(@version, key, state_id)
+    end
+  end
+
   private class Utf8CompilerState
-    getter compiled : Hash(Array(Tuple(UInt8, UInt8, Int32)), StateID)
+    getter compiled : Utf8BoundedMap
     getter uncompiled : Array(Utf8Node)
 
     def initialize
-      @compiled = {} of Array(Tuple(UInt8, UInt8, Int32)) => StateID
+      @compiled = Utf8BoundedMap.new(10_000)
       @uncompiled = [] of Utf8Node
     end
 
@@ -642,8 +761,8 @@ module Regex::Automata::NFA
     end
 
     private def compile(node : Array(Transition)) : StateID
-      key = node.map { |transition| {transition.start, transition.end, transition.next.to_i} }
-      if compiled_id = @state.compiled[key]?
+      hash = @state.compiled.hash(node)
+      if compiled_id = @state.compiled.get(node, hash)
         return compiled_id
       end
 
@@ -653,7 +772,7 @@ module Regex::Automata::NFA
                 Sparse.new(node).as(State)
               end
       id = @builder.add_state(state)
-      @state.compiled[key] = id
+      @state.compiled.set(node, hash, id)
       id
     end
 
@@ -1057,7 +1176,8 @@ module Regex::Automata::NFA
     end
 
     private def build_reverse_unicode_ranges_with_suffix(ranges : Array(Range(UInt32, UInt32))) : ThompsonRef
-      cache = {} of Tuple(Int32, UInt8, UInt8) => StateID
+      cache = Utf8SuffixMap.new(1_000)
+      cache.clear
       union_start = add_state(Union.new([] of StateID))
       target = add_state(Empty.new(StateID.new(0)))
 
@@ -1066,15 +1186,16 @@ module Regex::Automata::NFA
         while seq = utf8_seq.next
           state_id = target
           seq.ranges.each do |seq_range|
-            key = {state_id.to_i, seq_range.start, seq_range.end}
-            if cached = cache[key]?
+            key = Utf8SuffixKey.new(state_id, seq_range.start, seq_range.end)
+            hash = cache.hash(key)
+            if cached = cache.get(key, hash)
               state_id = cached
               next
             end
 
             trans = Transition.new(seq_range.start, seq_range.end, state_id)
             state_id = add_state(ByteRange.new(trans))
-            cache[key] = state_id
+            cache.set(key, hash, state_id)
           end
 
           update_transition_target(union_start, state_id)

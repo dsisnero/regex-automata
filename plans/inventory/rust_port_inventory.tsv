@@ -1210,18 +1210,18 @@ src/nfa/thompson/literal_trie.rs::method::State.fmt	method	missing	-	auto-genera
 src/nfa/thompson/literal_trie.rs::method::State.is_leaf	method	missing	-	auto-generated
 src/nfa/thompson/literal_trie.rs::method::StateChunksIter<'a>.next	method	missing	-	auto-generated
 src/nfa/thompson/literal_trie.rs::method::Transition.fmt	method	missing	-	auto-generated
-src/nfa/thompson/map.rs::const::INIT	const	missing	-	auto-generated
-src/nfa/thompson/map.rs::const::PRIME	const	missing	-	auto-generated
-src/nfa/thompson/map.rs::method::Utf8BoundedMap.clear	method	missing	-	auto-generated
-src/nfa/thompson/map.rs::method::Utf8BoundedMap.get	method	missing	-	auto-generated
-src/nfa/thompson/map.rs::method::Utf8BoundedMap.hash	method	missing	-	auto-generated
-src/nfa/thompson/map.rs::method::Utf8BoundedMap.new	method	missing	-	auto-generated
-src/nfa/thompson/map.rs::method::Utf8BoundedMap.set	method	missing	-	auto-generated
-src/nfa/thompson/map.rs::method::Utf8SuffixMap.clear	method	missing	-	auto-generated
-src/nfa/thompson/map.rs::method::Utf8SuffixMap.get	method	missing	-	auto-generated
-src/nfa/thompson/map.rs::method::Utf8SuffixMap.hash	method	missing	-	auto-generated
-src/nfa/thompson/map.rs::method::Utf8SuffixMap.new	method	missing	-	auto-generated
-src/nfa/thompson/map.rs::method::Utf8SuffixMap.set	method	missing	-	auto-generated
+src/nfa/thompson/map.rs::const::INIT	const	ported	src/regex/automata/nfa.cr:UTF8_MAP_INIT	FNV-1a initial value.
+src/nfa/thompson/map.rs::const::PRIME	const	ported	src/regex/automata/nfa.cr:UTF8_MAP_PRIME	FNV-1a prime.
+src/nfa/thompson/map.rs::method::Utf8BoundedMap.clear	method	ported	src/regex/automata/nfa.cr:Utf8BoundedMap#clear;spec/nfa_thompson_spec.cr	Versioned fixed-slot cache clear.
+src/nfa/thompson/map.rs::method::Utf8BoundedMap.get	method	ported	src/regex/automata/nfa.cr:Utf8BoundedMap#get;spec/nfa_thompson_spec.cr	Collision-safe cached transition lookup.
+src/nfa/thompson/map.rs::method::Utf8BoundedMap.hash	method	ported	src/regex/automata/nfa.cr:Utf8BoundedMap#hash;spec/nfa_thompson_spec.cr	FNV-1a transition hashing.
+src/nfa/thompson/map.rs::method::Utf8BoundedMap.new	method	ported	src/regex/automata/nfa.cr:Utf8BoundedMap#initialize;spec/nfa_thompson_spec.cr	Fixed-capacity UTF-8 compilation cache.
+src/nfa/thompson/map.rs::method::Utf8BoundedMap.set	method	ported	src/regex/automata/nfa.cr:Utf8BoundedMap#set;spec/nfa_thompson_spec.cr	Collision-tolerant cache insertion.
+src/nfa/thompson/map.rs::method::Utf8SuffixMap.clear	method	ported	src/regex/automata/nfa.cr:Utf8SuffixMap#clear;spec/nfa_thompson_spec.cr	Versioned fixed-slot suffix-cache clear.
+src/nfa/thompson/map.rs::method::Utf8SuffixMap.get	method	ported	src/regex/automata/nfa.cr:Utf8SuffixMap#get;spec/nfa_thompson_spec.cr	Collision-safe suffix lookup.
+src/nfa/thompson/map.rs::method::Utf8SuffixMap.hash	method	ported	src/regex/automata/nfa.cr:Utf8SuffixMap#hash;spec/nfa_thompson_spec.cr	FNV-1a suffix hashing.
+src/nfa/thompson/map.rs::method::Utf8SuffixMap.new	method	ported	src/regex/automata/nfa.cr:Utf8SuffixMap#initialize;spec/nfa_thompson_spec.cr	Fixed-capacity reverse UTF-8 cache.
+src/nfa/thompson/map.rs::method::Utf8SuffixMap.set	method	ported	src/regex/automata/nfa.cr:Utf8SuffixMap#set;spec/nfa_thompson_spec.cr	Collision-tolerant suffix insertion.
 src/nfa/thompson/nfa.rs::method::DenseTransitions.iter	method	missing	-	auto-generated
 src/nfa/thompson/nfa.rs::method::DenseTransitions.matches	method	missing	-	auto-generated
 src/nfa/thompson/nfa.rs::method::DenseTransitions.matches_byte	method	missing	-	auto-generated
