@@ -348,6 +348,25 @@ describe Regex::Automata::DFA::OnePass::DFA do
     )
   end
 
+  it "agrees with the Thompson oracle on a supported anchored matrix" do
+    {
+      "a*b"           => "aaab",
+      "abc|a"         => "abc",
+      "(abc)+?"       => "abcabc",
+      "(?-u:\\b)abc"  => "abc",
+      "(?m)^abc$"     => "abc\n",
+      "(?:foo|fo)bar" => "foobar",
+    }.each do |pattern, haystack|
+      input = Regex::Automata::Input.new(haystack).anchored(Regex::Automata::Anchored::Yes)
+      onepass = Regex::Automata::DFA::OnePass::DFA.new(pattern)
+      pikevm = Regex::Automata::NFA::PikeVM.new(pattern)
+
+      onepass.find(onepass.create_cache, input).should eq(
+        pikevm.find(pikevm.create_cache, input)
+      )
+    end
+  end
+
   it "honors one-pass size limits" do
     expect_raises(Regex::Automata::DFA::OnePass::BuildError, /size limit/) do
       Regex::Automata::DFA::OnePass::DFA.builder
