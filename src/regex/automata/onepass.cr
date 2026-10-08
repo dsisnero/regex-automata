@@ -3,12 +3,50 @@ require "./pikevm"
 module Regex::Automata::DFA
   module OnePass
     class BuildError < ::Regex::Automata::BuildError
+      enum Kind
+        NFA
+        Word
+        TooManyStates
+        TooManyPatterns
+        UnsupportedLook
+        ExceededSizeLimit
+        NotOnePass
+      end
+
+      getter kind : Kind
+      getter source : Exception?
+      getter look : ::Regex::Automata::Look?
+
+      def initialize(@kind : Kind, message : String, @source : Exception? = nil, @look : ::Regex::Automata::Look? = nil, size_limit_exceeded : Bool = false, size_limit : Int64? = nil)
+        super(message, size_limit_exceeded: size_limit_exceeded, size_limit: size_limit)
+      end
+
+      def self.nfa(error : Exception) : BuildError
+        new(Kind::NFA, "error building NFA", error)
+      end
+
+      def self.word(error : Exception) : BuildError
+        new(Kind::Word, "NFA contains Unicode word boundary", error)
+      end
+
+      def self.too_many_states(limit : Int64) : BuildError
+        new(Kind::TooManyStates, "one-pass DFA exceeded a limit of #{limit} for number of states")
+      end
+
+      def self.too_many_patterns(limit : Int64) : BuildError
+        new(Kind::TooManyPatterns, "one-pass DFA exceeded a limit of #{limit} for number of patterns")
+      end
+
+      def self.unsupported_look(look : ::Regex::Automata::Look) : BuildError
+        new(Kind::UnsupportedLook, "one-pass DFA does not support the #{look} assertion", look: look)
+      end
+
       def self.not_one_pass(msg : String) : BuildError
-        new("one-pass DFA could not be built because pattern is not one-pass: #{msg}")
+        new(Kind::NotOnePass, "one-pass DFA could not be built because pattern is not one-pass: #{msg}")
       end
 
       def self.exceeded_size_limit(limit : Int32) : BuildError
-        new("one-pass DFA exceeded size limit of #{limit} during building", true)
+        new(Kind::ExceededSizeLimit, "one-pass DFA exceeded size limit of #{limit} during building", size_limit_exceeded: true, size_limit: limit)
       end
     end
 
@@ -106,8 +144,8 @@ module Regex::Automata::DFA
           .syntax(@syntax_config)
           .build_many(patterns_array)
         build_from_nfa(nfa)
-      rescue ex : ::Regex::Automata::BuildError
-        raise BuildError.new(ex.message, ex.is_size_limit_exceeded)
+      rescue ex : ::Regex::Automata::NFA::BuildError
+        raise BuildError.nfa(ex)
       end
 
       def build_from_nfa(nfa : ::Regex::Automata::NFA::NFA) : DFA
@@ -119,7 +157,7 @@ module Regex::Automata::DFA
         end
         dfa
       rescue ex : ::Regex::Automata::UnicodeWordBoundaryError
-        raise BuildError.new(ex.message)
+        raise BuildError.word(ex)
       end
 
       def configure(config : Config) : Builder

@@ -212,6 +212,29 @@ describe Regex::Automata::DFA::OnePass::DFA do
     )
   end
 
+  it "preserves upstream one-pass build error kinds and causes" do
+    error = expect_raises(Regex::Automata::DFA::OnePass::BuildError) do
+      Regex::Automata::DFA::OnePass::DFA.new("a*[ab]")
+    end
+    error.kind.should eq(Regex::Automata::DFA::OnePass::BuildError::Kind::NotOnePass)
+    error.source.should be_nil
+
+    error = expect_raises(Regex::Automata::DFA::OnePass::BuildError) do
+      Regex::Automata::DFA::OnePass::DFA.builder
+        .configure(Regex::Automata::DFA::OnePass::DFA.config.size_limit(1))
+        .build("abc")
+    end
+    error.kind.should eq(Regex::Automata::DFA::OnePass::BuildError::Kind::ExceededSizeLimit)
+    error.size_limit_exceeded?.should be_true
+    error.size_limit.should eq(1)
+
+    error = expect_raises(Regex::Automata::DFA::OnePass::BuildError) do
+      Regex::Automata::DFA::OnePass::DFA.new("(")
+    end
+    error.kind.should eq(Regex::Automata::DFA::OnePass::BuildError::Kind::NFA)
+    error.source.should_not be_nil
+  end
+
   it "accepts the upstream supported assertion patterns" do
     [
       "^",

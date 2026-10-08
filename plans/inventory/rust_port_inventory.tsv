@@ -309,13 +309,13 @@ src/dfa/onepass.rs::const::STATE_ID_LIMIT	const	missing	-	auto-generated
 src/dfa/onepass.rs::const::STATE_ID_SHIFT	const	missing	-	auto-generated
 src/dfa/onepass.rs::method::BuildError.exceeded_size_limit	method	ported	src/regex/automata/onepass.cr:OnePass::BuildError.exceeded_size_limit;spec/dfa_onepass_spec.cr	Crystal exposes size-limit build errors.
 src/dfa/onepass.rs::method::BuildError.fmt	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::BuildError.nfa	method	missing	-	auto-generated
+src/dfa/onepass.rs::method::BuildError.nfa	method	ported	src/regex/automata/onepass.cr:BuildError.nfa;spec/dfa_onepass_spec.cr	Preserves the NFA cause while exposing Rust-equivalent top-level wording.
 src/dfa/onepass.rs::method::BuildError.not_one_pass	method	ported	src/regex/automata/onepass.cr:OnePass::BuildError.not_one_pass;spec/dfa_onepass_spec.cr	Crystal exposes one-pass admission errors.
-src/dfa/onepass.rs::method::BuildError.source	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::BuildError.too_many_patterns	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::BuildError.too_many_states	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::BuildError.unsupported_look	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::BuildError.word	method	missing	-	auto-generated
+src/dfa/onepass.rs::method::BuildError.source	method	ported	src/regex/automata/onepass.cr:BuildError#source;spec/dfa_onepass_spec.cr	Exposes NFA and Unicode-word causes.
+src/dfa/onepass.rs::method::BuildError.too_many_patterns	method	ported	src/regex/automata/onepass.cr:BuildError.too_many_patterns	Constructs the representational pattern-limit error.
+src/dfa/onepass.rs::method::BuildError.too_many_states	method	ported	src/regex/automata/onepass.cr:BuildError.too_many_states	Constructs the representational state-limit error.
+src/dfa/onepass.rs::method::BuildError.unsupported_look	method	ported	src/regex/automata/onepass.cr:BuildError.unsupported_look	Constructs an unsupported-look error retaining the look value.
+src/dfa/onepass.rs::method::BuildError.word	method	ported	src/regex/automata/onepass.cr:BuildError.word	Preserves the Unicode-word-boundary cause.
 src/dfa/onepass.rs::method::Builder.build	method	ported	src/regex/automata/onepass.cr:OnePass::Builder#build;spec/dfa_onepass_spec.cr	Builds a one-pass-compatible engine facade.
 src/dfa/onepass.rs::method::Builder.build_from_nfa	method	ported	src/regex/automata/onepass.cr:OnePass::Builder#build_from_nfa;spec/dfa_onepass_spec.cr	Builds from an NFA.
 src/dfa/onepass.rs::method::Builder.build_many	method	ported	src/regex/automata/onepass.cr:OnePass::Builder#build_many;spec/dfa_onepass_spec.cr	Builds multi-pattern facade.
