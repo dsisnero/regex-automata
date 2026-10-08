@@ -162,6 +162,20 @@ describe Regex::Automata::NFA::NFA do
     nfa.states.should_not be_empty
   end
 
+  it "preserves leftmost-first semantics for prefix-overlapping literal tries" do
+    shortest = Regex::Automata::NFA::PikeVM.new("(?:sam|samwise)")
+    cache = shortest.create_cache
+    shortest.find(cache, "samwise").should eq(Regex::Automata::Match.must(0, 0...3))
+
+    boundary = Regex::Automata::NFA::PikeVM.new("\\b(?:sam|samwise)\\b")
+    cache = boundary.create_cache
+    boundary.find(cache, "samwise").should eq(Regex::Automata::Match.must(0, 0...7))
+
+    longest = Regex::Automata::NFA::PikeVM.new("(?:zapper|z|zap)")
+    cache = longest.create_cache
+    longest.find(cache, "zapper").should eq(Regex::Automata::Match.must(0, 0...6))
+  end
+
   it "matches always-match and never-match NFAs through PikeVM over ranged input" do
     always = Regex::Automata::NFA::PikeVM.new_from_nfa(Regex::Automata::NFA::NFA.always_match)
     always_cache = always.create_cache

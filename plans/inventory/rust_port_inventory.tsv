@@ -1193,23 +1193,23 @@ src/nfa/thompson/error.rs::method::BuildError.too_many_patterns	method	ported	sr
 src/nfa/thompson/error.rs::method::BuildError.too_many_states	method	ported	src/regex/automata/nfa.cr:NFA::BuildError.too_many_states;src/regex/automata/nfa.cr:Builder#add_state;spec/nfa_thompson_spec.cr	Checks the StateID limit before appending a Thompson state.
 src/nfa/thompson/error.rs::method::BuildError.unsupported_captures	method	ported	src/regex/automata/nfa.cr:NFA::BuildError.unsupported_captures;src/regex/automata/hir_compiler.cr:build_from_hir;spec/nfa_thompson_spec.cr	Reverse-NFA capture rejection matches Rust.
 src/nfa/thompson/error.rs::method::BuildError.word	method	ported	src/regex/automata/nfa.cr:NFA::BuildError.word;src/regex/automata/hir_compiler.cr:build_from_hir	Normalizes Unicode-word-boundary compiler failures.
-src/nfa/thompson/literal_trie.rs::method::Frame<'a>.new	method	missing	-	auto-generated
-src/nfa/thompson/literal_trie.rs::method::LiteralTrie.add	method	missing	-	auto-generated
-src/nfa/thompson/literal_trie.rs::method::LiteralTrie.compile	method	missing	-	auto-generated
-src/nfa/thompson/literal_trie.rs::method::LiteralTrie.compile_state_to_hir	method	missing	-	auto-generated
-src/nfa/thompson/literal_trie.rs::method::LiteralTrie.compile_to_hir	method	missing	-	auto-generated
-src/nfa/thompson/literal_trie.rs::method::LiteralTrie.fmt	method	missing	-	auto-generated
-src/nfa/thompson/literal_trie.rs::method::LiteralTrie.forward	method	missing	-	auto-generated
-src/nfa/thompson/literal_trie.rs::method::LiteralTrie.get_or_add_state	method	missing	-	auto-generated
-src/nfa/thompson/literal_trie.rs::method::LiteralTrie.reverse	method	missing	-	auto-generated
-src/nfa/thompson/literal_trie.rs::method::State.active_chunk	method	missing	-	auto-generated
-src/nfa/thompson/literal_trie.rs::method::State.active_chunk_start	method	missing	-	auto-generated
-src/nfa/thompson/literal_trie.rs::method::State.add_match	method	missing	-	auto-generated
-src/nfa/thompson/literal_trie.rs::method::State.chunks	method	missing	-	auto-generated
-src/nfa/thompson/literal_trie.rs::method::State.fmt	method	missing	-	auto-generated
-src/nfa/thompson/literal_trie.rs::method::State.is_leaf	method	missing	-	auto-generated
-src/nfa/thompson/literal_trie.rs::method::StateChunksIter<'a>.next	method	missing	-	auto-generated
-src/nfa/thompson/literal_trie.rs::method::Transition.fmt	method	missing	-	auto-generated
+src/nfa/thompson/literal_trie.rs::method::Frame<'a>.new	method	ported	src/regex/automata/nfa.cr:LiteralTrieFrame#initialize	Explicit stack frame for non-recursive trie compilation.
+src/nfa/thompson/literal_trie.rs::method::LiteralTrie.add	method	ported	src/regex/automata/nfa.cr:LiteralTrie#add;spec/nfa_thompson_spec.cr	Adds literal bytes with forward/reverse ordering.
+src/nfa/thompson/literal_trie.rs::method::LiteralTrie.compile	method	ported	src/regex/automata/nfa.cr:LiteralTrie#compile;spec/nfa_thompson_spec.cr	Compiles chunks with an explicit traversal stack.
+src/nfa/thompson/literal_trie.rs::method::LiteralTrie.compile_state_to_hir	method	intentional_divergence	-	Rust test-only debug helper; production NFA compilation is covered directly.
+src/nfa/thompson/literal_trie.rs::method::LiteralTrie.compile_to_hir	method	intentional_divergence	-	Rust test-only debug helper; production NFA compilation is covered directly.
+src/nfa/thompson/literal_trie.rs::method::LiteralTrie.fmt	method	intentional_divergence	-	Rust Debug formatting has no Crystal public API equivalent.
+src/nfa/thompson/literal_trie.rs::method::LiteralTrie.forward	method	ported	src/regex/automata/nfa.cr:LiteralTrie.forward;spec/nfa_thompson_spec.cr	Forward trie constructor.
+src/nfa/thompson/literal_trie.rs::method::LiteralTrie.get_or_add_state	method	ported	src/regex/automata/nfa.cr:LiteralTrie#add	Binary-search insertion into the active match-priority chunk.
+src/nfa/thompson/literal_trie.rs::method::LiteralTrie.reverse	method	ported	src/regex/automata/nfa.cr:LiteralTrie.reverse;spec/nfa_thompson_spec.cr	Reverse trie constructor.
+src/nfa/thompson/literal_trie.rs::method::State.active_chunk	method	ported	src/regex/automata/nfa.cr:LiteralTrieState#active_start	Active chunk is addressed by its transition offset.
+src/nfa/thompson/literal_trie.rs::method::State.active_chunk_start	method	ported	src/regex/automata/nfa.cr:LiteralTrieState#active_start	Active chunk transition offset.
+src/nfa/thompson/literal_trie.rs::method::State.add_match	method	ported	src/regex/automata/nfa.cr:LiteralTrieState#add_match;spec/nfa_thompson_spec.cr	Freezes a priority chunk at a literal match.
+src/nfa/thompson/literal_trie.rs::method::State.chunks	method	ported	src/regex/automata/nfa.cr:LiteralTrieState#chunk_ranges	Enumerates frozen and active chunks.
+src/nfa/thompson/literal_trie.rs::method::State.fmt	method	intentional_divergence	-	Rust Debug formatting has no Crystal public API equivalent.
+src/nfa/thompson/literal_trie.rs::method::State.is_leaf	method	ported	src/regex/automata/nfa.cr:LiteralTrieState#leaf?	Leaf-state predicate.
+src/nfa/thompson/literal_trie.rs::method::StateChunksIter<'a>.next	method	ported	src/regex/automata/nfa.cr:LiteralTrieState#chunk_ranges	Crystal materializes the small chunk range list instead of exposing an iterator type.
+src/nfa/thompson/literal_trie.rs::method::Transition.fmt	method	intentional_divergence	-	Rust Debug formatting has no Crystal public API equivalent.
 src/nfa/thompson/map.rs::const::INIT	const	ported	src/regex/automata/nfa.cr:UTF8_MAP_INIT	FNV-1a initial value.
 src/nfa/thompson/map.rs::const::PRIME	const	ported	src/regex/automata/nfa.cr:UTF8_MAP_PRIME	FNV-1a prime.
 src/nfa/thompson/map.rs::method::Utf8BoundedMap.clear	method	ported	src/regex/automata/nfa.cr:Utf8BoundedMap#clear;spec/nfa_thompson_spec.cr	Versioned fixed-slot cache clear.

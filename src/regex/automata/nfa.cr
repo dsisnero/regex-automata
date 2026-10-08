@@ -810,6 +810,169 @@ module Regex::Automata::NFA
     end
   end
 
+  private struct LiteralTrieTransition
+    getter byte : UInt8
+    getter next : Int32
+
+    def initialize(@byte : UInt8, @next : Int32)
+    end
+  end
+
+  private class LiteralTrieState
+    getter transitions : Array(LiteralTrieTransition)
+    getter chunks : Array(Int32)
+
+    def initialize
+      @transitions = [] of LiteralTrieTransition
+      @chunks = [] of Int32
+    end
+
+    def active_start : Int32
+      @chunks.last? || 0
+    end
+
+    def add_match : Nil
+      return if @transitions.empty? && !@chunks.empty?
+
+      @chunks << @transitions.size.to_i32
+    end
+
+    def leaf? : Bool
+      @transitions.empty?
+    end
+
+    def chunk_ranges : Array(Range(Int32, Int32))
+      result = [] of Range(Int32, Int32)
+      start = 0
+      @chunks.each do |finish|
+        result << (start...finish)
+        start = finish
+      end
+      result << (start...@transitions.size)
+      result
+    end
+  end
+
+  private class LiteralTrieFrame
+    getter state_id : Int32
+    getter chunks : Array(Range(Int32, Int32))
+    property chunk_index : Int32
+    property transition_index : Int32
+    getter union : Array(StateID)
+    getter sparse : Array(Transition)
+
+    def initialize(@state_id : Int32, state : LiteralTrieState)
+      @chunks = state.chunk_ranges
+      @chunk_index = 0
+      @transition_index = @chunks.first.begin
+      @union = [] of StateID
+      @sparse = [] of Transition
+    end
+
+    def current_chunk : Range(Int32, Int32)
+      @chunks[@chunk_index]
+    end
+  end
+
+  # A leftmost-first trie for alternations made entirely of literal bytes.
+  # Match chunks preserve branch priority while shared prefixes avoid large
+  # epsilon closures in the compiled Thompson NFA.
+  class LiteralTrie
+    @states : Array(LiteralTrieState)
+    @reverse : Bool
+
+    def initialize(@reverse : Bool)
+      @states = [LiteralTrieState.new]
+    end
+
+    def self.forward : LiteralTrie
+      new(false)
+    end
+
+    def self.reverse : LiteralTrie
+      new(true)
+    end
+
+    def add(bytes : Bytes) : Nil
+      current = 0
+      indices = @reverse ? (bytes.size - 1).downto(0) : 0.upto(bytes.size - 1)
+      indices.each do |index|
+        byte = bytes[index]
+        state = @states[current]
+        start = state.active_start
+        found = nil.as(Int32?)
+        left = start
+        right = state.transitions.size
+        while left < right
+          mid = (left + right) // 2
+          if state.transitions[mid].byte < byte
+            left = mid + 1
+          else
+            right = mid
+          end
+        end
+        if left < state.transitions.size && state.transitions[left].byte == byte
+          found = state.transitions[left].next
+        else
+          found = @states.size.to_i32
+          @states << LiteralTrieState.new
+          state.transitions.insert(left, LiteralTrieTransition.new(byte, found.not_nil!))
+        end
+        current = found.not_nil!
+      end
+      @states[current].add_match
+    end
+
+    def compile(builder : Builder, pattern_id : PatternID) : ThompsonRef
+      # Crystal's Builder uses a match state as the patchable end of a
+      # sub-automaton. (Rust's builder supplies an equivalent empty state.)
+      ending = builder.add_state(Match.new(pattern_id))
+      stack = [LiteralTrieFrame.new(0, @states[0])]
+      loop do
+        frame = stack.last
+        state = @states[frame.state_id]
+        chunk = frame.current_chunk
+        if frame.transition_index < chunk.end
+          transition = state.transitions[frame.transition_index]
+          frame.transition_index += 1
+          if @states[transition.next].leaf?
+            frame.sparse << Transition.new(transition.byte, transition.byte, ending)
+          else
+            frame.sparse << Transition.new(transition.byte, transition.byte, StateID.new(0))
+            stack << LiteralTrieFrame.new(transition.next, @states[transition.next])
+          end
+          next
+        end
+
+        unless frame.sparse.empty?
+          chunk_id = if frame.sparse.size == 1
+                       builder.add_state(ByteRange.new(frame.sparse.pop))
+                     else
+                       transitions = frame.sparse.dup
+                       frame.sparse.clear
+                       builder.add_state(Sparse.new(transitions))
+                     end
+          frame.union << chunk_id
+        end
+        if frame.chunk_index + 1 < frame.chunks.size
+          frame.union << ending
+          frame.chunk_index += 1
+          frame.transition_index = frame.current_chunk.begin
+          next
+        end
+
+        start = builder.add_state(Union.new(frame.union))
+        stack.pop
+        return ThompsonRef.new(start, ending) if stack.empty?
+
+        parent = stack.last
+        placeholder = parent.sparse.size - 1
+        old = parent.sparse[placeholder]
+        parent.sparse[placeholder] = Transition.new(old.start, old.end, start)
+      end
+    end
+  end
+
   # Thompson NFA builder
   class Builder
     @states : Array(State)

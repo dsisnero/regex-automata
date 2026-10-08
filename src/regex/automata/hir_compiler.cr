@@ -619,6 +619,13 @@ module Regex::Automata
     end
 
     private def compile_alternation(node : Regex::Syntax::Hir::Alternation) : NFA::ThompsonRef
+      literals = node.children
+      if literals.size > 1 && literals.all? { |child| child.is_a?(Regex::Syntax::Hir::Literal) }
+        trie = @config.reverse ? NFA::LiteralTrie.reverse : NFA::LiteralTrie.forward
+        literals.each { |child| trie.add(child.as(Regex::Syntax::Hir::Literal).bytes) }
+        return trie.compile(@builder, @pattern_id)
+      end
+
       refs = node.children.map { |child| compile_node(child) }
 
       if refs.empty?
