@@ -133,6 +133,7 @@ module Regex::Automata::DFA
       @starts : Array(StateID)
       @matches : Array(PatternID?)
       @match_epsilons : Array(Epsilons?)
+      @min_match_id : Int32
       @matched : Bool
 
       private struct Epsilons
@@ -204,6 +205,7 @@ module Regex::Automata::DFA
         @starts = [] of StateID
         @matches = [] of PatternID?
         @match_epsilons = [] of Epsilons?
+        @min_match_id = Int32::MAX
         @matched = false
       end
 
@@ -228,6 +230,7 @@ module Regex::Automata::DFA
         until @uncompiled.empty?
           compile_state(@uncompiled.pop)
         end
+        shuffle_states
       end
 
       def state_len : Int32
@@ -259,6 +262,10 @@ module Regex::Automata::DFA
         @matches[state_id.to_i]?
       end
 
+      def match_state?(state_id : StateID) : Bool
+        state_id.to_i >= @min_match_id
+      end
+
       def apply_transition_slots(state_id : StateID, byte : UInt8, slots : Array(Int32?), at : Int32, limit : Int32 = slots.size) : Nil
         if epsilons = @table[state_id.to_i][@classes[byte]].try(&.epsilons)
           epsilons.apply_slots(slots, at, limit)
@@ -285,6 +292,46 @@ module Regex::Automata::DFA
         id = add_dfa_state(nfa_id)
         @starts << id
         id
+      end
+
+      # Match states occur rarely for most patterns, but the check for one is
+      # on every byte in the search loop. Keep them as a contiguous tail, as
+      # the Rust builder does, so the hot path is one integer comparison.
+      private def shuffle_states : Nil
+        remap = Array.new(@table.size, -1)
+        next_id = 0
+        @matches.each_with_index do |pattern_id, old_id|
+          next if pattern_id
+          remap[old_id] = next_id
+          next_id += 1
+        end
+        @min_match_id = next_id
+        @matches.each_with_index do |pattern_id, old_id|
+          next unless pattern_id
+          remap[old_id] = next_id
+          next_id += 1
+        end
+
+        old_for_new = Array.new(remap.size, 0)
+        remap.each_with_index { |new_id, old_id| old_for_new[new_id] = old_id }
+        table = [] of Array(Transition?)
+        matches = [] of PatternID?
+        match_epsilons = [] of Epsilons?
+        old_for_new.each do |old_id|
+          row = [] of Transition?
+          @table[old_id].each do |transition|
+            row << transition.try do |value|
+              Transition.new(StateID.new(remap[value.state_id.to_i]), value.match_wins, value.epsilons)
+            end
+          end
+          table << row
+          matches << @matches[old_id]
+          match_epsilons << @match_epsilons[old_id]
+        end
+        @table = table
+        @matches = matches
+        @match_epsilons = match_epsilons
+        @starts = @starts.map { |state_id| StateID.new(remap[state_id.to_i]) }
       end
 
       private def add_dfa_state(nfa_id : StateID) : StateID
@@ -675,10 +722,12 @@ module Regex::Automata::DFA
           byte = input.haystack[at]
           next_state = @admission.next_state(state, byte)
           match_wins = @admission.transition_match_wins?(state, byte)
-          if pattern_id = @admission.match_pattern(state)
-            if @admission.match_looks_match?(state, input.haystack, at)
-              matched = record_compiled_match(state, pattern_id, at, slots, cache)
-              return matched if input.get_earliest || match_wins
+          if @admission.match_state?(state)
+            if pattern_id = @admission.match_pattern(state)
+              if @admission.match_looks_match?(state, input.haystack, at)
+                matched = record_compiled_match(state, pattern_id, at, slots, cache)
+                return matched if input.get_earliest || match_wins
+              end
             end
           end
 
@@ -688,9 +737,11 @@ module Regex::Automata::DFA
           at += 1
         end
 
-        if pattern_id = @admission.match_pattern(state)
-          if @admission.match_looks_match?(state, input.haystack, input.end)
-            matched = record_compiled_match(state, pattern_id, input.end, slots, cache)
+        if @admission.match_state?(state)
+          if pattern_id = @admission.match_pattern(state)
+            if @admission.match_looks_match?(state, input.haystack, input.end)
+              matched = record_compiled_match(state, pattern_id, input.end, slots, cache)
+            end
           end
         end
         matched

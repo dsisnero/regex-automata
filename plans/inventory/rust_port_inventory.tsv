@@ -358,13 +358,13 @@ src/dfa/onepass.rs::method::DFA.never_match	method	ported	src/regex/automata/one
 src/dfa/onepass.rs::method::DFA.new	method	ported	src/regex/automata/onepass.cr:OnePass::DFA.new;spec/dfa_onepass_spec.cr	Builds a one-pass-compatible facade.
 src/dfa/onepass.rs::method::DFA.new_from_nfa	method	ported	src/regex/automata/onepass.cr:OnePass::DFA.new_from_nfa;spec/dfa_onepass_spec.cr	Builds facade from NFA.
 src/dfa/onepass.rs::method::DFA.new_many	method	ported	src/regex/automata/onepass.cr:OnePass::DFA.new_many;spec/dfa_onepass_spec.cr	Builds multi-pattern facade.
-src/dfa/onepass.rs::method::DFA.pattern_epsilons	method	missing	-	auto-generated
+src/dfa/onepass.rs::method::DFA.pattern_epsilons	method	partial	src/regex/automata/onepass.cr:Admission#match_pattern;Admission#match_looks_match?;Admission#apply_match_slots	Stores pattern IDs and match-side epsilon payloads in parallel Crystal arrays.
 src/dfa/onepass.rs::method::DFA.pattern_len	method	ported	src/regex/automata/onepass.cr:OnePass::DFA#pattern_len;spec/dfa_onepass_spec.cr	Reports pattern count.
 src/dfa/onepass.rs::method::DFA.prev_state_id	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::DFA.remap	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::DFA.reset_cache	method	ported	src/regex/automata/onepass.cr:OnePass::DFA#reset_cache;spec/dfa_onepass_spec.cr	Resets a cache.
 src/dfa/onepass.rs::method::DFA.search_imp	method	partial	src/regex/automata/onepass.cr:DFA#search_compiled;spec/dfa_onepass_spec.cr	Executes retained admission rows, look assertions, and explicit capture slots; PikeVM only handles UTF-8 empty-match boundary filtering.
-src/dfa/onepass.rs::method::DFA.set_pattern_epsilons	method	missing	-	auto-generated
+src/dfa/onepass.rs::method::DFA.set_pattern_epsilons	method	partial	src/regex/automata/onepass.cr:Admission#compile_state	Records the pattern ID and match-side epsilon payload while compiling each admitted state.
 src/dfa/onepass.rs::method::DFA.set_transition	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::DFA.sparse_transitions	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::DFA.start	method	partial	src/regex/automata/onepass.cr:Admission#start;spec/dfa_onepass_spec.cr	Uses the compiled all-pattern start when executing supported table searches.
