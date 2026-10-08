@@ -1327,6 +1327,12 @@ module Regex::Automata::DFA
       @ms.pattern_len
     end
 
+    # Returns true when this DFA has specialized anchored start states for
+    # individual patterns.
+    def starts_for_each_pattern? : Bool
+      !@st.pattern_states.empty?
+    end
+
     # Returns the total number of transition entries available to each state.
     #
     # This includes the synthetic end-of-input transition in addition to the

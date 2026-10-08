@@ -51,6 +51,16 @@ describe "DFA::Dense" do
     config.get_determinize_size_limit.should eq(456_i64)
   end
 
+  it "reports whether per-pattern starts were materialized" do
+    ordinary = Regex::Automata::DFA::DFA.new_many(["abc", "def"])
+    ordinary.starts_for_each_pattern?.should be_false
+
+    specialized = Regex::Automata::DFA::DFA.builder
+      .configure { |config| config.starts_for_each_pattern(true) }
+      .build_many(["abc", "def"])
+    specialized.starts_for_each_pattern?.should be_true
+  end
+
   it "merges dense config overrides without sharing the quit set" do
     prefilter = Regex::Automata::Prefilter.new(
       Regex::Automata::MatchKind::LeftmostFirst,
