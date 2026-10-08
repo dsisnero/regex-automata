@@ -369,7 +369,7 @@ src/dfa/onepass.rs::method::DFA.set_transition	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::DFA.sparse_transitions	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::DFA.start	method	partial	src/regex/automata/onepass.cr:Admission#start;spec/dfa_onepass_spec.cr	Uses the compiled all-pattern start when executing supported table searches.
 src/dfa/onepass.rs::method::DFA.start_pattern	method	partial	src/regex/automata/onepass.cr:Admission#start;spec/dfa_onepass_spec.cr	Uses compiled per-pattern starts when configured and supported by table execution.
-src/dfa/onepass.rs::method::DFA.state_len	method	partial	src/regex/automata/onepass.cr:OnePass::DFA#state_len;spec/dfa_onepass_spec.cr	Reports retained admission-table state count; match-state shuffling remains pending.
+src/dfa/onepass.rs::method::DFA.state_len	method	partial	src/regex/automata/onepass.cr:OnePass::DFA#state_len;Admission#shuffle_states;spec/dfa_onepass_spec.cr	Reports the compiled admission-table state count after match-state tail compaction.
 src/dfa/onepass.rs::method::DFA.stride	method	partial	src/regex/automata/onepass.cr:OnePass::DFA#stride;spec/dfa_onepass_spec.cr	Derived byte-class stride; native table absent.
 src/dfa/onepass.rs::method::DFA.stride2	method	partial	src/regex/automata/onepass.cr:OnePass::DFA#stride2;spec/dfa_onepass_spec.cr	Derived byte-class stride exponent; native table absent.
 src/dfa/onepass.rs::method::DFA.swap_states	method	missing	-	auto-generated
@@ -384,11 +384,11 @@ src/dfa/onepass.rs::method::Epsilons.looks	method	partial	src/regex/automata/one
 src/dfa/onepass.rs::method::Epsilons.set_looks	method	partial	src/regex/automata/onepass.cr:Admission::Epsilons#with_look	Maps NFA look kinds to the shared LookSet representation during admission.
 src/dfa/onepass.rs::method::Epsilons.set_slots	method	partial	src/regex/automata/onepass.cr:Admission::Epsilons#with_slot	Accumulates explicit capture slot bits during admission.
 src/dfa/onepass.rs::method::Epsilons.slots	method	partial	src/regex/automata/onepass.cr:Admission::Epsilons#apply_slots;spec/dfa_onepass_spec.cr	Applies retained explicit slot bits during compiled search.
-src/dfa/onepass.rs::method::InternalBuilder<'a>.add_dfa_state_for_nfa_state	method	partial	src/regex/automata/onepass.cr:Admission#add_dfa_state	Builds the NFA-to-admission-state map; execution still delegates to PikeVM.
-src/dfa/onepass.rs::method::InternalBuilder<'a>.add_empty_state	method	partial	src/regex/automata/onepass.cr:Admission#add_empty_state	Allocates dense admission rows; execution still delegates to PikeVM.
+src/dfa/onepass.rs::method::InternalBuilder<'a>.add_dfa_state_for_nfa_state	method	partial	src/regex/automata/onepass.cr:Admission#add_dfa_state	Builds the NFA-to-compiled-table state map used by one-pass search.
+src/dfa/onepass.rs::method::InternalBuilder<'a>.add_empty_state	method	partial	src/regex/automata/onepass.cr:Admission#add_empty_state	Allocates compiled-table rows and their parallel match metadata.
 src/dfa/onepass.rs::method::InternalBuilder<'a>.add_start_state	method	partial	src/regex/automata/onepass.cr:Admission#add_start_state	Adds all-pattern and configured pattern starts to admission.
 src/dfa/onepass.rs::method::InternalBuilder<'a>.build	method	partial	src/regex/automata/onepass.cr:Admission#run;spec/dfa_onepass_spec.cr	Performs genuine NFA admission, Rust-compatible look-representation checks, ambiguity checks, and compiled-table setup.
-src/dfa/onepass.rs::method::InternalBuilder<'a>.compile_transition	method	partial	src/regex/automata/onepass.cr:Admission#compile_transition;spec/dfa_onepass_spec.cr	Compares class transitions for ambiguity; compiled rows are not yet the executor.
+src/dfa/onepass.rs::method::InternalBuilder<'a>.compile_transition	method	partial	src/regex/automata/onepass.cr:Admission#compile_transition;spec/dfa_onepass_spec.cr	Compiles byte-class transitions, match priority, and epsilon payloads for the table executor.
 src/dfa/onepass.rs::method::InternalBuilder<'a>.new	method	partial	src/regex/automata/onepass.cr:Admission#initialize	Initializes byte classes, state mapping, and dense admission rows.
 src/dfa/onepass.rs::method::InternalBuilder<'a>.shuffle_states	method	partial	src/regex/automata/onepass.cr:Admission#shuffle_states	Remaps transitions, starts, match metadata, and match-side epsilons so match states form a contiguous tail.
 src/dfa/onepass.rs::method::InternalBuilder<'a>.stack_push	method	partial	src/regex/automata/onepass.cr:Admission#stack_push;spec/dfa_onepass_spec.cr	Rejects ambiguous epsilon paths while traversing each admission state.
