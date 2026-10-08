@@ -91,6 +91,31 @@ describe Regex::Automata::NFA::NFA do
     error.size_limit.should eq(0_i64)
   end
 
+  it "uses Thompson-specific error variants for parser, size-limit, and reverse-capture failures" do
+    syntax = expect_raises(Regex::Automata::NFA::BuildError) do
+      Regex::Automata::NFA::NFA.new("(")
+    end
+    syntax.kind.should eq(Regex::Automata::NFA::BuildError::Kind::Syntax)
+    syntax.message.should eq("error parsing regex")
+    syntax.source.should_not be_nil
+
+    size = expect_raises(Regex::Automata::NFA::BuildError) do
+      Regex::Automata::NFA::NFA.compiler
+        .configure(Regex::Automata::NFA::NFA.config.nfa_size_limit(0_i64))
+        .build("abc")
+    end
+    size.kind.should eq(Regex::Automata::NFA::BuildError::Kind::ExceededSizeLimit)
+    size.message.should eq("heap usage during NFA compilation exceeded limit of 0")
+
+    captures = expect_raises(Regex::Automata::NFA::BuildError) do
+      Regex::Automata::NFA::NFA.compiler
+        .configure(Regex::Automata::NFA::NFA.config.reverse(true))
+        .build("abc")
+    end
+    captures.kind.should eq(Regex::Automata::NFA::BuildError::Kind::UnsupportedCaptures)
+    captures.message.should eq("currently captures must be disabled when compiling a reverse NFA")
+  end
+
   it "builds always-match and never-match NFAs" do
     always = Regex::Automata::NFA::NFA.always_match
     always.pattern_len.should eq(1)

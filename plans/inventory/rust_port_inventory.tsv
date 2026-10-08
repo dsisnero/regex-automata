@@ -1181,18 +1181,18 @@ src/nfa/thompson/compiler.rs::method::Utf8State.new	method	missing	-	auto-genera
 src/nfa/thompson/compiler.rs::method::WhichCaptures.default	method	missing	-	auto-generated
 src/nfa/thompson/compiler.rs::method::WhichCaptures.is_any	method	missing	-	auto-generated
 src/nfa/thompson/compiler.rs::method::WhichCaptures.is_none	method	missing	-	auto-generated
-src/nfa/thompson/error.rs::method::BuildError.captures	method	missing	-	auto-generated
-src/nfa/thompson/error.rs::method::BuildError.exceeded_size_limit	method	missing	-	auto-generated
-src/nfa/thompson/error.rs::method::BuildError.fmt	method	missing	-	auto-generated
-src/nfa/thompson/error.rs::method::BuildError.invalid_capture_index	method	missing	-	auto-generated
-src/nfa/thompson/error.rs::method::BuildError.kind	method	missing	-	auto-generated
-src/nfa/thompson/error.rs::method::BuildError.size_limit	method	missing	-	auto-generated
-src/nfa/thompson/error.rs::method::BuildError.source	method	missing	-	auto-generated
-src/nfa/thompson/error.rs::method::BuildError.syntax	method	missing	-	auto-generated
-src/nfa/thompson/error.rs::method::BuildError.too_many_patterns	method	missing	-	auto-generated
-src/nfa/thompson/error.rs::method::BuildError.too_many_states	method	missing	-	auto-generated
-src/nfa/thompson/error.rs::method::BuildError.unsupported_captures	method	missing	-	auto-generated
-src/nfa/thompson/error.rs::method::BuildError.word	method	missing	-	auto-generated
+src/nfa/thompson/error.rs::method::BuildError.captures	method	ported	src/regex/automata/nfa.cr:NFA::BuildError.captures;src/regex/automata/hir_compiler.cr:build_from_hir;spec/nfa_thompson_spec.cr	Normalizes capture-group compiler failures.
+src/nfa/thompson/error.rs::method::BuildError.exceeded_size_limit	method	ported	src/regex/automata/nfa.cr:NFA::BuildError.exceeded_size_limit;src/regex/automata/hir_compiler.cr:finalize_build;spec/nfa_thompson_spec.cr	Preserves Rust size-limit kind and message.
+src/nfa/thompson/error.rs::method::BuildError.fmt	method	ported	src/regex/automata/nfa.cr:NFA::BuildError;spec/nfa_thompson_spec.cr	Variant constructors produce Rust-compatible display messages for implemented compiler paths.
+src/nfa/thompson/error.rs::method::BuildError.invalid_capture_index	method	partial	src/regex/automata/nfa.cr:NFA::BuildError.invalid_capture_index	Constructor is present; compiler-side index-limit enforcement remains tracked with the Thompson compiler.
+src/nfa/thompson/error.rs::method::BuildError.kind	method	ported	src/regex/automata/nfa.cr:NFA::BuildError#kind;spec/nfa_thompson_spec.cr	Public error-kind introspection.
+src/nfa/thompson/error.rs::method::BuildError.size_limit	method	ported	src/regex/automata/errors.cr:BuildError#size_limit;src/regex/automata/nfa.cr:NFA::BuildError;spec/nfa_thompson_spec.cr	Inherited size-limit introspection.
+src/nfa/thompson/error.rs::method::BuildError.source	method	ported	src/regex/automata/nfa.cr:NFA::BuildError#source;spec/nfa_thompson_spec.cr	Retains syntax/capture source exceptions.
+src/nfa/thompson/error.rs::method::BuildError.syntax	method	ported	src/regex/automata/nfa.cr:NFA::BuildError.syntax;src/regex/automata/hir_compiler.cr:build;spec/nfa_thompson_spec.cr	Normalizes parser failures.
+src/nfa/thompson/error.rs::method::BuildError.too_many_patterns	method	partial	src/regex/automata/nfa.cr:NFA::BuildError.too_many_patterns	Constructor is present; compiler-side pattern-count limit enforcement remains tracked with the Thompson compiler.
+src/nfa/thompson/error.rs::method::BuildError.too_many_states	method	partial	src/regex/automata/nfa.cr:NFA::BuildError.too_many_states	Constructor is present; compiler-side state-count limit enforcement remains tracked with the Thompson compiler.
+src/nfa/thompson/error.rs::method::BuildError.unsupported_captures	method	ported	src/regex/automata/nfa.cr:NFA::BuildError.unsupported_captures;src/regex/automata/hir_compiler.cr:build_from_hir;spec/nfa_thompson_spec.cr	Reverse-NFA capture rejection matches Rust.
+src/nfa/thompson/error.rs::method::BuildError.word	method	ported	src/regex/automata/nfa.cr:NFA::BuildError.word;src/regex/automata/hir_compiler.cr:build_from_hir	Normalizes Unicode-word-boundary compiler failures.
 src/nfa/thompson/literal_trie.rs::method::Frame<'a>.new	method	missing	-	auto-generated
 src/nfa/thompson/literal_trie.rs::method::LiteralTrie.add	method	missing	-	auto-generated
 src/nfa/thompson/literal_trie.rs::method::LiteralTrie.compile	method	missing	-	auto-generated

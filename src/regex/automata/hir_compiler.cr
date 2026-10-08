@@ -177,17 +177,17 @@ module Regex::Automata
     def build(pattern : String) : NFA::NFA
       build_from_hir(syntax_parser.parse(pattern))
     rescue ex : ::Regex::Syntax::AST::Error | ::Regex::Syntax::Hir::Error
-      raise BuildError.new(ex.message)
+      raise NFA::BuildError.syntax(ex)
     end
 
     def build_many(patterns : Enumerable(String)) : NFA::NFA
       build_many_from_hir(patterns.map { |pattern| syntax_parser.parse(pattern) }.to_a)
     rescue ex : ::Regex::Syntax::AST::Error | ::Regex::Syntax::Hir::Error
-      raise BuildError.new(ex.message)
+      raise NFA::BuildError.syntax(ex)
     end
 
     def build_from_hir(hir : Regex::Syntax::Hir::Hir) : NFA::NFA
-      raise BuildError.new("reverse Thompson NFAs do not support capture states yet") if @config.reverse && @config.which_captures.is_any
+      raise NFA::BuildError.unsupported_captures if @config.reverse && @config.which_captures.is_any
 
       reset_builder
       @group_info = build_group_info([{PatternID.new(0), hir}] of Tuple(PatternID, Regex::Syntax::Hir::Hir))
@@ -205,11 +205,15 @@ module Regex::Automata
       end
 
       finalize_build(@builder.build(@group_info))
+    rescue ex : GroupInfoError
+      raise NFA::BuildError.captures(ex)
+    rescue ex : UnicodeWordBoundaryError
+      raise NFA::BuildError.word(ex)
     end
 
     def build_many_from_hir(hirs : Enumerable(Regex::Syntax::Hir::Hir)) : NFA::NFA
       hirs_array = hirs.to_a
-      raise BuildError.new("reverse Thompson NFAs do not support capture states yet") if @config.reverse && @config.which_captures.is_any
+      raise NFA::BuildError.unsupported_captures if @config.reverse && @config.which_captures.is_any
       return finalize_build(NFA::NFA.never_match) if hirs_array.empty?
 
       reset_builder
@@ -236,6 +240,10 @@ module Regex::Automata
       end
 
       finalize_build(@builder.build(@group_info))
+    rescue ex : GroupInfoError
+      raise NFA::BuildError.captures(ex)
+    rescue ex : UnicodeWordBoundaryError
+      raise NFA::BuildError.word(ex)
     end
 
     def compile(hir : Regex::Syntax::Hir::Hir, pattern_id : PatternID = PatternID.new(0)) : NFA::NFA
@@ -248,6 +256,10 @@ module Regex::Automata
       @builder.set_start_anchored(ref.start)
 
       finalize_build(@builder.build(@group_info))
+    rescue ex : GroupInfoError
+      raise NFA::BuildError.captures(ex)
+    rescue ex : UnicodeWordBoundaryError
+      raise NFA::BuildError.word(ex)
     end
 
     def compile_multi(hirs : Array(Regex::Syntax::Hir::Hir)) : NFA::NFA
@@ -271,6 +283,10 @@ module Regex::Automata
       @builder.set_start_unanchored(start_id)
 
       finalize_build(@builder.build(@group_info))
+    rescue ex : GroupInfoError
+      raise NFA::BuildError.captures(ex)
+    rescue ex : UnicodeWordBoundaryError
+      raise NFA::BuildError.word(ex)
     end
 
     private def compile_pattern(hir : Regex::Syntax::Hir::Hir, pattern_id : PatternID) : NFA::ThompsonRef
@@ -344,7 +360,7 @@ module Regex::Automata
     private def finalize_build(nfa : NFA::NFA) : NFA::NFA
       if limit = @config.nfa_size_limit
         if nfa.memory_usage > limit
-          raise BuildError.new("NFA exceeded size limit of #{limit} bytes", size_limit_exceeded: true, size_limit: limit)
+          raise NFA::BuildError.exceeded_size_limit(limit)
         end
       end
       nfa

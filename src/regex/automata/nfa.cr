@@ -8,6 +8,62 @@ module Regex::Automata::NFA
   alias StateID = Regex::Automata::StateID
   alias PatternID = Regex::Automata::PatternID
 
+  # Errors raised while compiling a Thompson NFA. This preserves the
+  # distinction Rust exposes between syntax, capture, Unicode-word-boundary,
+  # size-limit and reverse-capture failures while remaining a subtype of the
+  # port's public BuildError.
+  class BuildError < ::Regex::Automata::BuildError
+    enum Kind
+      Syntax
+      Captures
+      Word
+      TooManyPatterns
+      TooManyStates
+      ExceededSizeLimit
+      InvalidCaptureIndex
+      UnsupportedCaptures
+    end
+
+    getter kind : Kind
+    getter source : Exception?
+
+    def initialize(@kind : Kind, message : String, @source : Exception? = nil, size_limit_exceeded : Bool = false, size_limit : Int64? = nil)
+      super(message, size_limit_exceeded: size_limit_exceeded, size_limit: size_limit)
+    end
+
+    def self.syntax(error : Exception) : BuildError
+      new(Kind::Syntax, "error parsing regex", error)
+    end
+
+    def self.captures(error : Exception) : BuildError
+      new(Kind::Captures, "error with capture groups", error)
+    end
+
+    def self.word(error : Exception) : BuildError
+      new(Kind::Word, "NFA contains Unicode word boundary", error)
+    end
+
+    def self.too_many_patterns(given : Int64) : BuildError
+      new(Kind::TooManyPatterns, "attempted to compile #{given} patterns, which exceeds the limit of #{PatternID::LIMIT}")
+    end
+
+    def self.too_many_states(given : Int64) : BuildError
+      new(Kind::TooManyStates, "attempted to compile #{given} NFA states, which exceeds the limit of #{StateID::LIMIT}")
+    end
+
+    def self.exceeded_size_limit(limit : Int64) : BuildError
+      new(Kind::ExceededSizeLimit, "heap usage during NFA compilation exceeded limit of #{limit}", size_limit_exceeded: true, size_limit: limit)
+    end
+
+    def self.invalid_capture_index(index : UInt32) : BuildError
+      new(Kind::InvalidCaptureIndex, "capture group index #{index} is invalid (too big or discontinuous)")
+    end
+
+    def self.unsupported_captures : BuildError
+      new(Kind::UnsupportedCaptures, "currently captures must be disabled when compiling a reverse NFA")
+    end
+  end
+
   enum WhichCaptures
     All
     Implicit
