@@ -346,7 +346,7 @@ src/dfa/onepass.rs::method::DFA.config	method	ported	src/regex/automata/onepass.
 src/dfa/onepass.rs::method::DFA.create_cache	method	ported	src/regex/automata/onepass.cr:OnePass::DFA#create_cache;spec/dfa_onepass_spec.cr	Creates search cache.
 src/dfa/onepass.rs::method::DFA.create_captures	method	ported	src/regex/automata/onepass.cr:OnePass::DFA#create_captures;spec/dfa_onepass_spec.cr	Creates capture container.
 src/dfa/onepass.rs::method::DFA.debug_state_transitions	method	missing	-	auto-generated
-src/dfa/onepass.rs::method::DFA.find	method	ported	src/regex/automata/onepass.cr:OnePass::DFA#find;spec/dfa_onepass_spec.cr	Finds an anchored leftmost match.
+src/dfa/onepass.rs::method::DFA.find	method	ported	src/regex/automata/onepass.cr:OnePass::DFA#find;spec/dfa_onepass_spec.cr	Finds an anchored leftmost match through the native Int32 capture-slot table without NonMax conversion scratch.
 src/dfa/onepass.rs::method::DFA.find_match	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::DFA.fmt	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::DFA.get_config	method	ported	src/regex/automata/onepass.cr:OnePass::DFA#get_config;spec/dfa_onepass_spec.cr	Returns configuration.

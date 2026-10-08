@@ -632,7 +632,7 @@ module Regex::Automata::DFA
       def is_match(cache : Cache, haystack : String | Bytes | ::Regex::Automata::Input) : Bool
         input = normalize_and_anchor(haystack)
         input.set_earliest(true)
-        result = try_search_slots(cache, input, [] of ::Regex::Automata::NonMaxUsize?)
+        result = try_search_slots(cache, input, [] of Int32?)
         raise result if result.is_a?(::Regex::Automata::MatchError)
 
         !result.nil?
@@ -640,15 +640,15 @@ module Regex::Automata::DFA
 
       def find(cache : Cache, haystack : String | Bytes | ::Regex::Automata::Input) : ::Regex::Automata::Match?
         input = normalize_and_anchor(haystack)
-        slots = Array(::Regex::Automata::NonMaxUsize?).new(@nfa.group_info.implicit_slot_len, nil)
+        slots = Array(Int32?).new(@nfa.group_info.implicit_slot_len, nil)
         result = try_search_slots(cache, input, slots)
         raise result if result.is_a?(::Regex::Automata::MatchError)
         pid = result.as?(::Regex::Automata::PatternID)
         return nil unless pid
 
         slot_start = pid.to_i * 2
-        start = slots[slot_start]?.try(&.try(&.get))
-        finish = slots[slot_start + 1]?.try(&.try(&.get))
+        start = slots[slot_start]?
+        finish = slots[slot_start + 1]?
         return nil unless start && finish
 
         ::Regex::Automata::Match.new(pid, start, finish)
