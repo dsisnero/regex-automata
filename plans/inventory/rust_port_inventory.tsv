@@ -681,20 +681,20 @@ src/hybrid/dfa.rs::method::SearchProgress.len	method	missing	-	auto-generated
 src/hybrid/dfa.rs::method::StateSaver.none	method	ported	src/regex/automata/hybrid.cr:649;spec/hybrid_spec.cr	cold cache-clear state preservation
 src/hybrid/dfa.rs::method::StateSaver.take_saved	method	ported	src/regex/automata/hybrid.cr:668;spec/hybrid_spec.cr	cold cache-clear state preservation
 src/hybrid/dfa.rs::method::StateSaver.take_to_save	method	ported	src/regex/automata/hybrid.cr:661;spec/hybrid_spec.cr	cold cache-clear state preservation
-src/hybrid/error.rs::method::BuildError.fmt	method	missing	-	auto-generated
-src/hybrid/error.rs::method::BuildError.insufficient_cache_capacity	method	missing	-	auto-generated
-src/hybrid/error.rs::method::BuildError.insufficient_state_id_capacity	method	missing	-	auto-generated
-src/hybrid/error.rs::method::BuildError.nfa	method	missing	-	auto-generated
-src/hybrid/error.rs::method::BuildError.source	method	missing	-	auto-generated
-src/hybrid/error.rs::method::BuildError.unsupported_dfa_word_boundary_unicode	method	missing	-	auto-generated
-src/hybrid/error.rs::method::CacheError.bad_efficiency	method	missing	-	auto-generated
-src/hybrid/error.rs::method::CacheError.fmt	method	missing	-	auto-generated
-src/hybrid/error.rs::method::CacheError.too_many_cache_clears	method	missing	-	auto-generated
-src/hybrid/error.rs::method::StartError.cache	method	missing	-	auto-generated
-src/hybrid/error.rs::method::StartError.fmt	method	missing	-	auto-generated
-src/hybrid/error.rs::method::StartError.quit	method	missing	-	auto-generated
-src/hybrid/error.rs::method::StartError.source	method	missing	-	auto-generated
-src/hybrid/error.rs::method::StartError.unsupported_anchored	method	missing	-	auto-generated
+src/hybrid/error.rs::method::BuildError.fmt	method	ported	src/regex/automata/hybrid.cr:Hybrid::BuildError;spec/hybrid_spec.cr	Constructor messages match Rust variants.
+src/hybrid/error.rs::method::BuildError.insufficient_cache_capacity	method	ported	src/regex/automata/hybrid.cr:Hybrid::BuildError.insufficient_cache_capacity;spec/hybrid_spec.cr	Hybrid cache-capacity diagnostic.
+src/hybrid/error.rs::method::BuildError.insufficient_state_id_capacity	method	ported	src/regex/automata/hybrid.cr:Hybrid::BuildError.insufficient_state_id_capacity;spec/hybrid_spec.cr	Lazy state-ID capacity diagnostic.
+src/hybrid/error.rs::method::BuildError.nfa	method	ported	src/regex/automata/hybrid.cr:Hybrid::BuildError.nfa;spec/hybrid_spec.cr	Wraps and retains the Thompson NFA cause.
+src/hybrid/error.rs::method::BuildError.source	method	ported	src/regex/automata/hybrid.cr:Hybrid::BuildError#source;spec/hybrid_spec.cr	Exposes wrapped NFA build error.
+src/hybrid/error.rs::method::BuildError.unsupported_dfa_word_boundary_unicode	method	ported	src/regex/automata/hybrid.cr:Hybrid::BuildError.unsupported_dfa_word_boundary_unicode;spec/hybrid_spec.cr	Unicode word-boundary unsupported diagnostic.
+src/hybrid/error.rs::method::CacheError.bad_efficiency	method	ported	src/regex/automata/hybrid.cr:Hybrid::CacheError.bad_efficiency;spec/hybrid_spec.cr	Cache-efficiency error constructor.
+src/hybrid/error.rs::method::CacheError.fmt	method	ported	src/regex/automata/hybrid.cr:Hybrid::CacheError;spec/hybrid_spec.cr	Rust-compatible cache error message.
+src/hybrid/error.rs::method::CacheError.too_many_cache_clears	method	ported	src/regex/automata/hybrid.cr:Hybrid::CacheError.too_many_cache_clears;spec/hybrid_spec.cr	Cache-clear error constructor.
+src/hybrid/error.rs::method::StartError.cache	method	ported	src/regex/automata/hybrid.cr:Hybrid::StartError.cache;spec/hybrid_spec.cr	Retains cache cause.
+src/hybrid/error.rs::method::StartError.fmt	method	ported	src/regex/automata/hybrid.cr:Hybrid::StartError;spec/hybrid_spec.cr	Variant-specific start-error messages.
+src/hybrid/error.rs::method::StartError.quit	method	ported	src/regex/automata/hybrid.cr:Hybrid::StartError.quit;spec/hybrid_spec.cr	Quit-byte start error.
+src/hybrid/error.rs::method::StartError.source	method	ported	src/regex/automata/hybrid.cr:Hybrid::StartError#source;spec/hybrid_spec.cr	Exposes cache cause.
+src/hybrid/error.rs::method::StartError.unsupported_anchored	method	ported	src/regex/automata/hybrid.cr:Hybrid::StartError.unsupported_anchored;spec/hybrid_spec.cr	Anchoring error with optional pattern ID.
 src/hybrid/id.rs::const::MASK_DEAD	const	missing	-	auto-generated
 src/hybrid/id.rs::const::MASK_MATCH	const	missing	-	auto-generated
 src/hybrid/id.rs::const::MASK_QUIT	const	missing	-	auto-generated

@@ -38,6 +38,8 @@ describe Regex::Automata::Hybrid::BuildError do
     end
 
     err.is_size_limit_exceeded.should be_true
+    err.size_limit.should eq(0_i64)
+    err.source.should be_a(Regex::Automata::NFA::BuildError)
   end
 end
 
@@ -52,6 +54,14 @@ describe Regex::Automata::Hybrid::StartError do
     err.message.should eq(
       "error computing start state because anchored searches for a specific pattern (3) are not supported or enabled"
     )
+  end
+
+  it "retains the cache cause for start-state failures" do
+    cause = Regex::Automata::Hybrid::CacheError.bad_efficiency
+    err = Regex::Automata::Hybrid::StartError.cache(cause)
+
+    err.cache?.should be_true
+    err.source.should be(cause)
   end
 end
 

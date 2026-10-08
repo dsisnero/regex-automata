@@ -9,8 +9,14 @@ module Regex::Automata::Hybrid
   MIN_STATES             = SENTINEL_STATES + 2
 
   class BuildError < ::Regex::Automata::BuildError
+    getter source : ::Regex::Automata::BuildError?
+
+    def initialize(message : String, size_limit_exceeded : Bool = false, size_limit : Int64? = nil, @source : ::Regex::Automata::BuildError? = nil)
+      super(message, size_limit_exceeded, size_limit)
+    end
+
     def self.nfa(err : ::Regex::Automata::BuildError) : BuildError
-      new("error building NFA", err.is_size_limit_exceeded)
+      new("error building NFA", err.is_size_limit_exceeded, err.size_limit, err)
     end
 
     def self.insufficient_cache_capacity(minimum : Int32, given : Int32) : BuildError
@@ -45,9 +51,10 @@ module Regex::Automata::Hybrid
     getter byte : UInt8?
     getter mode : ::Regex::Automata::Anchored?
     getter pattern : ::Regex::Automata::PatternID?
+    getter source : CacheError?
 
-    def self.cache : StartError
-      new("error computing start state because of cache inefficiency", cache: true)
+    def self.cache(source : CacheError = CacheError.too_many_cache_clears) : StartError
+      new("error computing start state because of cache inefficiency", cache: true, source: source)
     end
 
     def self.quit(byte : UInt8) : StartError
@@ -72,7 +79,7 @@ module Regex::Automata::Hybrid
       new(message, mode: mode, pattern: pattern)
     end
 
-    def initialize(message : String, @cache : Bool = false, @byte : UInt8? = nil, @mode : ::Regex::Automata::Anchored? = nil, @pattern : ::Regex::Automata::PatternID? = nil)
+    def initialize(message : String, @cache : Bool = false, @byte : UInt8? = nil, @mode : ::Regex::Automata::Anchored? = nil, @pattern : ::Regex::Automata::PatternID? = nil, @source : CacheError? = nil)
       super(message)
     end
   end
@@ -866,7 +873,7 @@ module Regex::Automata::Hybrid
                      end
 
       id = cache_start_one(nfa_start_id, start)
-      return StartError.cache if id.is_a?(CacheError)
+      return StartError.cache(id.as(CacheError)) if id.is_a?(CacheError)
 
       sid = id.as(LazyStateID)
       set_start_state(anchored, start, pattern, sid)
