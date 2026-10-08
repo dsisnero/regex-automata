@@ -306,6 +306,23 @@ describe Regex::Automata::DFA::OnePass::DFA do
     end_anchor.find(cache, Regex::Automata::Input.new("abcx").anchored(Regex::Automata::Anchored::Yes)).should be_nil
   end
 
+  it "honors configured line terminators without byte classes in compiled searches" do
+    line_terminator = ';'.ord.to_u8
+    re = Regex::Automata::DFA::OnePass::DFA.builder
+      .configure(Regex::Automata::DFA::OnePass::DFA.config.byte_classes(false))
+      .syntax(Regex::Automata::Syntax::Config.new.line_terminator(line_terminator))
+      .thompson(
+        Regex::Automata::NFA::NFA.config
+          .look_matcher(Regex::Automata::LookMatcher.new(line_terminator))
+      )
+      .build("(?m)^abc$")
+    cache = re.create_cache
+    re.find(
+      cache,
+      Regex::Automata::Input.new("x;abc;y").span(2...5).anchored(Regex::Automata::Anchored::Yes)
+    ).should eq(Regex::Automata::Match.must(0, 2...5))
+  end
+
   it "honors one-pass size limits" do
     expect_raises(Regex::Automata::DFA::OnePass::BuildError, /size limit/) do
       Regex::Automata::DFA::OnePass::DFA.builder
