@@ -131,6 +131,8 @@ module Regex::Automata::DFA
       @uncompiled : Array(StateID)
       @seen : Array(Bool)
       @table : Array(Array(Transition?))
+      @starts : Array(StateID)
+      @matches : Array(PatternID?)
       @matched : Bool
 
       private struct Epsilons
@@ -165,6 +167,8 @@ module Regex::Automata::DFA
         @uncompiled = [] of StateID
         @seen = Array.new(@nfa.size, false)
         @table = [] of Array(Transition?)
+        @starts = [] of StateID
+        @matches = [] of PatternID?
         @matched = false
       end
 
@@ -191,8 +195,41 @@ module Regex::Automata::DFA
         end
       end
 
+      def state_len : Int32
+        @table.size
+      end
+
+      def memory_usage : Int32
+        (@table.size * @alphabet_len * sizeof(Transition) + @starts.size * sizeof(StateID)).to_i32
+      end
+
+      def supports_table_execution? : Bool
+        @nfa.group_info.explicit_slot_len == 0 &&
+          @nfa.look_set_any.is_empty &&
+          !(@nfa.has_empty && @nfa.is_utf8)
+      end
+
+      def start(pattern : PatternID? = nil) : StateID
+        return @starts[0] unless pattern
+        @starts[pattern.to_i + 1]? || StateID.new(0)
+      end
+
+      def next_state(state_id : StateID, byte : UInt8) : StateID
+        @table[state_id.to_i][@classes[byte]].try(&.state_id) || StateID.new(0)
+      end
+
+      def transition_match_wins?(state_id : StateID, byte : UInt8) : Bool
+        @table[state_id.to_i][@classes[byte]].try(&.match_wins) || false
+      end
+
+      def match_pattern(state_id : StateID) : PatternID?
+        @matches[state_id.to_i]?
+      end
+
       private def add_start_state(nfa_id : StateID) : StateID
-        add_dfa_state(nfa_id)
+        id = add_dfa_state(nfa_id)
+        @starts << id
+        id
       end
 
       private def add_dfa_state(nfa_id : StateID) : StateID
@@ -208,6 +245,7 @@ module Regex::Automata::DFA
       private def add_empty_state : StateID
         id = StateID.new(@table.size)
         @table << Array(Transition?).new(@alphabet_len, nil)
+        @matches << nil
         id
       end
 
@@ -241,6 +279,7 @@ module Regex::Automata::DFA
           when NFA::Match
             raise BuildError.not_one_pass("multiple epsilon transitions to match state") if @matched
             @matched = true
+            @matches[dfa_id.to_i] = state.pattern_id
           when NFA::Fail
           end
         end
@@ -302,8 +341,9 @@ module Regex::Automata::DFA
 
       def build_from_nfa(nfa : ::Regex::Automata::NFA::NFA) : DFA
         validate_nfa(nfa)
-        Admission.new(@config, nfa).run
-        dfa = DFA.new(@config, nfa)
+        admission = Admission.new(@config, nfa)
+        admission.run
+        dfa = DFA.new(@config, nfa, admission)
         limit = @config.get_size_limit
         if !limit.nil? && dfa.memory_usage > limit.not_nil!
           raise BuildError.exceeded_size_limit(limit.not_nil!)
@@ -374,7 +414,7 @@ module Regex::Automata::DFA
       @nfa : ::Regex::Automata::NFA::NFA
       @byte_classes : ::Regex::Automata::ByteClasses
 
-      def initialize(@config : Config, @nfa : ::Regex::Automata::NFA::NFA)
+      def initialize(@config : Config, @nfa : ::Regex::Automata::NFA::NFA, @admission : Admission)
         @pikevm = ::Regex::Automata::NFA::PikeVM.builder
           .configure(
             ::Regex::Automata::NFA::PikeVM.config
@@ -445,7 +485,7 @@ module Regex::Automata::DFA
       end
 
       def state_len : Int32
-        @nfa.size
+        @admission.state_len
       end
 
       def byte_classes : ::Regex::Automata::ByteClasses
@@ -471,7 +511,7 @@ module Regex::Automata::DFA
       end
 
       def memory_usage : Int32
-        @nfa.memory_usage
+        @nfa.memory_usage + @admission.memory_usage
       end
 
       def is_match(cache : Cache, haystack : String | Bytes | ::Regex::Automata::Input) : Bool
@@ -517,6 +557,9 @@ module Regex::Automata::DFA
         validation = validate_input(input)
         return validation if validation
 
+        if @admission.supports_table_execution?
+          return search_compiled(input, slots)
+        end
         @pikevm.search_slots(cache.inner, input, slots)
       end
 
@@ -524,7 +567,50 @@ module Regex::Automata::DFA
         validation = validate_input(input)
         return validation if validation
 
+        if @admission.supports_table_execution?
+          plain_slots = slots.map { |slot| slot.try(&.get) }
+          result = search_compiled(input, plain_slots)
+          plain_slots.each_with_index { |slot, index| slots[index] = slot.try { |offset| ::Regex::Automata::NonMaxUsize.new(offset) } }
+          return result
+        end
         @pikevm.search_slots(cache.inner, input, slots)
+      end
+
+      private def search_compiled(input : ::Regex::Automata::Input, slots : Array(Int32?)) : ::Regex::Automata::PatternID?
+        slots.fill(nil)
+        @nfa.patterns.each do |pattern_id|
+          start_slot = pattern_id.to_i * 2
+          slots[start_slot] = input.start if start_slot < slots.size
+        end
+
+        state = case input.get_anchored
+                when ::Regex::Automata::Anchored::Pattern
+                  @admission.start(input.pattern)
+                else
+                  @admission.start
+                end
+        matched = nil.as(::Regex::Automata::PatternID?)
+        at = input.start
+        while at < input.end
+          if pattern_id = @admission.match_pattern(state)
+            matched = pattern_id
+            end_slot = pattern_id.to_i * 2 + 1
+            slots[end_slot] = at if end_slot < slots.size
+          end
+
+          byte = input.haystack[at]
+          match_wins = @admission.transition_match_wins?(state, byte)
+          state = @admission.next_state(state, byte)
+          return matched if matched && (input.get_earliest || match_wins || state.to_i == 0)
+          at += 1
+        end
+
+        if pattern_id = @admission.match_pattern(state)
+          matched = pattern_id
+          end_slot = pattern_id.to_i * 2 + 1
+          slots[end_slot] = input.end if end_slot < slots.size
+        end
+        matched
       end
 
       private def normalize_and_anchor(input : ::Regex::Automata::Input) : ::Regex::Automata::Input
