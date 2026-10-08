@@ -1707,7 +1707,7 @@ src/util/prefilter/byteset.rs::method::ByteSet.memory_usage	method	partial	src/r
 src/util/prefilter/byteset.rs::method::ByteSet.name	method	intentional_divergence	-	Concrete Rust strategy names are not exposed by the Crystal generic prefilter.
 src/util/prefilter/byteset.rs::method::ByteSet.new	method	partial	src/regex/automata/prefilter.cr:Prefilter.new	Generic construction validates needles without byte-set selection.
 src/util/prefilter/byteset.rs::method::ByteSet.prefix	method	partial	src/regex/automata/prefilter.cr:Prefilter#prefix;spec/prefilter_spec.cr	Generic prefix semantics are covered.
-src/util/prefilter/memchr.rs::method::Memchr.find	method	partial	src/regex/automata/prefilter.cr:Prefilter#find;spec/prefilter_spec.cr	Generic candidate search preserves behavior; specialized memchr dispatch is absent.
+src/util/prefilter/memchr.rs::method::Memchr.find	method	partial	src/regex/automata/prefilter.cr:Prefilter#find;spec/prefilter_spec.cr	Single-byte candidate search uses Crystal's indexed byte lookup while preserving bounded-span behavior; SIMD capability remains runtime-specific.
 src/util/prefilter/memchr.rs::method::Memchr.is_fast	method	partial	src/regex/automata/prefilter.cr:Prefilter#is_fast;spec/prefilter_spec.cr	Heuristic is represented generically, not by memchr SIMD capability.
 src/util/prefilter/memchr.rs::method::Memchr.memory_usage	method	partial	src/regex/automata/prefilter.cr:Prefilter#memory_usage	Generic needle-byte accounting differs from zero-allocation memchr.
 src/util/prefilter/memchr.rs::method::Memchr.name	method	intentional_divergence	-	Concrete Rust strategy names are not exposed by the Crystal generic prefilter.

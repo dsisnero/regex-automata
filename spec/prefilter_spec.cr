@@ -43,6 +43,15 @@ describe Regex::Automata::Prefilter do
       Regex::Automata::Span.new(9, 15)
     )
     pre.prefix(haystack, Regex::Automata::Span.new(1, haystack.size)).should be_nil
+
+    byte = Regex::Automata::Prefilter.new(
+      Regex::Automata::MatchKind::All,
+      ["."]
+    ).not_nil!
+    byte.find(haystack, Regex::Automata::Span.new(0, 6)).should be_nil
+    byte.find(haystack, Regex::Automata::Span.new(0, 10)).should eq(
+      Regex::Automata::Span.new(6, 7)
+    )
   end
 
   it "extracts prefix literals from HIRs" do

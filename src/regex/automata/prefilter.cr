@@ -122,6 +122,12 @@ module Regex::Automata
     end
 
     private def find_needle(haystack : Bytes, needle : Bytes, span : Span) : Int32?
+      if needle.size == 1
+        found = haystack.index(needle[0], span.start)
+        return found if found && found < span.end
+        return nil
+      end
+
       limit = span.end - needle.size
       at = span.start
       while at <= limit
