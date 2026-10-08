@@ -565,11 +565,11 @@ src/dfa/special.rs::method::Special.validate	method	missing	-	auto-generated
 src/dfa/special.rs::method::Special.validate_state_len	method	missing	-	auto-generated
 src/dfa/special.rs::method::Special.write_to	method	missing	-	auto-generated
 src/dfa/special.rs::method::Special.write_to_len	method	missing	-	auto-generated
-src/dfa/start.rs::method::StartKind.from_bytes	method	missing	-	auto-generated
-src/dfa/start.rs::method::StartKind.has_anchored	method	missing	-	auto-generated
-src/dfa/start.rs::method::StartKind.has_unanchored	method	missing	-	auto-generated
-src/dfa/start.rs::method::StartKind.write_to	method	missing	-	auto-generated
-src/dfa/start.rs::method::StartKind.write_to_len	method	missing	-	auto-generated
+src/dfa/start.rs::method::StartKind.from_bytes	method	intentional_divergence	src/regex/automata/dfa.cr:256	Crystal's versioned DFA wire format reads anchored capability from flags and start tables instead of a standalone StartKind field
+src/dfa/start.rs::method::StartKind.has_anchored	method	intentional_divergence	src/regex/automata/start_table.cr:116	StartTable applies anchored capability directly; no extra predicate is needed on the enum hot path
+src/dfa/start.rs::method::StartKind.has_unanchored	method	intentional_divergence	src/regex/automata/start_table.cr:113	StartTable applies unanchored capability directly; no extra predicate is needed on the enum hot path
+src/dfa/start.rs::method::StartKind.write_to	method	intentional_divergence	src/regex/automata/dfa.cr:622	Crystal's versioned DFA wire format writes flags and full start tables instead of a standalone StartKind field
+src/dfa/start.rs::method::StartKind.write_to_len	method	intentional_divergence	src/regex/automata/dfa.cr:622	Crystal's versioned DFA wire format sizes flags and full start tables instead of a standalone StartKind field
 src/hybrid/dfa.rs::const::ID_SIZE	const	missing	-	auto-generated
 src/hybrid/dfa.rs::const::MIN_STATES	const	missing	-	auto-generated
 src/hybrid/dfa.rs::const::SENTINEL_STATES	const	missing	-	auto-generated
