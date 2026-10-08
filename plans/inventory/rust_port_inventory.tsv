@@ -868,7 +868,7 @@ src/meta/regex.rs::method::Split<'r, 'h>.next	method	ported	src/regex/automata/m
 src/meta/regex.rs::method::SplitN<'r, 'h>.input	method	ported	src/regex/automata/meta.cr:SplitN#input;spec/meta_regex_spec.cr	Exposes the iterator's current owned Input state.
 src/meta/regex.rs::method::SplitN<'r, 'h>.next	method	ported	src/regex/automata/meta.cr:SplitN#next;spec/meta_regex_spec.cr	Honors Rust splitn zero, one, and bounded limits.
 src/meta/regex.rs::method::SplitN<'r, 'h>.size_hint	method	intentional_divergence	src/regex/automata/meta.cr:SplitN	Crystal Iterator does not expose Rust's size_hint protocol.
-src/meta/reverse_inner.rs::method::InnerPrefilter.new	method	missing	-	auto-generated
+src/meta/reverse_inner.rs::method::InnerPrefilter.new	method	ported	src/regex/automata/meta.cr:886;spec/meta_regex_spec.cr	Crystal represents the private Rust struct as the {prefix, prefilter, literals} tuple returned by reverse_inner_prefilter
 src/meta/strategy.rs::method::Core.create_cache	method	missing	-	auto-generated
 src/meta/strategy.rs::method::Core.group_info	method	missing	-	auto-generated
 src/meta/strategy.rs::method::Core.is_accelerated	method	missing	-	auto-generated
