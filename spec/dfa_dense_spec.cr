@@ -63,6 +63,17 @@ describe "DFA::Dense" do
     rebuilt.to_map.should eq(dfa.pattern_map)
   end
 
+  it "updates dense match metadata from a state map" do
+    dfa = Regex::Automata::DFA::DFA.new_many(["a", "b"])
+    state = dfa.next_eoi_state(dfa.next_state(dfa.start, 'a'.ord.to_u8))
+    map = dfa.pattern_map
+    map[state] = [Regex::Automata::PatternID.new(1)]
+
+    dfa.set_pattern_map(map)
+    dfa.pattern_id_slice(state).should eq([Regex::Automata::PatternID.new(1)])
+    dfa.states[dfa.to_index(state)].match.should eq([Regex::Automata::PatternID.new(1)])
+  end
+
   it "iterates dense start states in unanchored then anchored order" do
     table = Regex::Automata::StartTable.new(
       Regex::Automata::StartKind::Both,

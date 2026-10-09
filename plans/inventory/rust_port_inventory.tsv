@@ -203,7 +203,7 @@ src/dfa/dense.rs::method::OwnedDFA.new	method	missing	-	auto-generated
 src/dfa/dense.rs::method::OwnedDFA.new_many	method	missing	-	auto-generated
 src/dfa/dense.rs::method::OwnedDFA.remap	method	missing	-	auto-generated
 src/dfa/dense.rs::method::OwnedDFA.remap_state	method	missing	-	auto-generated
-src/dfa/dense.rs::method::OwnedDFA.set_pattern_map	method	missing	-	auto-generated
+src/dfa/dense.rs::method::OwnedDFA.set_pattern_map	method	ported	src/regex/automata/dfa.cr:DFA#set_pattern_map;spec/dfa_dense_spec.cr	Rebuilds flattened match metadata while synchronizing materialized states and special-state ranges.
 src/dfa/dense.rs::method::OwnedDFA.set_start_state	method	missing	-	auto-generated
 src/dfa/dense.rs::method::OwnedDFA.set_transition	method	missing	-	auto-generated
 src/dfa/dense.rs::method::OwnedDFA.set_universal_starts	method	missing	-	auto-generated

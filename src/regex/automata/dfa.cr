@@ -1405,6 +1405,20 @@ module Regex::Automata::DFA
       @ms.to_map
     end
 
+    # Replaces match-state metadata after a DFA transformation. Keep the
+    # materialized states synchronized because Crystal's serializer preserves
+    # those states in addition to the flattened match-state representation.
+    def set_pattern_map(matches : Hash(StateID, Array(PatternID))) : Nil
+      table = @tt.not_nil!
+      @states.each { |state| state.match.clear }
+      matches.each do |id, pattern_ids|
+        raise ArgumentError.new("invalid match state ID") unless table.is_valid(id)
+        @states[table.to_index(id)].match.concat(pattern_ids)
+      end
+      @ms = MatchStates.from_map(matches, @ms.pattern_len, table)
+      @special = build_special
+    end
+
     # Returns true if and only if this automaton is guaranteed to be valid for UTF-8 input
     def is_utf8? : Bool
       @flags.is_utf8
