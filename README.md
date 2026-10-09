@@ -85,7 +85,10 @@ The upstream `regex-automata` crate exposes a variety of regex engines used by t
 ### Safety Considerations
 
 The upstream crate uses `unsafe` code in several places:
-- `util::pool::Pool` for fast path access avoiding mutex locks
+- `util::pool::Pool` for fast-path access that can avoid mutex locks. This
+  Crystal port intentionally uses a bounded mutex-protected stack instead;
+  normal Meta searches use explicit caches, while directly shared pools may
+  contend under parallel use.
 - `util::lazy::Lazy` for no-std variant of lazy initialization
 - `dfa` module for zero-copy deserialization of DFAs
 - Core search loops in `dfa` and `hybrid` modules for bounds check elision
