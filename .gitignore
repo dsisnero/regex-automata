@@ -2,6 +2,7 @@
 /bin/
 /.shards/
 /.crystal-cache/
+/temp/
 *.dwarf
 ._*
 
