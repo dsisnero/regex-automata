@@ -1279,24 +1279,24 @@ src/nfa/thompson/pikevm.rs::method::ActiveStates.memory_usage	method	missing	-	a
 src/nfa/thompson/pikevm.rs::method::ActiveStates.new	method	missing	-	auto-generated
 src/nfa/thompson/pikevm.rs::method::ActiveStates.reset	method	missing	-	auto-generated
 src/nfa/thompson/pikevm.rs::method::ActiveStates.setup_search	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::Builder.build	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::Builder.build_from_nfa	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::Builder.build_many	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::Builder.configure	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::Builder.new	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::Builder.syntax	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::Builder.thompson	method	missing	-	auto-generated
+src/nfa/thompson/pikevm.rs::method::Builder.build	method	ported	src/regex/automata/pikevm.cr:71;spec/pikevm_spec.cr	Builds configured PikeVMs.
+src/nfa/thompson/pikevm.rs::method::Builder.build_from_nfa	method	ported	src/regex/automata/pikevm.cr:83;spec/pikevm_spec.cr	Builds from a Thompson NFA.
+src/nfa/thompson/pikevm.rs::method::Builder.build_many	method	ported	src/regex/automata/pikevm.cr:75;spec/pikevm_spec.cr	Builds multi-pattern PikeVMs.
+src/nfa/thompson/pikevm.rs::method::Builder.configure	method	ported	src/regex/automata/pikevm.cr:90;spec/pikevm_spec.cr	Merges PikeVM configuration.
+src/nfa/thompson/pikevm.rs::method::Builder.new	method	ported	src/regex/automata/pikevm.cr:67;spec/pikevm_spec.cr	Default builder constructor.
+src/nfa/thompson/pikevm.rs::method::Builder.syntax	method	ported	src/regex/automata/pikevm.cr:95;spec/pikevm_spec.cr	Applies syntax configuration.
+src/nfa/thompson/pikevm.rs::method::Builder.thompson	method	ported	src/regex/automata/pikevm.cr:100;spec/pikevm_spec.cr	Applies Thompson configuration.
 src/nfa/thompson/pikevm.rs::method::Cache.memory_usage	method	missing	-	auto-generated
 src/nfa/thompson/pikevm.rs::method::Cache.new	method	missing	-	auto-generated
 src/nfa/thompson/pikevm.rs::method::Cache.reset	method	missing	-	auto-generated
 src/nfa/thompson/pikevm.rs::method::Cache.setup_search	method	missing	-	auto-generated
 src/nfa/thompson/pikevm.rs::method::CapturesMatches<'r, 'c, 'h>.next	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::Config.get_match_kind	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::Config.get_prefilter	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::Config.match_kind	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::Config.new	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::Config.overwrite	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::Config.prefilter	method	missing	-	auto-generated
+src/nfa/thompson/pikevm.rs::method::Config.get_match_kind	method	ported	src/regex/automata/pikevm.cr:35;spec/pikevm_spec.cr	Returns effective match kind.
+src/nfa/thompson/pikevm.rs::method::Config.get_prefilter	method	ported	src/regex/automata/pikevm.cr:39;spec/pikevm_spec.cr	Returns configured prefilter.
+src/nfa/thompson/pikevm.rs::method::Config.match_kind	method	ported	src/regex/automata/pikevm.cr:20;spec/pikevm_spec.cr	Configures match kind.
+src/nfa/thompson/pikevm.rs::method::Config.new	method	ported	src/regex/automata/pikevm.cr:16;spec/pikevm_spec.cr	Default configuration constructor.
+src/nfa/thompson/pikevm.rs::method::Config.overwrite	method	ported	src/regex/automata/pikevm.cr:47;spec/pikevm_spec.cr	Preserves configuration overwrite behavior.
+src/nfa/thompson/pikevm.rs::method::Config.prefilter	method	ported	src/regex/automata/pikevm.cr:25;spec/pikevm_spec.cr	Configures prefilter.
 src/nfa/thompson/pikevm.rs::method::Counters.empty	method	missing	-	auto-generated
 src/nfa/thompson/pikevm.rs::method::Counters.eprint	method	missing	-	auto-generated
 src/nfa/thompson/pikevm.rs::method::Counters.record_closure	method	missing	-	auto-generated
