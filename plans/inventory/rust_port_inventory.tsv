@@ -232,7 +232,7 @@ src/dfa/dense.rs::method::State<'a>.transitions	method	missing	-	auto-generated
 src/dfa/dense.rs::method::StateIter<'a, T>.next	method	missing	-	auto-generated
 src/dfa/dense.rs::method::StateSparseTransitionIter<'a>.next	method	missing	-	auto-generated
 src/dfa/dense.rs::method::StateTransitionIter<'a>.next	method	missing	-	auto-generated
-src/dfa/dense.rs::method::TransitionTable<&'a [u32]>.from_bytes_unchecked	method	intentional_divergence	src/regex/automata/transition_table.cr:261;spec/dfa_dense_spec.cr	Crystal owns decoded transition storage and validates it; it cannot expose Rust's unsafe borrowed aligned-u32 view.
+src/dfa/dense.rs::method::TransitionTable<&'a [u32]>.from_bytes_unchecked	method	intentional_divergence	src/regex/automata/transition_table.cr:248;spec/dfa_dense_spec.cr	Crystal owns decoded transition storage and safely accepts unaligned Bytes slices; it cannot expose Rust's unsafe borrowed aligned-u32 view.
 src/dfa/dense.rs::method::TransitionTable<T>.alphabet_len	method	missing	-	auto-generated
 src/dfa/dense.rs::method::TransitionTable<T>.as_ref	method	missing	-	auto-generated
 src/dfa/dense.rs::method::TransitionTable<T>.is_valid	method	ported	src/regex/automata/transition_table.cr:56;spec/dfa_dense_spec.cr	Requires an in-bounds premultiplied state ID, matching Rust's stride-alignment invariant.

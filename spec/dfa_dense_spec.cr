@@ -9,7 +9,7 @@ end
 
 describe "DFA::Dense" do
   it "requires premultiplied IDs for transition-table validity" do
-    classes = Regex::Automata::ByteClasses.identity
+    classes = Regex::Automata::ByteClasses.empty
     table = Regex::Automata::TransitionTable.new(classes, 2, 2)
 
     table.is_valid(Regex::Automata::StateID.new(0)).should be_true
@@ -24,8 +24,8 @@ describe "DFA::Dense" do
       Regex::Automata::TransitionTable.from_bytes(Bytes.new(7))
     end
 
-    classes = Regex::Automata::ByteClasses.identity
-    table = Regex::Automata::TransitionTable.new(classes, 2, 2)
+    classes = Regex::Automata::ByteClasses.empty
+    table = Regex::Automata::TransitionTable.new(classes, 1, 2)
     source = table.to_bytes
     source[4] = 0_u8
     source[5] = 0_u8
@@ -40,6 +40,19 @@ describe "DFA::Dense" do
     expect_raises(Regex::Automata::DeserializeError) do
       Regex::Automata::TransitionTable.from_bytes(source)
     end
+  end
+
+  it "round trips dense transition-table bytes from an unaligned slice" do
+    classes = Regex::Automata::ByteClasses.empty
+    table = Regex::Automata::TransitionTable.new(classes, 1, 2)
+    table.set_transition_by_class(Regex::Automata::StateID.new(0), 0, Regex::Automata::StateID.new(2))
+
+    encoded = table.to_bytes
+    padded = Bytes.new(encoded.size + 1)
+    encoded.copy_to(padded[1, encoded.size])
+
+    decoded = Regex::Automata::TransitionTable.from_bytes(padded[1, encoded.size])
+    decoded.next_state_by_class(Regex::Automata::StateID.new(0), 0).should eq(Regex::Automata::StateID.new(2))
   end
 
   it "exposes dense config defaults and upstream-style getters" do

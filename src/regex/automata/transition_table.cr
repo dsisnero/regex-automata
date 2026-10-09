@@ -234,27 +234,11 @@ module Regex::Automata
       classes_bytes.copy_to(buffer[offset, classes_bytes.size])
       offset += classes_bytes.size
 
-      # Write transitions - convert StateID array to bytes in bulk
-      # Create a slice of the entire table as Int32 for bulk conversion
-      table_slice = Slice(Int32).new(@table.size) do |i|
-        @table[i].to_i
-      end
-
-      # Convert to bytes based on endianness
-      if endian == :little
-        # Little-endian: copy as-is (Crystal is little-endian on most platforms)
-        table_bytes = table_slice.to_unsafe.as(UInt8*).to_slice(table_slice.size * 4)
-        table_bytes.copy_to(buffer[offset, table_bytes.size])
-      else
-        # Big-endian: need to swap bytes
-        table_bytes_ptr = buffer.to_unsafe + offset
-        table_slice.each_with_index do |val, i|
-          ptr = table_bytes_ptr + (i * 4)
-          ptr[0] = ((val >> 24) & 0xFF).to_u8
-          ptr[1] = ((val >> 16) & 0xFF).to_u8
-          ptr[2] = ((val >> 8) & 0xFF).to_u8
-          ptr[3] = (val & 0xFF).to_u8
-        end
+      # State IDs are serialized explicitly instead of reinterpreting an
+      # Array's backing storage. Crystal owns decoded storage, so this keeps
+      # both endian forms valid for arbitrary Bytes slices.
+      @table.each_with_index do |state_id, i|
+        write_state_id(state_id.to_i, buffer, offset + i * sizeof(Int32), endian)
       end
 
       buffer
@@ -313,30 +297,43 @@ module Regex::Automata
       raise DeserializeError.buffer_too_small("transition table") if bytes.size < offset + transitions_size
       transitions_bytes = bytes[offset, transitions_size]
 
-      if endian == :little
-        # Little-endian: copy directly
-        transitions_slice = transitions_bytes.to_unsafe.as(Int32*).to_slice(state_len * stride)
-        # Copy to table array
-        (0...transitions_slice.size).each do |i|
-          table.table[i] = StateID.new(transitions_slice[i])
-        end
-      else
-        # Big-endian: need to convert each 4-byte group
-        bytes_ptr = transitions_bytes.to_unsafe
-        (0...state_len * stride).each do |i|
-          byte_offset = i * 4
-          val = (bytes_ptr[byte_offset].to_i32 << 24) |
-                (bytes_ptr[byte_offset + 1].to_i32 << 16) |
-                (bytes_ptr[byte_offset + 2].to_i32 << 8) |
-                bytes_ptr[byte_offset + 3].to_i32
-          table.table[i] = StateID.new(val)
-        end
+      (0...state_len * stride).each do |i|
+        byte_offset = i * sizeof(Int32)
+        table.table[i] = StateID.new(read_state_id(transitions_bytes, byte_offset, endian))
       end
 
       if error = table.validate
         raise error
       end
       table
+    end
+
+    private def write_state_id(value : Int32, buffer : Bytes, offset : Int32, endian : Symbol) : Nil
+      if endian == :little
+        buffer[offset] = (value & 0xFF).to_u8
+        buffer[offset + 1] = ((value >> 8) & 0xFF).to_u8
+        buffer[offset + 2] = ((value >> 16) & 0xFF).to_u8
+        buffer[offset + 3] = ((value >> 24) & 0xFF).to_u8
+      else
+        buffer[offset] = ((value >> 24) & 0xFF).to_u8
+        buffer[offset + 1] = ((value >> 16) & 0xFF).to_u8
+        buffer[offset + 2] = ((value >> 8) & 0xFF).to_u8
+        buffer[offset + 3] = (value & 0xFF).to_u8
+      end
+    end
+
+    private def self.read_state_id(bytes : Bytes, offset : Int32, endian : Symbol) : Int32
+      if endian == :little
+        bytes[offset].to_i32 |
+          (bytes[offset + 1].to_i32 << 8) |
+          (bytes[offset + 2].to_i32 << 16) |
+          (bytes[offset + 3].to_i32 << 24)
+      else
+        (bytes[offset].to_i32 << 24) |
+          (bytes[offset + 1].to_i32 << 16) |
+          (bytes[offset + 2].to_i32 << 8) |
+          bytes[offset + 3].to_i32
+      end
     end
   end
 end
