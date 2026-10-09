@@ -217,7 +217,7 @@ src/dfa/dense.rs::method::StartTable<T>.iter	method	ported	src/regex/automata/st
 src/dfa/dense.rs::method::StartTable<T>.memory_usage	method	partial	src/regex/automata/start_table.cr:StartTable#memory_usage;spec/dfa_dense_spec.cr	Reports logical StateID payload bytes; Crystal Hash allocation overhead has no Rust-layout equivalent.
 src/dfa/dense.rs::method::StartTable<T>.set_start	method	ported	src/regex/automata/start_table.cr:StartTable#set_start;spec/dfa_dense_spec.cr	Updates one materialized start and recomputes universal-start metadata; PatternID remains a separate Crystal argument.
 src/dfa/dense.rs::method::StartTable<T>.start	method	ported	src/regex/automata/start_table.cr:StartTable#start;spec/start_config_spec.cr	Resolves supported anchored, unanchored, and per-pattern starts with Crystal's separate PatternID argument.
-src/dfa/dense.rs::method::StartTable<T>.table	method	missing	-	auto-generated
+src/dfa/dense.rs::method::StartTable<T>.table	method	ported	src/regex/automata/start_table.cr:StartTable#table;spec/dfa_dense_spec.cr	Returns an owned StateID snapshot in Rust logical table order; Hash backing prevents a borrowed raw slice.
 src/dfa/dense.rs::method::StartTable<T>.table_mut	method	missing	-	auto-generated
 src/dfa/dense.rs::method::StartTable<T>.to_owned	method	ported	src/regex/automata/start_table.cr:StartTable#to_owned;spec/dfa_dense_spec.cr	Deep-copies every start-state hash for transformation-safe ownership.
 src/dfa/dense.rs::method::StartTable<T>.validate	method	missing	-	auto-generated

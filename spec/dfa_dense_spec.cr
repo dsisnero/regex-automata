@@ -53,6 +53,7 @@ describe "DFA::Dense" do
     table.memory_usage.should eq(12 * sizeof(Regex::Automata::StateID))
     starts.first.should eq({Regex::Automata::StateID.new(2), Regex::Automata::Anchored::No, Regex::Automata::Start::NonWordByte, nil})
     starts[6].should eq({Regex::Automata::StateID.new(4), Regex::Automata::Anchored::Yes, Regex::Automata::Start::NonWordByte, nil})
+    table.table.should eq(starts.map(&.[0]))
   end
 
   it "owns an independent dense start-table snapshot" do

@@ -176,6 +176,11 @@ module Regex::Automata
       entries
     end
 
+    # Returns a snapshot of materialized state IDs in Rust table order.
+    def table : Array(StateID)
+      iter.map(&.[0])
+    end
+
     # Logical StateID payload bytes, excluding Crystal Hash object overhead.
     def memory_usage : Int32
       (iter.size * sizeof(StateID)).to_i32
