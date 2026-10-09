@@ -1954,6 +1954,10 @@ module Regex::Automata::Hybrid
       re.reset_cache(self)
     end
 
+    def memory_usage : Int32
+      @forward.memory_usage + @reverse.memory_usage
+    end
+
     def as_parts : Tuple(Cache, Cache)
       {@forward, @reverse}
     end

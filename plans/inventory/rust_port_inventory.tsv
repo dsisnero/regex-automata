@@ -719,37 +719,37 @@ src/hybrid/id.rs::method::LazyStateID.to_start	method	ported	src/regex/automata/
 src/hybrid/id.rs::method::LazyStateID.to_unknown	method	ported	src/regex/automata/hybrid.cr:135;spec/hybrid_spec.cr	Adds the unknown tag.
 src/hybrid/id.rs::method::LazyStateIDError.attempted	method	ported	src/regex/automata/hybrid.cr:90;spec/hybrid_spec.cr	Exposes attempted overflowing ID.
 src/hybrid/id.rs::method::LazyStateIDError.fmt	method	ported	src/regex/automata/hybrid.cr:93;spec/hybrid_spec.cr	Preserves Rust-compatible overflow diagnostic text.
-src/hybrid/regex.rs::method::Builder.build	method	missing	-	auto-generated
-src/hybrid/regex.rs::method::Builder.build_from_dfas	method	missing	-	auto-generated
-src/hybrid/regex.rs::method::Builder.build_many	method	missing	-	auto-generated
-src/hybrid/regex.rs::method::Builder.default	method	missing	-	auto-generated
-src/hybrid/regex.rs::method::Builder.dfa	method	missing	-	auto-generated
-src/hybrid/regex.rs::method::Builder.new	method	missing	-	auto-generated
-src/hybrid/regex.rs::method::Builder.syntax	method	missing	-	auto-generated
-src/hybrid/regex.rs::method::Builder.thompson	method	missing	-	auto-generated
-src/hybrid/regex.rs::method::Cache.as_parts	method	missing	-	auto-generated
-src/hybrid/regex.rs::method::Cache.as_parts_mut	method	missing	-	auto-generated
-src/hybrid/regex.rs::method::Cache.forward	method	missing	-	auto-generated
-src/hybrid/regex.rs::method::Cache.forward_mut	method	missing	-	auto-generated
-src/hybrid/regex.rs::method::Cache.memory_usage	method	missing	-	auto-generated
-src/hybrid/regex.rs::method::Cache.new	method	missing	-	auto-generated
-src/hybrid/regex.rs::method::Cache.reset	method	missing	-	auto-generated
-src/hybrid/regex.rs::method::Cache.reverse	method	missing	-	auto-generated
-src/hybrid/regex.rs::method::Cache.reverse_mut	method	missing	-	auto-generated
-src/hybrid/regex.rs::method::FindMatches<'r, 'c, 'h>.next	method	missing	-	auto-generated
-src/hybrid/regex.rs::method::Regex.builder	method	missing	-	auto-generated
-src/hybrid/regex.rs::method::Regex.create_cache	method	missing	-	auto-generated
-src/hybrid/regex.rs::method::Regex.find	method	missing	-	auto-generated
-src/hybrid/regex.rs::method::Regex.find_iter	method	missing	-	auto-generated
-src/hybrid/regex.rs::method::Regex.forward	method	missing	-	auto-generated
-src/hybrid/regex.rs::method::Regex.is_anchored	method	missing	-	auto-generated
-src/hybrid/regex.rs::method::Regex.is_match	method	missing	-	auto-generated
-src/hybrid/regex.rs::method::Regex.new	method	missing	-	auto-generated
-src/hybrid/regex.rs::method::Regex.new_many	method	missing	-	auto-generated
-src/hybrid/regex.rs::method::Regex.pattern_len	method	missing	-	auto-generated
-src/hybrid/regex.rs::method::Regex.reset_cache	method	missing	-	auto-generated
-src/hybrid/regex.rs::method::Regex.reverse	method	missing	-	auto-generated
-src/hybrid/regex.rs::method::Regex.try_search	method	missing	-	auto-generated
+src/hybrid/regex.rs::method::Builder.build	method	ported	src/regex/automata/hybrid.cr:2000;spec/hybrid_spec.cr	Builds hybrid regex wrappers.
+src/hybrid/regex.rs::method::Builder.build_from_dfas	method	ported	src/regex/automata/hybrid.cr:2021;spec/hybrid_spec.cr	Builds wrapper from forward and reverse DFAs.
+src/hybrid/regex.rs::method::Builder.build_many	method	ported	src/regex/automata/hybrid.cr:2004;spec/hybrid_spec.cr	Builds multi-pattern hybrid wrappers.
+src/hybrid/regex.rs::method::Builder.default	method	ported	src/regex/automata/hybrid.cr:1977;spec/hybrid_spec.cr	Crystal constructor supplies the default builder.
+src/hybrid/regex.rs::method::Builder.dfa	method	ported	src/regex/automata/hybrid.cr:1981;spec/hybrid_spec.cr	Applies hybrid DFA configuration.
+src/hybrid/regex.rs::method::Builder.new	method	ported	src/regex/automata/hybrid.cr:1977;spec/hybrid_spec.cr	Default wrapper builder constructor.
+src/hybrid/regex.rs::method::Builder.syntax	method	ported	src/regex/automata/hybrid.cr:1986;spec/hybrid_spec.cr	Applies syntax configuration.
+src/hybrid/regex.rs::method::Builder.thompson	method	ported	src/regex/automata/hybrid.cr:1991;spec/hybrid_spec.cr	Applies Thompson configuration.
+src/hybrid/regex.rs::method::Cache.as_parts	method	ported	src/regex/automata/hybrid.cr:1961;spec/hybrid_spec.cr	Returns forward and reverse caches.
+src/hybrid/regex.rs::method::Cache.as_parts_mut	method	ported	src/regex/automata/hybrid.cr:1965;spec/hybrid_spec.cr	Crystal references are mutable, so this returns the same pair contract.
+src/hybrid/regex.rs::method::Cache.forward	method	ported	src/regex/automata/hybrid.cr:1941;spec/hybrid_spec.cr	Exposes forward cache.
+src/hybrid/regex.rs::method::Cache.forward_mut	method	ported	src/regex/automata/hybrid.cr:1941;spec/hybrid_spec.cr	Crystal getter supplies mutable object reference.
+src/hybrid/regex.rs::method::Cache.memory_usage	method	ported	src/regex/automata/hybrid.cr:1957;spec/hybrid_spec.cr	Sums forward and reverse cache storage.
+src/hybrid/regex.rs::method::Cache.new	method	ported	src/regex/automata/hybrid.cr:1949;spec/hybrid_spec.cr	Creates caches for wrapper DFAs.
+src/hybrid/regex.rs::method::Cache.reset	method	ported	src/regex/automata/hybrid.cr:1953;spec/hybrid_spec.cr	Retargets both reusable caches.
+src/hybrid/regex.rs::method::Cache.reverse	method	ported	src/regex/automata/hybrid.cr:1942;spec/hybrid_spec.cr	Exposes reverse cache.
+src/hybrid/regex.rs::method::Cache.reverse_mut	method	ported	src/regex/automata/hybrid.cr:1942;spec/hybrid_spec.cr	Crystal getter supplies mutable object reference.
+src/hybrid/regex.rs::method::FindMatches<'r, 'c, 'h>.next	method	ported	src/regex/automata/hybrid.cr:1931;spec/hybrid_spec.cr	Advances non-overlapping matches.
+src/hybrid/regex.rs::method::Regex.builder	method	ported	src/regex/automata/hybrid.cr:1827;spec/hybrid_spec.cr	Creates wrapper builder.
+src/hybrid/regex.rs::method::Regex.create_cache	method	ported	src/regex/automata/hybrid.cr:1831;spec/hybrid_spec.cr	Creates coupled forward/reverse cache.
+src/hybrid/regex.rs::method::Regex.find	method	ported	src/regex/automata/hybrid.cr:1863;spec/hybrid_spec.cr	Finds leftmost match with reverse start resolution.
+src/hybrid/regex.rs::method::Regex.find_iter	method	ported	src/regex/automata/hybrid.cr:1869;spec/hybrid_spec.cr	Creates non-overlapping match iterator.
+src/hybrid/regex.rs::method::Regex.forward	method	ported	src/regex/automata/hybrid.cr:1848;spec/hybrid_spec.cr	Exposes forward DFA.
+src/hybrid/regex.rs::method::Regex.is_anchored	method	ported	src/regex/automata/hybrid.cr:1897;spec/hybrid_spec.cr	Determines wrapper anchored behavior from Input and NFA.
+src/hybrid/regex.rs::method::Regex.is_match	method	ported	src/regex/automata/hybrid.cr:1856;spec/hybrid_spec.cr	Runs earliest existence search.
+src/hybrid/regex.rs::method::Regex.new	method	ported	src/regex/automata/hybrid.cr:1819;spec/hybrid_spec.cr	Builds one-pattern wrapper.
+src/hybrid/regex.rs::method::Regex.new_many	method	ported	src/regex/automata/hybrid.cr:1823;spec/hybrid_spec.cr	Builds multi-pattern wrapper.
+src/hybrid/regex.rs::method::Regex.pattern_len	method	ported	src/regex/automata/hybrid.cr:1840;spec/hybrid_spec.cr	Returns pattern count.
+src/hybrid/regex.rs::method::Regex.reset_cache	method	ported	src/regex/automata/hybrid.cr:1835;spec/hybrid_spec.cr	Retargets both caches.
+src/hybrid/regex.rs::method::Regex.reverse	method	ported	src/regex/automata/hybrid.cr:1852;spec/hybrid_spec.cr	Exposes reverse DFA.
+src/hybrid/regex.rs::method::Regex.try_search	method	ported	src/regex/automata/hybrid.cr:1873;spec/hybrid_spec.cr	Combines forward end and reverse start searches.
 src/meta/error.rs::method::BuildError.ast	method	skipped	src/regex/automata/meta_error.cr:BuildError.syntax_error	Rust-private AST conversion; Crystal's regex-syntax parser supplies a unified syntax error.
 src/meta/error.rs::method::BuildError.fmt	method	intentional_divergence	src/regex/automata/meta_error.cr:BuildError	Crystal Exception formatting replaces Rust Display.
 src/meta/error.rs::method::BuildError.hir	method	skipped	src/regex/automata/meta_error.cr:BuildError.syntax_error	Rust-private HIR conversion; Crystal's regex-syntax parser supplies a unified syntax error.

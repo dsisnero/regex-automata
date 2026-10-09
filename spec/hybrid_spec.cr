@@ -507,6 +507,7 @@ describe Regex::Automata::Hybrid::Regex do
     re.memory_usage.should eq(0)
     cache.as_parts[0].should be_a(Regex::Automata::Hybrid::Cache)
     cache.as_parts_mut[1].should be_a(Regex::Automata::Hybrid::Cache)
+    cache.memory_usage.should eq(cache.forward.memory_usage + cache.reverse.memory_usage)
 
     re.find(cache, "zzzfoo123zzz").should eq(
       Regex::Automata::Match.must(0, 3...9)
