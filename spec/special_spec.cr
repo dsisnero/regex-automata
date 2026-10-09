@@ -47,4 +47,23 @@ describe Regex::Automata::Special do
       special.write_to(Bytes.new(special.write_to_len - 1))
     end
   end
+
+  it "rejects malformed special-state ranges" do
+    invalid = Regex::Automata::Special.new(
+      Regex::Automata::StateID.new(1),
+      Regex::Automata::StateID.new(1),
+      Regex::Automata::StateID.new(0),
+      Regex::Automata::StateID.new(1),
+      Regex::Automata::StateID.new(0),
+      Regex::Automata::StateID.new(0),
+      Regex::Automata::StateID.new(0),
+      Regex::Automata::StateID.new(0)
+    )
+    invalid.validate.not_nil!.message.not_nil!.should contain("min_match is DEAD")
+
+    valid = Regex::Automata::Special.new
+    valid.set_quit_id(Regex::Automata::StateID.new(4))
+    valid.validate_state_len(1, 2).not_nil!.message.not_nil!.should contain("max should")
+    valid.validate_state_len(2, 2).should be_nil
+  end
 end

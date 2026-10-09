@@ -547,7 +547,7 @@ src/dfa/sparse.rs::method::Transitions<T>.write_to	method	missing	-	auto-generat
 src/dfa/sparse.rs::method::Transitions<T>.write_to_len	method	missing	-	auto-generated
 src/dfa/special.rs::method::Special.accel_len	method	ported	src/regex/automata/special.cr:154;spec/special_spec.cr	Counts premultiplied accelerated IDs by transition-table stride.
 src/dfa/special.rs::method::Special.accels	method	ported	src/regex/automata/special.cr:194;spec/special_spec.cr	Uses DEAD as the empty accelerated-range sentinel.
-src/dfa/special.rs::method::Special.from_bytes	method	missing	-	auto-generated
+src/dfa/special.rs::method::Special.from_bytes	method	partial	src/regex/automata/special.cr:310;spec/special_spec.cr	Crystal's fixed-width owned Bytes reader returns nil rather than Rust's borrowed slice plus byte count, but validates all special-range invariants.
 src/dfa/special.rs::method::Special.is_accel_state	method	ported	src/regex/automata/special.cr:144;spec/special_spec.cr	Excludes DEAD before checking the accelerated range.
 src/dfa/special.rs::method::Special.is_dead_state	method	ported	src/regex/automata/special.cr:128;spec/special_spec.cr	Recognizes the fixed DEAD state.
 src/dfa/special.rs::method::Special.is_match_state	method	ported	src/regex/automata/special.cr:138;spec/special_spec.cr	Excludes DEAD before checking the match range.
@@ -555,14 +555,14 @@ src/dfa/special.rs::method::Special.is_quit_state	method	ported	src/regex/automa
 src/dfa/special.rs::method::Special.is_special_state	method	ported	src/regex/automata/special.cr:123;spec/special_spec.cr	Uses the maximum special ID fast-path predicate.
 src/dfa/special.rs::method::Special.is_start_state	method	ported	src/regex/automata/special.cr:149;spec/special_spec.cr	Excludes DEAD before checking the start range.
 src/dfa/special.rs::method::Special.match_len	method	ported	src/regex/automata/special.cr:149;spec/special_spec.cr	Counts premultiplied match IDs by transition-table stride.
-src/dfa/special.rs::method::Special.matches	method	missing	-	auto-generated
+src/dfa/special.rs::method::Special.matches	method	ported	src/regex/automata/special.cr:190;spec/special_spec.cr	Uses DEAD as the empty match-range sentinel.
 src/dfa/special.rs::method::Special.new	method	ported	src/regex/automata/special.cr:81;spec/special_spec.cr	Initializes every absent range to the DEAD sentinel.
 src/dfa/special.rs::method::Special.remap	method	ported	src/regex/automata/special.cr:108;spec/special_spec.cr	Remaps all special IDs through a state permutation.
 src/dfa/special.rs::method::Special.set_max	method	ported	src/regex/automata/special.cr:276;spec/special_spec.cr	Maintains maximum special ID after category updates.
 src/dfa/special.rs::method::Special.set_no_special_start_states	method	ported	src/regex/automata/special.cr:211;spec/special_spec.cr	Removes start IDs from the special-state fast path.
 src/dfa/special.rs::method::Special.starts	method	ported	src/regex/automata/special.cr:198;spec/special_spec.cr	Uses DEAD as the empty start-range sentinel.
-src/dfa/special.rs::method::Special.validate	method	missing	-	auto-generated
-src/dfa/special.rs::method::Special.validate_state_len	method	missing	-	auto-generated
+src/dfa/special.rs::method::Special.validate	method	ported	src/regex/automata/special.cr:333;spec/special_spec.cr	Validates sentinels, ranges, ordering, and maximum special ID.
+src/dfa/special.rs::method::Special.validate_state_len	method	ported	src/regex/automata/special.cr:357;spec/special_spec.cr	Checks premultiplied maximum ID against state-table length.
 src/dfa/special.rs::method::Special.write_to	method	ported	src/regex/automata/special.cr:285;spec/special_spec.cr	Writes eight fixed-width state IDs after validating destination size.
 src/dfa/special.rs::method::Special.write_to_len	method	ported	src/regex/automata/special.cr:303;spec/special_spec.cr	Reports the eight-ID fixed-width wire size.
 src/dfa/start.rs::method::StartKind.from_bytes	method	intentional_divergence	src/regex/automata/dfa.cr:256	Crystal's versioned DFA wire format reads anchored capability from flags and start tables instead of a standalone StartKind field

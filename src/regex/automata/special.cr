@@ -314,7 +314,7 @@ module Regex::Automata
         offset += 4
       end
 
-      Special.new(
+      special = Special.new(
         max: ids[0],
         quit_id: ids[1],
         min_match: ids[2],
@@ -324,6 +324,41 @@ module Regex::Automata
         min_start: ids[6],
         max_start: ids[7]
       )
+      return nil if special.validate
+
+      special
+    end
+
+    # Returns a decode error unless the special-state ranges preserve the
+    # ordering and sentinel invariants used by dense DFA search.
+    def validate : DeserializeError?
+      return DeserializeError.generic("min_match is DEAD, but max_match is not") if @min_match == DEAD_STATE_ID && @max_match != DEAD_STATE_ID
+      return DeserializeError.generic("max_match is DEAD, but min_match is not") if @min_match != DEAD_STATE_ID && @max_match == DEAD_STATE_ID
+      return DeserializeError.generic("min_accel is DEAD, but max_accel is not") if @min_accel == DEAD_STATE_ID && @max_accel != DEAD_STATE_ID
+      return DeserializeError.generic("max_accel is DEAD, but min_accel is not") if @min_accel != DEAD_STATE_ID && @max_accel == DEAD_STATE_ID
+      return DeserializeError.generic("min_start is DEAD, but max_start is not") if @min_start == DEAD_STATE_ID && @max_start != DEAD_STATE_ID
+      return DeserializeError.generic("max_start is DEAD, but min_start is not") if @min_start != DEAD_STATE_ID && @max_start == DEAD_STATE_ID
+      return DeserializeError.generic("min_match should not be greater than max_match") if @min_match > @max_match
+      return DeserializeError.generic("min_accel should not be greater than max_accel") if @min_accel > @max_accel
+      return DeserializeError.generic("min_start should not be greater than max_start") if @min_start > @max_start
+      return DeserializeError.generic("quit_id should not be greater than min_match") if matches? && @quit_id >= @min_match
+      return DeserializeError.generic("quit_id should not be greater than min_accel") if accels? && @quit_id >= @min_accel
+      return DeserializeError.generic("quit_id should not be greater than min_start") if starts? && @quit_id >= @min_start
+      return DeserializeError.generic("min_match should not be greater than min_accel") if matches? && accels? && @min_accel < @min_match
+      return DeserializeError.generic("min_match should not be greater than min_start") if matches? && starts? && @min_start < @min_match
+      return DeserializeError.generic("min_accel should not be greater than min_start") if accels? && starts? && @min_start < @min_accel
+      return DeserializeError.generic("quit_id should not be greater than max") if @max < @quit_id
+      return DeserializeError.generic("max_match should not be greater than max") if @max < @max_match
+      return DeserializeError.generic("max_accel should not be greater than max") if @max < @max_accel
+      return DeserializeError.generic("max_start should not be greater than max") if @max < @max_start
+
+      nil
+    end
+
+    def validate_state_len(state_len : Int32, stride2 : Int32) : DeserializeError?
+      return DeserializeError.generic("max should not be greater than or equal to state length") if (@max.to_i >> stride2) >= state_len
+
+      nil
     end
   end
 end
