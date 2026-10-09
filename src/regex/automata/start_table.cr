@@ -176,6 +176,11 @@ module Regex::Automata
       entries
     end
 
+    # Logical StateID payload bytes, excluding Crystal Hash object overhead.
+    def memory_usage : Int32
+      (iter.size * sizeof(StateID)).to_i32
+    end
+
     def remap(&block : StateID -> StateID) : StartTable
       unanchored = yield @unanchored
       anchored = yield @anchored
