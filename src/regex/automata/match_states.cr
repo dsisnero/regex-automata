@@ -41,6 +41,26 @@ module Regex::Automata
       new(state_to_match_index, slices, pattern_ids, pattern_len || inferred_pattern_len, tt)
     end
 
+    # Builds flattened match metadata from the ordered map form used by DFA
+    # transformations. The transition table supplies premultiplied ID indexes.
+    def self.from_map(matches : Hash(StateID, Array(PatternID)), pattern_len : Int32, tt : TransitionTable) : MatchStates
+      state_to_match_index = Array(Int32?).new(tt.len, nil)
+      slices = [] of Tuple(Int32, Int32)
+      pattern_ids = [] of PatternID
+
+      matches.keys.sort_by(&.to_i).each do |id|
+        raise ArgumentError.new("invalid match state ID") unless tt.is_valid(id)
+        pids = matches[id]
+        pids.each do |pattern_id|
+          raise ArgumentError.new("invalid pattern ID") unless 0 <= pattern_id.to_i < pattern_len
+        end
+        state_to_match_index[tt.to_index(id)] = slices.size
+        slices << {pattern_ids.size, pids.size}
+        pattern_ids.concat(pids)
+      end
+      new(state_to_match_index, slices, pattern_ids, pattern_len, tt)
+    end
+
     def initialize(@state_to_match_index : Array(Int32?), @slices : Array(Tuple(Int32, Int32)), @pattern_ids : Array(PatternID), @pattern_len : Int32, @tt : TransitionTable?)
     end
 

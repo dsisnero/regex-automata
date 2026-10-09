@@ -56,6 +56,13 @@ describe "DFA::Dense" do
     bytes[24, 4].should eq(Bytes[1, 0, 0, 0])
   end
 
+  it "rebuilds dense match metadata from a state map" do
+    dfa = Regex::Automata::DFA::DFA.new_many(["a", "a"])
+    rebuilt = Regex::Automata::MatchStates.from_map(dfa.pattern_map, dfa.pattern_len, dfa.tt.not_nil!)
+
+    rebuilt.to_map.should eq(dfa.pattern_map)
+  end
+
   it "iterates dense start states in unanchored then anchored order" do
     table = Regex::Automata::StartTable.new(
       Regex::Automata::StartKind::Both,

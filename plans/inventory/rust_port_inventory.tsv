@@ -191,7 +191,7 @@ src/dfa/dense.rs::method::MatchStates<T>.validate	method	partial	src/regex/autom
 src/dfa/dense.rs::method::MatchStates<T>.write_to	method	ported	src/regex/automata/match_states.cr:MatchStates#write_to;spec/dfa_dense_spec.cr	Writes the standalone slice/pattern-ID payload in explicit little or big endian order.
 src/dfa/dense.rs::method::MatchStates<T>.write_to_len	method	ported	src/regex/automata/match_states.cr:MatchStates#write_to_len;spec/dfa_dense_spec.cr	Reports the exact standalone match-state payload size.
 src/dfa/dense.rs::method::MatchStates<Vec<u32>>.empty	method	ported	src/regex/automata/match_states.cr:17;spec/dfa_dense_spec.cr	Creates empty owned metadata with declared pattern count.
-src/dfa/dense.rs::method::MatchStates<Vec<u32>>.new	method	missing	-	auto-generated
+src/dfa/dense.rs::method::MatchStates<Vec<u32>>.new	method	ported	src/regex/automata/match_states.cr:MatchStates.from_map;spec/dfa_dense_spec.cr	Builds flattened owned metadata from ordered state-to-pattern map input.
 src/dfa/dense.rs::method::MatchStates<Vec<u32>>.new_with_map	method	missing	-	auto-generated
 src/dfa/dense.rs::method::OwnedDFA.accelerate	method	missing	-	auto-generated
 src/dfa/dense.rs::method::OwnedDFA.add_empty_state	method	missing	-	auto-generated
