@@ -1392,6 +1392,18 @@ module Regex::Automata::DFA
       Array.new(match_len(id)) { |index| match_pattern(id, index) }
     end
 
+    # Reconstruct the match-state-to-pattern-ID map used by DFA
+    # transformations. The map follows transition-table order, just as the
+    # Rust dense DFA's builder representation does.
+    def pattern_map : Hash(StateID, Array(PatternID))
+      map = Hash(StateID, Array(PatternID)).new
+      state_len.times do |index|
+        id = to_state_id(index)
+        map[id] = pattern_id_slice(id) if is_match_state?(id)
+      end
+      map
+    end
+
     # Returns true if and only if this automaton is guaranteed to be valid for UTF-8 input
     def is_utf8? : Bool
       @flags.is_utf8

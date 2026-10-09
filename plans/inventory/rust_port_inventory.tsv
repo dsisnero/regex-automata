@@ -141,7 +141,7 @@ src/dfa/dense.rs::method::DFA<T>.next_state	method	ported	src/regex/automata/dfa
 src/dfa/dense.rs::method::DFA<T>.next_state_unchecked	method	partial	src/regex/automata/dfa.cr:DFA#next_state_unchecked	Same operation is exposed, but Crystal cannot express Rust unchecked-memory safety contract.
 src/dfa/dense.rs::method::DFA<T>.pattern_id_slice	method	ported	src/regex/automata/dfa.cr:DFA#pattern_id_slice;spec/dfa_dense_spec.cr	Returns matching pattern IDs in priority order from the state’s flattened match metadata.
 src/dfa/dense.rs::method::DFA<T>.pattern_len	method	ported	src/regex/automata/dfa.cr:DFA#pattern_len;spec/dfa_dense_spec.cr	Crystal reports pattern count.
-src/dfa/dense.rs::method::DFA<T>.pattern_map	method	missing	-	auto-generated
+src/dfa/dense.rs::method::DFA<T>.pattern_map	method	ported	src/regex/automata/dfa.cr:DFA#pattern_map;spec/dfa_dense_spec.cr	Reconstructs the ordered match-state-to-pattern-ID map from flattened match metadata.
 src/dfa/dense.rs::method::DFA<T>.quit_id	method	ported	src/regex/automata/dfa.cr:DFA#quit_id;spec/dfa_api_spec.cr	Returns the premultiplied quit-state ID.
 src/dfa/dense.rs::method::DFA<T>.quitset	method	ported	src/regex/automata/dfa.cr:DFA#quitset;spec/dfa_api_spec.cr	Returns the configured quit-byte set.
 src/dfa/dense.rs::method::DFA<T>.set_prefilter	method	ported	src/regex/automata/dfa.cr:DFA#set_prefilter;spec/dfa_dense_spec.cr	Attach/clear behavior and flags are covered.

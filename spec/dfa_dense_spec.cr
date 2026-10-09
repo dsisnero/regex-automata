@@ -34,6 +34,14 @@ describe "DFA::Dense" do
     dfa.pattern_id_slice(state).should eq([Regex::Automata::PatternID.new(0), Regex::Automata::PatternID.new(1)])
   end
 
+  it "reconstructs the dense match-state pattern map" do
+    dfa = Regex::Automata::DFA::DFA.new_many(["a", "a"])
+    state = dfa.next_eoi_state(dfa.next_state(dfa.start, 'a'.ord.to_u8))
+
+    dfa.pattern_map[state].should eq([Regex::Automata::PatternID.new(0), Regex::Automata::PatternID.new(1)])
+    dfa.pattern_map.keys.each { |id| dfa.is_match_state?(id).should be_true }
+  end
+
   it "iterates dense start states in unanchored then anchored order" do
     table = Regex::Automata::StartTable.new(
       Regex::Automata::StartKind::Both,
