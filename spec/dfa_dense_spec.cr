@@ -55,6 +55,19 @@ describe "DFA::Dense" do
     starts[6].should eq({Regex::Automata::StateID.new(4), Regex::Automata::Anchored::Yes, Regex::Automata::Start::NonWordByte, nil})
   end
 
+  it "owns an independent dense start-table snapshot" do
+    table = Regex::Automata::StartTable.new(
+      Regex::Automata::StartKind::Both,
+      Regex::Automata::StateID.new(2),
+      Regex::Automata::StateID.new(4)
+    )
+
+    copy = table.to_owned
+    copy.unanchored_states[Regex::Automata::Start::Text] = Regex::Automata::StateID.new(9)
+    table.start(Regex::Automata::Anchored::No, Regex::Automata::Start::Text).should eq(Regex::Automata::StateID.new(2))
+    copy.start(Regex::Automata::Anchored::No, Regex::Automata::Start::Text).should eq(Regex::Automata::StateID.new(9))
+  end
+
   it "exposes dense start states through the DFA" do
     dfa = Regex::Automata::DFA::DFA.new("abc")
     dfa.starts.size.should eq(12)

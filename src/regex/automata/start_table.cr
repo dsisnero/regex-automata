@@ -181,6 +181,21 @@ module Regex::Automata
       (iter.size * sizeof(StateID)).to_i32
     end
 
+    # Returns an independent owned copy suitable for DFA transformations.
+    def to_owned : StartTable
+      StartTable.new(
+        @kind,
+        @unanchored,
+        @anchored,
+        @unanchored_states.dup,
+        @anchored_states.dup,
+        @pattern_states.transform_values(&.dup),
+        @universal_start_unanchored,
+        @universal_start_anchored,
+        @dead
+      )
+    end
+
     def remap(&block : StateID -> StateID) : StartTable
       unanchored = yield @unanchored
       anchored = yield @anchored
