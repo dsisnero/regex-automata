@@ -1025,57 +1025,57 @@ src/meta/wrappers.rs::method::ReverseHybridCache.none	method	missing	-	auto-gene
 src/meta/wrappers.rs::method::ReverseHybridCache.reset	method	missing	-	auto-generated
 src/meta/wrappers.rs::method::ReverseHybridEngine.new	method	missing	-	auto-generated
 src/meta/wrappers.rs::method::ReverseHybridEngine.try_search_half_rev_limited	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::const::BLOCK_SIZE	const	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::const::DEFAULT	const	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.always_match	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.backtrack	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.builder	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.config	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.create_cache	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.create_captures	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.get_config	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.get_nfa	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.max_haystack_len	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.never_match	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.new	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.new_from_nfa	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.new_many	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.pattern_len	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.reset_cache	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.search_imp	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.step	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.try_captures	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.try_captures_iter	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.try_find	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.try_find_iter	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.try_is_match	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.try_search	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.try_search_slots	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.try_search_slots_imp	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::Builder.build	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::Builder.build_from_nfa	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::Builder.build_many	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::Builder.configure	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::Builder.new	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::Builder.syntax	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::Builder.thompson	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::Cache.memory_usage	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::Cache.new	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::Cache.reset	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::Cache.setup_search	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::Config.get_prefilter	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::Config.get_visited_capacity	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::Config.new	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::Config.overwrite	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::Config.prefilter	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::Config.visited_capacity	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::TryCapturesMatches<'r, 'c, 'h>.next	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::TryFindMatches<'r, 'c, 'h>.next	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::Visited.insert	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::Visited.memory_usage	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::Visited.new	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::Visited.reset	method	missing	-	auto-generated
-src/nfa/thompson/backtrack.rs::method::Visited.setup_search	method	missing	-	auto-generated
+src/nfa/thompson/backtrack.rs::const::BLOCK_SIZE	const	ported	src/regex/automata/backtrack.cr:5;spec/backtrack_spec.cr	Uses 64-bit visited-bitset blocks.
+src/nfa/thompson/backtrack.rs::const::DEFAULT	const	ported	src/regex/automata/backtrack.cr:6;spec/backtrack_spec.cr	Default visited capacity matches Rust.
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.always_match	method	ported	src/regex/automata/backtrack.cr:261;spec/backtrack_spec.cr	Builds an always-match backtracker.
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.backtrack	method	ported	src/regex/automata/backtrack.cr:464;spec/backtrack_spec.cr	Runs explicit-stack bounded DFS with capture restoration.
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.builder	method	ported	src/regex/automata/backtrack.cr:273;spec/backtrack_spec.cr	Creates the backtracker builder.
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.config	method	ported	src/regex/automata/backtrack.cr:269;spec/backtrack_spec.cr	Creates default backtracker config.
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.create_cache	method	ported	src/regex/automata/backtrack.cr:277;spec/backtrack_spec.cr	Creates cache-owned stack and visited bitset.
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.create_captures	method	ported	src/regex/automata/backtrack.cr:281;spec/backtrack_spec.cr	Creates full capture storage.
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.get_config	method	ported	src/regex/automata/backtrack.cr:293;spec/backtrack_spec.cr	Returns configuration.
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.get_nfa	method	ported	src/regex/automata/backtrack.cr:297;spec/backtrack_spec.cr	Returns Thompson NFA.
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.max_haystack_len	method	ported	src/regex/automata/backtrack.cr:309;spec/backtrack_spec.cr	Computes capacity-rounded maximum haystack length.
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.never_match	method	ported	src/regex/automata/backtrack.cr:265;spec/backtrack_spec.cr	Builds a never-match backtracker.
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.new	method	ported	src/regex/automata/backtrack.cr:249;spec/backtrack_spec.cr	Builds a one-pattern backtracker.
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.new_from_nfa	method	ported	src/regex/automata/backtrack.cr:257;spec/backtrack_spec.cr	Builds from Thompson NFA.
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.new_many	method	ported	src/regex/automata/backtrack.cr:253;spec/backtrack_spec.cr	Builds multi-pattern backtracker.
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.pattern_len	method	ported	src/regex/automata/backtrack.cr:289;spec/backtrack_spec.cr	Returns pattern count.
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.reset_cache	method	ported	src/regex/automata/backtrack.cr:285;spec/backtrack_spec.cr	Reuses cache allocations for another backtracker.
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.search_imp	method	ported	src/regex/automata/backtrack.cr:425;spec/backtrack_spec.cr	Runs anchored or unanchored direct backtracking search.
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.step	method	ported	src/regex/automata/backtrack.cr:478;spec/backtrack_spec.cr	Consumes transitions and follows epsilon branches in priority order.
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.try_captures	method	ported	src/regex/automata/backtrack.cr:360;spec/backtrack_spec.cr	Runs fallible capture search.
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.try_captures_iter	method	ported	src/regex/automata/backtrack.cr:369;spec/backtrack_spec.cr	Creates fallible capture iterator.
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.try_find	method	ported	src/regex/automata/backtrack.cr:331;spec/backtrack_spec.cr	Runs fallible leftmost search.
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.try_find_iter	method	ported	src/regex/automata/backtrack.cr:365;spec/backtrack_spec.cr	Creates fallible match iterator.
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.try_is_match	method	ported	src/regex/automata/backtrack.cr:322;spec/backtrack_spec.cr	Runs earliest existence search.
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.try_search	method	ported	src/regex/automata/backtrack.cr:373;spec/backtrack_spec.cr	Writes captures from direct bounded search.
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.try_search_slots	method	ported	src/regex/automata/backtrack.cr:382;spec/backtrack_spec.cr	Supports arbitrary caller slot lengths.
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.try_search_slots_imp	method	ported	src/regex/automata/backtrack.cr:413;spec/backtrack_spec.cr	Retries UTF-8 empty matches that split a codepoint.
+src/nfa/thompson/backtrack.rs::method::Builder.build	method	ported	src/regex/automata/backtrack.cr:77;spec/backtrack_spec.cr	Builds configured backtrackers.
+src/nfa/thompson/backtrack.rs::method::Builder.build_from_nfa	method	ported	src/regex/automata/backtrack.cr:89;spec/backtrack_spec.cr	Validates look availability and builds direct engine.
+src/nfa/thompson/backtrack.rs::method::Builder.build_many	method	ported	src/regex/automata/backtrack.cr:81;spec/backtrack_spec.cr	Compiles many patterns into one NFA.
+src/nfa/thompson/backtrack.rs::method::Builder.configure	method	ported	src/regex/automata/backtrack.cr:96;spec/backtrack_spec.cr	Merges backtracker config.
+src/nfa/thompson/backtrack.rs::method::Builder.new	method	ported	src/regex/automata/backtrack.cr:73;spec/backtrack_spec.cr	Creates default builder.
+src/nfa/thompson/backtrack.rs::method::Builder.syntax	method	ported	src/regex/automata/backtrack.cr:101;spec/backtrack_spec.cr	Applies syntax config.
+src/nfa/thompson/backtrack.rs::method::Builder.thompson	method	ported	src/regex/automata/backtrack.cr:106;spec/backtrack_spec.cr	Applies Thompson compiler config.
+src/nfa/thompson/backtrack.rs::method::Cache.memory_usage	method	ported	src/regex/automata/backtrack.cr:130;spec/backtrack_spec.cr	Reports current DFS stack and visited-bitset storage.
+src/nfa/thompson/backtrack.rs::method::Cache.new	method	ported	src/regex/automata/backtrack.cr:116;spec/backtrack_spec.cr	Creates reusable stack and visited cache.
+src/nfa/thompson/backtrack.rs::method::Cache.reset	method	ported	src/regex/automata/backtrack.cr:125;spec/backtrack_spec.cr	Clears stack and visited table for another engine.
+src/nfa/thompson/backtrack.rs::method::Cache.setup_search	method	ported	src/regex/automata/backtrack.cr:134;spec/backtrack_spec.cr	Clears stack and initializes bounded visited table.
+src/nfa/thompson/backtrack.rs::method::Config.get_prefilter	method	ported	src/regex/automata/backtrack.cr:42;spec/backtrack_spec.cr	Returns configured prefilter.
+src/nfa/thompson/backtrack.rs::method::Config.get_visited_capacity	method	ported	src/regex/automata/backtrack.cr:46;spec/backtrack_spec.cr	Returns effective visited capacity.
+src/nfa/thompson/backtrack.rs::method::Config.new	method	ported	src/regex/automata/backtrack.cr:27;spec/backtrack_spec.cr	Creates default configuration.
+src/nfa/thompson/backtrack.rs::method::Config.overwrite	method	ported	src/regex/automata/backtrack.cr:50;spec/backtrack_spec.cr	Merges optional prefilter and capacity settings.
+src/nfa/thompson/backtrack.rs::method::Config.prefilter	method	ported	src/regex/automata/backtrack.cr:31;spec/backtrack_spec.cr	Configures prefilter.
+src/nfa/thompson/backtrack.rs::method::Config.visited_capacity	method	ported	src/regex/automata/backtrack.cr:37;spec/backtrack_spec.cr	Configures visited-bitset capacity.
+src/nfa/thompson/backtrack.rs::method::TryCapturesMatches<'r, 'c, 'h>.next	method	ported	src/regex/automata/backtrack.cr:229;spec/backtrack_spec.cr	Yields capture snapshots or search errors.
+src/nfa/thompson/backtrack.rs::method::TryFindMatches<'r, 'c, 'h>.next	method	ported	src/regex/automata/backtrack.cr:211;spec/backtrack_spec.cr	Yields matches or search errors.
+src/nfa/thompson/backtrack.rs::method::Visited.insert	method	ported	src/regex/automata/backtrack.cr:189;spec/backtrack_spec.cr	Marks state/relative-offset pairs in a reusable bitset.
+src/nfa/thompson/backtrack.rs::method::Visited.memory_usage	method	ported	src/regex/automata/backtrack.cr:200;spec/backtrack_spec.cr	Reports active visited-bitset bytes.
+src/nfa/thompson/backtrack.rs::method::Visited.new	method	ported	src/regex/automata/backtrack.cr:160;spec/backtrack_spec.cr	Creates an empty reusable visited table.
+src/nfa/thompson/backtrack.rs::method::Visited.reset	method	ported	src/regex/automata/backtrack.cr:166;spec/backtrack_spec.cr	Clears active visited entries for a new engine.
+src/nfa/thompson/backtrack.rs::method::Visited.setup_search	method	ported	src/regex/automata/backtrack.cr:171;spec/backtrack_spec.cr	Allocates and clears only the bounded state/offset table needed for a search.
 src/nfa/thompson/builder.rs::method::Builder.add	method	missing	-	auto-generated
 src/nfa/thompson/builder.rs::method::Builder.add_capture_end	method	missing	-	auto-generated
 src/nfa/thompson/builder.rs::method::Builder.add_capture_start	method	missing	-	auto-generated

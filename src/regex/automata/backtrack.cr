@@ -88,14 +88,7 @@ module Regex::Automata::NFA
 
       def build_from_nfa(nfa : Regex::Automata::NFA::NFA) : BoundedBacktracker
         nfa.look_set_any.available
-        pikevm = Regex::Automata::NFA::PikeVM.builder
-          .configure(
-            Regex::Automata::NFA::PikeVM.config
-              .match_kind(Regex::Automata::MatchKind::LeftmostFirst)
-              .prefilter(@config.get_prefilter)
-          )
-          .build_from_nfa(nfa)
-        BoundedBacktracker.new(@config, nfa, pikevm)
+        BoundedBacktracker.new(@config, nfa)
       rescue ex : Regex::Automata::UnicodeWordBoundaryError
         raise Regex::Automata::BuildError.new(ex.message)
       end
@@ -117,13 +110,12 @@ module Regex::Automata::NFA
     end
 
     class Cache
-      getter inner : Regex::Automata::NFA::PikeVM::Cache
-
-      @visited_bytes : Int64
+      @stack : Array(Frame)
+      @visited : Visited
 
       def initialize(re : BoundedBacktracker)
-        @inner = re.pikevm.create_cache
-        @visited_bytes = visited_bytes_for(re)
+        @stack = [] of Frame
+        @visited = Visited.new(re)
       end
 
       def self.new(re : BoundedBacktracker) : Cache
@@ -131,18 +123,82 @@ module Regex::Automata::NFA
       end
 
       def reset(re : BoundedBacktracker) : Nil
-        re.pikevm.reset_cache(@inner)
-        @visited_bytes = visited_bytes_for(re)
+        @stack.clear
+        @visited.reset(re)
       end
 
       def memory_usage : Int32
-        (@inner.memory_usage.to_i64 + @visited_bytes).clamp(0_i64, Int32::MAX.to_i64).to_i32
+        (@stack.size.to_i64 * sizeof(Frame) + @visited.memory_usage).clamp(0_i64, Int32::MAX.to_i64).to_i32
       end
 
-      private def visited_bytes_for(re : BoundedBacktracker) : Int64
-        capacity = re.get_config.get_visited_capacity
-        blocks = Backtrack.div_ceil(capacity * 8_i64, BLOCK_SIZE)
-        blocks * (BLOCK_SIZE // 8_i64)
+      def setup_search(re : BoundedBacktracker, input : Regex::Automata::Input) : Regex::Automata::MatchError?
+        @stack.clear
+        @visited.setup_search(re, input)
+      end
+
+      def push(frame : Frame) : Nil
+        @stack << frame
+      end
+
+      def pop : Frame?
+        @stack.pop?
+      end
+
+      def visited_insert(id : Regex::Automata::StateID, at : Int32) : Bool
+        @visited.insert(id, at)
+      end
+    end
+
+    private record StepFrame, id : Regex::Automata::StateID, at : Int32
+    private record RestoreCaptureFrame, slot : Int32, offset : Int32?
+    private alias Frame = StepFrame | RestoreCaptureFrame
+
+    private class Visited
+      @bitset : Array(UInt64)
+      @stride : Int32
+
+      def initialize(re : BoundedBacktracker)
+        @bitset = [] of UInt64
+        @stride = 0
+        reset(re)
+      end
+
+      def reset(re : BoundedBacktracker) : Nil
+        @bitset.clear
+        @stride = 0
+      end
+
+      def setup_search(re : BoundedBacktracker, input : Regex::Automata::Input) : Regex::Automata::MatchError?
+        haylen = input.get_span.length
+        @stride = haylen + 1
+        needed_capacity = re.get_nfa.states.size.to_i64 * @stride
+        max_capacity = 8_i64 * re.get_config.get_visited_capacity
+        return Regex::Automata::MatchError.haystack_too_long(haylen) if needed_capacity > max_capacity
+
+        needed_blocks = Backtrack.div_ceil(needed_capacity, BLOCK_SIZE).to_i
+        while @bitset.size < needed_blocks
+          @bitset << 0_u64
+        end
+        while @bitset.size > needed_blocks
+          @bitset.pop
+        end
+        @bitset.fill(0_u64)
+        nil
+      end
+
+      def insert(id : Regex::Automata::StateID, at : Int32) : Bool
+        table_index = id.to_i64 * @stride + at
+        block_index = (table_index // BLOCK_SIZE).to_i
+        bit = (table_index % BLOCK_SIZE).to_i
+        mask = 1_u64 << bit
+        return false unless (@bitset[block_index] & mask) == 0
+
+        @bitset[block_index] |= mask
+        true
+      end
+
+      def memory_usage : Int64
+        @bitset.size.to_i64 * sizeof(UInt64)
       end
     end
 
@@ -187,9 +243,7 @@ module Regex::Automata::NFA
     end
 
     class BoundedBacktracker
-      getter pikevm : Regex::Automata::NFA::PikeVM
-
-      def initialize(@config : Config, @nfa : Regex::Automata::NFA::NFA, @pikevm : Regex::Automata::NFA::PikeVM)
+      def initialize(@config : Config, @nfa : Regex::Automata::NFA::NFA)
       end
 
       def self.new(pattern : String) : BoundedBacktracker
@@ -317,29 +371,183 @@ module Regex::Automata::NFA
       end
 
       def try_search(cache : Cache, input : Regex::Automata::Input, caps : Regex::Automata::Captures) : Nil | Regex::Automata::MatchError
-        error = haystack_length_error(input)
-        return error if error
+        caps.clear
+        result = try_search_slots_int(cache, input, caps.slots_mut)
+        return result if result.is_a?(Regex::Automata::MatchError)
 
-        @pikevm.search(cache.inner, input, caps)
+        caps.set_pattern(result)
         nil
       end
 
       def try_search_slots(cache : Cache, input : Regex::Automata::Input, slots : Array(Regex::Automata::NonMaxUsize?)) : Regex::Automata::PatternID? | Regex::Automata::MatchError
-        error = haystack_length_error(input)
-        return error if error
+        slots.fill(nil)
+        plain_slots = Array(Int32?).new(slots.size, nil)
+        result = try_search_slots_int(cache, input, plain_slots)
+        return result if result.is_a?(Regex::Automata::MatchError)
 
-        @pikevm.search_slots(cache.inner, input, slots)
+        index = 0
+        while index < slots.size
+          slots[index] = plain_slots[index].try { |offset| Regex::Automata::NonMaxUsize.new(offset).not_nil! }
+          index += 1
+        end
+        result
       end
 
-      private def haystack_length_error(input : Regex::Automata::Input) : Regex::Automata::MatchError?
-        haylen = input.get_span.length.to_i64
-        states_len = @nfa.states.size.to_i64
-        stride = haylen + 1_i64
-        needed_capacity = states_len * stride
-        max_capacity = 8_i64 * @config.get_visited_capacity
-        return Regex::Automata::MatchError.haystack_too_long(input.get_span.length) if needed_capacity > max_capacity
+      private def try_search_slots_int(cache : Cache, input : Regex::Automata::Input, slots : Array(Int32?)) : Regex::Automata::PatternID? | Regex::Automata::MatchError
+        slots.fill(nil)
+        required_slots = @nfa.group_info.implicit_slot_len
+        plain_slots = Array(Int32?).new(Math.max(required_slots, slots.size), nil)
+        result = try_search_slots_imp(cache, input.clone, plain_slots)
+        return result if result.is_a?(Regex::Automata::MatchError)
+        return nil unless half_match = result
 
+        index = 0
+        limit = Math.min(slots.size, plain_slots.size)
+        while index < limit
+          slots[index] = plain_slots[index]
+          index += 1
+        end
+        half_match.pattern
+      end
+
+      private def try_search_slots_imp(cache : Cache, input : Regex::Automata::Input, slots : Array(Int32?)) : Regex::Automata::HalfMatch? | Regex::Automata::MatchError
+        loop do
+          result = search_imp(cache, input, slots)
+          return result if result.is_a?(Regex::Automata::MatchError) || result.nil?
+          return result unless should_skip_empty_utf8_match?(input, result, slots)
+
+          next_start = result.offset + 1
+          return nil if next_start > input.end
+          input.set_start(next_start)
+        end
+      end
+
+      private def search_imp(cache : Cache, input : Regex::Automata::Input, slots : Array(Int32?)) : Regex::Automata::HalfMatch? | Regex::Automata::MatchError
+        slots.fill(nil)
+        if error = cache.setup_search(self, input)
+          return error
+        end
+        return nil if input.is_done
+
+        anchored, start_id = case input.get_anchored
+                             when Regex::Automata::Anchored::No
+                               {@nfa.is_always_start_anchored, @nfa.start_anchored}
+                             when Regex::Automata::Anchored::Yes
+                               {true, @nfa.start_anchored}
+                             when Regex::Automata::Anchored::Pattern
+                               pid = input.pattern
+                               return nil unless pid
+                               sid = @nfa.start_pattern(pid)
+                               return nil unless sid
+                               {true, sid}
+                             else
+                               return nil
+                             end
+        return backtrack(cache, input, input.start, start_id, slots) if anchored
+
+        at = input.start
+        prefilter = @config.get_prefilter
+        while at <= input.end
+          if prefilter
+            found = prefilter.find(input.haystack, Regex::Automata::Span.new(at, input.end))
+            break unless found
+            at = found.start
+          end
+          if half_match = backtrack(cache, input, at, start_id, slots)
+            return half_match
+          end
+          at += 1
+        end
         nil
+      end
+
+      private def backtrack(cache : Cache, input : Regex::Automata::Input, at : Int32, start_id : Regex::Automata::StateID, slots : Array(Int32?)) : Regex::Automata::HalfMatch?
+        cache.push(StepFrame.new(start_id, at))
+        while frame = cache.pop
+          if frame.is_a?(RestoreCaptureFrame)
+            slots[frame.slot] = frame.offset
+            next
+          end
+          if half_match = step(cache, input, frame.as(StepFrame).id, frame.as(StepFrame).at, slots)
+            return half_match
+          end
+        end
+        nil
+      end
+
+      private def step(cache : Cache, input : Regex::Automata::Input, start_id : Regex::Automata::StateID, start_at : Int32, slots : Array(Int32?)) : Regex::Automata::HalfMatch?
+        sid = start_id
+        at = start_at
+        loop do
+          return nil unless cache.visited_insert(sid, at - input.start)
+
+          case state = @nfa.state(sid)
+          when ByteRange
+            return nil if at >= input.end || !state.trans.matches(input.haystack, at)
+            sid = state.trans.next
+            at += 1
+          when Sparse
+            return nil if at >= input.end
+            next_id = state.matches(input.haystack, at)
+            return nil unless next_id
+            sid = next_id
+            at += 1
+          when Look
+            return nil unless look_matches?(state.kind, input.haystack, at)
+            sid = state.next
+          when Union
+            return nil if state.alternates.empty?
+            (state.alternates.size - 1).downto(1) { |index| cache.push(StepFrame.new(state.alternates[index], at)) }
+            sid = state.alternates[0]
+          when BinaryUnion
+            cache.push(StepFrame.new(state.alt2, at))
+            sid = state.alt1
+          when Capture
+            if state.slot < slots.size
+              cache.push(RestoreCaptureFrame.new(state.slot, slots[state.slot]))
+              slots[state.slot] = at
+            end
+            sid = state.next
+          when Empty
+            sid = state.next
+          when Fail
+            return nil
+          when Match
+            return Regex::Automata::HalfMatch.new(state.pattern_id, at)
+          end
+        end
+      end
+
+      private def look_matches?(kind : Look::Kind, haystack : Bytes, at : Int32) : Bool
+        look = case kind
+               when Look::Kind::StartLF              then Regex::Automata::Look::StartLF
+               when Look::Kind::EndLF                then Regex::Automata::Look::EndLF
+               when Look::Kind::StartCRLF            then Regex::Automata::Look::StartCRLF
+               when Look::Kind::EndCRLF              then Regex::Automata::Look::EndCRLF
+               when Look::Kind::WordBoundaryAscii    then Regex::Automata::Look::WordAscii
+               when Look::Kind::NonWordBoundaryAscii then Regex::Automata::Look::WordAsciiNegate
+               when Look::Kind::WordBoundaryUnicode  then Regex::Automata::Look::WordUnicode
+               when Look::Kind::NonWordBoundaryUnicode
+                 Regex::Automata::Look::WordUnicodeNegate
+               when Look::Kind::StartText
+                 Regex::Automata::Look::Start
+               when Look::Kind::EndText
+                 Regex::Automata::Look::End
+               when Look::Kind::EndTextWithNewline
+                 Regex::Automata::Look::EndLF
+               else
+                 raise "unreachable look assertion kind: #{kind}"
+               end
+        @nfa.look_matcher.matches(look, haystack, at)
+      end
+
+      private def should_skip_empty_utf8_match?(input : Regex::Automata::Input, half_match : Regex::Automata::HalfMatch, slots : Array(Int32?)) : Bool
+        return false unless @nfa.has_empty && @nfa.is_utf8
+
+        slot_index = half_match.pattern.to_i * 2
+        start = slots[slot_index]?
+        finish = slots[slot_index + 1]?
+        start == finish && !start.nil? && !input.is_char_boundary(finish.not_nil!)
       end
 
       private def normalize_input(input : Regex::Automata::Input) : Regex::Automata::Input

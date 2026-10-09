@@ -65,7 +65,7 @@ describe Regex::Automata::NFA::Backtrack::BoundedBacktracker do
     re.get_prefilter.should be_nil
     re.pattern_len.should eq(1)
     re.memory_usage.should eq(re.get_nfa.memory_usage)
-    re.create_cache.memory_usage.should be > 0
+    re.create_cache.memory_usage.should eq(0)
     re.max_haystack_len.should be > 0
 
     always = Regex::Automata::NFA::Backtrack::BoundedBacktracker.always_match
@@ -122,6 +122,24 @@ describe Regex::Automata::NFA::Backtrack::BoundedBacktracker do
       Regex::Automata::Span.new(8, 10),
       Regex::Automata::Span.new(14, 17),
     ])
+  end
+
+  it "restores captures when a backtracking branch fails and reuses visited storage" do
+    re = Regex::Automata::NFA::Backtrack::BoundedBacktracker.new("(?P<left>a)c|(?P<right>b)c")
+    cache = re.create_cache
+    caps = re.create_captures
+
+    re.try_captures(cache, "bc", caps).should be_nil
+    caps.get_group_by_name("left").should be_nil
+    caps.get_group_by_name("right").should eq(Regex::Automata::Span.new(0, 1))
+
+    used = cache.memory_usage
+    used.should be > 0
+    10.times do
+      re.try_captures(cache, "bc", caps).should be_nil
+      caps.get_group_by_name("right").should eq(Regex::Automata::Span.new(0, 1))
+    end
+    cache.memory_usage.should eq(used)
   end
 
   it "supports prefilters, anchored pattern searches, and bounded context" do
