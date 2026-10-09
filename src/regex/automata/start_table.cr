@@ -153,6 +153,29 @@ module Regex::Automata
         @pattern_states.values.any? { |states| states.values.includes?(id) }
     end
 
+    # Snapshot every logical start state in Rust's table order. Crystal keeps
+    # Anchored::Pattern and its PatternID as separate values, so the pattern
+    # ID is returned as a fourth optional tuple member.
+    def iter : Array(Tuple(StateID, Anchored, Start, PatternID?))
+      entries = [] of Tuple(StateID, Anchored, Start, PatternID?)
+      Start.len.times do |index|
+        start = Start.from_usize(index).not_nil!
+        entries << {(@unanchored_states[start]? || @unanchored), Anchored::No, start, nil}
+      end
+      Start.len.times do |index|
+        start = Start.from_usize(index).not_nil!
+        entries << {(@anchored_states[start]? || @anchored), Anchored::Yes, start, nil}
+      end
+      @pattern_states.keys.sort_by(&.to_i).each do |pattern_id|
+        states = @pattern_states[pattern_id]
+        Start.len.times do |index|
+          start = Start.from_usize(index).not_nil!
+          entries << {(states[start]? || states[Start::Text]? || @dead), Anchored::Pattern, start, pattern_id}
+        end
+      end
+      entries
+    end
+
     def remap(&block : StateID -> StateID) : StartTable
       unanchored = yield @unanchored
       anchored = yield @anchored

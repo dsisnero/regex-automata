@@ -210,10 +210,10 @@ src/dfa/dense.rs::method::OwnedDFA.set_universal_starts	method	missing	-	auto-ge
 src/dfa/dense.rs::method::OwnedDFA.shuffle	method	missing	-	auto-generated
 src/dfa/dense.rs::method::OwnedDFA.swap_states	method	missing	-	auto-generated
 src/dfa/dense.rs::method::OwnedDFA.truncate_states	method	missing	-	auto-generated
-src/dfa/dense.rs::method::StartStateIter<'a>.next	method	missing	-	auto-generated
+src/dfa/dense.rs::method::StartStateIter<'a>.next	method	intentional_divergence	src/regex/automata/start_table.cr:StartTable#iter;spec/dfa_dense_spec.cr	Crystal returns an owned snapshot array rather than a borrowing Iterator; tuple fields preserve all start values.
 src/dfa/dense.rs::method::StartTable<&'a [u32]>.from_bytes_unchecked	method	missing	-	auto-generated
 src/dfa/dense.rs::method::StartTable<T>.as_ref	method	missing	-	auto-generated
-src/dfa/dense.rs::method::StartTable<T>.iter	method	missing	-	auto-generated
+src/dfa/dense.rs::method::StartTable<T>.iter	method	ported	src/regex/automata/start_table.cr:150;spec/dfa_dense_spec.cr	Returns logical starts in Rust table order; Crystal returns PatternID separately because Anchored::Pattern carries no payload.
 src/dfa/dense.rs::method::StartTable<T>.memory_usage	method	missing	-	auto-generated
 src/dfa/dense.rs::method::StartTable<T>.set_start	method	missing	-	auto-generated
 src/dfa/dense.rs::method::StartTable<T>.start	method	missing	-	auto-generated

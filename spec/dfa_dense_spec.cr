@@ -34,6 +34,18 @@ describe "DFA::Dense" do
     dfa.pattern_id_slice(state).should eq([Regex::Automata::PatternID.new(0), Regex::Automata::PatternID.new(1)])
   end
 
+  it "iterates dense start states in unanchored then anchored order" do
+    table = Regex::Automata::StartTable.new(
+      Regex::Automata::StartKind::Both,
+      Regex::Automata::StateID.new(2),
+      Regex::Automata::StateID.new(4)
+    )
+    starts = table.iter
+    starts.size.should eq(12)
+    starts.first.should eq({Regex::Automata::StateID.new(2), Regex::Automata::Anchored::No, Regex::Automata::Start::NonWordByte, nil})
+    starts[6].should eq({Regex::Automata::StateID.new(4), Regex::Automata::Anchored::Yes, Regex::Automata::Start::NonWordByte, nil})
+  end
+
   it "round trips dense DFA flag bits" do
     flags = Regex::Automata::DFAFlags.new(has_empty: true, is_utf8: true, is_always_start_anchored: true)
     decoded = Regex::Automata::DFAFlags.from_u32(flags.to_u32)
