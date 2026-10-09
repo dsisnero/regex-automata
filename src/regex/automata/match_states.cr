@@ -69,6 +69,24 @@ module Regex::Automata
       @pattern_ids[start, len]
     end
 
+    # Reconstruct match-state metadata into the builder-friendly map form.
+    # Crystal retains an explicit state-index map, so this remains correct even
+    # when match states are not physically contiguous.
+    def to_map : Hash(StateID, Array(PatternID))
+      map = Hash(StateID, Array(PatternID)).new
+      @state_to_match_index.each_with_index do |match_index, state_index|
+        next unless match_index
+
+        id = if tt = @tt
+               tt.to_state_id(state_index)
+             else
+               StateID.new(state_index)
+             end
+        map[id] = pattern_id_slice(match_index)
+      end
+      map
+    end
+
     # Return all flattened pattern IDs as an owned snapshot.
     def pattern_ids : Array(PatternID)
       @pattern_ids.dup
