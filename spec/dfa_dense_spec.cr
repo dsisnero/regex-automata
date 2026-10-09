@@ -74,6 +74,14 @@ describe "DFA::Dense" do
     dfa.states[dfa.to_index(state)].match.should eq([Regex::Automata::PatternID.new(1)])
   end
 
+  it "persists explicit dense special-state updates" do
+    dfa = Regex::Automata::DFA::DFA.new("abc")
+    replacement = dfa.special.remap { Regex::Automata::StateID.new(0) }
+
+    dfa.update_special { replacement }
+    dfa.special.max.should eq(Regex::Automata::StateID.new(0))
+  end
+
   it "iterates dense start states in unanchored then anchored order" do
     table = Regex::Automata::StartTable.new(
       Regex::Automata::StartKind::Both,

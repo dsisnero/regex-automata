@@ -146,7 +146,7 @@ src/dfa/dense.rs::method::DFA<T>.quit_id	method	ported	src/regex/automata/dfa.cr
 src/dfa/dense.rs::method::DFA<T>.quitset	method	ported	src/regex/automata/dfa.cr:DFA#quitset;spec/dfa_api_spec.cr	Returns the configured quit-byte set.
 src/dfa/dense.rs::method::DFA<T>.set_prefilter	method	ported	src/regex/automata/dfa.cr:DFA#set_prefilter;spec/dfa_dense_spec.cr	Attach/clear behavior and flags are covered.
 src/dfa/dense.rs::method::DFA<T>.special	method	ported	src/regex/automata/dfa.cr:DFA#special;spec/dfa_api_spec.cr	Exposes dense special-state metadata.
-src/dfa/dense.rs::method::DFA<T>.special_mut	method	missing	-	auto-generated
+src/dfa/dense.rs::method::DFA<T>.special_mut	method	intentional_divergence	src/regex/automata/dfa.cr:DFA#update_special;spec/dfa_dense_spec.cr	Crystal Special is a value type; explicit replacement update preserves Rust mutation semantics without exposing a non-persistent copy.
 src/dfa/dense.rs::method::DFA<T>.start_kind	method	ported	src/regex/automata/dfa.cr:DFA#start_kind;spec/dfa_api_spec.cr	Returns the start-table kind.
 src/dfa/dense.rs::method::DFA<T>.start_map	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<T>.start_state	method	ported	src/regex/automata/dfa.cr:DFA#start_state;spec/dfa_api_spec.cr	Crystal accepts StartConfig and returns StateID or StartError.

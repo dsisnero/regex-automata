@@ -1419,6 +1419,13 @@ module Regex::Automata::DFA
       @special = build_special
     end
 
+    # Applies a replacement update to special-state metadata. Crystal structs
+    # are value types, so this is the faithful equivalent of Rust's mutable
+    # borrow rather than returning a non-persistent copy.
+    def update_special(&block : Special -> Special) : Nil
+      @special = yield @special
+    end
+
     # Returns true if and only if this automaton is guaranteed to be valid for UTF-8 input
     def is_utf8? : Bool
       @flags.is_utf8
