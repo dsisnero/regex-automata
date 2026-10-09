@@ -101,6 +101,25 @@ describe "DFA::Dense" do
     table.table[0].should eq(dead)
   end
 
+  it "validates and copies flattened dense match states" do
+    states = Array(Regex::Automata::DFA::State).new
+    dead = Regex::Automata::DFA::DEAD_STATE_ID
+    states << Regex::Automata::DFA::State.new(dead, 2)
+    matched = Regex::Automata::DFA::State.new(Regex::Automata::StateID.new(1), 2)
+    matched.add_match(Regex::Automata::PatternID.new(1))
+    states << matched
+
+    matches = Regex::Automata::MatchStates.from_states(states, nil, 2)
+    matches.match_state?(Regex::Automata::StateID.new(1)).should be_true
+    matches.match_pattern(Regex::Automata::StateID.new(1), 0).should eq(Regex::Automata::PatternID.new(1))
+    matches.memory_usage.should eq(12)
+    matches.validate.should be_nil
+
+    copy = matches.to_owned
+    copy.object_id.should_not eq(matches.object_id)
+    copy.match_pattern(Regex::Automata::StateID.new(1), 0).should eq(Regex::Automata::PatternID.new(1))
+  end
+
   it "exposes dense config defaults and upstream-style getters" do
     config = Regex::Automata::DFA::DFA.config
 

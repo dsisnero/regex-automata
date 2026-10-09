@@ -176,21 +176,21 @@ src/dfa/dense.rs::method::Flags.from_nfa	method	missing	-	auto-generated
 src/dfa/dense.rs::method::Flags.write_to	method	missing	-	auto-generated
 src/dfa/dense.rs::method::Flags.write_to_len	method	missing	-	auto-generated
 src/dfa/dense.rs::method::MatchStates<&'a [u32]>.from_bytes_unchecked	method	missing	-	auto-generated
-src/dfa/dense.rs::method::MatchStates<T>.as_ref	method	missing	-	auto-generated
+src/dfa/dense.rs::method::MatchStates<T>.as_ref	method	intentional_divergence	src/regex/automata/match_states.cr	Crystal has no borrow-parameterized match-state storage; callers retain the owned object.
 src/dfa/dense.rs::method::MatchStates<T>.len	method	missing	-	auto-generated
 src/dfa/dense.rs::method::MatchStates<T>.match_state_id	method	missing	-	auto-generated
-src/dfa/dense.rs::method::MatchStates<T>.memory_usage	method	missing	-	auto-generated
+src/dfa/dense.rs::method::MatchStates<T>.memory_usage	method	ported	src/regex/automata/match_states.cr:70;spec/dfa_dense_spec.cr	Counts flattened slice pairs and pattern-ID backing storage.
 src/dfa/dense.rs::method::MatchStates<T>.pattern_id	method	missing	-	auto-generated
 src/dfa/dense.rs::method::MatchStates<T>.pattern_id_slice	method	missing	-	auto-generated
 src/dfa/dense.rs::method::MatchStates<T>.pattern_ids	method	missing	-	auto-generated
 src/dfa/dense.rs::method::MatchStates<T>.pattern_len	method	missing	-	auto-generated
 src/dfa/dense.rs::method::MatchStates<T>.slices	method	missing	-	auto-generated
 src/dfa/dense.rs::method::MatchStates<T>.to_map	method	missing	-	auto-generated
-src/dfa/dense.rs::method::MatchStates<T>.to_owned	method	missing	-	auto-generated
-src/dfa/dense.rs::method::MatchStates<T>.validate	method	missing	-	auto-generated
+src/dfa/dense.rs::method::MatchStates<T>.to_owned	method	ported	src/regex/automata/match_states.cr:89;spec/dfa_dense_spec.cr	Duplicates Crystal-owned match metadata.
+src/dfa/dense.rs::method::MatchStates<T>.validate	method	partial	src/regex/automata/match_states.cr:76;spec/dfa_dense_spec.cr	Validates flattened slice and pattern-ID metadata; containing DFA validates state-region placement.
 src/dfa/dense.rs::method::MatchStates<T>.write_to	method	missing	-	auto-generated
 src/dfa/dense.rs::method::MatchStates<T>.write_to_len	method	missing	-	auto-generated
-src/dfa/dense.rs::method::MatchStates<Vec<u32>>.empty	method	missing	-	auto-generated
+src/dfa/dense.rs::method::MatchStates<Vec<u32>>.empty	method	ported	src/regex/automata/match_states.cr:17;spec/dfa_dense_spec.cr	Creates empty owned metadata with declared pattern count.
 src/dfa/dense.rs::method::MatchStates<Vec<u32>>.new	method	missing	-	auto-generated
 src/dfa/dense.rs::method::MatchStates<Vec<u32>>.new_with_map	method	missing	-	auto-generated
 src/dfa/dense.rs::method::OwnedDFA.accelerate	method	missing	-	auto-generated

@@ -67,6 +67,29 @@ module Regex::Automata
       @pattern_ids[start + index]
     end
 
+    def memory_usage : Int32
+      ((@slices.size * 2 + @pattern_ids.size) * sizeof(PatternID)).to_i32
+    end
+
+    # Validate the flattened slice metadata before it is used for match
+    # lookups. The containing DFA validates the state-to-match mapping.
+    def validate : DeserializeError?
+      return DeserializeError.generic("match state slice metadata is malformed") unless @slices.size == @state_to_match_index.compact.size
+
+      @slices.each do |start, len|
+        return DeserializeError.generic("invalid pattern ID start offset") if start < 0 || start > @pattern_ids.size
+        return DeserializeError.generic("invalid pattern ID length") if len < 0 || start + len > @pattern_ids.size
+        @pattern_ids[start, len].each do |pattern_id|
+          return DeserializeError.generic("invalid pattern ID") if pattern_id.to_i < 0 || pattern_id.to_i >= @pattern_len
+        end
+      end
+      nil
+    end
+
+    def to_owned : MatchStates
+      MatchStates.new(@state_to_match_index.dup, @slices.dup, @pattern_ids.dup, @pattern_len, @tt)
+    end
+
     private def match_index(id : StateID) : Int32?
       state_index = if tt = @tt
                       tt.to_index(id)
