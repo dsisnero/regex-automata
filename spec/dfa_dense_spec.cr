@@ -68,6 +68,19 @@ describe "DFA::Dense" do
     copy.start(Regex::Automata::Anchored::No, Regex::Automata::Start::Text).should eq(Regex::Automata::StateID.new(9))
   end
 
+  it "updates materialized dense start states" do
+    table = Regex::Automata::StartTable.new(
+      Regex::Automata::StartKind::Both,
+      Regex::Automata::StateID.new(2),
+      Regex::Automata::StateID.new(4)
+    )
+    id = Regex::Automata::StateID.new(8)
+
+    table.set_start(Regex::Automata::Anchored::No, Regex::Automata::Start::LineLF, id)
+    table.start(Regex::Automata::Anchored::No, Regex::Automata::Start::LineLF).should eq(id)
+    table.universal_start(Regex::Automata::Anchored::No).should be_nil
+  end
+
   it "exposes dense start states through the DFA" do
     dfa = Regex::Automata::DFA::DFA.new("abc")
     dfa.starts.size.should eq(12)

@@ -196,6 +196,27 @@ module Regex::Automata
       )
     end
 
+    # Updates one materialized start state. Pattern-specific starts must have
+    # been provisioned by the DFA builder, matching Rust's fixed table shape.
+    def set_start(anchored : Anchored, start : Start, id : StateID, pattern : PatternID? = nil) : Nil
+      case anchored
+      when Anchored::No
+        @unanchored_states[start] = id
+        @unanchored = id if start == Start::Text
+        @universal_start_unanchored = compute_universal_start(@unanchored_states, Anchored::No)
+      when Anchored::Yes
+        @anchored_states[start] = id
+        @anchored = id if start == Start::Text
+        @universal_start_anchored = compute_universal_start(@anchored_states, Anchored::Yes)
+      when Anchored::Pattern
+        raise ArgumentError.new("pattern ID is required for pattern start states") unless pattern
+        states = @pattern_states[pattern]? || raise ArgumentError.new("pattern start states were not provisioned")
+        states[start] = id
+      else
+        raise ArgumentError.new("unsupported anchored start mode")
+      end
+    end
+
     def remap(&block : StateID -> StateID) : StartTable
       unanchored = yield @unanchored
       anchored = yield @anchored
