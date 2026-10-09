@@ -226,7 +226,7 @@ src/dfa/dense.rs::method::StartTable<T>.write_to_len	method	missing	-	auto-gener
 src/dfa/dense.rs::method::StartTable<Vec<u32>>.dead	method	missing	-	auto-generated
 src/dfa/dense.rs::method::State<'a>.accelerate	method	missing	-	auto-generated
 src/dfa/dense.rs::method::State<'a>.fmt	method	missing	-	auto-generated
-src/dfa/dense.rs::method::State<'a>.id	method	missing	-	auto-generated
+src/dfa/dense.rs::method::State<'a>.id	method	ported	src/regex/automata/dfa.cr:DFA::State#id;spec/dfa_dense_spec.cr	Materialized Crystal state retains its premultiplied ID.
 src/dfa/dense.rs::method::State<'a>.sparse_transitions	method	ported	src/regex/automata/dfa.cr:DFA::State#sparse_transitions;spec/dfa_dense_spec.cr	Coalesces adjacent equal non-dead byte-class transitions into inclusive runs.
 src/dfa/dense.rs::method::State<'a>.transitions	method	ported	src/regex/automata/dfa.cr:DFA::State#transitions;spec/dfa_dense_spec.cr	Enumerates materialized dense byte-class transitions in order.
 src/dfa/dense.rs::method::StateIter<'a, T>.next	method	missing	-	auto-generated

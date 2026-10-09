@@ -10,6 +10,7 @@ end
 describe "DFA::Dense" do
   it "enumerates dense and sparse materialized state transitions" do
     state = Regex::Automata::DFA::State.new(Regex::Automata::StateID.new(7), 5)
+    state.id.should eq(Regex::Automata::StateID.new(7))
     state.set_transition(1, Regex::Automata::StateID.new(3))
     state.set_transition(2, Regex::Automata::StateID.new(3))
     state.set_transition(4, Regex::Automata::StateID.new(4))
