@@ -120,6 +120,10 @@ describe "DFA::Dense" do
 
     matches = Regex::Automata::MatchStates.from_states(states, nil, 2)
     matches.match_state?(Regex::Automata::StateID.new(1)).should be_true
+    matches.len.should eq(1)
+    matches.pattern_len(0).should eq(1)
+    matches.pattern_id(0, 0).should eq(Regex::Automata::PatternID.new(1))
+    matches.pattern_id_slice(0).should eq([Regex::Automata::PatternID.new(1)])
     matches.match_pattern(Regex::Automata::StateID.new(1), 0).should eq(Regex::Automata::PatternID.new(1))
     matches.memory_usage.should eq(12)
     matches.validate.should be_nil

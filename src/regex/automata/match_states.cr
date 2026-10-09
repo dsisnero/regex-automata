@@ -48,6 +48,27 @@ module Regex::Automata
       !match_index(id).nil?
     end
 
+    def len : Int32
+      @slices.size
+    end
+
+    def pattern_len(index : Int32) : Int32
+      _, len = @slices[index]
+      len
+    end
+
+    def pattern_id(index : Int32, match_index : Int32) : PatternID
+      start, len = @slices[index]
+      raise IndexError.new unless 0 <= match_index < len
+
+      @pattern_ids[start + match_index]
+    end
+
+    def pattern_id_slice(index : Int32) : Array(PatternID)
+      start, len = @slices[index]
+      @pattern_ids[start, len]
+    end
+
     def match_len(id : StateID) : Int32
       index = match_index(id)
       return 0 unless index
