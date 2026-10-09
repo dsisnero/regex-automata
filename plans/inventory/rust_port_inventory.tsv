@@ -1274,11 +1274,11 @@ src/nfa/thompson/nfa.rs::method::Transition.fmt	method	missing	-	auto-generated
 src/nfa/thompson/nfa.rs::method::Transition.matches	method	missing	-	auto-generated
 src/nfa/thompson/nfa.rs::method::Transition.matches_byte	method	missing	-	auto-generated
 src/nfa/thompson/nfa.rs::method::Transition.matches_unit	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::const::LIMIT	const	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::ActiveStates.memory_usage	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::ActiveStates.new	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::ActiveStates.reset	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::ActiveStates.setup_search	method	missing	-	auto-generated
+src/nfa/thompson/pikevm.rs::const::LIMIT	const	intentional_divergence	-	Rust-only trace-output limit for the optional internal PikeVM instrumentation feature.
+src/nfa/thompson/pikevm.rs::method::ActiveStates.memory_usage	method	partial	src/regex/automata/pikevm.cr:190	Crystal reports active set/thread storage, but does not use Rust's contiguous per-state SlotTable.
+src/nfa/thompson/pikevm.rs::method::ActiveStates.new	method	partial	src/regex/automata/pikevm.cr:195	Creates reusable active states; slot storage is per-thread rather than a preallocated per-state table.
+src/nfa/thompson/pikevm.rs::method::ActiveStates.reset	method	partial	src/regex/automata/pikevm.cr:200	Resizes and clears state storage, with the same per-thread slot-table divergence.
+src/nfa/thompson/pikevm.rs::method::ActiveStates.setup_search	method	partial	src/regex/automata/pikevm.cr:205	Clears active states for each search; caller-sized slot-table reuse remains unported.
 src/nfa/thompson/pikevm.rs::method::Builder.build	method	ported	src/regex/automata/pikevm.cr:71;spec/pikevm_spec.cr	Builds configured PikeVMs.
 src/nfa/thompson/pikevm.rs::method::Builder.build_from_nfa	method	ported	src/regex/automata/pikevm.cr:83;spec/pikevm_spec.cr	Builds from a Thompson NFA.
 src/nfa/thompson/pikevm.rs::method::Builder.build_many	method	ported	src/regex/automata/pikevm.cr:75;spec/pikevm_spec.cr	Builds multi-pattern PikeVMs.
@@ -1297,14 +1297,14 @@ src/nfa/thompson/pikevm.rs::method::Config.match_kind	method	ported	src/regex/au
 src/nfa/thompson/pikevm.rs::method::Config.new	method	ported	src/regex/automata/pikevm.cr:16;spec/pikevm_spec.cr	Default configuration constructor.
 src/nfa/thompson/pikevm.rs::method::Config.overwrite	method	ported	src/regex/automata/pikevm.cr:47;spec/pikevm_spec.cr	Preserves configuration overwrite behavior.
 src/nfa/thompson/pikevm.rs::method::Config.prefilter	method	ported	src/regex/automata/pikevm.cr:25;spec/pikevm_spec.cr	Configures prefilter.
-src/nfa/thompson/pikevm.rs::method::Counters.empty	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::Counters.eprint	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::Counters.record_closure	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::Counters.record_set_insert	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::Counters.record_stack_push	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::Counters.record_state_set	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::Counters.record_step	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::Counters.reset	method	missing	-	auto-generated
+src/nfa/thompson/pikevm.rs::method::Counters.empty	method	intentional_divergence	-	Only compiled by Rust's internal-instrument-pikevm feature; no search semantics depend on it.
+src/nfa/thompson/pikevm.rs::method::Counters.eprint	method	intentional_divergence	-	Only emits optional Rust trace diagnostics; no Crystal public counterpart.
+src/nfa/thompson/pikevm.rs::method::Counters.record_closure	method	intentional_divergence	-	Optional Rust-only profiling counter with no search-semantic effect.
+src/nfa/thompson/pikevm.rs::method::Counters.record_set_insert	method	intentional_divergence	-	Optional Rust-only profiling counter with no search-semantic effect.
+src/nfa/thompson/pikevm.rs::method::Counters.record_stack_push	method	intentional_divergence	-	Optional Rust-only profiling counter with no search-semantic effect.
+src/nfa/thompson/pikevm.rs::method::Counters.record_state_set	method	intentional_divergence	-	Optional Rust-only profiling counter with no search-semantic effect.
+src/nfa/thompson/pikevm.rs::method::Counters.record_step	method	intentional_divergence	-	Optional Rust-only profiling counter with no search-semantic effect.
+src/nfa/thompson/pikevm.rs::method::Counters.reset	method	intentional_divergence	-	Optional Rust-only profiling counter with no search-semantic effect.
 src/nfa/thompson/pikevm.rs::method::FindMatches<'r, 'c, 'h>.next	method	ported	src/regex/automata/pikevm.cr:150;spec/pikevm_spec.cr	Yields non-overlapping matches.
 src/nfa/thompson/pikevm.rs::method::PikeVM.always_match	method	ported	src/regex/automata/pikevm.cr:247;spec/pikevm_spec.cr	Constructs always-match VM.
 src/nfa/thompson/pikevm.rs::method::PikeVM.builder	method	ported	src/regex/automata/pikevm.cr:259;spec/pikevm_spec.cr	Creates builder.
@@ -1313,8 +1313,8 @@ src/nfa/thompson/pikevm.rs::method::PikeVM.captures_iter	method	ported	src/regex
 src/nfa/thompson/pikevm.rs::method::PikeVM.config	method	ported	src/regex/automata/pikevm.cr:255;spec/pikevm_spec.cr	Creates default configuration.
 src/nfa/thompson/pikevm.rs::method::PikeVM.create_cache	method	ported	src/regex/automata/pikevm.cr:267;spec/pikevm_spec.cr	Creates VM cache.
 src/nfa/thompson/pikevm.rs::method::PikeVM.create_captures	method	ported	src/regex/automata/pikevm.cr:263;spec/pikevm_spec.cr	Creates capture storage.
-src/nfa/thompson/pikevm.rs::method::PikeVM.epsilon_closure	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::PikeVM.epsilon_closure_explore	method	missing	-	auto-generated
+src/nfa/thompson/pikevm.rs::method::PikeVM.epsilon_closure	method	partial	src/regex/automata/pikevm.cr:521	Depth-first epsilon closure and slot restoration semantics are ported as add_epsilon_closure; per-thread copies replace Rust's reusable slot table.
+src/nfa/thompson/pikevm.rs::method::PikeVM.epsilon_closure_explore	method	partial	src/regex/automata/pikevm.cr:521	Integrated into Crystal's iterative closure routine; avoids recursion but retains per-thread slot copies.
 src/nfa/thompson/pikevm.rs::method::PikeVM.find	method	ported	src/regex/automata/pikevm.cr:305;spec/pikevm_spec.cr	Finds leftmost match.
 src/nfa/thompson/pikevm.rs::method::PikeVM.find_iter	method	ported	src/regex/automata/pikevm.cr:322;spec/pikevm_spec.cr	Creates non-overlapping iterator.
 src/nfa/thompson/pikevm.rs::method::PikeVM.get_config	method	ported	src/regex/automata/pikevm.cr:279;spec/pikevm_spec.cr	Returns configuration.
@@ -1324,24 +1324,24 @@ src/nfa/thompson/pikevm.rs::method::PikeVM.never_match	method	ported	src/regex/a
 src/nfa/thompson/pikevm.rs::method::PikeVM.new	method	ported	src/regex/automata/pikevm.cr:235;spec/pikevm_spec.cr	Builds one-pattern VM.
 src/nfa/thompson/pikevm.rs::method::PikeVM.new_from_nfa	method	ported	src/regex/automata/pikevm.cr:243;spec/pikevm_spec.cr	Builds from NFA.
 src/nfa/thompson/pikevm.rs::method::PikeVM.new_many	method	ported	src/regex/automata/pikevm.cr:239;spec/pikevm_spec.cr	Builds multi-pattern VM.
-src/nfa/thompson/pikevm.rs::method::PikeVM.next	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::PikeVM.nexts	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::PikeVM.nexts_overlapping	method	missing	-	auto-generated
+src/nfa/thompson/pikevm.rs::method::PikeVM.next	method	partial	src/regex/automata/pikevm.cr:480	State stepping is ported in advance_threads, with closure slot copies rather than Rust's per-state slot rows.
+src/nfa/thompson/pikevm.rs::method::PikeVM.nexts	method	partial	src/regex/automata/pikevm.cr:480	Ordered active-state stepping and leftmost/all termination are ported; storage strategy remains divergent.
+src/nfa/thompson/pikevm.rs::method::PikeVM.nexts_overlapping	method	partial	src/regex/automata/pikevm.cr:503	Overlapping stepping and UTF-8 empty filtering are ported; storage strategy remains divergent.
 src/nfa/thompson/pikevm.rs::method::PikeVM.pattern_len	method	ported	src/regex/automata/pikevm.cr:275;spec/pikevm_spec.cr	Returns pattern count.
 src/nfa/thompson/pikevm.rs::method::PikeVM.reset_cache	method	ported	src/regex/automata/pikevm.cr:271;spec/pikevm_spec.cr	Resets reusable cache.
 src/nfa/thompson/pikevm.rs::method::PikeVM.search	method	ported	src/regex/automata/pikevm.cr:332;spec/pikevm_spec.cr	Runs capture search.
-src/nfa/thompson/pikevm.rs::method::PikeVM.search_imp	method	missing	-	auto-generated
+src/nfa/thompson/pikevm.rs::method::PikeVM.search_imp	method	partial	src/regex/automata/pikevm.cr:390	Search loop, anchoring, prefilter skipping, and match priority are ported; reusable caller-sized slot storage is not.
 src/nfa/thompson/pikevm.rs::method::PikeVM.search_slots	method	ported	src/regex/automata/pikevm.cr:338;spec/pikevm_spec.cr	Runs slot search.
-src/nfa/thompson/pikevm.rs::method::PikeVM.search_slots_imp	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::PikeVM.start_config	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::PikeVM.which_overlapping_imp	method	missing	-	auto-generated
+src/nfa/thompson/pikevm.rs::method::PikeVM.search_slots_imp	method	partial	src/regex/automata/pikevm.cr:371	Slot-length normalization and UTF-8 empty-match retry are ported; scratch slots allocate per closure.
+src/nfa/thompson/pikevm.rs::method::PikeVM.start_config	method	ported	src/regex/automata/pikevm.cr:576;spec/pikevm_spec.cr	Selects anchored and per-pattern start states with the Rust decision table.
+src/nfa/thompson/pikevm.rs::method::PikeVM.which_overlapping_imp	method	partial	src/regex/automata/pikevm.cr:446	Overlapping search semantics and early exits are ported; active-state slot storage remains divergent.
 src/nfa/thompson/pikevm.rs::method::PikeVM.which_overlapping_matches	method	ported	src/regex/automata/pikevm.cr:366;spec/pikevm_spec.cr	Reports overlapping patterns.
-src/nfa/thompson/pikevm.rs::method::SlotTable.all_absent	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::SlotTable.for_state	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::SlotTable.memory_usage	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::SlotTable.new	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::SlotTable.reset	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::SlotTable.setup_search	method	missing	-	auto-generated
+src/nfa/thompson/pikevm.rs::method::SlotTable.all_absent	method	partial	src/regex/automata/pikevm.cr:430	Crystal creates absent slot arrays at closure entry rather than reusing Rust's table scratch row.
+src/nfa/thompson/pikevm.rs::method::SlotTable.for_state	method	partial	src/regex/automata/pikevm.cr:190	Thread records carry each active state's slots instead of indexing a contiguous table.
+src/nfa/thompson/pikevm.rs::method::SlotTable.memory_usage	method	partial	src/regex/automata/pikevm.cr:227	ActiveStates reports equivalent allocated thread-slot capacity, not a contiguous table size.
+src/nfa/thompson/pikevm.rs::method::SlotTable.new	method	partial	src/regex/automata/pikevm.cr:195	ActiveStates owns initially empty per-thread slot storage rather than a SlotTable.
+src/nfa/thompson/pikevm.rs::method::SlotTable.reset	method	partial	src/regex/automata/pikevm.cr:200	State capacity resets, but no NFA-sized slot table is reserved.
+src/nfa/thompson/pikevm.rs::method::SlotTable.setup_search	method	partial	src/regex/automata/pikevm.cr:127	Cache setup clears thread lists; it does not retain caller-sized slot rows.
 src/nfa/thompson/range_trie.rs::const::FINAL	const	missing	-	auto-generated
 src/nfa/thompson/range_trie.rs::const::ROOT	const	missing	-	auto-generated
 src/nfa/thompson/range_trie.rs::method::NextInsert.new	method	missing	-	auto-generated
