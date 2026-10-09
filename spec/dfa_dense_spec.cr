@@ -55,6 +55,21 @@ describe "DFA::Dense" do
     decoded.next_state_by_class(Regex::Automata::StateID.new(0), 0).should eq(Regex::Automata::StateID.new(2))
   end
 
+  it "builds and truncates owned dense transition rows" do
+    table = Regex::Automata::TransitionTable.minimal(Regex::Automata::ByteClasses.empty)
+
+    table.len.should eq(2)
+    table.next_state_by_class(Regex::Automata::StateID.new(0), 0).should eq(Regex::Automata::DFA::DEAD_STATE_ID)
+    table.next_state_by_class(Regex::Automata::StateID.new(2), 0).should eq(Regex::Automata::DFA::DEAD_STATE_ID)
+
+    added = table.add_empty_state
+    added.should eq(Regex::Automata::StateID.new(4))
+    table.len.should eq(3)
+    table.truncate(2)
+    table.len.should eq(2)
+    table.is_valid(added).should be_false
+  end
+
   it "exposes dense config defaults and upstream-style getters" do
     config = Regex::Automata::DFA::DFA.config
 

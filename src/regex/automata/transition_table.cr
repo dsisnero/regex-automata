@@ -24,6 +24,14 @@ module Regex::Automata
       @table = Array.new(capacity * stride, Regex::Automata::DFA::DEAD_STATE_ID)
     end
 
+    # Create the smallest well-formed dense table: a dead row and a quit row.
+    def self.minimal(classes : ByteClasses) : TransitionTable
+      table = new(classes, classes.stride2)
+      table.add_empty_state
+      table.add_empty_state
+      table
+    end
+
     # Get the stride (number of entries per state)
     def stride : Int32
       1 << @stride2
@@ -112,14 +120,18 @@ module Regex::Automata
     end
 
     # Add a new state and return its premultiplied state ID
-    def add_state : StateID
+    def add_empty_state : StateID
       # Add stride entries for the new state
       stride = self.stride
-      new_len = @table.size + stride
       @table.concat(Array.new(stride, Regex::Automata::DFA::DEAD_STATE_ID))
 
       # Return premultiplied state ID
       to_state_id(len - 1)
+    end
+
+    # Compatibility name retained for existing Crystal builder callers.
+    def add_state : StateID
+      add_empty_state
     end
 
     # Get slice of transitions for a given state
@@ -167,6 +179,12 @@ module Regex::Automata
         offset = start + i
         @table[offset] = block.call(@table[offset])
       end
+    end
+
+    # Remove complete rows from the end of the transition table.
+    # Callers are responsible for repairing any references to removed states.
+    def truncate(state_len : Int32) : Nil
+      @table.truncate(0, state_len * stride)
     end
 
     # Get the state ID for the next state (state index + 1)
@@ -234,11 +252,15 @@ module Regex::Automata
       classes_bytes.copy_to(buffer[offset, classes_bytes.size])
       offset += classes_bytes.size
 
-      # State IDs are serialized explicitly instead of reinterpreting an
-      # Array's backing storage. Crystal owns decoded storage, so this keeps
-      # both endian forms valid for arbitrary Bytes slices.
-      @table.each_with_index do |state_id, i|
-        write_state_id(state_id.to_i, buffer, offset + i * sizeof(Int32), endian)
+      if endian == :little
+        # StateID is a contiguous Int32 wrapper, so this preserves the
+        # allocation-free little-endian writer used by the normal wire path.
+        table_bytes = @table.to_unsafe.as(UInt8*).to_slice(@table.size * sizeof(StateID))
+        table_bytes.copy_to(buffer[offset, table_bytes.size])
+      else
+        @table.each_with_index do |state_id, i|
+          write_big_endian_state_id(state_id.to_i, buffer, offset + i * sizeof(Int32))
+        end
       end
 
       buffer
@@ -308,18 +330,11 @@ module Regex::Automata
       table
     end
 
-    private def write_state_id(value : Int32, buffer : Bytes, offset : Int32, endian : Symbol) : Nil
-      if endian == :little
-        buffer[offset] = (value & 0xFF).to_u8
-        buffer[offset + 1] = ((value >> 8) & 0xFF).to_u8
-        buffer[offset + 2] = ((value >> 16) & 0xFF).to_u8
-        buffer[offset + 3] = ((value >> 24) & 0xFF).to_u8
-      else
-        buffer[offset] = ((value >> 24) & 0xFF).to_u8
-        buffer[offset + 1] = ((value >> 16) & 0xFF).to_u8
-        buffer[offset + 2] = ((value >> 8) & 0xFF).to_u8
-        buffer[offset + 3] = (value & 0xFF).to_u8
-      end
+    private def write_big_endian_state_id(value : Int32, buffer : Bytes, offset : Int32) : Nil
+      buffer[offset] = ((value >> 24) & 0xFF).to_u8
+      buffer[offset + 1] = ((value >> 16) & 0xFF).to_u8
+      buffer[offset + 2] = ((value >> 8) & 0xFF).to_u8
+      buffer[offset + 3] = (value & 0xFF).to_u8
     end
 
     private def self.read_state_id(bytes : Bytes, offset : Int32, endian : Symbol) : Int32

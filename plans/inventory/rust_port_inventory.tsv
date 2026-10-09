@@ -251,12 +251,12 @@ src/dfa/dense.rs::method::TransitionTable<T>.to_state_id	method	missing	-	auto-g
 src/dfa/dense.rs::method::TransitionTable<T>.validate	method	ported	src/regex/automata/transition_table.cr:65;spec/dfa_dense_spec.cr	Rejects unaligned or out-of-bounds transition targets during decoding.
 src/dfa/dense.rs::method::TransitionTable<T>.write_to	method	missing	-	auto-generated
 src/dfa/dense.rs::method::TransitionTable<T>.write_to_len	method	missing	-	auto-generated
-src/dfa/dense.rs::method::TransitionTable<Vec<u32>>.add_empty_state	method	missing	-	auto-generated
-src/dfa/dense.rs::method::TransitionTable<Vec<u32>>.minimal	method	missing	-	auto-generated
+src/dfa/dense.rs::method::TransitionTable<Vec<u32>>.add_empty_state	method	ported	src/regex/automata/transition_table.cr:123;spec/dfa_dense_spec.cr	Adds one dead-filled premultiplied state row.
+src/dfa/dense.rs::method::TransitionTable<Vec<u32>>.minimal	method	ported	src/regex/automata/transition_table.cr:28;spec/dfa_dense_spec.cr	Creates Rust's dead and quit rows using the byte-class stride.
 src/dfa/dense.rs::method::TransitionTable<Vec<u32>>.remap	method	missing	-	auto-generated
 src/dfa/dense.rs::method::TransitionTable<Vec<u32>>.set	method	missing	-	auto-generated
 src/dfa/dense.rs::method::TransitionTable<Vec<u32>>.swap	method	missing	-	auto-generated
-src/dfa/dense.rs::method::TransitionTable<Vec<u32>>.truncate	method	missing	-	auto-generated
+src/dfa/dense.rs::method::TransitionTable<Vec<u32>>.truncate	method	ported	src/regex/automata/transition_table.cr:186;spec/dfa_dense_spec.cr	Removes complete transition rows; callers retain remapping responsibility.
 src/dfa/determinize.rs::method::Config.determinize_size_limit	method	missing	-	auto-generated
 src/dfa/determinize.rs::method::Config.dfa_size_limit	method	missing	-	auto-generated
 src/dfa/determinize.rs::method::Config.match_kind	method	missing	-	auto-generated
