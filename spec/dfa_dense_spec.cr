@@ -70,6 +70,12 @@ describe "DFA::Dense" do
     end
   end
 
+  it "exposes the dense transition table in state-row order" do
+    dfa = Regex::Automata::DFA::DFA.new("abc")
+    dfa.trans.size.should eq(dfa.state_len * dfa.stride)
+    dfa.trans.first.should eq(Regex::Automata::DFA::DEAD_STATE_ID)
+  end
+
   it "round trips dense DFA flag bits" do
     flags = Regex::Automata::DFAFlags.new(has_empty: true, is_utf8: true, is_always_start_anchored: true)
     decoded = Regex::Automata::DFAFlags.from_u32(flags.to_u32)

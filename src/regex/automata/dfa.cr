@@ -949,6 +949,12 @@ module Regex::Automata::DFA
       @tt.not_nil!.to_state_id(index)
     end
 
+    # Returns the flat, premultiplied transition table in state-row order.
+    # This is the Crystal equivalent of Rust's borrowed transition slice.
+    def trans : Array(StateID)
+      @tt.not_nil!.table
+    end
+
     # Returns the identifier of the dedicated quit state.
     def quit_id : StateID
       @special.quit_id

@@ -164,7 +164,7 @@ src/dfa/dense.rs::method::DFA<T>.to_index	method	ported	src/regex/automata/dfa.c
 src/dfa/dense.rs::method::DFA<T>.to_owned	method	intentional_divergence	src/regex/automata/dfa.cr:DFA#to_owned;spec/dfa_dense_spec.cr	Crystal objects are GC-managed; owned DFA view is the same object.
 src/dfa/dense.rs::method::DFA<T>.to_sparse	method	ported	src/regex/automata/sparse.cr:DFA#to_sparse;spec/dfa_dense_spec.cr	Converts dense DFA to sparse wrapper.
 src/dfa/dense.rs::method::DFA<T>.to_state_id	method	ported	src/regex/automata/dfa.cr:DFA#to_state_id;spec/dfa_dense_spec.cr	Converts dense state indexes to premultiplied IDs.
-src/dfa/dense.rs::method::DFA<T>.trans	method	missing	-	auto-generated
+src/dfa/dense.rs::method::DFA<T>.trans	method	ported	src/regex/automata/dfa.cr:DFA#trans;spec/dfa_dense_spec.cr	Exposes the flat premultiplied transition rows through Crystal's owned transition table.
 src/dfa/dense.rs::method::DFA<T>.universal_start_state	method	ported	src/regex/automata/dfa.cr:DFA#universal_start_state;spec/dfa_api_spec.cr	Crystal returns the universal start state when present.
 src/dfa/dense.rs::method::DFA<T>.write_to_big_endian	method	ported	src/regex/automata/dfa.cr:DFA#write_to_big_endian;spec/dfa_dense_spec.cr	Writes into caller-provided buffer with size validation.
 src/dfa/dense.rs::method::DFA<T>.write_to_len	method	ported	src/regex/automata/dfa.cr:DFA#write_to_len;spec/dfa_dense_spec.cr	Reports required serialized output length.
