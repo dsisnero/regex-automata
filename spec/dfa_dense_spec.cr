@@ -150,6 +150,8 @@ describe "DFA::Dense" do
     matches.pattern_len(0).should eq(1)
     matches.pattern_id(0, 0).should eq(Regex::Automata::PatternID.new(1))
     matches.pattern_id_slice(0).should eq([Regex::Automata::PatternID.new(1)])
+    matches.pattern_ids.should eq([Regex::Automata::PatternID.new(1)])
+    matches.slices.should eq([{0, 1}])
     matches.match_pattern(Regex::Automata::StateID.new(1), 0).should eq(Regex::Automata::PatternID.new(1))
     matches.memory_usage.should eq(12)
     matches.validate.should be_nil

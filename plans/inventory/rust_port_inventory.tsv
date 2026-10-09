@@ -182,9 +182,9 @@ src/dfa/dense.rs::method::MatchStates<T>.match_state_id	method	missing	-	auto-ge
 src/dfa/dense.rs::method::MatchStates<T>.memory_usage	method	ported	src/regex/automata/match_states.cr:70;spec/dfa_dense_spec.cr	Counts flattened slice pairs and pattern-ID backing storage.
 src/dfa/dense.rs::method::MatchStates<T>.pattern_id	method	ported	src/regex/automata/match_states.cr:59;spec/dfa_dense_spec.cr	Indexes a validated flattened pattern slice.
 src/dfa/dense.rs::method::MatchStates<T>.pattern_id_slice	method	ported	src/regex/automata/match_states.cr:66;spec/dfa_dense_spec.cr	Returns the selected state’s pattern IDs as an owned Crystal array.
-src/dfa/dense.rs::method::MatchStates<T>.pattern_ids	method	missing	-	auto-generated
+src/dfa/dense.rs::method::MatchStates<T>.pattern_ids	method	ported	src/regex/automata/match_states.cr:73;spec/dfa_dense_spec.cr	Returns an owned Crystal snapshot in place of Rust’s borrowed slice.
 src/dfa/dense.rs::method::MatchStates<T>.pattern_len	method	ported	src/regex/automata/match_states.cr:55;spec/dfa_dense_spec.cr	Reports the pattern-ID count for one match-state slice.
-src/dfa/dense.rs::method::MatchStates<T>.slices	method	missing	-	auto-generated
+src/dfa/dense.rs::method::MatchStates<T>.slices	method	ported	src/regex/automata/match_states.cr:78;spec/dfa_dense_spec.cr	Returns owned start/length tuple snapshots for flattened match states.
 src/dfa/dense.rs::method::MatchStates<T>.to_map	method	missing	-	auto-generated
 src/dfa/dense.rs::method::MatchStates<T>.to_owned	method	ported	src/regex/automata/match_states.cr:89;spec/dfa_dense_spec.cr	Duplicates Crystal-owned match metadata.
 src/dfa/dense.rs::method::MatchStates<T>.validate	method	partial	src/regex/automata/match_states.cr:76;spec/dfa_dense_spec.cr	Validates flattened slice and pattern-ID metadata; containing DFA validates state-region placement.

@@ -69,6 +69,16 @@ module Regex::Automata
       @pattern_ids[start, len]
     end
 
+    # Return all flattened pattern IDs as an owned snapshot.
+    def pattern_ids : Array(PatternID)
+      @pattern_ids.dup
+    end
+
+    # Return match-state slice offsets and lengths as an owned snapshot.
+    def slices : Array(Tuple(Int32, Int32))
+      @slices.dup
+    end
+
     def match_len(id : StateID) : Int32
       index = match_index(id)
       return 0 unless index
