@@ -101,22 +101,29 @@ module Regex::Automata
     # Set transition for given state ID and byte
     def set_transition(state_id : StateID, byte : UInt8, target : StateID)
       byte_class = @classes[byte]
-      offset = state_id.to_i + byte_class
-      @table[offset] = target
+      set_transition_by_class(state_id, byte_class, target)
     end
 
     # Set transition for given state ID and byte class
     def set_transition_by_class(state_id : StateID, byte_class : Int32, target : StateID)
+      ensure_valid_state!(state_id, "from")
+      ensure_valid_state!(target, "to")
+      raise ArgumentError.new("invalid byte class") unless byte_class >= 0 && byte_class < alphabet_len
+
       offset = state_id.to_i + byte_class
       @table[offset] = target
+    end
+
+    # Set a transition using Rust's byte-or-EOI alphabet unit.
+    def set(state_id : StateID, unit : Unit, target : StateID) : Nil
+      set_transition_by_class(state_id, @classes.get_by_unit(unit), target)
     end
 
     # Set EOI transition for given state ID
     # EOI is treated as one past the last regular byte class
     def set_eoi_transition(state_id : StateID, target : StateID)
       eoi_class = @classes.alphabet_len - 1
-      offset = state_id.to_i + eoi_class
-      @table[offset] = target
+      set_transition_by_class(state_id, eoi_class, target)
     end
 
     # Add a new state and return its premultiplied state ID
@@ -155,6 +162,8 @@ module Regex::Automata
 
     # Swap two states
     def swap(id1 : StateID, id2 : StateID)
+      ensure_valid_state!(id1, "id1")
+      ensure_valid_state!(id2, "id2")
       idx1 = to_index(id1)
       idx2 = to_index(id2)
 
@@ -171,6 +180,7 @@ module Regex::Automata
 
     # Remap all transitions in a state using given mapping function
     def remap(state_id : StateID, &block : StateID -> StateID)
+      ensure_valid_state!(state_id, "state")
       idx = to_index(state_id)
       start = idx * stride
 
@@ -185,6 +195,20 @@ module Regex::Automata
     # Callers are responsible for repairing any references to removed states.
     def truncate(state_len : Int32) : Nil
       @table.truncate(0, state_len * stride)
+    end
+
+    # Copy this owned table, matching Rust's owned conversion without exposing
+    # a borrow-based API that Crystal does not have.
+    def to_owned : TransitionTable
+      copy = TransitionTable.new(@classes, @stride2)
+      copy.table.concat(@table)
+      copy
+    end
+
+    # Crystal Arrays are already mutable reference storage, so this is the
+    # direct equivalent of Rust's table_mut slice accessor.
+    def table_mut : Array(StateID)
+      @table
     end
 
     # Get the state ID for the next state (state index + 1)
@@ -264,6 +288,18 @@ module Regex::Automata
       end
 
       buffer
+    end
+
+    def write_to(dst : Bytes, endian : Symbol = :little) : Int32
+      bytes = to_bytes(endian)
+      raise SerializeError.buffer_too_small("transition table") if dst.size < bytes.size
+
+      bytes.copy_to(dst[0, bytes.size])
+      bytes.size
+    end
+
+    def write_to_len : Int32
+      2 * sizeof(Int32) + @classes.write_to_len + @table.size * sizeof(StateID)
     end
 
     # Deserialize from bytes
@@ -349,6 +385,10 @@ module Regex::Automata
           (bytes[offset + 2].to_i32 << 8) |
           bytes[offset + 3].to_i32
       end
+    end
+
+    private def ensure_valid_state!(state_id : StateID, label : String) : Nil
+      raise ArgumentError.new("invalid '#{label}' state") unless is_valid(state_id)
     end
   end
 end

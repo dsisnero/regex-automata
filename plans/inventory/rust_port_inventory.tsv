@@ -233,29 +233,29 @@ src/dfa/dense.rs::method::StateIter<'a, T>.next	method	missing	-	auto-generated
 src/dfa/dense.rs::method::StateSparseTransitionIter<'a>.next	method	missing	-	auto-generated
 src/dfa/dense.rs::method::StateTransitionIter<'a>.next	method	missing	-	auto-generated
 src/dfa/dense.rs::method::TransitionTable<&'a [u32]>.from_bytes_unchecked	method	intentional_divergence	src/regex/automata/transition_table.cr:248;spec/dfa_dense_spec.cr	Crystal owns decoded transition storage and safely accepts unaligned Bytes slices; it cannot expose Rust's unsafe borrowed aligned-u32 view.
-src/dfa/dense.rs::method::TransitionTable<T>.alphabet_len	method	missing	-	auto-generated
-src/dfa/dense.rs::method::TransitionTable<T>.as_ref	method	missing	-	auto-generated
+src/dfa/dense.rs::method::TransitionTable<T>.alphabet_len	method	ported	src/regex/automata/transition_table.cr:42;spec/dfa_dense_spec.cr	Uses ByteClasses alphabet length including EOI.
+src/dfa/dense.rs::method::TransitionTable<T>.as_ref	method	intentional_divergence	src/regex/automata/transition_table.cr;spec/dfa_dense_spec.cr	Crystal has no borrow-parameterized table type; callers use its owned reference directly.
 src/dfa/dense.rs::method::TransitionTable<T>.is_valid	method	ported	src/regex/automata/transition_table.cr:56;spec/dfa_dense_spec.cr	Requires an in-bounds premultiplied state ID, matching Rust's stride-alignment invariant.
-src/dfa/dense.rs::method::TransitionTable<T>.len	method	missing	-	auto-generated
+src/dfa/dense.rs::method::TransitionTable<T>.len	method	ported	src/regex/automata/transition_table.cr:47;spec/dfa_dense_spec.cr	Counts complete premultiplied transition rows.
 src/dfa/dense.rs::method::TransitionTable<T>.memory_usage	method	ported	src/regex/automata/transition_table.cr:61;spec/dfa_dense_spec.cr	Reports contiguous StateID backing-store bytes.
-src/dfa/dense.rs::method::TransitionTable<T>.next_state_id	method	missing	-	auto-generated
-src/dfa/dense.rs::method::TransitionTable<T>.prev_state_id	method	missing	-	auto-generated
+src/dfa/dense.rs::method::TransitionTable<T>.next_state_id	method	ported	src/regex/automata/transition_table.cr:215;spec/dfa_dense_spec.cr	Converts adjacent state indices to premultiplied IDs.
+src/dfa/dense.rs::method::TransitionTable<T>.prev_state_id	method	ported	src/regex/automata/transition_table.cr:221;spec/dfa_dense_spec.cr	Converts adjacent state indices to premultiplied IDs.
 src/dfa/dense.rs::method::TransitionTable<T>.state	method	missing	-	auto-generated
 src/dfa/dense.rs::method::TransitionTable<T>.states	method	missing	-	auto-generated
-src/dfa/dense.rs::method::TransitionTable<T>.stride	method	missing	-	auto-generated
-src/dfa/dense.rs::method::TransitionTable<T>.table	method	missing	-	auto-generated
-src/dfa/dense.rs::method::TransitionTable<T>.table_mut	method	missing	-	auto-generated
-src/dfa/dense.rs::method::TransitionTable<T>.to_index	method	missing	-	auto-generated
-src/dfa/dense.rs::method::TransitionTable<T>.to_owned	method	missing	-	auto-generated
-src/dfa/dense.rs::method::TransitionTable<T>.to_state_id	method	missing	-	auto-generated
+src/dfa/dense.rs::method::TransitionTable<T>.stride	method	ported	src/regex/automata/transition_table.cr:36;spec/dfa_dense_spec.cr	Computes the power-of-two row width.
+src/dfa/dense.rs::method::TransitionTable<T>.table	method	ported	src/regex/automata/transition_table.cr:10;spec/dfa_dense_spec.cr	Crystal getter exposes the owned StateID array.
+src/dfa/dense.rs::method::TransitionTable<T>.table_mut	method	ported	src/regex/automata/transition_table.cr:210;spec/dfa_dense_spec.cr	Returns the mutable owned array.
+src/dfa/dense.rs::method::TransitionTable<T>.to_index	method	ported	src/regex/automata/transition_table.cr:58;spec/dfa_dense_spec.cr	Shifts a premultiplied ID to its state index.
+src/dfa/dense.rs::method::TransitionTable<T>.to_owned	method	ported	src/regex/automata/transition_table.cr:202;spec/dfa_dense_spec.cr	Copies the owned array and byte-class map.
+src/dfa/dense.rs::method::TransitionTable<T>.to_state_id	method	ported	src/regex/automata/transition_table.cr:52;spec/dfa_dense_spec.cr	Premultiplies state indices by the stride.
 src/dfa/dense.rs::method::TransitionTable<T>.validate	method	ported	src/regex/automata/transition_table.cr:65;spec/dfa_dense_spec.cr	Rejects unaligned or out-of-bounds transition targets during decoding.
-src/dfa/dense.rs::method::TransitionTable<T>.write_to	method	missing	-	auto-generated
-src/dfa/dense.rs::method::TransitionTable<T>.write_to_len	method	missing	-	auto-generated
+src/dfa/dense.rs::method::TransitionTable<T>.write_to	method	ported	src/regex/automata/transition_table.cr:293;spec/dfa_dense_spec.cr	Writes to a caller-provided buffer and rejects short buffers.
+src/dfa/dense.rs::method::TransitionTable<T>.write_to_len	method	ported	src/regex/automata/transition_table.cr:301;spec/dfa_dense_spec.cr	Reports exact transition-table wire bytes.
 src/dfa/dense.rs::method::TransitionTable<Vec<u32>>.add_empty_state	method	ported	src/regex/automata/transition_table.cr:123;spec/dfa_dense_spec.cr	Adds one dead-filled premultiplied state row.
 src/dfa/dense.rs::method::TransitionTable<Vec<u32>>.minimal	method	ported	src/regex/automata/transition_table.cr:28;spec/dfa_dense_spec.cr	Creates Rust's dead and quit rows using the byte-class stride.
-src/dfa/dense.rs::method::TransitionTable<Vec<u32>>.remap	method	missing	-	auto-generated
-src/dfa/dense.rs::method::TransitionTable<Vec<u32>>.set	method	missing	-	auto-generated
-src/dfa/dense.rs::method::TransitionTable<Vec<u32>>.swap	method	missing	-	auto-generated
+src/dfa/dense.rs::method::TransitionTable<Vec<u32>>.remap	method	ported	src/regex/automata/transition_table.cr:182;spec/dfa_dense_spec.cr	Maps used transition entries in one validated row.
+src/dfa/dense.rs::method::TransitionTable<Vec<u32>>.set	method	ported	src/regex/automata/transition_table.cr:118;spec/dfa_dense_spec.cr	Sets validated byte or EOI Unit transitions.
+src/dfa/dense.rs::method::TransitionTable<Vec<u32>>.swap	method	ported	src/regex/automata/transition_table.cr:164;spec/dfa_dense_spec.cr	Swaps used entries of two validated rows.
 src/dfa/dense.rs::method::TransitionTable<Vec<u32>>.truncate	method	ported	src/regex/automata/transition_table.cr:186;spec/dfa_dense_spec.cr	Removes complete transition rows; callers retain remapping responsibility.
 src/dfa/determinize.rs::method::Config.determinize_size_limit	method	missing	-	auto-generated
 src/dfa/determinize.rs::method::Config.dfa_size_limit	method	missing	-	auto-generated

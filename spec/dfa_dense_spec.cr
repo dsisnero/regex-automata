@@ -70,6 +70,37 @@ describe "DFA::Dense" do
     table.is_valid(added).should be_false
   end
 
+  it "validates and serializes owned dense transition mutations" do
+    table = Regex::Automata::TransitionTable.minimal(Regex::Automata::ByteClasses.empty)
+    dead = Regex::Automata::DFA::DEAD_STATE_ID
+    quit = Regex::Automata::StateID.new(2)
+
+    table.set(dead, Regex::Automata::Unit.eoi(1), quit)
+    table.next_eoi_state(dead).should eq(quit)
+    expect_raises(ArgumentError, /invalid 'to' state/) do
+      table.set(dead, Regex::Automata::Unit.eoi(1), Regex::Automata::StateID.new(1))
+    end
+
+    bytes = Bytes.new(table.write_to_len)
+    table.write_to(bytes).should eq(bytes.size)
+    Regex::Automata::TransitionTable.from_bytes(bytes).next_eoi_state(dead).should eq(quit)
+    expect_raises(Regex::Automata::SerializeError) do
+      table.write_to(Bytes.new(bytes.size - 1))
+    end
+
+    table.set_transition_by_class(dead, 0, quit)
+    table.swap(dead, quit)
+    table.next_state_by_class(quit, 0).should eq(quit)
+    table.remap(quit) { dead }
+    table.next_state_by_class(quit, 0).should eq(dead)
+    table.prev_state_id(quit).should eq(dead)
+    table.next_state_id(dead).should eq(quit)
+
+    copy = table.to_owned
+    copy.table_mut[0] = quit
+    table.table[0].should eq(dead)
+  end
+
   it "exposes dense config defaults and upstream-style getters" do
     config = Regex::Automata::DFA::DFA.config
 
