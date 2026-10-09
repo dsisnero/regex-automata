@@ -8,6 +8,25 @@ private def write_u32_le(bytes : Bytes, offset : Int32, value : UInt32) : Nil
 end
 
 describe "DFA::Dense" do
+  it "enumerates dense and sparse materialized state transitions" do
+    state = Regex::Automata::DFA::State.new(Regex::Automata::StateID.new(7), 5)
+    state.set_transition(1, Regex::Automata::StateID.new(3))
+    state.set_transition(2, Regex::Automata::StateID.new(3))
+    state.set_transition(4, Regex::Automata::StateID.new(4))
+
+    state.transitions.should eq([
+      {0, Regex::Automata::DFA::DEAD_STATE_ID},
+      {1, Regex::Automata::StateID.new(3)},
+      {2, Regex::Automata::StateID.new(3)},
+      {3, Regex::Automata::DFA::DEAD_STATE_ID},
+      {4, Regex::Automata::StateID.new(4)},
+    ])
+    state.sparse_transitions.should eq([
+      {1, 2, Regex::Automata::StateID.new(3)},
+      {4, 4, Regex::Automata::StateID.new(4)},
+    ])
+  end
+
   it "round trips dense DFA flag bits" do
     flags = Regex::Automata::DFAFlags.new(has_empty: true, is_utf8: true, is_always_start_anchored: true)
     decoded = Regex::Automata::DFAFlags.from_u32(flags.to_u32)

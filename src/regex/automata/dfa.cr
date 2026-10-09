@@ -66,6 +66,37 @@ module Regex::Automata::DFA
       @next[byte_class] = target
     end
 
+    # Enumerate dense byte-class transitions in class order.
+    def transitions : Array(Tuple(Int32, StateID))
+      @next.map_with_index { |target, byte_class| {byte_class, target} }
+    end
+
+    # Coalesce adjacent equal non-dead transitions into inclusive class runs.
+    def sparse_transitions : Array(Tuple(Int32, Int32, StateID))
+      runs = [] of Tuple(Int32, Int32, StateID)
+      start = nil.as(Int32?)
+      target = nil.as(StateID?)
+      @next.each_with_index do |next_id, byte_class|
+        if next_id == DEAD_STATE_ID
+          if run_start = start
+            runs << {run_start, byte_class - 1, target.not_nil!}
+            start = nil
+            target = nil
+          end
+        elsif target == next_id
+        elsif run_start = start
+          runs << {run_start, byte_class - 1, target.not_nil!}
+          start = byte_class
+          target = next_id
+        else
+          start = byte_class
+          target = next_id
+        end
+      end
+      runs << {start.not_nil!, @next.size - 1, target.not_nil!} if start
+      runs
+    end
+
     def add_match(pattern_id : PatternID)
       # Insert in sorted order, maintaining uniqueness
       idx = @match.bsearch_index { |pid| pid >= pattern_id } || @match.size
