@@ -1,7 +1,127 @@
 require "./spec_helper"
+require "json"
 
 private def onepass_pid(id : Int32) : Regex::Automata::PatternID
   Regex::Automata::PatternID.new(id)
+end
+
+private class OnePassAnchoredFixture
+  getter name : String
+  getter regex : String
+  getter haystack : String
+  getter matches : Array(Tuple(Int32, Int32))
+  getter bounds : Tuple(Int32, Int32)
+  getter unicode : Bool
+  getter earliest : Bool
+  getter match_kind : Regex::Automata::MatchKind
+
+  def initialize(
+    @name : String,
+    @regex : String,
+    @haystack : String,
+    @matches : Array(Tuple(Int32, Int32)),
+    @bounds : Tuple(Int32, Int32),
+    @unicode : Bool,
+    @earliest : Bool,
+    @match_kind : Regex::Automata::MatchKind,
+  )
+  end
+end
+
+private def onepass_toml_scalar(block : String, key : String) : String?
+  prefix = "#{key} ="
+  block.each_line do |line|
+    next unless line.starts_with?(prefix)
+
+    return line[prefix.size..].strip
+  end
+  nil
+end
+
+private def onepass_toml_string(value : String) : String
+  if value.starts_with?('"')
+    JSON.parse(value).as_s
+  elsif value.starts_with?("'")
+    value[1...-1].gsub("''", "'")
+  else
+    raise "unsupported TOML string #{value.inspect}"
+  end
+end
+
+private def onepass_toml_array(block : String, key : String) : String
+  marker = "#{key} ="
+  offset = block.index(marker) || raise "missing TOML array #{key}"
+  start = block.index('[', offset) || raise "missing TOML array opening bracket #{key}"
+  depth = 0
+  index = start
+  while index < block.size
+    case block[index]
+    when '['
+      depth += 1
+    when ']'
+      depth -= 1
+      return block[start..index] if depth == 0
+    end
+    index += 1
+  end
+  raise "unterminated TOML array #{key}"
+end
+
+private def onepass_toml_array_entries(array : String) : Array(String)
+  content = array[1...-1]
+  entries = [] of String
+  depth = 0
+  start = 0
+  index = 0
+  while index < content.size
+    case content[index]
+    when '['
+      depth += 1
+    when ']'
+      depth -= 1
+    when ','
+      if depth == 0
+        entries << content[start...index].strip
+        start = index + 1
+      end
+    end
+    index += 1
+  end
+  trailing = content[start..].strip
+  entries << trailing unless trailing.empty?
+  entries
+end
+
+private def onepass_toml_spans(array : String) : Array(Tuple(Int32, Int32))
+  onepass_toml_array_entries(array).compact_map do |entry|
+    if pair = entry.match(/\[\s*(\d+)\s*,\s*(\d+)\s*\]/)
+      {pair[1].to_i, pair[2].to_i}
+    end
+  end
+end
+
+private def onepass_anchored_fixtures : Array(OnePassAnchoredFixture)
+  path = File.join(__DIR__, "..", "vendor", "regex", "testdata", "anchored.toml")
+  File.read(path).split("[[test]]").skip(1).compact_map do |block|
+    anchored = onepass_toml_scalar(block, "anchored")
+    next unless anchored == "true"
+
+    name = onepass_toml_string(onepass_toml_scalar(block, "name") || raise "missing fixture name")
+    regex = onepass_toml_string(onepass_toml_scalar(block, "regex") || raise "missing fixture regex")
+    haystack = onepass_toml_string(onepass_toml_scalar(block, "haystack") || raise "missing fixture haystack")
+    matches = onepass_toml_spans(onepass_toml_array(block, "matches"))
+    bounds = if value = onepass_toml_scalar(block, "bounds")
+               pair = value.match(/\[\s*(\d+)\s*,\s*(\d+)\s*\]/) || raise "invalid fixture bounds"
+               {pair[1].to_i, pair[2].to_i}
+             else
+               {0, haystack.bytesize}
+             end
+    unicode = onepass_toml_scalar(block, "unicode") != "false"
+    earliest = onepass_toml_scalar(block, "search-kind") == "\"earliest\""
+    match_kind = onepass_toml_scalar(block, "match-kind") == "\"all\"" ? Regex::Automata::MatchKind::All : Regex::Automata::MatchKind::LeftmostFirst
+
+    OnePassAnchoredFixture.new(name, regex, haystack, matches, bounds, unicode, earliest, match_kind)
+  end
 end
 
 describe Regex::Automata::DFA::OnePass::Config do
@@ -391,5 +511,46 @@ describe Regex::Automata::DFA::OnePass::DFA do
       .thompson(Regex::Automata::NFA::NFA.config.utf8(false))
       .build("a*")
     binary.is_match(binary.create_cache, input).should be_true
+  end
+
+  it "runs the vendored anchored fixture corpus for admitted one-pass patterns" do
+    exercised = 0
+    fixtures = onepass_anchored_fixtures
+    fixtures.size.should eq(12)
+
+    fixtures.each do |fixture|
+      builder = Regex::Automata::DFA::OnePass::DFA.builder
+        .configure(
+          Regex::Automata::DFA::OnePass::DFA.config
+            .match_kind(fixture.match_kind)
+        )
+        .syntax(Regex::Automata::Syntax::Config.new.unicode(fixture.unicode))
+
+      begin
+        re = builder.build(fixture.regex)
+        cache = re.create_cache
+        caps = re.create_captures
+        input = Regex::Automata::Input.new(fixture.haystack)
+          .range(fixture.bounds[0]...fixture.bounds[1])
+          .anchored(Regex::Automata::Anchored::Yes)
+          .earliest(fixture.earliest)
+
+        re.try_search(cache, input, caps).should be_nil
+        if expected = fixture.matches.first?
+          caps.get_match.should eq(
+            Regex::Automata::Match.must(0, expected[0]...expected[1])
+          )
+        else
+          caps.get_match.should be_nil
+        end
+        exercised += 1
+      rescue error : Regex::Automata::DFA::OnePass::BuildError
+        next if error.kind == Regex::Automata::DFA::OnePass::BuildError::Kind::NotOnePass
+
+        raise error
+      end
+    end
+
+    exercised.should be > 0
   end
 end
