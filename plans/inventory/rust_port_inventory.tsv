@@ -235,7 +235,7 @@ src/dfa/dense.rs::method::StateTransitionIter<'a>.next	method	missing	-	auto-gen
 src/dfa/dense.rs::method::TransitionTable<&'a [u32]>.from_bytes_unchecked	method	missing	-	auto-generated
 src/dfa/dense.rs::method::TransitionTable<T>.alphabet_len	method	missing	-	auto-generated
 src/dfa/dense.rs::method::TransitionTable<T>.as_ref	method	missing	-	auto-generated
-src/dfa/dense.rs::method::TransitionTable<T>.is_valid	method	missing	-	auto-generated
+src/dfa/dense.rs::method::TransitionTable<T>.is_valid	method	ported	src/regex/automata/transition_table.cr:56;spec/dfa_dense_spec.cr	Requires an in-bounds premultiplied state ID, matching Rust's stride-alignment invariant.
 src/dfa/dense.rs::method::TransitionTable<T>.len	method	missing	-	auto-generated
 src/dfa/dense.rs::method::TransitionTable<T>.memory_usage	method	missing	-	auto-generated
 src/dfa/dense.rs::method::TransitionTable<T>.next_state_id	method	missing	-	auto-generated

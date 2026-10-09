@@ -54,8 +54,8 @@ module Regex::Automata
 
     # Check if state ID is valid (within table bounds)
     def is_valid(state_id : StateID) : Bool
-      idx = to_index(state_id)
-      idx >= 0 && idx < len
+      raw = state_id.to_i
+      raw >= 0 && raw < @table.size && raw % stride == 0
     end
 
     # Get next state for given state ID and byte

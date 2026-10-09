@@ -8,6 +8,17 @@ private def write_u32_le(bytes : Bytes, offset : Int32, value : UInt32) : Nil
 end
 
 describe "DFA::Dense" do
+  it "requires premultiplied IDs for transition-table validity" do
+    classes = Regex::Automata::ByteClasses.identity
+    table = Regex::Automata::TransitionTable.new(classes, 2, 2)
+
+    table.is_valid(Regex::Automata::StateID.new(0)).should be_true
+    table.is_valid(Regex::Automata::StateID.new(4)).should be_true
+    table.is_valid(Regex::Automata::StateID.new(1)).should be_false
+    table.is_valid(Regex::Automata::StateID.new(5)).should be_false
+    table.is_valid(Regex::Automata::StateID.new(8)).should be_false
+  end
+
   it "exposes dense config defaults and upstream-style getters" do
     config = Regex::Automata::DFA::DFA.config
 
