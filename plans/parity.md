@@ -88,9 +88,9 @@
   - Scope: `src/dfa/onepass.rs` and `tests/dfa/onepass/**`.
   - Work: replace or fully justify PikeVM delegation; prove one-pass admission, transition/state tables, epsilon/look handling, capture slots, cache behavior, limits, all builder/config APIs, and search error semantics. Admission now traverses the Thompson NFA and rejects duplicate epsilon paths, conflicting byte-class transitions, and look kinds outside Rust's packed transition representation instead of relying on a list of pattern-string exceptions. The compiled table executes anchored searches with explicit capture slots, supported look assertions, and UTF-8 empty-match filtering through a reusable cache, sizing scratch slots to each caller buffer; match states are shuffled into a tail so the search loop uses the same cheap state-ID comparison as Rust. The obsolete PikeVM fallback allocation is removed. The source-level acceptance/rejection matrix is now ported; the remaining work is the broader upstream regex-test suite matrix and cross-engine adversarial coverage.
 
-- [ ] Lazy (hybrid) DFA engine
+- [x] Lazy (hybrid) DFA engine
   - Scope: `src/hybrid/{dfa,error,id,regex,search}.rs` and `tests/hybrid/**`.
-  - Work: validate lazy determinization/cache capacity and clearing, state-ID/error encoding, dense/hybrid regex wrappers, forward/reverse/overlap search, prefilter safety, quit behavior, Unicode, specialized starts, NFA shrink, and all builder/config/cache query APIs. Do not consider a dense fallback equivalent until cache-limit and lazy-state failure behavior are covered.
+  - Complete: lazy determinization/cache capacity and clearing, state-ID/error encoding, dense/hybrid regex wrappers, forward/reverse/overlap search, prefilter safety, quit behavior, Unicode, specialized starts, NFA shrink, and builder/config/cache query APIs are mapped to `hybrid.cr` and covered by the hybrid parity specs. The wrapper cache now reports the same aggregate cache memory accounting as its component caches. The implementation remains genuinely lazy rather than a dense fallback, including cache-limit and lazy-state failure behavior.
 
 - [ ] Meta regex engine, strategy selection, and guards
   - Scope: `src/meta/{error,limited,literal,prefix,regex,reverse_inner,reverse_suffix,stopat,strategy,wrappers}.rs` and `tests/meta/**`.
