@@ -54,6 +54,14 @@ describe "DFA::Dense" do
     dfa.starts[6][1].should eq(Regex::Automata::Anchored::Yes)
   end
 
+  it "enumerates dense states in transition-table order" do
+    dfa = Regex::Automata::DFA::DFA.new("abc")
+    dfa.states.size.should eq(dfa.state_len)
+    dfa.states.each_with_index do |state, index|
+      state.id.should eq(dfa.to_state_id(index))
+    end
+  end
+
   it "round trips dense DFA flag bits" do
     flags = Regex::Automata::DFAFlags.new(has_empty: true, is_utf8: true, is_always_start_anchored: true)
     decoded = Regex::Automata::DFAFlags.from_u32(flags.to_u32)

@@ -153,7 +153,7 @@ src/dfa/dense.rs::method::DFA<T>.start_state	method	ported	src/regex/automata/df
 src/dfa/dense.rs::method::DFA<T>.starts	method	ported	src/regex/automata/dfa.cr:DFA#starts;spec/dfa_dense_spec.cr	Returns all materialized start states in deterministic Rust table order, with Crystal's separate optional PatternID field.
 src/dfa/dense.rs::method::DFA<T>.starts_for_each_pattern	method	ported	src/regex/automata/dfa.cr:DFA#starts_for_each_pattern?;spec/dfa_dense_spec.cr	Reports whether per-pattern anchored start-state matrices were materialized.
 src/dfa/dense.rs::method::DFA<T>.state_len	method	ported	src/regex/automata/dfa.cr:DFA#state_len;spec/dfa_dense_spec.cr	Returns the transition-table state count.
-src/dfa/dense.rs::method::DFA<T>.states	method	missing	-	auto-generated
+src/dfa/dense.rs::method::DFA<T>.states	method	ported	src/regex/automata/dfa.cr:DFA#states;spec/dfa_dense_spec.cr	Returns materialized states in transition-table order; Crystal exposes the state array directly.
 src/dfa/dense.rs::method::DFA<T>.stride	method	ported	src/regex/automata/dfa.cr:DFA#stride;spec/dfa_dense_spec.cr	Crystal reports transition-table stride.
 src/dfa/dense.rs::method::DFA<T>.stride2	method	ported	src/regex/automata/dfa.cr:DFA#stride2;spec/dfa_dense_spec.cr	Crystal reports log2 transition-table stride.
 src/dfa/dense.rs::method::DFA<T>.to_bytes	method	ported	src/regex/automata/dfa.cr:DFA#to_bytes_native_endian;spec/dfa_dense_spec.cr	Native-endian serialization is supplied by the named Crystal helper.
