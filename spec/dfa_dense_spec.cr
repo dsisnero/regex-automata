@@ -47,6 +47,13 @@ describe "DFA::Dense" do
     starts[6].should eq({Regex::Automata::StateID.new(4), Regex::Automata::Anchored::Yes, Regex::Automata::Start::NonWordByte, nil})
   end
 
+  it "exposes dense start states through the DFA" do
+    dfa = Regex::Automata::DFA::DFA.new("abc")
+    dfa.starts.size.should eq(12)
+    dfa.starts.first[1].should eq(Regex::Automata::Anchored::No)
+    dfa.starts[6][1].should eq(Regex::Automata::Anchored::Yes)
+  end
+
   it "round trips dense DFA flag bits" do
     flags = Regex::Automata::DFAFlags.new(has_empty: true, is_utf8: true, is_always_start_anchored: true)
     decoded = Regex::Automata::DFAFlags.from_u32(flags.to_u32)

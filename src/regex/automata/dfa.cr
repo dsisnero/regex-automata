@@ -1346,6 +1346,11 @@ module Regex::Automata::DFA
       !@st.pattern_states.empty?
     end
 
+    # Return every configured start state in deterministic table order.
+    def starts : Array(Tuple(StateID, Anchored, Start, PatternID?))
+      @st.iter
+    end
+
     # Returns the total number of transition entries available to each state.
     #
     # This includes the synthetic end-of-input transition in addition to the
