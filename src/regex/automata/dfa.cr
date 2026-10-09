@@ -1382,6 +1382,11 @@ module Regex::Automata::DFA
       @ms.match_pattern(id, index)
     end
 
+    # Returns every matching pattern ID for the given state in priority order.
+    def pattern_id_slice(id : StateID) : Array(PatternID)
+      Array.new(match_len(id)) { |index| match_pattern(id, index) }
+    end
+
     # Returns true if and only if this automaton is guaranteed to be valid for UTF-8 input
     def is_utf8? : Bool
       @flags.is_utf8

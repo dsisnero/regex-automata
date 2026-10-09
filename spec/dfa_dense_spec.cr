@@ -28,6 +28,12 @@ describe "DFA::Dense" do
     ])
   end
 
+  it "returns a dense match state pattern slice" do
+    dfa = Regex::Automata::DFA::DFA.new_many(["a", "a"])
+    state = dfa.next_eoi_state(dfa.next_state(dfa.start, 'a'.ord.to_u8))
+    dfa.pattern_id_slice(state).should eq([Regex::Automata::PatternID.new(0), Regex::Automata::PatternID.new(1)])
+  end
+
   it "round trips dense DFA flag bits" do
     flags = Regex::Automata::DFAFlags.new(has_empty: true, is_utf8: true, is_always_start_anchored: true)
     decoded = Regex::Automata::DFAFlags.from_u32(flags.to_u32)

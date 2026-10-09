@@ -139,7 +139,7 @@ src/dfa/dense.rs::method::DFA<T>.memory_usage	method	partial	src/regex/automata/
 src/dfa/dense.rs::method::DFA<T>.next_eoi_state	method	ported	src/regex/automata/dfa.cr:DFA#next_eoi_state;spec/dfa_api_spec.cr	Crystal computes the EOI transition.
 src/dfa/dense.rs::method::DFA<T>.next_state	method	ported	src/regex/automata/dfa.cr:DFA#next_state;spec/dfa_api_spec.cr	Crystal computes a byte transition.
 src/dfa/dense.rs::method::DFA<T>.next_state_unchecked	method	partial	src/regex/automata/dfa.cr:DFA#next_state_unchecked	Same operation is exposed, but Crystal cannot express Rust unchecked-memory safety contract.
-src/dfa/dense.rs::method::DFA<T>.pattern_id_slice	method	missing	-	auto-generated
+src/dfa/dense.rs::method::DFA<T>.pattern_id_slice	method	ported	src/regex/automata/dfa.cr:DFA#pattern_id_slice;spec/dfa_dense_spec.cr	Returns matching pattern IDs in priority order from the state’s flattened match metadata.
 src/dfa/dense.rs::method::DFA<T>.pattern_len	method	ported	src/regex/automata/dfa.cr:DFA#pattern_len;spec/dfa_dense_spec.cr	Crystal reports pattern count.
 src/dfa/dense.rs::method::DFA<T>.pattern_map	method	missing	-	auto-generated
 src/dfa/dense.rs::method::DFA<T>.quit_id	method	ported	src/regex/automata/dfa.cr:DFA#quit_id;spec/dfa_api_spec.cr	Returns the premultiplied quit-state ID.
