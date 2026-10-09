@@ -58,6 +58,17 @@ module Regex::Automata
       raw >= 0 && raw < @table.size && raw % stride == 0
     end
 
+    def memory_usage : Int32
+      (@table.size * sizeof(StateID)).to_i32
+    end
+
+    def validate : DeserializeError?
+      @table.each do |state_id|
+        return DeserializeError.generic("found invalid state ID in transition table") unless is_valid(state_id)
+      end
+      nil
+    end
+
     # Get next state for given state ID and byte
     def next_state(state_id : StateID, byte : UInt8) : StateID
       byte_class = @classes[byte]
@@ -251,6 +262,7 @@ module Regex::Automata
 
     # Deserialize from bytes
     def self.from_bytes(bytes : Bytes, endian : Symbol = :little) : TransitionTable
+      raise DeserializeError.buffer_too_small("transition table header") if bytes.size < 8
       offset = 0
 
       # Read state length
@@ -281,16 +293,24 @@ module Regex::Automata
                 end
       offset += 4
 
+      raise DeserializeError.generic("dense DFA has invalid state length") if state_len < 0
+      raise DeserializeError.generic("dense DFA has invalid stride2 (too small)") if stride2 < 1
+      raise DeserializeError.generic("dense DFA has invalid stride2 (too big)") if stride2 > 9
+      raise DeserializeError.buffer_too_small("dense DFA byte classes") if bytes.size < offset + 256
+
       # Read byte classes
       classes, classes_size = ByteClasses.from_bytes(bytes[offset..], endian)
       offset += classes_size
 
       # Create transition table
       stride = 1 << stride2
+      raise DeserializeError.generic("alphabet size cannot be bigger than transition table stride") if classes.alphabet_len > stride
       table = TransitionTable.new(classes, stride2, state_len)
 
       # Read transitions in bulk
-      transitions_size = state_len * stride * 4
+      transitions_size = state_len.to_i64 * stride * sizeof(Int32)
+      raise DeserializeError.generic("dense table transition length is too large") if transitions_size > Int32::MAX
+      raise DeserializeError.buffer_too_small("transition table") if bytes.size < offset + transitions_size
       transitions_bytes = bytes[offset, transitions_size]
 
       if endian == :little
@@ -313,6 +333,9 @@ module Regex::Automata
         end
       end
 
+      if error = table.validate
+        raise error
+      end
       table
     end
   end

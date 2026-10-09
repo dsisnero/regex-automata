@@ -19,6 +19,29 @@ describe "DFA::Dense" do
     table.is_valid(Regex::Automata::StateID.new(8)).should be_false
   end
 
+  it "rejects malformed dense transition-table bytes" do
+    expect_raises(Regex::Automata::DeserializeError) do
+      Regex::Automata::TransitionTable.from_bytes(Bytes.new(7))
+    end
+
+    classes = Regex::Automata::ByteClasses.identity
+    table = Regex::Automata::TransitionTable.new(classes, 2, 2)
+    source = table.to_bytes
+    source[4] = 0_u8
+    source[5] = 0_u8
+    source[6] = 0_u8
+    source[7] = 0_u8
+    expect_raises(Regex::Automata::DeserializeError) do
+      Regex::Automata::TransitionTable.from_bytes(source)
+    end
+
+    source = table.to_bytes
+    source[264] = 1_u8
+    expect_raises(Regex::Automata::DeserializeError) do
+      Regex::Automata::TransitionTable.from_bytes(source)
+    end
+  end
+
   it "exposes dense config defaults and upstream-style getters" do
     config = Regex::Automata::DFA::DFA.config
 
