@@ -823,29 +823,11 @@ module Regex::Automata::DFA
     end
 
     private def flags_to_u32 : UInt32
-      value = 0_u32
-      value |= 1_u32 if @flags.premultiplied
-      value |= 1_u32 << 1 if @flags.has_empty
-      value |= 1_u32 << 2 if @flags.has_byte_classes
-      value |= 1_u32 << 3 if @flags.is_anchored
-      value |= 1_u32 << 4 if @flags.is_leftmost
-      value |= 1_u32 << 5 if @flags.is_utf8
-      value |= 1_u32 << 6 if @flags.has_prefilter
-      value |= 1_u32 << 7 if @flags.is_always_start_anchored
-      value
+      @flags.to_u32
     end
 
     private def self.flags_from_u32(value : UInt32) : DFAFlags
-      DFAFlags.new(
-        premultiplied: (value & 1_u32) != 0,
-        has_empty: (value & (1_u32 << 1)) != 0,
-        has_byte_classes: (value & (1_u32 << 2)) != 0,
-        is_anchored: (value & (1_u32 << 3)) != 0,
-        is_leftmost: (value & (1_u32 << 4)) != 0,
-        is_utf8: (value & (1_u32 << 5)) != 0,
-        has_prefilter: (value & (1_u32 << 6)) != 0,
-        is_always_start_anchored: (value & (1_u32 << 7)) != 0
-      )
+      DFAFlags.from_u32(value)
     end
 
     private def self.detect_serialized_endianness(slice : Bytes) : Symbol

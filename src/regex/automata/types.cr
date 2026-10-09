@@ -323,5 +323,31 @@ module Regex::Automata
 
     def initialize(@premultiplied : Bool = false, @has_empty : Bool = false, @has_byte_classes : Bool = true, @is_anchored : Bool = false, @is_leftmost : Bool = false, @is_utf8 : Bool = false, @is_always_start_anchored : Bool = false, @has_prefilter : Bool = false)
     end
+
+    def to_u32 : UInt32
+      value = 0_u32
+      value |= 1_u32 if @premultiplied
+      value |= 1_u32 << 1 if @has_empty
+      value |= 1_u32 << 2 if @has_byte_classes
+      value |= 1_u32 << 3 if @is_anchored
+      value |= 1_u32 << 4 if @is_leftmost
+      value |= 1_u32 << 5 if @is_utf8
+      value |= 1_u32 << 6 if @has_prefilter
+      value |= 1_u32 << 7 if @is_always_start_anchored
+      value
+    end
+
+    def self.from_u32(value : UInt32) : DFAFlags
+      new(
+        premultiplied: (value & 1_u32) != 0,
+        has_empty: (value & (1_u32 << 1)) != 0,
+        has_byte_classes: (value & (1_u32 << 2)) != 0,
+        is_anchored: (value & (1_u32 << 3)) != 0,
+        is_leftmost: (value & (1_u32 << 4)) != 0,
+        is_utf8: (value & (1_u32 << 5)) != 0,
+        has_prefilter: (value & (1_u32 << 6)) != 0,
+        is_always_start_anchored: (value & (1_u32 << 7)) != 0
+      )
+    end
   end
 end

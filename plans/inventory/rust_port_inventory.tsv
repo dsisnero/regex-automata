@@ -170,11 +170,11 @@ src/dfa/dense.rs::method::DFA<T>.write_to_big_endian	method	ported	src/regex/aut
 src/dfa/dense.rs::method::DFA<T>.write_to_len	method	ported	src/regex/automata/dfa.cr:DFA#write_to_len;spec/dfa_dense_spec.cr	Reports required serialized output length.
 src/dfa/dense.rs::method::DFA<T>.write_to_little_endian	method	ported	src/regex/automata/dfa.cr:DFA#write_to_little_endian;spec/dfa_dense_spec.cr	Writes into caller-provided buffer with size validation.
 src/dfa/dense.rs::method::DFA<T>.write_to_native_endian	method	ported	src/regex/automata/dfa.cr:DFA#write_to_native_endian;spec/dfa_dense_spec.cr	Writes into caller-provided buffer with size validation.
-src/dfa/dense.rs::method::Flags.bool_to_int	method	missing	-	auto-generated
-src/dfa/dense.rs::method::Flags.from_bytes	method	missing	-	auto-generated
-src/dfa/dense.rs::method::Flags.from_nfa	method	missing	-	auto-generated
-src/dfa/dense.rs::method::Flags.write_to	method	missing	-	auto-generated
-src/dfa/dense.rs::method::Flags.write_to_len	method	missing	-	auto-generated
+src/dfa/dense.rs::method::Flags.bool_to_int	method	ported	src/regex/automata/types.cr:DFAFlags#to_u32;spec/dfa_dense_spec.cr	Crystal packs booleans directly into its DFA wire bitset.
+src/dfa/dense.rs::method::Flags.from_bytes	method	partial	src/regex/automata/types.cr:DFAFlags.from_u32;src/regex/automata/dfa.cr;spec/dfa_dense_spec.cr	The DFA serializer reads the bitset; Crystal retains additional DFA metadata bits.
+src/dfa/dense.rs::method::Flags.from_nfa	method	partial	src/regex/automata/dfa.cr;src/regex/automata/types.cr	Builder derives the same semantic flags while preserving Crystal's extended serialized metadata.
+src/dfa/dense.rs::method::Flags.write_to	method	partial	src/regex/automata/types.cr:DFAFlags#to_u32;src/regex/automata/dfa.cr;spec/dfa_dense_spec.cr	DFA serialization writes the extended Crystal flag bitset.
+src/dfa/dense.rs::method::Flags.write_to_len	method	ported	src/regex/automata/dfa.cr;spec/dfa_dense_spec.cr	Serialized dense DFA flags occupy one u32.
 src/dfa/dense.rs::method::MatchStates<&'a [u32]>.from_bytes_unchecked	method	missing	-	auto-generated
 src/dfa/dense.rs::method::MatchStates<T>.as_ref	method	intentional_divergence	src/regex/automata/match_states.cr	Crystal has no borrow-parameterized match-state storage; callers retain the owned object.
 src/dfa/dense.rs::method::MatchStates<T>.len	method	missing	-	auto-generated

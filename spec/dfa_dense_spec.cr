@@ -8,6 +8,15 @@ private def write_u32_le(bytes : Bytes, offset : Int32, value : UInt32) : Nil
 end
 
 describe "DFA::Dense" do
+  it "round trips dense DFA flag bits" do
+    flags = Regex::Automata::DFAFlags.new(has_empty: true, is_utf8: true, is_always_start_anchored: true)
+    decoded = Regex::Automata::DFAFlags.from_u32(flags.to_u32)
+    decoded.has_empty.should be_true
+    decoded.is_utf8.should be_true
+    decoded.is_always_start_anchored.should be_true
+    decoded.is_anchored.should be_false
+  end
+
   it "requires premultiplied IDs for transition-table validity" do
     classes = Regex::Automata::ByteClasses.empty
     table = Regex::Automata::TransitionTable.new(classes, 2, 2)
