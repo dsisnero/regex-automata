@@ -186,14 +186,17 @@ module Regex::Automata::NFA
     private class ActiveStates
       getter set : Regex::Automata::SparseSet
       getter threads : Array(Thread)
+      @closure_seen : Regex::Automata::SparseSet
 
       def initialize(re : PikeVM)
         @set = Regex::Automata::SparseSet.new(re.get_nfa.states.size.to_i32)
+        @closure_seen = Regex::Automata::SparseSet.new(re.get_nfa.states.size.to_i32)
         @threads = [] of Thread
       end
 
       def reset(re : PikeVM) : Nil
         @set.resize(re.get_nfa.states.size.to_i32)
+        @closure_seen.resize(re.get_nfa.states.size.to_i32)
         clear
       end
 
@@ -213,19 +216,20 @@ module Regex::Automata::NFA
         true
       end
 
-      def contains?(id : Regex::Automata::StateID) : Bool
-        found = false
-        @set.each do |sid|
-          if sid == id
-            found = true
-            break
-          end
-        end
-        found
+      # Reuse a sparse set for each closure instead of allocating a hash set
+      # for every NFA step. Existing terminal threads count as visited so that
+      # depth-first priority remains identical to the old closure traversal.
+      def begin_closure : Nil
+        @closure_seen.clear
+        @threads.each { |thread| @closure_seen.insert(thread.id) }
+      end
+
+      def mark_seen(id : Regex::Automata::StateID) : Bool
+        @closure_seen.insert(id)
       end
 
       def memory_usage : Int32
-        @set.memory_usage + (@threads.sum { |thread| thread.slots.size } * sizeof(Int32)).to_i32
+        @set.memory_usage + @closure_seen.memory_usage + (@threads.sum { |thread| thread.slots.size } * sizeof(Int32)).to_i32
       end
     end
 
@@ -535,13 +539,11 @@ module Regex::Automata::NFA
 
     private def add_epsilon_closure(active : ActiveStates, input : Regex::Automata::Input, at : Int32, sid : Regex::Automata::StateID, slots : Array(Int32?)) : Nil
       stack = [{sid, slots}] of Tuple(Regex::Automata::StateID, Array(Int32?))
-      visited = Set(Int32).new
-      active.threads.each { |thread| visited.add(thread.id.to_i) }
+      active.begin_closure
 
       until stack.empty?
         current_sid, current_slots = stack.pop
-        next if visited.includes?(current_sid.to_i)
-        visited.add(current_sid.to_i)
+        next unless active.mark_seen(current_sid)
 
         case state = @nfa.state(current_sid)
         when Fail, Match, ByteRange, Sparse

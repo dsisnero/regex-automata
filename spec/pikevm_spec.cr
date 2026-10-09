@@ -142,6 +142,18 @@ describe Regex::Automata::NFA::PikeVM do
     )
   end
 
+  it "reuses closure-visit storage across repeated searches" do
+    re = Regex::Automata::NFA::PikeVM.new("(ab|ac|ad)+z")
+    cache = re.create_cache
+
+    re.find(cache, "abacadabacz").should eq(Regex::Automata::Match.must(0, 0...11))
+    allocated = cache.memory_usage
+    20.times do
+      re.find(cache, "abacadabacz").should eq(Regex::Automata::Match.must(0, 0...11))
+    end
+    cache.memory_usage.should eq(allocated)
+  end
+
   it "honors UTF-8 empty-match semantics and supports disabling them" do
     utf8 = Regex::Automata::NFA::PikeVM.new("")
     cache = utf8.create_cache
