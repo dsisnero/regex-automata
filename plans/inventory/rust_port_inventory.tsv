@@ -1286,11 +1286,11 @@ src/nfa/thompson/pikevm.rs::method::Builder.configure	method	ported	src/regex/au
 src/nfa/thompson/pikevm.rs::method::Builder.new	method	ported	src/regex/automata/pikevm.cr:67;spec/pikevm_spec.cr	Default builder constructor.
 src/nfa/thompson/pikevm.rs::method::Builder.syntax	method	ported	src/regex/automata/pikevm.cr:95;spec/pikevm_spec.cr	Applies syntax configuration.
 src/nfa/thompson/pikevm.rs::method::Builder.thompson	method	ported	src/regex/automata/pikevm.cr:100;spec/pikevm_spec.cr	Applies Thompson configuration.
-src/nfa/thompson/pikevm.rs::method::Cache.memory_usage	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::Cache.new	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::Cache.reset	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::Cache.setup_search	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::CapturesMatches<'r, 'c, 'h>.next	method	missing	-	auto-generated
+src/nfa/thompson/pikevm.rs::method::Cache.memory_usage	method	ported	src/regex/automata/pikevm.cr:139;spec/pikevm_spec.cr	Reports active-state and slot storage.
+src/nfa/thompson/pikevm.rs::method::Cache.new	method	ported	src/regex/automata/pikevm.cr:118;spec/pikevm_spec.cr	Creates cache coupled to PikeVM.
+src/nfa/thompson/pikevm.rs::method::Cache.reset	method	ported	src/regex/automata/pikevm.cr:122;spec/pikevm_spec.cr	Resets reusable VM state.
+src/nfa/thompson/pikevm.rs::method::Cache.setup_search	method	ported	src/regex/automata/pikevm.cr:127;spec/pikevm_spec.cr	Initializes per-search cache state.
+src/nfa/thompson/pikevm.rs::method::CapturesMatches<'r, 'c, 'h>.next	method	ported	src/regex/automata/pikevm.cr:167;spec/pikevm_spec.cr	Yields independent capture snapshots.
 src/nfa/thompson/pikevm.rs::method::Config.get_match_kind	method	ported	src/regex/automata/pikevm.cr:35;spec/pikevm_spec.cr	Returns effective match kind.
 src/nfa/thompson/pikevm.rs::method::Config.get_prefilter	method	ported	src/regex/automata/pikevm.cr:39;spec/pikevm_spec.cr	Returns configured prefilter.
 src/nfa/thompson/pikevm.rs::method::Config.match_kind	method	ported	src/regex/automata/pikevm.cr:20;spec/pikevm_spec.cr	Configures match kind.
@@ -1305,7 +1305,7 @@ src/nfa/thompson/pikevm.rs::method::Counters.record_stack_push	method	missing	-	
 src/nfa/thompson/pikevm.rs::method::Counters.record_state_set	method	missing	-	auto-generated
 src/nfa/thompson/pikevm.rs::method::Counters.record_step	method	missing	-	auto-generated
 src/nfa/thompson/pikevm.rs::method::Counters.reset	method	missing	-	auto-generated
-src/nfa/thompson/pikevm.rs::method::FindMatches<'r, 'c, 'h>.next	method	missing	-	auto-generated
+src/nfa/thompson/pikevm.rs::method::FindMatches<'r, 'c, 'h>.next	method	ported	src/regex/automata/pikevm.cr:150;spec/pikevm_spec.cr	Yields non-overlapping matches.
 src/nfa/thompson/pikevm.rs::method::PikeVM.always_match	method	ported	src/regex/automata/pikevm.cr:247;spec/pikevm_spec.cr	Constructs always-match VM.
 src/nfa/thompson/pikevm.rs::method::PikeVM.builder	method	ported	src/regex/automata/pikevm.cr:259;spec/pikevm_spec.cr	Creates builder.
 src/nfa/thompson/pikevm.rs::method::PikeVM.captures	method	ported	src/regex/automata/pikevm.cr:318;spec/pikevm_spec.cr	Fills caller captures.
