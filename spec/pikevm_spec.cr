@@ -145,9 +145,9 @@ describe Regex::Automata::NFA::PikeVM do
   it "reuses closure-visit storage across repeated searches" do
     re = Regex::Automata::NFA::PikeVM.new("(ab|ac|ad)+z")
     cache = re.create_cache
+    allocated = cache.memory_usage
 
     re.find(cache, "abacadabacz").should eq(Regex::Automata::Match.must(0, 0...11))
-    allocated = cache.memory_usage
     20.times do
       re.find(cache, "abacadabacz").should eq(Regex::Automata::Match.must(0, 0...11))
     end

@@ -69,7 +69,7 @@
 
 - [ ] PikeVM and bounded backtracker engines
   - Scope: `src/nfa/thompson/{pikevm,backtrack}.rs` and `tests/nfa/thompson/{pikevm,backtrack}/**`.
-  - Work: validate cache reset/reuse, capture slots, prefilters, anchored/unanchored/ranged/reverse search, UTF-8 empty matches, quit errors, visited-capacity heuristics, and `max_haystack_len` overflow. PikeVM search behavior is ported, but its active states currently carry copied slot arrays per thread instead of Rust's reusable contiguous per-state slot table; port reusable per-state slot storage before closing. A Crystal-native layout is acceptable only when it preserves the same cache reuse and avoids per-thread capture-slot allocation/copying in the search hot path. A PikeVM delegation must be replaced or documented if it changes bounded-backtracker error/limit behavior.
+  - Work: validate cache reset/reuse, capture slots, prefilters, anchored/unanchored/ranged/reverse search, UTF-8 empty matches, quit errors, visited-capacity heuristics, and `max_haystack_len` overflow. PikeVM now uses cache-owned contiguous per-state slot storage plus a scratch row, exposed through bounded Crystal `Slice` views; this preserves Rust's reuse and avoids per-thread capture-slot allocation/copying in the search hot path. A PikeVM delegation must be replaced or documented if it changes bounded-backtracker error/limit behavior.
 
 - [ ] Dense DFA runtime and automaton interface
   - Scope: `src/dfa/{automaton,accel,dense,search,special,start}.rs`.
