@@ -82,11 +82,11 @@ module Regex::Automata
       Special.new(
         max: DEAD_STATE_ID,
         quit_id: DEAD_STATE_ID,
-        min_match: StateID::MAX,
+        min_match: DEAD_STATE_ID,
         max_match: DEAD_STATE_ID,
-        min_accel: StateID::MAX,
+        min_accel: DEAD_STATE_ID,
         max_accel: DEAD_STATE_ID,
-        min_start: StateID::MAX,
+        min_start: DEAD_STATE_ID,
         max_start: DEAD_STATE_ID
       )
     end
@@ -130,64 +130,76 @@ module Regex::Automata
 
     # Returns true if and only if the given state ID is a quit state.
     def is_quit_state?(id : StateID) : Bool
-      id == @quit_id
+      !is_dead_state?(id) && id == @quit_id
     end
 
     # Returns true if and only if the given state ID is a match state.
     def is_match_state?(id : StateID) : Bool
-      @min_match <= id && id <= @max_match
+      !is_dead_state?(id) && @min_match <= id && id <= @max_match
     end
 
     # Returns true if and only if the given state ID is an accelerated state.
     def is_accel_state?(id : StateID) : Bool
-      @min_accel <= id && id <= @max_accel
+      !is_dead_state?(id) && @min_accel <= id && id <= @max_accel
     end
 
     # Returns true if and only if the given state ID is a start state.
     def is_start_state?(id : StateID) : Bool
-      @min_start <= id && id <= @max_start
+      !is_dead_state?(id) && @min_start <= id && id <= @max_start
     end
 
     # Returns the total number of match states.
-    def match_len : Int32
-      if @max_match < @min_match
+    def match_len(stride : Int32 = 1) : Int32
+      if !matches?
         0
       else
-        (@max_match.to_i - @min_match.to_i) + 1
+        ((@max_match.to_i - @min_match.to_i) + stride) // stride
       end
     end
 
     # Returns the total number of accelerated states.
-    def accel_len : Int32
-      if @max_accel < @min_accel
+    def accel_len(stride : Int32 = 1) : Int32
+      if !accels?
         0
       else
-        (@max_accel.to_i - @min_accel.to_i) + 1
+        ((@max_accel.to_i - @min_accel.to_i) + stride) // stride
       end
     end
 
     # Returns the total number of start states.
-    def start_len : Int32
-      if @max_start < @min_start
+    def start_len(stride : Int32 = 1) : Int32
+      if !starts?
         0
       else
-        (@max_start.to_i - @min_start.to_i) + 1
+        ((@max_start.to_i - @min_start.to_i) + stride) // stride
       end
     end
 
     # Returns true if there are no match states.
     def no_match_states? : Bool
-      @max_match < @min_match
+      !matches?
     end
 
     # Returns true if there are no accelerated states.
     def no_accel_states? : Bool
-      @max_accel < @min_accel
+      !accels?
     end
 
     # Returns true if there are no start states.
     def no_start_states? : Bool
-      @max_start < @min_start
+      !starts?
+    end
+
+    def matches? : Bool
+      @min_match != DEAD_STATE_ID
+    end
+
+    def accels? : Bool
+      @min_accel != DEAD_STATE_ID
+    end
+
+    def starts? : Bool
+      @min_start != DEAD_STATE_ID
     end
 
     # Sets the quit state ID.
@@ -215,7 +227,7 @@ module Regex::Automata
       @max = candidates.max? || DEAD_STATE_ID
 
       # Reset start state range to empty
-      @min_start = StateID::MAX
+      @min_start = DEAD_STATE_ID
       @max_start = DEAD_STATE_ID
     end
 
@@ -272,6 +284,8 @@ module Regex::Automata
 
     # Serializes the special states to bytes.
     def write_to(buf : Bytes) : Int32
+      raise SerializeError.buffer_too_small("special state ids") if buf.size < write_to_len
+
       # Simple serialization: write all IDs as 4-byte integers
       offset = 0
       [@max, @quit_id, @min_match, @max_match, @min_accel, @max_accel, @min_start, @max_start].each do |id|
@@ -282,6 +296,10 @@ module Regex::Automata
         offset += 4
       end
       offset
+    end
+
+    def write_to_len : Int32
+      8 * sizeof(Int32)
     end
 
     # Deserializes special states from bytes.
