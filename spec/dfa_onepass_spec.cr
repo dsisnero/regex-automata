@@ -124,6 +124,49 @@ private def onepass_anchored_fixtures : Array(OnePassAnchoredFixture)
   end
 end
 
+private def assert_onepass_anchored_fixtures(base_config : Regex::Automata::DFA::OnePass::Config) : Nil
+  exercised = 0
+  fixtures = onepass_anchored_fixtures
+  fixtures.size.should eq(12)
+
+  fixtures.each do |fixture|
+    builder = Regex::Automata::DFA::OnePass::DFA.builder
+      .configure(
+        base_config.overwrite(
+          Regex::Automata::DFA::OnePass::DFA.config
+            .match_kind(fixture.match_kind)
+        )
+      )
+      .syntax(Regex::Automata::Syntax::Config.new.unicode(fixture.unicode))
+
+    begin
+      re = builder.build(fixture.regex)
+      cache = re.create_cache
+      caps = re.create_captures
+      input = Regex::Automata::Input.new(fixture.haystack)
+        .range(fixture.bounds[0]...fixture.bounds[1])
+        .anchored(Regex::Automata::Anchored::Yes)
+        .earliest(fixture.earliest)
+
+      re.try_search(cache, input, caps).should be_nil
+      if expected = fixture.matches.first?
+        caps.get_match.should eq(
+          Regex::Automata::Match.must(0, expected[0]...expected[1])
+        )
+      else
+        caps.get_match.should be_nil
+      end
+      exercised += 1
+    rescue error : Regex::Automata::DFA::OnePass::BuildError
+      next if error.kind == Regex::Automata::DFA::OnePass::BuildError::Kind::NotOnePass
+
+      raise error
+    end
+  end
+
+  exercised.should be > 0
+end
+
 describe Regex::Automata::DFA::OnePass::Config do
   it "exposes the vendored default configuration and overwrite semantics" do
     base = Regex::Automata::DFA::OnePass::Config.new
@@ -514,43 +557,18 @@ describe Regex::Automata::DFA::OnePass::DFA do
   end
 
   it "runs the vendored anchored fixture corpus for admitted one-pass patterns" do
-    exercised = 0
-    fixtures = onepass_anchored_fixtures
-    fixtures.size.should eq(12)
+    assert_onepass_anchored_fixtures(Regex::Automata::DFA::OnePass::DFA.config)
+  end
 
-    fixtures.each do |fixture|
-      builder = Regex::Automata::DFA::OnePass::DFA.builder
-        .configure(
-          Regex::Automata::DFA::OnePass::DFA.config
-            .match_kind(fixture.match_kind)
-        )
-        .syntax(Regex::Automata::Syntax::Config.new.unicode(fixture.unicode))
+  it "runs anchored fixtures with one-pass byte classes disabled" do
+    assert_onepass_anchored_fixtures(
+      Regex::Automata::DFA::OnePass::DFA.config.byte_classes(false)
+    )
+  end
 
-      begin
-        re = builder.build(fixture.regex)
-        cache = re.create_cache
-        caps = re.create_captures
-        input = Regex::Automata::Input.new(fixture.haystack)
-          .range(fixture.bounds[0]...fixture.bounds[1])
-          .anchored(Regex::Automata::Anchored::Yes)
-          .earliest(fixture.earliest)
-
-        re.try_search(cache, input, caps).should be_nil
-        if expected = fixture.matches.first?
-          caps.get_match.should eq(
-            Regex::Automata::Match.must(0, expected[0]...expected[1])
-          )
-        else
-          caps.get_match.should be_nil
-        end
-        exercised += 1
-      rescue error : Regex::Automata::DFA::OnePass::BuildError
-        next if error.kind == Regex::Automata::DFA::OnePass::BuildError::Kind::NotOnePass
-
-        raise error
-      end
-    end
-
-    exercised.should be > 0
+  it "runs anchored fixtures with one-pass starts for each pattern" do
+    assert_onepass_anchored_fixtures(
+      Regex::Automata::DFA::OnePass::DFA.config.starts_for_each_pattern(true)
+    )
   end
 end
