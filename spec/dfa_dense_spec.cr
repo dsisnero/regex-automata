@@ -42,6 +42,20 @@ describe "DFA::Dense" do
     dfa.pattern_map.keys.each { |id| dfa.is_match_state?(id).should be_true }
   end
 
+  it "writes the dense match-state wire payload" do
+    states = [0.as(Int32?)]
+    slices = [{0, 2}] of Tuple(Int32, Int32)
+    ids = [Regex::Automata::PatternID.new(0), Regex::Automata::PatternID.new(1)]
+    matches = Regex::Automata::MatchStates.new(states, slices, ids, 2, nil)
+    bytes = Bytes.new(matches.write_to_len)
+
+    matches.write_to(bytes).should eq(matches.write_to_len)
+    bytes.size.should eq(28)
+    bytes[0, 4].should eq(Bytes[1, 0, 0, 0])
+    bytes[12, 4].should eq(Bytes[2, 0, 0, 0])
+    bytes[24, 4].should eq(Bytes[1, 0, 0, 0])
+  end
+
   it "iterates dense start states in unanchored then anchored order" do
     table = Regex::Automata::StartTable.new(
       Regex::Automata::StartKind::Both,

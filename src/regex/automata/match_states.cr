@@ -120,6 +120,28 @@ module Regex::Automata
       ((@slices.size * 2 + @pattern_ids.size) * sizeof(PatternID)).to_i32
     end
 
+    # Writes Rust's dense match-state payload: slice count and pairs, unique
+    # pattern count, then flattened pattern IDs.
+    def write_to(dst : Bytes, endian : Symbol = :little) : Int32
+      needed = write_to_len
+      raise ArgumentError.new("buffer too small for match states") if dst.size < needed
+
+      offset = 0
+      offset = write_u32(@slices.size.to_u32, dst, offset, endian)
+      @slices.each do |start, len|
+        offset = write_u32(start.to_u32, dst, offset, endian)
+        offset = write_u32(len.to_u32, dst, offset, endian)
+      end
+      offset = write_u32(@pattern_len.to_u32, dst, offset, endian)
+      offset = write_u32(@pattern_ids.size.to_u32, dst, offset, endian)
+      @pattern_ids.each { |id| offset = write_u32(id.to_i.to_u32, dst, offset, endian) }
+      offset
+    end
+
+    def write_to_len : Int32
+      (3 + (@slices.size * 2) + @pattern_ids.size).to_i32 * sizeof(UInt32)
+    end
+
     # Validate the flattened slice metadata before it is used for match
     # lookups. The containing DFA validates the state-to-match mapping.
     def validate : DeserializeError?
@@ -148,6 +170,24 @@ module Regex::Automata
       return nil if state_index < 0 || state_index >= @state_to_match_index.size
 
       @state_to_match_index[state_index]
+    end
+
+    private def write_u32(value : UInt32, dst : Bytes, offset : Int32, endian : Symbol) : Int32
+      case endian
+      when :little
+        dst[offset] = (value & 0xFF).to_u8
+        dst[offset + 1] = ((value >> 8) & 0xFF).to_u8
+        dst[offset + 2] = ((value >> 16) & 0xFF).to_u8
+        dst[offset + 3] = ((value >> 24) & 0xFF).to_u8
+      when :big
+        dst[offset] = ((value >> 24) & 0xFF).to_u8
+        dst[offset + 1] = ((value >> 16) & 0xFF).to_u8
+        dst[offset + 2] = ((value >> 8) & 0xFF).to_u8
+        dst[offset + 3] = (value & 0xFF).to_u8
+      else
+        raise ArgumentError.new("unsupported endianness")
+      end
+      offset + sizeof(UInt32)
     end
   end
 end
