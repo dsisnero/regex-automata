@@ -9,6 +9,44 @@ module Regex::Automata
   # - State IDs are premultiplied by stride (power of 2 ≥ alphabet size)
   # - Fast transition lookup: offset = state_id + byte_class
   class TransitionTable
+    # Immutable logical view of one transition-table row. Unlike the backing
+    # row, this excludes stride padding and includes the EOI transition.
+    class State
+      getter id : StateID
+
+      def initialize(@id : StateID, @table : Array(StateID))
+      end
+
+      def transitions : Array(Tuple(Int32, StateID))
+        @table.map_with_index { |target, unit| {unit, target} }
+      end
+
+      def sparse_transitions : Array(Tuple(Int32, Int32, StateID))
+        runs = [] of Tuple(Int32, Int32, StateID)
+        start = nil.as(Int32?)
+        target = nil.as(StateID?)
+        @table.each_with_index do |next_id, unit|
+          if next_id == Regex::Automata::DFA::DEAD_STATE_ID
+            if run_start = start
+              runs << {run_start, unit - 1, target.not_nil!}
+              start = nil
+              target = nil
+            end
+          elsif target == next_id
+          elsif run_start = start
+            runs << {run_start, unit - 1, target.not_nil!}
+            start = unit
+            target = next_id
+          else
+            start = unit
+            target = next_id
+          end
+        end
+        runs << {start.not_nil!, @table.size - 1, target.not_nil!} if start
+        runs
+      end
+    end
+
     getter table : Array(StateID)
     getter classes : ByteClasses
     getter stride2 : Int32 # log2(stride), where stride = 1 << stride2
@@ -146,6 +184,18 @@ module Regex::Automata
       idx = to_index(state_id)
       start = idx * stride
       Slice.new(@table.to_unsafe + start, stride)
+    end
+
+    # Returns the logical transition row for a valid premultiplied state ID.
+    def state(state_id : StateID) : State
+      ensure_valid_state!(state_id, "state")
+      start = state_id.to_i
+      State.new(state_id, @table[start, alphabet_len])
+    end
+
+    # Returns logical transition rows in transition-table order.
+    def states : Array(State)
+      Array.new(len) { |index| state(to_state_id(index)) }
     end
 
     # Copy transitions from one state to another

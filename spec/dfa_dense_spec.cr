@@ -76,6 +76,20 @@ describe "DFA::Dense" do
     dfa.trans.first.should eq(Regex::Automata::DFA::DEAD_STATE_ID)
   end
 
+  it "views logical transition-table states without stride padding" do
+    classes = Regex::Automata::ByteClasses.empty
+    table = Regex::Automata::TransitionTable.minimal(classes)
+    dead = table.to_state_id(0)
+    quit = table.to_state_id(1)
+    table.set_eoi_transition(dead, quit)
+
+    state = table.state(dead)
+    state.id.should eq(dead)
+    state.transitions.size.should eq(table.alphabet_len)
+    state.transitions.last.should eq({table.alphabet_len - 1, quit})
+    table.states.map(&.id).should eq([dead, quit])
+  end
+
   it "round trips dense DFA flag bits" do
     flags = Regex::Automata::DFAFlags.new(has_empty: true, is_utf8: true, is_always_start_anchored: true)
     decoded = Regex::Automata::DFAFlags.from_u32(flags.to_u32)

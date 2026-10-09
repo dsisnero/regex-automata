@@ -226,9 +226,9 @@ src/dfa/dense.rs::method::StartTable<T>.write_to_len	method	missing	-	auto-gener
 src/dfa/dense.rs::method::StartTable<Vec<u32>>.dead	method	missing	-	auto-generated
 src/dfa/dense.rs::method::State<'a>.accelerate	method	missing	-	auto-generated
 src/dfa/dense.rs::method::State<'a>.fmt	method	missing	-	auto-generated
-src/dfa/dense.rs::method::State<'a>.id	method	ported	src/regex/automata/dfa.cr:DFA::State#id;spec/dfa_dense_spec.cr	Materialized Crystal state retains its premultiplied ID.
-src/dfa/dense.rs::method::State<'a>.sparse_transitions	method	ported	src/regex/automata/dfa.cr:DFA::State#sparse_transitions;spec/dfa_dense_spec.cr	Coalesces adjacent equal non-dead byte-class transitions into inclusive runs.
-src/dfa/dense.rs::method::State<'a>.transitions	method	ported	src/regex/automata/dfa.cr:DFA::State#transitions;spec/dfa_dense_spec.cr	Enumerates materialized dense byte-class transitions in order.
+src/dfa/dense.rs::method::State<'a>.id	method	ported	src/regex/automata/transition_table.cr:TransitionTable::State#id;spec/dfa_dense_spec.cr	Logical transition-table state retains its premultiplied ID.
+src/dfa/dense.rs::method::State<'a>.sparse_transitions	method	ported	src/regex/automata/transition_table.cr:TransitionTable::State#sparse_transitions;spec/dfa_dense_spec.cr	Coalesces adjacent equal non-dead alphabet-unit transitions into inclusive runs.
+src/dfa/dense.rs::method::State<'a>.transitions	method	ported	src/regex/automata/transition_table.cr:TransitionTable::State#transitions;spec/dfa_dense_spec.cr	Enumerates logical byte-class and EOI transitions in order.
 src/dfa/dense.rs::method::StateIter<'a, T>.next	method	missing	-	auto-generated
 src/dfa/dense.rs::method::StateSparseTransitionIter<'a>.next	method	missing	-	auto-generated
 src/dfa/dense.rs::method::StateTransitionIter<'a>.next	method	missing	-	auto-generated
@@ -240,8 +240,8 @@ src/dfa/dense.rs::method::TransitionTable<T>.len	method	ported	src/regex/automat
 src/dfa/dense.rs::method::TransitionTable<T>.memory_usage	method	ported	src/regex/automata/transition_table.cr:61;spec/dfa_dense_spec.cr	Reports contiguous StateID backing-store bytes.
 src/dfa/dense.rs::method::TransitionTable<T>.next_state_id	method	ported	src/regex/automata/transition_table.cr:215;spec/dfa_dense_spec.cr	Converts adjacent state indices to premultiplied IDs.
 src/dfa/dense.rs::method::TransitionTable<T>.prev_state_id	method	ported	src/regex/automata/transition_table.cr:221;spec/dfa_dense_spec.cr	Converts adjacent state indices to premultiplied IDs.
-src/dfa/dense.rs::method::TransitionTable<T>.state	method	missing	-	auto-generated
-src/dfa/dense.rs::method::TransitionTable<T>.states	method	missing	-	auto-generated
+src/dfa/dense.rs::method::TransitionTable<T>.state	method	ported	src/regex/automata/transition_table.cr:TransitionTable#state;spec/dfa_dense_spec.cr	Returns an immutable logical row view with EOI and without stride padding.
+src/dfa/dense.rs::method::TransitionTable<T>.states	method	ported	src/regex/automata/transition_table.cr:TransitionTable#states;spec/dfa_dense_spec.cr	Returns logical rows in premultiplied transition-table order.
 src/dfa/dense.rs::method::TransitionTable<T>.stride	method	ported	src/regex/automata/transition_table.cr:36;spec/dfa_dense_spec.cr	Computes the power-of-two row width.
 src/dfa/dense.rs::method::TransitionTable<T>.table	method	ported	src/regex/automata/transition_table.cr:10;spec/dfa_dense_spec.cr	Crystal getter exposes the owned StateID array.
 src/dfa/dense.rs::method::TransitionTable<T>.table_mut	method	ported	src/regex/automata/transition_table.cr:210;spec/dfa_dense_spec.cr	Returns the mutable owned array.
