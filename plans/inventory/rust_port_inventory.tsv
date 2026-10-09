@@ -220,7 +220,7 @@ src/dfa/dense.rs::method::StartTable<T>.start	method	ported	src/regex/automata/s
 src/dfa/dense.rs::method::StartTable<T>.table	method	ported	src/regex/automata/start_table.cr:StartTable#table;spec/dfa_dense_spec.cr	Returns an owned StateID snapshot in Rust logical table order; Hash backing prevents a borrowed raw slice.
 src/dfa/dense.rs::method::StartTable<T>.table_mut	method	missing	-	auto-generated
 src/dfa/dense.rs::method::StartTable<T>.to_owned	method	ported	src/regex/automata/start_table.cr:StartTable#to_owned;spec/dfa_dense_spec.cr	Deep-copies every start-state hash for transformation-safe ownership.
-src/dfa/dense.rs::method::StartTable<T>.validate	method	missing	-	auto-generated
+src/dfa/dense.rs::method::StartTable<T>.validate	method	ported	src/regex/automata/start_table.cr:StartTable#validate;spec/dfa_dense_spec.cr	Checks transition-table IDs plus the no-match-start invariant through explicit Crystal dependencies.
 src/dfa/dense.rs::method::StartTable<T>.write_to	method	missing	-	auto-generated
 src/dfa/dense.rs::method::StartTable<T>.write_to_len	method	missing	-	auto-generated
 src/dfa/dense.rs::method::StartTable<Vec<u32>>.dead	method	missing	-	auto-generated

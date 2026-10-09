@@ -114,6 +114,18 @@ describe "DFA::Dense" do
     table.universal_start(Regex::Automata::Anchored::No).should be_nil
   end
 
+  it "validates dense start states against a transition table" do
+    transitions = Regex::Automata::TransitionTable.minimal(Regex::Automata::ByteClasses.empty)
+    table = Regex::Automata::StartTable.new(
+      Regex::Automata::StartKind::Both,
+      transitions.to_state_id(0),
+      transitions.to_state_id(1)
+    )
+
+    table.validate(transitions) { false }.should be_nil
+    table.validate(transitions) { |id| id == transitions.to_state_id(1) }.not_nil!.message.should eq("start states cannot be match states")
+  end
+
   it "exposes dense start states through the DFA" do
     dfa = Regex::Automata::DFA::DFA.new("abc")
     dfa.starts.size.should eq(12)

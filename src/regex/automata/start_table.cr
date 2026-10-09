@@ -181,6 +181,22 @@ module Regex::Automata
       iter.map(&.[0])
     end
 
+    # Validates that every materialized start can index the given transition
+    # table and that none is a match state.
+    def validate(tt : TransitionTable, &match_state : StateID -> Bool) : DeserializeError?
+      if id = @universal_start_unanchored
+        return DeserializeError.generic("found invalid universal unanchored starting state ID") unless tt.is_valid(id)
+      end
+      if id = @universal_start_anchored
+        return DeserializeError.generic("found invalid universal anchored starting state ID") unless tt.is_valid(id)
+      end
+      table.each do |id|
+        return DeserializeError.generic("found invalid starting state ID") unless tt.is_valid(id)
+        return DeserializeError.generic("start states cannot be match states") if yield id
+      end
+      nil
+    end
+
     # Logical StateID payload bytes, excluding Crystal Hash object overhead.
     def memory_usage : Int32
       (iter.size * sizeof(StateID)).to_i32
