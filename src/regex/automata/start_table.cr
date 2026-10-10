@@ -203,6 +203,44 @@ module Regex::Automata
       (iter.size * sizeof(StateID)).to_i32
     end
 
+    # Writes the standalone dense start-table payload in Rust's field order:
+    # kind, start-byte map, stride, optional pattern count, universal starts,
+    # and fixed-order start IDs. Crystal owns the backing data, so this is a
+    # direct write rather than a borrowing view.
+    def write_to(dst : Bytes, endian : Symbol = :little) : Int32
+      nwrite = write_to_len
+      raise SerializeError.new("buffer too small for starting table ids") if dst.size < nwrite
+
+      offset = 0
+      write_u32(@kind.to_i.to_u32, dst, offset, endian)
+      offset += 4
+      offset += @start_map.write_to(dst[offset, @start_map.write_to_len])
+      write_u32(Start.len.to_u32, dst, offset, endian)
+      offset += 4
+      pattern_len = @pattern_states.empty? ? UInt32::MAX : (@pattern_states.keys.max_by(&.to_i).to_i + 1).to_u32
+      write_u32(pattern_len, dst, offset, endian)
+      offset += 4
+      write_u32(optional_state_id(@universal_start_unanchored), dst, offset, endian)
+      offset += 4
+      write_u32(optional_state_id(@universal_start_anchored), dst, offset, endian)
+      offset += 4
+      table.each do |id|
+        write_u32(id.to_i.to_u32, dst, offset, endian)
+        offset += 4
+      end
+      if pattern_len != UInt32::MAX
+        pattern_len.to_i.times do |pattern_index|
+          states = @pattern_states[PatternID.new(pattern_index)]?
+          Start.each { |start| write_u32((states.try(&.[start]?) || @dead).to_i.to_u32, dst, offset, endian); offset += 4 }
+        end
+      end
+      offset
+    end
+
+    def write_to_len : Int32
+      4 + @start_map.write_to_len + 4 + 4 + 4 + 4 + ((12 + (pattern_wire_len * Start.len)) * 4)
+    end
+
     # Returns an independent owned copy suitable for DFA transformations.
     def to_owned : StartTable
       StartTable.new(
@@ -286,6 +324,22 @@ module Regex::Automata
         Start::LineCR               => id,
         Start::CustomLineTerminator => id,
       }
+    end
+
+    private def pattern_wire_len : Int32
+      @pattern_states.empty? ? 0 : @pattern_states.keys.max_by(&.to_i).to_i + 1
+    end
+
+    private def optional_state_id(id : StateID?) : UInt32
+      id ? id.not_nil!.to_i.to_u32 : UInt32::MAX
+    end
+
+    private def write_u32(value : UInt32, dst : Bytes, offset : Int32, endian : Symbol) : Nil
+      if endian == :big
+        4.times { |i| dst[offset + i] = ((value >> ((3 - i) * 8)) & 0xFF).to_u8 }
+      else
+        4.times { |i| dst[offset + i] = ((value >> (i * 8)) & 0xFF).to_u8 }
+      end
     end
 
     private def compute_universal_start(states : Hash(Start, StateID), anchored : Anchored) : StateID?

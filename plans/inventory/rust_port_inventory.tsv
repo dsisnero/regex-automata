@@ -221,8 +221,8 @@ src/dfa/dense.rs::method::StartTable<T>.table	method	ported	src/regex/automata/s
 src/dfa/dense.rs::method::StartTable<T>.table_mut	method	missing	-	auto-generated
 src/dfa/dense.rs::method::StartTable<T>.to_owned	method	ported	src/regex/automata/start_table.cr:StartTable#to_owned;spec/dfa_dense_spec.cr	Deep-copies every start-state hash for transformation-safe ownership.
 src/dfa/dense.rs::method::StartTable<T>.validate	method	ported	src/regex/automata/start_table.cr:StartTable#validate;spec/dfa_dense_spec.cr	Checks transition-table IDs plus the no-match-start invariant through explicit Crystal dependencies.
-src/dfa/dense.rs::method::StartTable<T>.write_to	method	missing	-	auto-generated
-src/dfa/dense.rs::method::StartTable<T>.write_to_len	method	missing	-	auto-generated
+src/dfa/dense.rs::method::StartTable<T>.write_to	method	ported	src/regex/automata/start_table.cr:StartTable#write_to;spec/dfa_dense_spec.cr	Writes the Rust field order with explicit Crystal endianness, including the start map, optional pattern table, universal starts, and fixed-order IDs.
+src/dfa/dense.rs::method::StartTable<T>.write_to_len	method	ported	src/regex/automata/start_table.cr:StartTable#write_to_len;spec/dfa_dense_spec.cr	Reports the exact standalone start-table payload length, including optional per-pattern rows.
 src/dfa/dense.rs::method::StartTable<Vec<u32>>.dead	method	ported	src/regex/automata/start_table.cr:StartTable#dead;spec/dfa_dense_spec.cr	Stores the configurable dead-state sentinel used for invalid per-pattern starts.
 src/dfa/dense.rs::method::State<'a>.accelerate	method	missing	-	auto-generated
 src/dfa/dense.rs::method::State<'a>.fmt	method	missing	-	auto-generated

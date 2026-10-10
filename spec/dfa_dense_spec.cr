@@ -207,6 +207,22 @@ describe "DFA::Dense" do
     table.dead.should eq(Regex::Automata::DFA::DEAD_STATE_ID)
   end
 
+  it "writes the standalone dense start-table payload" do
+    table = Regex::Automata::StartTable.new(
+      Regex::Automata::StartKind::Both,
+      Regex::Automata::StateID.new(2),
+      Regex::Automata::StateID.new(4)
+    )
+    bytes = Bytes.new(table.write_to_len)
+
+    table.write_to(bytes).should eq(table.write_to_len)
+    bytes.size.should eq(324)
+    bytes[0, 4].should eq(Bytes[0, 0, 0, 0])
+    bytes[260, 4].should eq(Bytes[6, 0, 0, 0])
+    bytes[264, 4].should eq(Bytes[255, 255, 255, 255])
+    bytes[276, 4].should eq(Bytes[2, 0, 0, 0])
+  end
+
   it "owns an independent dense start-table snapshot" do
     table = Regex::Automata::StartTable.new(
       Regex::Automata::StartKind::Both,
