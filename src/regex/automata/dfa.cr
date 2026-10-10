@@ -1426,6 +1426,21 @@ module Regex::Automata::DFA
       @special = yield @special
     end
 
+    # Rewrites transition targets and start references without changing the
+    # physical order of state rows. This mirrors Rust's OwnedDFA#remap; callers
+    # that rearrange rows remain responsible for their own special metadata.
+    def remap(&map : StateID -> StateID) : Nil
+      table = @tt.not_nil!
+      table.table_mut.map! { |id| yield id }
+      @states.each do |state|
+        state.next.map! { |id| yield id }
+        state.eoi_next = yield state.eoi_next
+      end
+      @st = @st.remap { |id| yield id }
+      @start_unanchored = yield @start_unanchored
+      @start_anchored = yield @start_anchored
+    end
+
     # Returns true if and only if this automaton is guaranteed to be valid for UTF-8 input
     def is_utf8? : Bool
       @flags.is_utf8

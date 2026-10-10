@@ -82,6 +82,16 @@ describe "DFA::Dense" do
     dfa.special.max.should eq(Regex::Automata::StateID.new(0))
   end
 
+  it "remaps dense transitions and starts without moving state rows" do
+    dfa = Regex::Automata::DFA::DFA.new("abc")
+    start = dfa.start
+    replacement = dfa.quit_id
+
+    dfa.remap { |id| id == start ? replacement : id }
+    dfa.start.should eq(replacement)
+    dfa.trans.includes?(replacement).should be_true
+  end
+
   it "iterates dense start states in unanchored then anchored order" do
     table = Regex::Automata::StartTable.new(
       Regex::Automata::StartKind::Both,
