@@ -114,6 +114,21 @@ module Regex::Automata
       @universal_start_anchored ||= compute_universal_start(@anchored_states, Anchored::Yes)
     end
 
+    # Creates a well-formed start matrix whose every entry points at the dead
+    # state. This mirrors Rust's construction-time placeholder before
+    # determinization fills individual starts.
+    def self.dead(kind : StartKind, look_matcher : LookMatcher, pattern_len : Int32? = nil) : StartTable
+      if len = pattern_len
+        raise BuildError.new("too many start states") if len < 0 || len.to_i64 > PatternID::MAX.as_u32.to_i64
+      end
+      dead = StateID::ZERO
+      patterns = {} of PatternID => Hash(Start, StateID)
+      (pattern_len || 0).times do |index|
+        patterns[PatternID.new(index)] = default_states_for(dead)
+      end
+      StartTable.new(kind, dead, dead, default_states_for(dead), default_states_for(dead), patterns, nil, nil, dead, StartByteMap.new(look_matcher))
+    end
+
     def start(anchored : Anchored) : StateID | StartError
       start(anchored, Start::Text, nil)
     end
@@ -361,6 +376,17 @@ module Regex::Automata
     end
 
     private def default_states(id : StateID) : Hash(Start, StateID)
+      {
+        Start::NonWordByte          => id,
+        Start::WordByte             => id,
+        Start::Text                 => id,
+        Start::LineLF               => id,
+        Start::LineCR               => id,
+        Start::CustomLineTerminator => id,
+      }
+    end
+
+    private def self.default_states_for(id : StateID) : Hash(Start, StateID)
       {
         Start::NonWordByte          => id,
         Start::WordByte             => id,

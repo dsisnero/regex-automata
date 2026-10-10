@@ -215,6 +215,18 @@ describe "DFA::Dense" do
     table.dead.should eq(Regex::Automata::DFA::DEAD_STATE_ID)
   end
 
+  it "creates dead dense start tables with optional per-pattern rows" do
+    table = Regex::Automata::StartTable.dead(
+      Regex::Automata::StartKind::Both,
+      Regex::Automata::LookMatcher.new('a'.ord.to_u8),
+      2
+    )
+
+    table.table.all? { |id| id == Regex::Automata::StateID::ZERO }.should be_true
+    table.pattern_states.size.should eq(2)
+    table.start_map.get('a'.ord.to_u8).should eq(Regex::Automata::Start::CustomLineTerminator)
+  end
+
   it "writes the standalone dense start-table payload" do
     table = Regex::Automata::StartTable.new(
       Regex::Automata::StartKind::Both,
