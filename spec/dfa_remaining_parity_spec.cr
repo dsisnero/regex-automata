@@ -79,7 +79,7 @@ private def roundtrip_sparse_regex(re : Regex::Automata::DFA::Regex) : Regex::Au
 end
 
 private def dense_byte_class_count_offset(dfa : Regex::Automata::DFA::DFA) : Int32
-  8 + 4 + 4 + 4 + 4 + 4 + (Regex::Automata::Start.len * 2 * 4) + 4 + (dfa.st.pattern_states.size * (4 + Regex::Automata::Start.len * 4))
+  8 + 4 + 4 + 4 + 4 + 4 + (Regex::Automata::Start.len * 2 * 4) + 4 + (dfa.st.pattern_states.size * (4 + Regex::Automata::Start.len * 4)) + 256
 end
 
 private def write_u32_le_spec(bytes : Bytes, offset : Int32, value : UInt32) : Nil

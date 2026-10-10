@@ -299,7 +299,7 @@ module Regex::Automata::DFA
       # Read version
       ensure_bytes_available(slice, offset, 4, "version")
       version = read_u32(slice, offset, endianness)
-      unless version == 1 || version == 2 || version == 3 || version == 4
+      unless version == 1 || version == 2 || version == 3 || version == 4 || version == 5
         raise DeserializeError.new("Unsupported version: #{version}")
       end
       offset += 4
@@ -324,6 +324,7 @@ module Regex::Automata::DFA
       offset += 4
 
       start_table = nil
+      start_map = StartByteMap.new(LookMatcher.new)
       if version >= 2
         unanchored_states = {} of Start => StateID
         anchored_states = {} of Start => StateID
@@ -358,13 +359,19 @@ module Regex::Automata::DFA
             pattern_states[pattern_id] = states
           end
         end
+        if version >= 5
+          ensure_bytes_available(slice, offset, 256, "start byte map")
+          start_map, read = StartByteMap.from_bytes(slice[offset, slice.size - offset])
+          offset += read
+        end
         start_table = StartTable.new(
           flags.is_anchored ? StartKind::Anchored : StartKind::Both,
           start_unanchored,
           start_anchored,
           unanchored_states,
           anchored_states,
-          pattern_states
+          pattern_states,
+          start_map: start_map
         )
       end
 
@@ -506,7 +513,8 @@ module Regex::Automata::DFA
           st.anchored_states,
           st.pattern_states,
           compute_universal_start(states, st.unanchored_states),
-          compute_universal_start(states, st.anchored_states)
+          compute_universal_start(states, st.anchored_states),
+          start_map: st.start_map
         )
       end
 
@@ -662,6 +670,7 @@ module Regex::Automata::DFA
       total_size += (Start.len * 2 * 4)
       total_size += 4
       total_size += @st.pattern_states.size * (4 + Start.len * 4)
+      total_size += @st.start_map.write_to_len
 
       # Byte classes count (4 bytes) + byte class mapping (256 bytes)
       total_size += 4 + 256
@@ -696,7 +705,7 @@ module Regex::Automata::DFA
       offset += 8
 
       # Write version
-      write_u32(4, buffer, offset, endianness)
+      write_u32(5, buffer, offset, endianness)
       offset += 4
 
       # Write flags
@@ -736,6 +745,7 @@ module Regex::Automata::DFA
           offset += 4
         end
       end
+      offset += @st.start_map.write_to(buffer[offset, @st.start_map.write_to_len])
 
       # Write byte classes count
       write_u32(@byte_classes.to_u32, buffer, offset, endianness)
@@ -876,7 +886,7 @@ module Regex::Automata::DFA
     end
 
     private def self.supported_serialized_version?(version : UInt32) : Bool
-      version == 1 || version == 2 || version == 3 || version == 4
+      version == 1 || version == 2 || version == 3 || version == 4 || version == 5
     end
 
     private def self.ensure_bytes_available(slice : Bytes, offset : Int32, len : Int32, what : String) : Nil

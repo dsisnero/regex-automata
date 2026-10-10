@@ -178,6 +178,8 @@ describe "DFA::Dense" do
 
     dfa.start_map.get('a'.ord.to_u8).should eq(Regex::Automata::Start::CustomLineTerminator)
     dfa.start_map.get('b'.ord.to_u8).should eq(Regex::Automata::Start::WordByte)
+    roundtrip = Regex::Automata::DFA::DFA.from_bytes(dfa.to_bytes_native_endian[0])[0]
+    roundtrip.start_map.get('a'.ord.to_u8).should eq(Regex::Automata::Start::CustomLineTerminator)
   end
 
   it "truncates trailing dense state storage" do
