@@ -64,6 +64,41 @@ module Regex::Automata
     def initialize(@state_to_match_index : Array(Int32?), @slices : Array(Tuple(Int32, Int32)), @pattern_ids : Array(PatternID), @pattern_len : Int32, @tt : TransitionTable?)
     end
 
+    # Decodes Rust's standalone match-state payload into owned Crystal arrays.
+    # The payload intentionally carries no state IDs; a containing DFA supplies
+    # that association, so the returned standalone metadata has no state map.
+    def self.from_bytes(slice : Bytes, endian : Symbol = :little) : Tuple(MatchStates, Int32)
+      offset = 0
+      state_len = read_u32(slice, offset, endian, "match state length").to_i
+      offset += 4
+      raise DeserializeError.new("match state offset pairs overflow") if state_len > (Int32::MAX // 2)
+      slices = Array(Tuple(Int32, Int32)).new(state_len)
+      state_len.times do
+        start = read_u32(slice, offset, endian, "match state slices")
+        offset += 4
+        len = read_u32(slice, offset, endian, "match state slices")
+        offset += 4
+        raise DeserializeError.new("invalid match state slice") if start > Int32::MAX.to_u32 || len > Int32::MAX.to_u32
+        slices << {start.to_i32, len.to_i32}
+      end
+      pattern_len_raw = read_u32(slice, offset, endian, "pattern length")
+      offset += 4
+      raise DeserializeError.new("invalid pattern length") if pattern_len_raw > Int32::MAX.to_u32
+      pattern_len = pattern_len_raw.to_i32
+      id_len = read_u32(slice, offset, endian, "pattern ID length").to_i
+      offset += 4
+      pattern_ids = Array(PatternID).new(id_len)
+      id_len.times do
+        value = read_u32(slice, offset, endian, "match pattern IDs")
+        offset += 4
+        raise DeserializeError.new("invalid pattern ID") if value > PatternID::MAX.as_u32
+        pattern_ids << PatternID.new(value.to_i32)
+      end
+      matches = new([] of Int32?, slices, pattern_ids, pattern_len, nil)
+      raise matches.validate.not_nil! if matches.validate
+      {matches, offset}
+    end
+
     def match_state?(id : StateID) : Bool
       !match_index(id).nil?
     end
@@ -165,7 +200,9 @@ module Regex::Automata
     # Validate the flattened slice metadata before it is used for match
     # lookups. The containing DFA validates the state-to-match mapping.
     def validate : DeserializeError?
-      return DeserializeError.generic("match state slice metadata is malformed") unless @slices.size == @state_to_match_index.compact.size
+      unless @state_to_match_index.empty? && @tt.nil?
+        return DeserializeError.generic("match state slice metadata is malformed") unless @slices.size == @state_to_match_index.compact.size
+      end
 
       @slices.each do |start, len|
         return DeserializeError.generic("invalid pattern ID start offset") if start < 0 || start > @pattern_ids.size
@@ -208,6 +245,18 @@ module Regex::Automata
         raise ArgumentError.new("unsupported endianness")
       end
       offset + sizeof(UInt32)
+    end
+
+    private def self.read_u32(src : Bytes, offset : Int32, endian : Symbol, label : String) : UInt32
+      raise DeserializeError.new("buffer too small for #{label}") if offset < 0 || offset + 4 > src.size
+      case endian
+      when :little
+        (0...4).reduce(0_u32) { |value, i| value | (src[offset + i].to_u32 << (i * 8)) }
+      when :big
+        (0...4).reduce(0_u32) { |value, i| (value << 8) | src[offset + i].to_u32 }
+      else
+        raise ArgumentError.new("unsupported endianness")
+      end
     end
   end
 end

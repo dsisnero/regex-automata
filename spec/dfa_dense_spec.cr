@@ -54,6 +54,10 @@ describe "DFA::Dense" do
     bytes[0, 4].should eq(Bytes[1, 0, 0, 0])
     bytes[12, 4].should eq(Bytes[2, 0, 0, 0])
     bytes[24, 4].should eq(Bytes[1, 0, 0, 0])
+    restored, read = Regex::Automata::MatchStates.from_bytes(bytes)
+    read.should eq(bytes.size)
+    restored.slices.should eq(matches.slices)
+    restored.pattern_ids.should eq(matches.pattern_ids)
   end
 
   it "rebuilds dense match metadata from a state map" do

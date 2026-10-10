@@ -175,7 +175,7 @@ src/dfa/dense.rs::method::Flags.from_bytes	method	partial	src/regex/automata/typ
 src/dfa/dense.rs::method::Flags.from_nfa	method	partial	src/regex/automata/dfa.cr;src/regex/automata/types.cr	Builder derives the same semantic flags while preserving Crystal's extended serialized metadata.
 src/dfa/dense.rs::method::Flags.write_to	method	partial	src/regex/automata/types.cr:DFAFlags#to_u32;src/regex/automata/dfa.cr;spec/dfa_dense_spec.cr	DFA serialization writes the extended Crystal flag bitset.
 src/dfa/dense.rs::method::Flags.write_to_len	method	ported	src/regex/automata/dfa.cr;spec/dfa_dense_spec.cr	Serialized dense DFA flags occupy one u32.
-src/dfa/dense.rs::method::MatchStates<&'a [u32]>.from_bytes_unchecked	method	missing	-	auto-generated
+src/dfa/dense.rs::method::MatchStates<&'a [u32]>.from_bytes_unchecked	method	intentional_divergence	src/regex/automata/match_states.cr:MatchStates.from_bytes;spec/dfa_dense_spec.cr	Crystal decodes owned, structurally validated slice and pattern-ID metadata instead of exposing Rust's unsafe borrowed aligned-u32 view.
 src/dfa/dense.rs::method::MatchStates<T>.as_ref	method	intentional_divergence	src/regex/automata/match_states.cr	Crystal has no borrow-parameterized match-state storage; callers retain the owned object.
 src/dfa/dense.rs::method::MatchStates<T>.len	method	ported	src/regex/automata/match_states.cr:51;spec/dfa_dense_spec.cr	Counts flattened match-state slices.
 src/dfa/dense.rs::method::MatchStates<T>.match_state_id	method	ported	src/regex/automata/match_states.cr:MatchStates#to_map	Crystal's explicit state-index mapping resolves each match-state ID without Rust's contiguous-range assumption.
