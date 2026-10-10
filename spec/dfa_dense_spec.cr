@@ -171,6 +171,15 @@ describe "DFA::Dense" do
     disabled.states.any? { |state| disabled.is_accel_state?(state.id) }.should be_false
   end
 
+  it "retains the dense start byte map from the NFA look matcher" do
+    dfa = Regex::Automata::DFA::Builder.new
+      .thompson { |config| config.look_matcher(Regex::Automata::LookMatcher.new('a'.ord.to_u8)) }
+      .build("foo")
+
+    dfa.start_map.get('a'.ord.to_u8).should eq(Regex::Automata::Start::CustomLineTerminator)
+    dfa.start_map.get('b'.ord.to_u8).should eq(Regex::Automata::Start::WordByte)
+  end
+
   it "truncates trailing dense state storage" do
     dfa = Regex::Automata::DFA::DFA.new("abc")
     original_len = dfa.state_len

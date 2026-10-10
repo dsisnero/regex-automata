@@ -148,7 +148,7 @@ src/dfa/dense.rs::method::DFA<T>.set_prefilter	method	ported	src/regex/automata/
 src/dfa/dense.rs::method::DFA<T>.special	method	ported	src/regex/automata/dfa.cr:DFA#special;spec/dfa_api_spec.cr	Exposes dense special-state metadata.
 src/dfa/dense.rs::method::DFA<T>.special_mut	method	intentional_divergence	src/regex/automata/dfa.cr:DFA#update_special;spec/dfa_dense_spec.cr	Crystal Special is a value type; explicit replacement update preserves Rust mutation semantics without exposing a non-persistent copy.
 src/dfa/dense.rs::method::DFA<T>.start_kind	method	ported	src/regex/automata/dfa.cr:DFA#start_kind;spec/dfa_api_spec.cr	Returns the start-table kind.
-src/dfa/dense.rs::method::DFA<T>.start_map	method	missing	-	auto-generated
+src/dfa/dense.rs::method::DFA<T>.start_map	method	partial	src/regex/automata/dfa.cr:DFA#start_map;src/regex/automata/start_table.cr:StartTable#start_map;spec/dfa_dense_spec.cr	Dense construction retains and exposes the NFA-derived StartByteMap, including custom line terminators and remapping; the Crystal-native wire format still reconstructs its map with the default look matcher.
 src/dfa/dense.rs::method::DFA<T>.start_state	method	ported	src/regex/automata/dfa.cr:DFA#start_state;spec/dfa_api_spec.cr	Crystal accepts StartConfig and returns StateID or StartError.
 src/dfa/dense.rs::method::DFA<T>.starts	method	ported	src/regex/automata/dfa.cr:DFA#starts;spec/dfa_dense_spec.cr	Returns all materialized start states in deterministic Rust table order, with Crystal's separate optional PatternID field.
 src/dfa/dense.rs::method::DFA<T>.starts_for_each_pattern	method	ported	src/regex/automata/dfa.cr:DFA#starts_for_each_pattern?;spec/dfa_dense_spec.cr	Reports whether per-pattern anchored start-state matrices were materialized.

@@ -104,8 +104,9 @@ module Regex::Automata
     getter unanchored_states : Hash(Start, StateID)
     getter anchored_states : Hash(Start, StateID)
     getter pattern_states : Hash(PatternID, Hash(Start, StateID))
+    getter start_map : StartByteMap
 
-    def initialize(@kind : StartKind, @unanchored : StateID, @anchored : StateID, unanchored_states : Hash(Start, StateID)? = nil, anchored_states : Hash(Start, StateID)? = nil, pattern_states : Hash(PatternID, Hash(Start, StateID))? = nil, @universal_start_unanchored : StateID? = nil, @universal_start_anchored : StateID? = nil, @dead : StateID = StateID.new(0))
+    def initialize(@kind : StartKind, @unanchored : StateID, @anchored : StateID, unanchored_states : Hash(Start, StateID)? = nil, anchored_states : Hash(Start, StateID)? = nil, pattern_states : Hash(PatternID, Hash(Start, StateID))? = nil, @universal_start_unanchored : StateID? = nil, @universal_start_anchored : StateID? = nil, @dead : StateID = StateID.new(0), @start_map : StartByteMap = StartByteMap.new(LookMatcher.new))
       @unanchored_states = unanchored_states || default_states(@unanchored)
       @anchored_states = anchored_states || default_states(@anchored)
       @pattern_states = pattern_states || {} of PatternID => Hash(Start, StateID)
@@ -213,7 +214,8 @@ module Regex::Automata
         @pattern_states.transform_values(&.dup),
         @universal_start_unanchored,
         @universal_start_anchored,
-        @dead
+        @dead,
+        @start_map
       )
     end
 
@@ -264,7 +266,8 @@ module Regex::Automata
         pattern_states,
         universal_unanchored,
         universal_anchored,
-        yield @dead
+        (yield @dead),
+        @start_map
       )
     end
 

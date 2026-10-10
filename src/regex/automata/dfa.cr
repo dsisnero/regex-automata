@@ -1352,6 +1352,12 @@ module Regex::Automata::DFA
       !@st.pattern_states.empty?
     end
 
+    # Returns the byte-to-start-configuration map retained from DFA
+    # construction, including the configured line terminator.
+    def start_map : StartByteMap
+      @st.start_map
+    end
+
     # Return every configured start state in deterministic table order.
     def starts : Array(Tuple(StateID, Anchored, Start, PatternID?))
       @st.iter
@@ -2405,7 +2411,8 @@ module Regex::Automata::DFA
         anchored_start_states,
         pattern_start_states,
         DFA.compute_universal_start(@dfa_states, unanchored_start_states),
-        DFA.compute_universal_start(@dfa_states, anchored_start_states)
+        DFA.compute_universal_start(@dfa_states, anchored_start_states),
+        start_map: StartByteMap.new(nfa.look_matcher)
       )
 
       dfa = DFA.new(@dfa_states, @transition_table, unanchored_start_id, @byte_classes, anchored_start_id, accelerators, nil, @quitset, flags, st)
