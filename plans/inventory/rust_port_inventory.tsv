@@ -257,22 +257,22 @@ src/dfa/dense.rs::method::TransitionTable<Vec<u32>>.remap	method	ported	src/rege
 src/dfa/dense.rs::method::TransitionTable<Vec<u32>>.set	method	ported	src/regex/automata/transition_table.cr:118;spec/dfa_dense_spec.cr	Sets validated byte or EOI Unit transitions.
 src/dfa/dense.rs::method::TransitionTable<Vec<u32>>.swap	method	ported	src/regex/automata/transition_table.cr:164;spec/dfa_dense_spec.cr	Swaps used entries of two validated rows.
 src/dfa/dense.rs::method::TransitionTable<Vec<u32>>.truncate	method	ported	src/regex/automata/transition_table.cr:186;spec/dfa_dense_spec.cr	Removes complete transition rows; callers retain remapping responsibility.
-src/dfa/determinize.rs::method::Config.determinize_size_limit	method	missing	-	auto-generated
-src/dfa/determinize.rs::method::Config.dfa_size_limit	method	missing	-	auto-generated
-src/dfa/determinize.rs::method::Config.match_kind	method	missing	-	auto-generated
-src/dfa/determinize.rs::method::Config.new	method	missing	-	auto-generated
-src/dfa/determinize.rs::method::Config.quit	method	missing	-	auto-generated
-src/dfa/determinize.rs::method::Config.run	method	missing	-	auto-generated
-src/dfa/determinize.rs::method::Runner<'a>.add_all_starts	method	missing	-	auto-generated
-src/dfa/determinize.rs::method::Runner<'a>.add_one_start	method	missing	-	auto-generated
-src/dfa/determinize.rs::method::Runner<'a>.add_start_group	method	missing	-	auto-generated
-src/dfa/determinize.rs::method::Runner<'a>.add_state	method	missing	-	auto-generated
-src/dfa/determinize.rs::method::Runner<'a>.cached_state	method	missing	-	auto-generated
-src/dfa/determinize.rs::method::Runner<'a>.get_state_builder	method	missing	-	auto-generated
-src/dfa/determinize.rs::method::Runner<'a>.maybe_add_state	method	missing	-	auto-generated
-src/dfa/determinize.rs::method::Runner<'a>.memory_usage	method	missing	-	auto-generated
-src/dfa/determinize.rs::method::Runner<'a>.put_state_builder	method	missing	-	auto-generated
-src/dfa/determinize.rs::method::Runner<'a>.run	method	missing	-	auto-generated
+src/dfa/determinize.rs::method::Config.determinize_size_limit	method	ported	src/regex/automata/config.cr:133;src/regex/automata/dfa.cr:2764;spec/dfa_dense_spec.cr	Dense Config carries the limit and Builder rejects construction when its determinization accounting exceeds it.
+src/dfa/determinize.rs::method::Config.dfa_size_limit	method	ported	src/regex/automata/config.cr:128;src/regex/automata/dfa.cr:2408;spec/dfa_dense_spec.cr	Dense Config carries the limit and Builder rejects an oversized transition table.
+src/dfa/determinize.rs::method::Config.match_kind	method	ported	src/regex/automata/config.cr:103;src/regex/automata/dfa.cr:2278;spec/dfa_dense_spec.cr	Dense Config selects leftmost-first or all-match subset construction.
+src/dfa/determinize.rs::method::Config.new	method	ported	src/regex/automata/config.cr:71;spec/dfa_dense_spec.cr	Crystal's public dense Config supplies the same default construction options.
+src/dfa/determinize.rs::method::Config.quit	method	ported	src/regex/automata/config.cr:123;src/regex/automata/dfa.cr:2233;spec/dfa_dense_spec.cr	Configured quit bytes retain their own classes and override ordinary transitions.
+src/dfa/determinize.rs::method::Config.run	method	ported	src/regex/automata/dfa.cr:2075;spec/dfa_dense_spec.cr	Builder#build performs the configured NFA-to-dense-DFA construction; Crystal folds Rust's internal Config runner into Builder.
+src/dfa/determinize.rs::method::Runner<'a>.add_all_starts	method	ported	src/regex/automata/dfa.cr:2075;src/regex/automata/dfa.cr:2471;spec/dfa_dense_spec.cr	Build creates only configured anchored/unanchored groups and optional per-pattern starts before compiling the frontier.
+src/dfa/determinize.rs::method::Runner<'a>.add_one_start	method	ported	src/regex/automata/dfa.cr:2471;src/regex/automata/dfa.cr:2547;spec/dfa_dense_spec.cr	Each Start context receives the corresponding look-behind facts before cached subset-state creation.
+src/dfa/determinize.rs::method::Runner<'a>.add_start_group	method	ported	src/regex/automata/dfa.cr:2075;src/regex/automata/dfa.cr:2471;spec/dfa_dense_spec.cr	Builder groups Start variants, sharing equivalent prefix contexts and specializing only when look assertions require it.
+src/dfa/determinize.rs::method::Runner<'a>.add_state	method	ported	src/regex/automata/dfa.cr:2568;src/regex/automata/dfa.cr:2294;spec/dfa_dense_spec.cr	New subset states allocate one transition row, preserve delayed matches, and are placed on the compile frontier.
+src/dfa/determinize.rs::method::Runner<'a>.cached_state	method	ported	src/regex/automata/dfa.cr:2267;src/regex/automata/dfa.cr:2568;spec/dfa_dense_spec.cr	The ordered closure/look/match key reuses existing subset states while compiling representative byte-class transitions.
+src/dfa/determinize.rs::method::Runner<'a>.get_state_builder	method	partial	src/regex/automata/dfa.cr:2267;src/regex/automata/determinize.cr	Crystal builds equivalent state keys directly but does not yet retain Rust's private reusable StateBuilder scratch allocation; benchmark before adding a pool.
+src/dfa/determinize.rs::method::Runner<'a>.maybe_add_state	method	ported	src/regex/automata/dfa.cr:2568;spec/dfa_dense_spec.cr	State-map lookup returns an existing premultiplied state ID or inserts a new state exactly once.
+src/dfa/determinize.rs::method::Runner<'a>.memory_usage	method	partial	src/regex/automata/dfa.cr:2764;spec/dfa_dense_spec.cr	Crystal enforces a deterministic construction-memory estimate, but it is not Rust's byte-for-byte allocator accounting.
+src/dfa/determinize.rs::method::Runner<'a>.put_state_builder	method	partial	src/regex/automata/dfa.cr:2267;src/regex/automata/determinize.cr	No separate scratch-builder pool exists because Builder stores closures and keys directly; assess allocation measurements before changing this private implementation detail.
+src/dfa/determinize.rs::method::Runner<'a>.run	method	ported	src/regex/automata/dfa.cr:2075;src/regex/automata/dfa.cr:2780;spec/dfa_dense_spec.cr	Build compiles the subset frontier, collects delayed matches, and shuffles special states into dense fast-path ranges.
 src/dfa/minimize.rs::method::Minimizer<'a>.find_incoming_to	method	missing	-	auto-generated
 src/dfa/minimize.rs::method::Minimizer<'a>.find_waiting	method	missing	-	auto-generated
 src/dfa/minimize.rs::method::Minimizer<'a>.fmt	method	missing	-	auto-generated
