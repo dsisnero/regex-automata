@@ -1441,6 +1441,17 @@ module Regex::Automata::DFA
       @start_anchored = yield @start_anchored
     end
 
+    # Rewrites the targets in one state row without changing any other row or
+    # start reference.
+    def remap_state(id : StateID, &map : StateID -> StateID) : Nil
+      table = @tt.not_nil!
+      raise ArgumentError.new("invalid state ID") unless table.is_valid(id)
+      table.remap(id) { |target| map.call(target) }
+      state = @states[table.to_index(id)]
+      state.next.map! { |target| map.call(target) }
+      state.eoi_next = map.call(state.eoi_next)
+    end
+
     # Returns true if and only if this automaton is guaranteed to be valid for UTF-8 input
     def is_utf8? : Bool
       @flags.is_utf8

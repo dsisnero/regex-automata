@@ -92,6 +92,14 @@ describe "DFA::Dense" do
     dfa.trans.includes?(replacement).should be_true
   end
 
+  it "remaps one dense state row" do
+    dfa = Regex::Automata::DFA::DFA.new("abc")
+    start = dfa.start
+    dfa.remap_state(start) { dfa.quit_id }
+
+    dfa.next_state(start, 'a'.ord.to_u8).should eq(dfa.quit_id)
+  end
+
   it "iterates dense start states in unanchored then anchored order" do
     table = Regex::Automata::StartTable.new(
       Regex::Automata::StartKind::Both,
