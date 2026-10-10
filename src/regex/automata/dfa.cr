@@ -1464,6 +1464,14 @@ module Regex::Automata::DFA
       end
     end
 
+    # Updates one start configuration after validating its dense state ID.
+    def set_start_state(anchored : Anchored, start : Start, id : StateID, pattern : PatternID? = nil) : Nil
+      table = @tt.not_nil!
+      raise ArgumentError.new("invalid start state") unless table.is_valid(id)
+      @st.set_start(anchored, start, id, pattern)
+      @special = build_special
+    end
+
     # Returns true if and only if this automaton is guaranteed to be valid for UTF-8 input
     def is_utf8? : Bool
       @flags.is_utf8

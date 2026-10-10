@@ -111,6 +111,15 @@ describe "DFA::Dense" do
     dfa.next_eoi_state(start).should eq(target)
   end
 
+  it "sets validated dense start states" do
+    dfa = Regex::Automata::DFA::DFA.new("abc")
+    target = dfa.next_state(dfa.start, 'a'.ord.to_u8)
+
+    dfa.set_start_state(Regex::Automata::Anchored::No, Regex::Automata::Start::LineLF, target)
+    dfa.st.start(Regex::Automata::Anchored::No, Regex::Automata::Start::LineLF).should eq(target)
+    dfa.is_start_state?(target).should be_true
+  end
+
   it "iterates dense start states in unanchored then anchored order" do
     table = Regex::Automata::StartTable.new(
       Regex::Automata::StartKind::Both,

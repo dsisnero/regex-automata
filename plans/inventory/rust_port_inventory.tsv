@@ -204,7 +204,7 @@ src/dfa/dense.rs::method::OwnedDFA.new_many	method	missing	-	auto-generated
 src/dfa/dense.rs::method::OwnedDFA.remap	method	ported	src/regex/automata/dfa.cr:DFA#remap;spec/dfa_dense_spec.cr	Rewrites every transition target and materialized start reference without changing physical state-row order.
 src/dfa/dense.rs::method::OwnedDFA.remap_state	method	ported	src/regex/automata/dfa.cr:DFA#remap_state;spec/dfa_dense_spec.cr	Rewrites targets for one validated row in both flat and materialized transition storage.
 src/dfa/dense.rs::method::OwnedDFA.set_pattern_map	method	ported	src/regex/automata/dfa.cr:DFA#set_pattern_map;spec/dfa_dense_spec.cr	Rebuilds flattened match metadata while synchronizing materialized states and special-state ranges.
-src/dfa/dense.rs::method::OwnedDFA.set_start_state	method	missing	-	auto-generated
+src/dfa/dense.rs::method::OwnedDFA.set_start_state	method	ported	src/regex/automata/dfa.cr:DFA#set_start_state;spec/dfa_dense_spec.cr	Validates dense IDs, updates the logical start table, and rebuilds special-state ranges.
 src/dfa/dense.rs::method::OwnedDFA.set_transition	method	ported	src/regex/automata/dfa.cr:DFA#set_transition;spec/dfa_dense_spec.cr	Sets byte or EOI transitions while synchronizing flat and materialized state storage.
 src/dfa/dense.rs::method::OwnedDFA.set_universal_starts	method	missing	-	auto-generated
 src/dfa/dense.rs::method::OwnedDFA.shuffle	method	missing	-	auto-generated
