@@ -206,7 +206,7 @@ src/dfa/dense.rs::method::OwnedDFA.remap_state	method	ported	src/regex/automata/
 src/dfa/dense.rs::method::OwnedDFA.set_pattern_map	method	ported	src/regex/automata/dfa.cr:DFA#set_pattern_map;spec/dfa_dense_spec.cr	Rebuilds flattened match metadata while synchronizing materialized states and special-state ranges.
 src/dfa/dense.rs::method::OwnedDFA.set_start_state	method	ported	src/regex/automata/dfa.cr:DFA#set_start_state;spec/dfa_dense_spec.cr	Validates dense IDs, updates the logical start table, and rebuilds special-state ranges.
 src/dfa/dense.rs::method::OwnedDFA.set_transition	method	ported	src/regex/automata/dfa.cr:DFA#set_transition;spec/dfa_dense_spec.cr	Sets byte or EOI transitions while synchronizing flat and materialized state storage.
-src/dfa/dense.rs::method::OwnedDFA.set_universal_starts	method	missing	-	auto-generated
+src/dfa/dense.rs::method::OwnedDFA.set_universal_starts	method	ported	src/regex/automata/dfa.cr:DFA#set_universal_starts;spec/dfa_dense_spec.cr	Recomputes anchored and unanchored universal-start shortcuts after bulk start-table transformations.
 src/dfa/dense.rs::method::OwnedDFA.shuffle	method	missing	-	auto-generated
 src/dfa/dense.rs::method::OwnedDFA.swap_states	method	missing	-	auto-generated
 src/dfa/dense.rs::method::OwnedDFA.truncate_states	method	missing	-	auto-generated

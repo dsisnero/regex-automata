@@ -1472,6 +1472,11 @@ module Regex::Automata::DFA
       @special = build_special
     end
 
+    # Recomputes universal start-state shortcuts after bulk start updates.
+    def set_universal_starts : Nil
+      @st.refresh_universal_starts
+    end
+
     # Returns true if and only if this automaton is guaranteed to be valid for UTF-8 input
     def is_utf8? : Bool
       @flags.is_utf8

@@ -238,6 +238,12 @@ module Regex::Automata
       end
     end
 
+    # Recomputes universal-start metadata after a bulk transformation.
+    def refresh_universal_starts : Nil
+      @universal_start_unanchored = compute_universal_start(@unanchored_states, Anchored::No)
+      @universal_start_anchored = compute_universal_start(@anchored_states, Anchored::Yes)
+    end
+
     def remap(&block : StateID -> StateID) : StartTable
       unanchored = yield @unanchored
       anchored = yield @anchored

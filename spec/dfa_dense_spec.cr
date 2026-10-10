@@ -120,6 +120,15 @@ describe "DFA::Dense" do
     dfa.is_start_state?(target).should be_true
   end
 
+  it "recomputes dense universal start states after bulk updates" do
+    dfa = Regex::Automata::DFA::DFA.new("abc")
+    target = dfa.next_state(dfa.start, 'a'.ord.to_u8)
+    dfa.st.unanchored_states.each_key { |start| dfa.st.unanchored_states[start] = target }
+
+    dfa.set_universal_starts
+    dfa.universal_start_state(Regex::Automata::Anchored::No).should eq(target)
+  end
+
   it "iterates dense start states in unanchored then anchored order" do
     table = Regex::Automata::StartTable.new(
       Regex::Automata::StartKind::Both,
