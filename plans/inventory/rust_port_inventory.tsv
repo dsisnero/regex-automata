@@ -195,10 +195,10 @@ src/dfa/dense.rs::method::MatchStates<Vec<u32>>.new	method	ported	src/regex/auto
 src/dfa/dense.rs::method::MatchStates<Vec<u32>>.new_with_map	method	ported	src/regex/automata/match_states.cr:MatchStates.from_map;spec/dfa_dense_spec.cr	Rebuilds map-derived flattened metadata while retaining the caller's declared pattern count.
 src/dfa/dense.rs::method::OwnedDFA.accelerate	method	missing	-	auto-generated
 src/dfa/dense.rs::method::OwnedDFA.add_empty_state	method	ported	src/regex/automata/dfa.cr:DFA#add_empty_state;spec/dfa_dense_spec.cr	Appends a dead-filled dense row and synchronizes materialized states, accelerators, match metadata, and special ranges.
-src/dfa/dense.rs::method::OwnedDFA.always_match	method	missing	-	auto-generated
+src/dfa/dense.rs::method::OwnedDFA.always_match	method	ported	src/regex/automata/dfa.cr:DFA.always_match;spec/dfa_dense_spec.cr	Builds an empty-pattern dense DFA; native wire round-trip preserves its zero-width match.
 src/dfa/dense.rs::method::OwnedDFA.initial	method	missing	-	auto-generated
 src/dfa/dense.rs::method::OwnedDFA.minimize	method	missing	-	auto-generated
-src/dfa/dense.rs::method::OwnedDFA.never_match	method	missing	-	auto-generated
+src/dfa/dense.rs::method::OwnedDFA.never_match	method	ported	src/regex/automata/dfa.cr:DFA.never_match;spec/dfa_dense_spec.cr	Builds a fail-only NFA-backed dense DFA; native wire round-trip preserves no-match behavior.
 src/dfa/dense.rs::method::OwnedDFA.new	method	missing	-	auto-generated
 src/dfa/dense.rs::method::OwnedDFA.new_many	method	missing	-	auto-generated
 src/dfa/dense.rs::method::OwnedDFA.remap	method	ported	src/regex/automata/dfa.cr:DFA#remap;spec/dfa_dense_spec.cr	Rewrites every transition target and materialized start reference without changing physical state-row order.
