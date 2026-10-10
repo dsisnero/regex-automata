@@ -1477,6 +1477,18 @@ module Regex::Automata::DFA
       @st.refresh_universal_starts
     end
 
+    # Adds a dead-filled state row and extends every Crystal-side companion
+    # representation that is indexed by dense state position.
+    def add_empty_state : StateID
+      table = @tt.not_nil!
+      id = table.add_empty_state
+      @states << State.new(id, @byte_classes)
+      @accelerators << Bytes.empty
+      @ms = MatchStates.from_states(@states, table, @ms.pattern_len)
+      @special = build_special
+      id
+    end
+
     # Returns true if and only if this automaton is guaranteed to be valid for UTF-8 input
     def is_utf8? : Bool
       @flags.is_utf8

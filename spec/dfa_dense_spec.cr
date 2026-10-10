@@ -129,6 +129,16 @@ describe "DFA::Dense" do
     dfa.universal_start_state(Regex::Automata::Anchored::No).should eq(target)
   end
 
+  it "adds an empty dense state across companion storage" do
+    dfa = Regex::Automata::DFA::DFA.new("abc")
+    old_len = dfa.state_len
+    id = dfa.add_empty_state
+
+    dfa.state_len.should eq(old_len + 1)
+    dfa.states.last.id.should eq(id)
+    dfa.next_eoi_state(id).should eq(Regex::Automata::DFA::DEAD_STATE_ID)
+  end
+
   it "iterates dense start states in unanchored then anchored order" do
     table = Regex::Automata::StartTable.new(
       Regex::Automata::StartKind::Both,
