@@ -729,6 +729,17 @@ describe "DFA::Dense" do
     end
 
     error.is_size_limit_exceeded.should be_true
+    error.size_limit.should eq(1_i64)
+  end
+
+  it "classifies dense build failures like Rust's size-limit predicate" do
+    Regex::Automata::BuildError.unsupported_dfa_word_boundary_unicode.is_size_limit_exceeded.should be_false
+    Regex::Automata::BuildError.too_many_states.is_size_limit_exceeded.should be_true
+    Regex::Automata::BuildError.too_many_start_states.is_size_limit_exceeded.should be_true
+    Regex::Automata::BuildError.too_many_match_pattern_ids.is_size_limit_exceeded.should be_true
+    error = Regex::Automata::BuildError.dfa_exceeded_size_limit(42_i64)
+    error.size_limit.should eq(42_i64)
+    error.is_size_limit_exceeded.should be_true
   end
 
   it "minimizes dense DFAs when requested" do

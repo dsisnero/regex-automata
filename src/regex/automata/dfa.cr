@@ -1952,7 +1952,7 @@ module Regex::Automata::DFA
 
       if @nfa_has_unicode_word
         unless @config.unicode_word_boundary?
-          raise BuildError.new("cannot build DFAs for regexes with Unicode word boundaries; switch to ASCII word boundaries, or heuristically enable Unicode word boundaries or use a different regex engine")
+          raise BuildError.unsupported_dfa_word_boundary_unicode
         end
         @quitset = add_non_ascii_quit_bytes(@quitset)
       end
@@ -2444,7 +2444,7 @@ module Regex::Automata::DFA
 
       if limit = @config.get_dfa_size_limit
         if dfa.memory_usage > limit
-          raise BuildError.new("DFA exceeded size limit of #{limit} bytes", size_limit_exceeded: true)
+          raise BuildError.dfa_exceeded_size_limit(limit)
         end
       end
 
@@ -2764,7 +2764,7 @@ module Regex::Automata::DFA
     private def check_determinize_size_limit! : Nil
       return unless limit = @config.get_determinize_size_limit
       if determinize_memory_usage > limit
-        raise BuildError.new("determinization exceeded size limit of #{limit} bytes", size_limit_exceeded: true)
+        raise BuildError.determinize_exceeded_size_limit(limit)
       end
     end
 

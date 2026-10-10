@@ -15,6 +15,30 @@ module Regex::Automata
     def is_size_limit_exceeded : Bool
       @size_limit_exceeded
     end
+
+    def self.unsupported_dfa_word_boundary_unicode : BuildError
+      new("cannot build DFAs for regexes with Unicode word boundaries; switch to ASCII word boundaries, or heuristically enable Unicode word boundaries or use a different regex engine")
+    end
+
+    def self.too_many_states : BuildError
+      new("DFA exceeded the maximum number of states", size_limit_exceeded: true)
+    end
+
+    def self.too_many_start_states : BuildError
+      new("DFA exceeded the maximum number of start states", size_limit_exceeded: true)
+    end
+
+    def self.too_many_match_pattern_ids : BuildError
+      new("DFA exceeded the maximum number of match pattern IDs", size_limit_exceeded: true)
+    end
+
+    def self.dfa_exceeded_size_limit(limit : Int64) : BuildError
+      new("DFA exceeded size limit of #{limit} bytes", size_limit_exceeded: true, size_limit: limit)
+    end
+
+    def self.determinize_exceeded_size_limit(limit : Int64) : BuildError
+      new("determinization exceeded size limit of #{limit} bytes", size_limit_exceeded: true, size_limit: limit)
+    end
   end
 
   # Error returned when deserialization fails
