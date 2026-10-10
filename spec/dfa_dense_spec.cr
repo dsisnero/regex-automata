@@ -221,6 +221,10 @@ describe "DFA::Dense" do
     bytes[260, 4].should eq(Bytes[6, 0, 0, 0])
     bytes[264, 4].should eq(Bytes[255, 255, 255, 255])
     bytes[276, 4].should eq(Bytes[2, 0, 0, 0])
+    restored, read = Regex::Automata::StartTable.from_bytes(bytes)
+    read.should eq(bytes.size)
+    restored.table.should eq(table.table)
+    restored.start_map.get('a'.ord.to_u8).should eq(Regex::Automata::Start::WordByte)
   end
 
   it "owns an independent dense start-table snapshot" do

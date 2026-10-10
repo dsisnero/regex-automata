@@ -241,6 +241,51 @@ module Regex::Automata
       4 + @start_map.write_to_len + 4 + 4 + 4 + 4 + ((12 + (pattern_wire_len * Start.len)) * 4)
     end
 
+    # Reads Crystal-owned start-table data from the same standalone wire
+    # payload written by #write_to. Unlike Rust's borrowed unchecked reader,
+    # this validates every structural field and returns independent storage.
+    def self.from_bytes(slice : Bytes, endian : Symbol = :little) : Tuple(StartTable, Int32)
+      raise DeserializeError.new("buffer too small for starting table ids") if slice.size < 276
+      offset = 0
+      kind = case read_u32(slice, offset, endian)
+             when 0 then StartKind::Both
+             when 1 then StartKind::Unanchored
+             when 2 then StartKind::Anchored
+             else        raise DeserializeError.new("unrecognized start kind")
+             end
+      offset += 4
+      start_map, nread = StartByteMap.from_bytes(slice[offset, slice.size - offset])
+      offset += nread
+      raise DeserializeError.new("invalid starting table stride") unless read_u32(slice, offset, endian) == Start.len
+      offset += 4
+      raw_pattern_len = read_u32(slice, offset, endian)
+      offset += 4
+      pattern_len = raw_pattern_len == UInt32::MAX ? 0 : raw_pattern_len.to_i
+      raise DeserializeError.new("invalid number of patterns") if pattern_len > PatternID::LIMIT
+      universal_unanchored = read_optional_state_id(slice, offset, endian, "universal unanchored start")
+      offset += 4
+      universal_anchored = read_optional_state_id(slice, offset, endian, "universal anchored start")
+      offset += 4
+      ids = Array(StateID).new(12 + pattern_len * Start.len)
+      (12 + pattern_len * Start.len).times do
+        ids << read_state_id(slice, offset, endian, "start ID")
+        offset += 4
+      end
+      unanchored_states = {} of Start => StateID
+      anchored_states = {} of Start => StateID
+      Start.each do |start|
+        unanchored_states[start] = ids[start.to_i]
+        anchored_states[start] = ids[Start.len + start.to_i]
+      end
+      pattern_states = {} of PatternID => Hash(Start, StateID)
+      pattern_len.times do |pattern_index|
+        states = {} of Start => StateID
+        Start.each { |start| states[start] = ids[(2 + pattern_index) * Start.len + start.to_i] }
+        pattern_states[PatternID.new(pattern_index)] = states
+      end
+      {StartTable.new(kind, unanchored_states[Start::Text], anchored_states[Start::Text], unanchored_states, anchored_states, pattern_states, universal_unanchored, universal_anchored, StateID::ZERO, start_map), offset}
+    end
+
     # Returns an independent owned copy suitable for DFA transformations.
     def to_owned : StartTable
       StartTable.new(
@@ -340,6 +385,28 @@ module Regex::Automata
       else
         4.times { |i| dst[offset + i] = ((value >> (i * 8)) & 0xFF).to_u8 }
       end
+    end
+
+    private def self.read_u32(src : Bytes, offset : Int32, endian : Symbol) : UInt32
+      raise DeserializeError.new("buffer too small for starting table ids") if offset < 0 || offset + 4 > src.size
+      if endian == :big
+        (0...4).reduce(0_u32) { |value, i| (value << 8) | src[offset + i].to_u32 }
+      else
+        (0...4).reduce(0_u32) { |value, i| value | (src[offset + i].to_u32 << (i * 8)) }
+      end
+    end
+
+    private def self.read_state_id(src : Bytes, offset : Int32, endian : Symbol, label : String) : StateID
+      value = read_u32(src, offset, endian)
+      raise DeserializeError.new("invalid #{label}") if value > StateID::MAX.as_u32
+      StateID.new(value.to_i32)
+    end
+
+    private def self.read_optional_state_id(src : Bytes, offset : Int32, endian : Symbol, label : String) : StateID?
+      value = read_u32(src, offset, endian)
+      return nil if value == UInt32::MAX
+      raise DeserializeError.new("invalid #{label}") if value > StateID::MAX.as_u32
+      StateID.new(value.to_i32)
     end
 
     private def compute_universal_start(states : Hash(Start, StateID), anchored : Anchored) : StateID?
