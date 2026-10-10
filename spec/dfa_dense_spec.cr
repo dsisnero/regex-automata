@@ -61,6 +61,7 @@ describe "DFA::Dense" do
     rebuilt = Regex::Automata::MatchStates.from_map(dfa.pattern_map, dfa.pattern_len, dfa.tt.not_nil!)
 
     rebuilt.to_map.should eq(dfa.pattern_map)
+    rebuilt.pattern_len.should eq(dfa.pattern_len)
   end
 
   it "updates dense match metadata from a state map" do
