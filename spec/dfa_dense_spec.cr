@@ -169,6 +169,10 @@ describe "DFA::Dense" do
 
     accelerated.states.any? { |state| accelerated.is_accel_state?(state.id) }.should be_true
     disabled.states.any? { |state| disabled.is_accel_state?(state.id) }.should be_false
+    accelerated.states
+      .map { |state| accelerated.accelerator(state.id).to_a }
+      .find { |bytes| !bytes.empty? }
+      .should eq(['\n'.ord.to_u8, 'f'.ord.to_u8])
   end
 
   it "retains the dense start byte map from the NFA look matcher" do
