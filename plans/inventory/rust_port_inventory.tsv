@@ -475,7 +475,7 @@ src/dfa/sparse.rs::method::DFA<T>.match_pattern	method	ported	src/regex/automata
 src/dfa/sparse.rs::method::DFA<T>.memory_usage	method	partial	src/regex/automata/sparse.cr:Sparse::DFA#memory_usage;spec/dfa_sparse_spec.cr	Reports serialized representation bytes, not Rust allocation-layout accounting.
 src/dfa/sparse.rs::method::DFA<T>.next_eoi_state	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#next_eoi_state	Delegates EOI transition to dense DFA.
 src/dfa/sparse.rs::method::DFA<T>.next_state	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#next_state	Delegates byte transition to dense DFA.
-src/dfa/sparse.rs::method::DFA<T>.next_state_unchecked	method	missing	-	auto-generated
+src/dfa/sparse.rs::method::DFA<T>.next_state_unchecked	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#next_state_unchecked;spec/dfa_sparse_spec.cr	Forwards dense fast-path transition semantics while Crystal retains memory safety checks.
 src/dfa/sparse.rs::method::DFA<T>.pattern_len	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#pattern_len	Delegates pattern count to dense DFA.
 src/dfa/sparse.rs::method::DFA<T>.set_prefilter	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#set_prefilter;spec/dfa_sparse_spec.cr	Delegates prefilter attachment to dense DFA.
 src/dfa/sparse.rs::method::DFA<T>.start_kind	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#start_kind;spec/dfa_sparse_spec.cr	Exposes the underlying start kind.
