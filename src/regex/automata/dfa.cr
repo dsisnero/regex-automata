@@ -1452,6 +1452,18 @@ module Regex::Automata::DFA
       state.eoi_next = map.call(state.eoi_next)
     end
 
+    # Sets one byte-or-EOI transition in both dense representations.
+    def set_transition(from : StateID, unit : Unit, to : StateID) : Nil
+      table = @tt.not_nil!
+      table.set(from, unit, to)
+      state = @states[table.to_index(from)]
+      if unit.is_eoi
+        state.eoi_next = to
+      else
+        state.set_transition(table.classes.get_by_unit(unit), to)
+      end
+    end
+
     # Returns true if and only if this automaton is guaranteed to be valid for UTF-8 input
     def is_utf8? : Bool
       @flags.is_utf8

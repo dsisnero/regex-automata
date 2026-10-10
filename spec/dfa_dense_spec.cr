@@ -100,6 +100,17 @@ describe "DFA::Dense" do
     dfa.next_state(start, 'a'.ord.to_u8).should eq(dfa.quit_id)
   end
 
+  it "sets dense byte and EOI transitions" do
+    dfa = Regex::Automata::DFA::DFA.new("abc")
+    start = dfa.start
+    target = dfa.quit_id
+
+    dfa.set_transition(start, Regex::Automata::Unit.u8('a'.ord.to_u8), target)
+    dfa.set_transition(start, Regex::Automata::Unit.eoi(dfa.byte_classes), target)
+    dfa.next_state(start, 'a'.ord.to_u8).should eq(target)
+    dfa.next_eoi_state(start).should eq(target)
+  end
+
   it "iterates dense start states in unanchored then anchored order" do
     table = Regex::Automata::StartTable.new(
       Regex::Automata::StartKind::Both,
