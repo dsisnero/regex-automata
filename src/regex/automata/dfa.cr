@@ -1489,6 +1489,21 @@ module Regex::Automata::DFA
       id
     end
 
+    # Swaps the outgoing transition rows for two dense states. As in Rust,
+    # callers are responsible for repairing incoming and start references if
+    # they need the resulting DFA to retain its original language. Match,
+    # start and accelerator metadata remains attached to its state ID; only
+    # the transition rows move.
+    def swap_states(id1 : StateID, id2 : StateID) : Nil
+      table = @tt.not_nil!
+      table.swap(id1, id2)
+
+      state1 = @states[table.to_index(id1)]
+      state2 = @states[table.to_index(id2)]
+      state1.next, state2.next = state2.next, state1.next
+      state1.eoi_next, state2.eoi_next = state2.eoi_next, state1.eoi_next
+    end
+
     # Removes trailing state rows. As in Rust, callers must ensure no retained
     # transition or start reference points into the removed suffix.
     def truncate_states(len : Int32) : Nil

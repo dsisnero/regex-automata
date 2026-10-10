@@ -140,6 +140,27 @@ describe "DFA::Dense" do
     dfa.next_eoi_state(id).should eq(Regex::Automata::DFA::DEAD_STATE_ID)
   end
 
+  it "swaps dense transition rows without moving state metadata" do
+    dfa = Regex::Automata::DFA::DFA.new("abc")
+    first = dfa.start
+    second = dfa.next_state(first, 'a'.ord.to_u8)
+    first_byte = dfa.next_state(first, 'a'.ord.to_u8)
+    first_eoi = dfa.next_eoi_state(first)
+    second_byte = dfa.next_state(second, 'b'.ord.to_u8)
+    second_eoi = dfa.next_eoi_state(second)
+    first_patterns = dfa.states[dfa.to_index(first)].match.dup
+    second_patterns = dfa.states[dfa.to_index(second)].match.dup
+
+    dfa.swap_states(first, second)
+
+    dfa.next_state(first, 'b'.ord.to_u8).should eq(second_byte)
+    dfa.next_eoi_state(first).should eq(second_eoi)
+    dfa.next_state(second, 'a'.ord.to_u8).should eq(first_byte)
+    dfa.next_eoi_state(second).should eq(first_eoi)
+    dfa.states[dfa.to_index(first)].match.should eq(first_patterns)
+    dfa.states[dfa.to_index(second)].match.should eq(second_patterns)
+  end
+
   it "truncates trailing dense state storage" do
     dfa = Regex::Automata::DFA::DFA.new("abc")
     original_len = dfa.state_len
