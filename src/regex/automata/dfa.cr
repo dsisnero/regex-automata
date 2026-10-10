@@ -1489,6 +1489,18 @@ module Regex::Automata::DFA
       id
     end
 
+    # Removes trailing state rows. As in Rust, callers must ensure no retained
+    # transition or start reference points into the removed suffix.
+    def truncate_states(len : Int32) : Nil
+      table = @tt.not_nil!
+      raise ArgumentError.new("invalid state length") unless 0 <= len <= table.len
+      table.truncate(len)
+      @states.truncate(0, len)
+      @accelerators.truncate(0, len)
+      @ms = MatchStates.from_states(@states, table, @ms.pattern_len)
+      @special = build_special
+    end
+
     # Returns true if and only if this automaton is guaranteed to be valid for UTF-8 input
     def is_utf8? : Bool
       @flags.is_utf8

@@ -140,6 +140,16 @@ describe "DFA::Dense" do
     dfa.next_eoi_state(id).should eq(Regex::Automata::DFA::DEAD_STATE_ID)
   end
 
+  it "truncates trailing dense state storage" do
+    dfa = Regex::Automata::DFA::DFA.new("abc")
+    original_len = dfa.state_len
+    dfa.add_empty_state
+
+    dfa.truncate_states(original_len)
+    dfa.state_len.should eq(original_len)
+    dfa.states.size.should eq(original_len)
+  end
+
   it "iterates dense start states in unanchored then anchored order" do
     table = Regex::Automata::StartTable.new(
       Regex::Automata::StartKind::Both,
