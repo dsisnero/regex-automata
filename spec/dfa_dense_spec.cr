@@ -161,6 +161,16 @@ describe "DFA::Dense" do
     dfa.states[dfa.to_index(second)].match.should eq(second_patterns)
   end
 
+  it "computes dense accelerators only when enabled" do
+    accelerated = Regex::Automata::DFA::DFA.new("foo")
+    disabled = Regex::Automata::DFA::Builder.new
+      .configure { |config| config.accelerate(false) }
+      .build("foo")
+
+    accelerated.states.any? { |state| accelerated.is_accel_state?(state.id) }.should be_true
+    disabled.states.any? { |state| disabled.is_accel_state?(state.id) }.should be_false
+  end
+
   it "truncates trailing dense state storage" do
     dfa = Regex::Automata::DFA::DFA.new("abc")
     original_len = dfa.state_len
