@@ -87,6 +87,16 @@ describe "DFA::Sparse" do
     end
   end
 
+  it "uses the safe owned decoder for unchecked sparse input" do
+    sparse = Regex::Automata::DFA::Sparse::DFA.new("foo")
+    bytes = sparse.to_bytes_native_endian[0]
+    decoded, read = Regex::Automata::DFA::Sparse::DFA.from_bytes_unchecked(bytes)
+    read.should eq(bytes.size)
+    decoded.try_search_fwd(Regex::Automata::Input.new("foo")).should eq(
+      Regex::Automata::HalfMatch.must(0, 3)
+    )
+  end
+
   it "writes sparse bytes into caller-provided buffers" do
     sparse = Regex::Automata::DFA::Sparse::DFA.new("abc")
 

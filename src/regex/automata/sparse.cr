@@ -46,6 +46,13 @@ module Regex::Automata::DFA
         {new(dense), 12 + body_len}
       end
 
+      # Rust uses this internal entry point for already validated borrowed
+      # storage. Crystal owns decoded buffers, so the safe decoder is the
+      # equivalent operation.
+      def self.from_bytes_unchecked(slice : Bytes) : Tuple(DFA, Int32)
+        from_bytes(slice)
+      end
+
       def initialize(@dense : ::Regex::Automata::DFA::DFA)
       end
 
