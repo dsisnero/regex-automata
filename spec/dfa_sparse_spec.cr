@@ -15,6 +15,14 @@ describe "DFA::Sparse" do
     )
   end
 
+  it "forwards unchecked transition semantics to dense" do
+    sparse = Regex::Automata::DFA::Sparse::DFA.new("foo")
+    start = sparse.start_state(Regex::Automata::StartConfig.new(nil, Regex::Automata::Anchored::No)).as(Regex::Automata::StateID)
+    sparse.next_state_unchecked(start, 'f'.ord.to_u8).should eq(
+      sparse.next_state(start, 'f'.ord.to_u8)
+    )
+  end
+
   it "supports sparse always-match and never-match constructors" do
     always = Regex::Automata::DFA::Sparse::DFA.always_match
     always.try_search_fwd(Regex::Automata::Input.new("foo")).should eq(

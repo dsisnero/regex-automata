@@ -117,6 +117,12 @@ module Regex::Automata::DFA
         @dense.next_state(current, input)
       end
 
+      # Crystal retains memory safety checks, but this mirrors the dense
+      # automaton fast path's transition semantics.
+      def next_state_unchecked(current : StateID, input : UInt8) : StateID
+        @dense.next_state_unchecked(current, input)
+      end
+
       def next_eoi_state(current : StateID) : StateID
         @dense.next_eoi_state(current)
       end
