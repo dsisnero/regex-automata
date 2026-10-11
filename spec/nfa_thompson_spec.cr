@@ -45,6 +45,13 @@ private def s_fail : Regex::Automata::NFA::Fail
 end
 
 describe Regex::Automata::NFA::NFA do
+  it "merges Thompson compiler configuration as sparse overrides" do
+    base = Regex::Automata::NFA::NFA.config.utf8(false).shrink(true)
+    base.overwrite(Regex::Automata::NFA::NFA.config).get_utf8.should be_false
+    base.overwrite(Regex::Automata::NFA::NFA.config).get_shrink.should be_true
+    base.overwrite(Regex::Automata::NFA::NFA.config.utf8(true)).get_utf8.should be_true
+  end
+
   it "exposes Thompson compiler config and public constructors" do
     lookm = Regex::Automata::LookMatcher.new
     lookm.set_line_terminator(0_u8)

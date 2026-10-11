@@ -1,5 +1,6 @@
 require "./nfa"
 require "./syntax"
+require "set"
 
 module Regex::Automata
   class HirCompilerConfig
@@ -10,6 +11,7 @@ module Regex::Automata
     getter which_captures : NFA::WhichCaptures
     getter look_matcher : LookMatcher
     getter unanchored_prefix : Bool
+    @overrides : Set(Symbol)
 
     def initialize(
       @utf8 : Bool = true,
@@ -20,66 +22,27 @@ module Regex::Automata
       @look_matcher : LookMatcher = LookMatcher.new,
       @unanchored_prefix : Bool = true,
     )
+      @overrides = Set(Symbol).new
     end
 
     def utf8(utf8 : Bool) : HirCompilerConfig
-      HirCompilerConfig.new(
-        utf8: utf8,
-        reverse: @reverse,
-        nfa_size_limit: @nfa_size_limit,
-        shrink: @shrink,
-        which_captures: @which_captures,
-        look_matcher: @look_matcher,
-        unanchored_prefix: @unanchored_prefix
-      )
+      copy = copy_for_override; copy.set_utf8_override(utf8); copy
     end
 
     def reverse(reverse : Bool) : HirCompilerConfig
-      HirCompilerConfig.new(
-        utf8: @utf8,
-        reverse: reverse,
-        nfa_size_limit: @nfa_size_limit,
-        shrink: @shrink,
-        which_captures: @which_captures,
-        look_matcher: @look_matcher,
-        unanchored_prefix: @unanchored_prefix
-      )
+      copy = copy_for_override; copy.set_reverse_override(reverse); copy
     end
 
     def nfa_size_limit(limit : Int64?) : HirCompilerConfig
-      HirCompilerConfig.new(
-        utf8: @utf8,
-        reverse: @reverse,
-        nfa_size_limit: limit,
-        shrink: @shrink,
-        which_captures: @which_captures,
-        look_matcher: @look_matcher,
-        unanchored_prefix: @unanchored_prefix
-      )
+      copy = copy_for_override; copy.set_nfa_size_limit_override(limit); copy
     end
 
     def shrink(shrink : Bool) : HirCompilerConfig
-      HirCompilerConfig.new(
-        utf8: @utf8,
-        reverse: @reverse,
-        nfa_size_limit: @nfa_size_limit,
-        shrink: shrink,
-        which_captures: @which_captures,
-        look_matcher: @look_matcher,
-        unanchored_prefix: @unanchored_prefix
-      )
+      copy = copy_for_override; copy.set_shrink_override(shrink); copy
     end
 
     def which_captures(which_captures : NFA::WhichCaptures) : HirCompilerConfig
-      HirCompilerConfig.new(
-        utf8: @utf8,
-        reverse: @reverse,
-        nfa_size_limit: @nfa_size_limit,
-        shrink: @shrink,
-        which_captures: which_captures,
-        look_matcher: @look_matcher,
-        unanchored_prefix: @unanchored_prefix
-      )
+      copy = copy_for_override; copy.set_which_captures_override(which_captures); copy
     end
 
     def captures(yes : Bool) : HirCompilerConfig
@@ -87,27 +50,11 @@ module Regex::Automata
     end
 
     def look_matcher(look_matcher : LookMatcher) : HirCompilerConfig
-      HirCompilerConfig.new(
-        utf8: @utf8,
-        reverse: @reverse,
-        nfa_size_limit: @nfa_size_limit,
-        shrink: @shrink,
-        which_captures: @which_captures,
-        look_matcher: look_matcher,
-        unanchored_prefix: @unanchored_prefix
-      )
+      copy = copy_for_override; copy.set_look_matcher_override(look_matcher); copy
     end
 
     def unanchored_prefix(yes : Bool) : HirCompilerConfig
-      HirCompilerConfig.new(
-        utf8: @utf8,
-        reverse: @reverse,
-        nfa_size_limit: @nfa_size_limit,
-        shrink: @shrink,
-        which_captures: @which_captures,
-        look_matcher: @look_matcher,
-        unanchored_prefix: yes
-      )
+      copy = copy_for_override; copy.set_unanchored_prefix_override(yes); copy
     end
 
     def get_utf8 : Bool
@@ -143,7 +90,61 @@ module Regex::Automata
     end
 
     def overwrite(other : HirCompilerConfig) : HirCompilerConfig
-      other
+      copy = copy_for_override
+      other.@overrides.each do |option|
+        case option
+        when :utf8              then copy.set_utf8_override(other.@utf8)
+        when :reverse           then copy.set_reverse_override(other.@reverse)
+        when :nfa_size_limit    then copy.set_nfa_size_limit_override(other.@nfa_size_limit)
+        when :shrink            then copy.set_shrink_override(other.@shrink)
+        when :which_captures    then copy.set_which_captures_override(other.@which_captures)
+        when :look_matcher      then copy.set_look_matcher_override(other.@look_matcher)
+        when :unanchored_prefix then copy.set_unanchored_prefix_override(other.@unanchored_prefix)
+        end
+      end
+      copy
+    end
+
+    protected def set_utf8_override(value : Bool)
+      @utf8 = value; @overrides.add(:utf8)
+    end
+
+    protected def set_reverse_override(value : Bool)
+      @reverse = value; @overrides.add(:reverse)
+    end
+
+    protected def set_nfa_size_limit_override(value : Int64?)
+      @nfa_size_limit = value; @overrides.add(:nfa_size_limit)
+    end
+
+    protected def set_shrink_override(value : Bool)
+      @shrink = value; @overrides.add(:shrink)
+    end
+
+    protected def set_which_captures_override(value : NFA::WhichCaptures)
+      @which_captures = value; @overrides.add(:which_captures)
+    end
+
+    protected def set_look_matcher_override(value : LookMatcher)
+      @look_matcher = value; @overrides.add(:look_matcher)
+    end
+
+    protected def set_unanchored_prefix_override(value : Bool)
+      @unanchored_prefix = value; @overrides.add(:unanchored_prefix)
+    end
+
+    private def copy_for_override : HirCompilerConfig
+      copy = HirCompilerConfig.new(
+        utf8: @utf8, reverse: @reverse, nfa_size_limit: @nfa_size_limit,
+        shrink: @shrink, which_captures: @which_captures,
+        look_matcher: @look_matcher, unanchored_prefix: @unanchored_prefix
+      )
+      copy.copy_overrides_from(self)
+      copy
+    end
+
+    protected def copy_overrides_from(other : HirCompilerConfig) : Nil
+      @overrides = other.@overrides.dup
     end
   end
 
