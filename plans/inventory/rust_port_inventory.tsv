@@ -347,7 +347,7 @@ src/dfa/onepass.rs::method::DFA.create_cache	method	ported	src/regex/automata/on
 src/dfa/onepass.rs::method::DFA.create_captures	method	ported	src/regex/automata/onepass.cr:OnePass::DFA#create_captures;spec/dfa_onepass_spec.cr	Creates capture container.
 src/dfa/onepass.rs::method::DFA.debug_state_transitions	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::DFA.find	method	ported	src/regex/automata/onepass.cr:OnePass::DFA#find;spec/dfa_onepass_spec.cr	Finds an anchored leftmost match through the native Int32 capture-slot table without NonMax conversion scratch.
-src/dfa/onepass.rs::method::DFA.find_match	method	missing	-	auto-generated
+src/dfa/onepass.rs::method::DFA.find_match	method	ported	src/regex/automata/onepass.cr:DFA#record_compiled_match;spec/dfa_onepass_spec.cr	Compiled search validates match-side looks, records implicit and explicit slots, and returns the winning pattern through the same private helper role.
 src/dfa/onepass.rs::method::DFA.fmt	method	missing	-	auto-generated
 src/dfa/onepass.rs::method::DFA.get_config	method	ported	src/regex/automata/onepass.cr:OnePass::DFA#get_config;spec/dfa_onepass_spec.cr	Returns configuration.
 src/dfa/onepass.rs::method::DFA.get_nfa	method	ported	src/regex/automata/onepass.cr:OnePass::DFA#get_nfa;spec/dfa_onepass_spec.cr	Returns source NFA.
