@@ -103,6 +103,12 @@ describe Regex::Automata::NFA::NFA do
     expect_raises(Regex::Automata::NFA::BuildError) do
       builder.add_state(Regex::Automata::NFA::Fail.new)
     end
+
+    accumulated = Regex::Automata::NFA::Builder.new
+    accumulated.add_state(Regex::Automata::NFA::Fail.new)
+    expect_raises(Regex::Automata::NFA::BuildError) do
+      accumulated.set_size_limit(0_i64)
+    end
   end
 
   it "uses Thompson-specific error variants for parser, size-limit, and reverse-capture failures" do
