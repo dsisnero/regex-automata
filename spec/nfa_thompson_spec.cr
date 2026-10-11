@@ -45,6 +45,117 @@ private def s_fail : Regex::Automata::NFA::Fail
 end
 
 describe Regex::Automata::NFA::NFA do
+  it "assembles hand-built patterns with Rust builder patch and priority semantics" do
+    builder = Regex::Automata::NFA::Builder.new
+    builder.get_utf8.should be_false
+    builder.get_reverse.should be_false
+    builder.pattern_len.should eq(0)
+
+    prefix = builder.add_union_reverse([] of Regex::Automata::StateID)
+    any = builder.add_range(Regex::Automata::NFA::Transition.new(0_u8, 255_u8, sid(0)))
+    builder.patch(prefix, any)
+    builder.patch(any, prefix)
+    alt = builder.add_union([] of Regex::Automata::StateID)
+    builder.patch(prefix, alt)
+
+    builder.start_pattern.should eq(pid(0))
+    first_start = builder.add_capture_start(sid(0), 0_u32, nil)
+    first = builder.add_range(Regex::Automata::NFA::Transition.new('a'.ord.to_u8, 'a'.ord.to_u8, sid(0)))
+    first_end = builder.add_capture_end(sid(0), 0_u32)
+    first_match = builder.add_match
+    builder.patch(first_start, first)
+    builder.patch(first, first_end)
+    builder.patch(first_end, first_match)
+    builder.finish_pattern(first_start).should eq(pid(0))
+
+    builder.start_pattern.should eq(pid(1))
+    second_start = builder.add_capture_start(sid(0), 0_u32, nil)
+    second = builder.add_range(Regex::Automata::NFA::Transition.new('b'.ord.to_u8, 'b'.ord.to_u8, sid(0)))
+    second_end = builder.add_capture_end(sid(0), 0_u32)
+    second_match = builder.add_match
+    builder.patch(second_start, second)
+    builder.patch(second, second_end)
+    builder.patch(second_end, second_match)
+    builder.finish_pattern(second_start).should eq(pid(1))
+    builder.patch(alt, first_start)
+    builder.patch(alt, second_start)
+
+    nfa = builder.build(alt, prefix)
+    nfa.pattern_len.should eq(2)
+    nfa.start_pattern(pid(0)).should_not be_nil
+    vm = Regex::Automata::NFA::PikeVM.new_from_nfa(nfa)
+    vm.find(vm.create_cache, "xxb").should eq(Regex::Automata::Match.must(1, 2...3))
+
+    builder.clear
+    builder.pattern_len.should eq(0)
+    builder.memory_usage.should eq(0_i64)
+  end
+
+  it "reverses hand-built union priority at final assembly" do
+    builder = Regex::Automata::NFA::Builder.new
+    alt = builder.add_union_reverse([] of Regex::Automata::StateID)
+    first = builder.add_fail
+    second = builder.add_fail
+    builder.patch(alt, first)
+    builder.patch(alt, second)
+    nfa = builder.build(alt, alt)
+    state = nfa.state(nfa.start_anchored).as(Regex::Automata::NFA::BinaryUnion)
+    state.alt1.should eq(sid(2))
+    state.alt2.should eq(sid(1))
+  end
+
+  it "checks memory added by a union patch and retains configuration after clear" do
+    builder = Regex::Automata::NFA::Builder.new
+    matcher = Regex::Automata::LookMatcher.new
+    matcher.set_line_terminator(0_u8)
+    builder.set_look_matcher(matcher)
+    builder.set_utf8(true)
+    builder.set_reverse(true)
+    builder.set_size_limit(32_i64)
+    union = builder.add_union([] of Regex::Automata::StateID)
+    builder.memory_usage.should eq(32_i64)
+    expect_raises(Regex::Automata::NFA::BuildError) { builder.patch(union, sid(0)) }
+    builder.get_size_limit.should eq(32_i64)
+    builder.clear
+    builder.get_utf8.should be_true
+    builder.get_reverse.should be_true
+    builder.get_look_matcher.get_line_terminator.should eq(0_u8)
+    builder.get_size_limit.should eq(32_i64)
+    builder.memory_usage.should eq(0_i64)
+  end
+
+  it "reports duplicate hand-built capture names at build time" do
+    builder = Regex::Automata::NFA::Builder.new
+    builder.start_pattern
+    start = builder.add_capture_start(sid(0), 0_u32, nil)
+    builder.add_capture_start(sid(0), 1_u32, "name")
+    builder.add_capture_start(sid(0), 2_u32, "name")
+    builder.finish_pattern(start)
+    error = expect_raises(Regex::Automata::NFA::BuildError) { builder.build(start, start) }
+    error.kind.should eq(Regex::Automata::NFA::BuildError::Kind::Captures)
+  end
+
+  it "enforces hand-builder pattern and sparse transition invariants" do
+    builder = Regex::Automata::NFA::Builder.new
+    expect_raises(Exception, "must call 'start_pattern' first") { builder.add_match }
+    builder.start_pattern.should eq(pid(0))
+    expect_raises(Exception, "must call 'finish_pattern' first") { builder.start_pattern }
+    expect_raises(Regex::Automata::NFA::BuildError) do
+      builder.add_capture_start(sid(0), Regex::Automata::SmallIndex::LIMIT.to_u32, nil)
+    end
+    expect_raises(ArgumentError) do
+      builder.add_sparse([
+        Regex::Automata::NFA::Transition.new(1_u8, 5_u8, sid(0)),
+        Regex::Automata::NFA::Transition.new(5_u8, 9_u8, sid(0)),
+      ])
+    end
+    empty = builder.add_empty
+    look = builder.add_look(empty, Regex::Automata::NFA::Look::Kind::StartText)
+    builder.patch(empty, look)
+    builder.finish_pattern(look)
+    builder.pattern_len.should eq(1)
+  end
+
   it "merges Thompson compiler configuration as sparse overrides" do
     base = Regex::Automata::NFA::NFA.config.utf8(false).shrink(true)
     base.overwrite(Regex::Automata::NFA::NFA.config).get_utf8.should be_false

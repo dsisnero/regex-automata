@@ -985,8 +985,13 @@ module Regex::Automata::NFA
     @look_matcher : Regex::Automata::LookMatcher
     @size_limit : Int64?
     @memory_states : Int64
+    @pattern_id : PatternID?
+    @captures : Array(Array(String?))
+    @manual_capture_ids : Set(StateID)
+    @capture_end_ids : Set(StateID)
+    @reverse_unions : Set(StateID)
 
-    def initialize(utf8 : Bool = true, reverse : Bool = false, shrink : Bool = false, @size_limit : Int64? = nil)
+    def initialize(utf8 : Bool = false, reverse : Bool = false, shrink : Bool = false, @size_limit : Int64? = nil)
       @states = [] of State
       @start_anchored = StateID.new(0)
       @start_unanchored = StateID.new(0)
@@ -996,6 +1001,143 @@ module Regex::Automata::NFA
       @shrink = shrink
       @look_matcher = Regex::Automata::LookMatcher.new
       @memory_states = 0_i64
+      @pattern_id = nil
+      @captures = [] of Array(String?)
+      @manual_capture_ids = Set(StateID).new
+      @capture_end_ids = Set(StateID).new
+      @reverse_unions = Set(StateID).new
+    end
+
+    def clear : Nil
+      @states.clear
+      @start_pattern.clear
+      @start_anchored = StateID::ZERO
+      @start_unanchored = StateID::ZERO
+      @pattern_id = nil
+      @captures.clear
+      @manual_capture_ids.clear
+      @capture_end_ids.clear
+      @reverse_unions.clear
+      @memory_states = 0_i64
+    end
+
+    def start_pattern : PatternID
+      raise "must call 'finish_pattern' first" if @pattern_id
+      raise BuildError.too_many_patterns(@start_pattern.size.to_i64) if @start_pattern.size.to_i64 >= PatternID::LIMIT
+
+      pid = PatternID.new(@start_pattern.size)
+      @pattern_id = pid
+      @start_pattern << StateID::ZERO
+      pid
+    end
+
+    def finish_pattern(start_id : StateID) : PatternID
+      pid = current_pattern_id
+      @start_pattern[pid.to_i] = start_id
+      @pattern_id = nil
+      pid
+    end
+
+    def current_pattern_id : PatternID
+      @pattern_id || raise "must call 'start_pattern' first"
+    end
+
+    def pattern_len : Int32
+      @start_pattern.size.to_i32
+    end
+
+    def add_empty : StateID
+      add_state(Empty.new(StateID::ZERO))
+    end
+
+    def add_union(alternates : Array(StateID)) : StateID
+      add_state(Union.new(alternates.dup))
+    end
+
+    def add_union_reverse(alternates : Array(StateID)) : StateID
+      id = add_union(alternates)
+      @reverse_unions.add(id)
+      id
+    end
+
+    def add_range(transition : Transition) : StateID
+      add_state(ByteRange.new(transition))
+    end
+
+    def add_sparse(transitions : Array(Transition)) : StateID
+      transitions.each_cons_pair do |left, right|
+        raise ArgumentError.new("sparse transitions must be ordered and non-overlapping") if left.end >= right.start
+      end
+      add_state(Sparse.new(transitions.dup))
+    end
+
+    def add_look(next_id : StateID, kind : Look::Kind) : StateID
+      add_state(Look.new(kind, next_id))
+    end
+
+    def add_capture_start(next_id : StateID, group_index : UInt32, name : String?) : StateID
+      pid = current_pattern_id
+      raise BuildError.invalid_capture_index(group_index) if group_index.to_i64 >= Regex::Automata::SmallIndex::LIMIT
+      while @captures.size <= pid.to_i
+        @captures << ([] of String?)
+      end
+      names = @captures[pid.to_i]
+      while names.size < group_index.to_i
+        names << nil
+      end
+      names << name if names.size == group_index.to_i
+      id = add_state(Capture.new(next_id, pid, group_index.to_i32, 0))
+      @manual_capture_ids.add(id)
+      id
+    end
+
+    def add_capture_end(next_id : StateID, group_index : UInt32) : StateID
+      pid = current_pattern_id
+      raise BuildError.invalid_capture_index(group_index) if group_index.to_i64 >= Regex::Automata::SmallIndex::LIMIT
+      id = add_state(Capture.new(next_id, pid, group_index.to_i32, 0))
+      @manual_capture_ids.add(id)
+      @capture_end_ids.add(id)
+      id
+    end
+
+    def add_fail : StateID
+      add_state(Fail.new)
+    end
+
+    def add_match : StateID
+      add_state(Match.new(current_pattern_id))
+    end
+
+    def patch(from : StateID, to : StateID) : Nil
+      state = @states[from.to_i]
+      case state
+      when Sparse
+        raise "cannot patch from a sparse NFA state"
+      when Union
+        @states[from.to_i] = Union.new(state.alternates + [to])
+        @memory_states += sizeof(StateID).to_i64
+        check_size_limit!
+      when BinaryUnion
+        @states[from.to_i] = Union.new([state.alt1, state.alt2, to])
+        @memory_states += 3_i64 * sizeof(StateID).to_i64
+        check_size_limit!
+      when Fail, Match
+        # Terminal states have no outgoing transition.
+      else
+        @states[from.to_i] = update_state_target(state, to)
+      end
+    end
+
+    def set_utf8(yes : Bool) : Nil
+      @utf8 = yes
+    end
+
+    def get_utf8 : Bool
+      @utf8
+    end
+
+    def get_look_matcher : Regex::Automata::LookMatcher
+      @look_matcher
     end
 
     # Add a new state and return its ID
@@ -1041,7 +1183,9 @@ module Regex::Automata::NFA
     end
 
     def set_state(state_id : StateID, state : State) : Nil
+      @memory_states += state_memory_usage(state) - state_memory_usage(@states[state_id.to_i])
       @states[state_id.to_i] = state
+      check_size_limit!
     end
 
     def state(state_id : StateID) : State
@@ -1070,6 +1214,12 @@ module Regex::Automata::NFA
 
     def set_look_matcher(look_matcher : Regex::Automata::LookMatcher)
       @look_matcher = look_matcher
+    end
+
+    def build(start_anchored : StateID, start_unanchored : StateID) : NFA
+      set_start_anchored(start_anchored)
+      set_start_unanchored(start_unanchored)
+      build
     end
 
     # Add a pattern start state
@@ -1568,6 +1718,10 @@ module Regex::Automata::NFA
 
     # Build the final NFA
     def build(group_info : Regex::Automata::GroupInfo = Regex::Automata::GroupInfo.empty) : NFA
+      raise "must call 'finish_pattern' first" if @pattern_id
+      if !@captures.empty?
+        group_info = Regex::Automata::GroupInfo.new(@captures.map(&.dup), allow_empty_patterns: true)
+      end
       if @states.empty?
         fail_id = StateID.new(0)
         return NFA.new(
@@ -1609,13 +1763,25 @@ module Regex::Automata::NFA
           remap[index] = StateID.new(final_states.size)
           final_states << replacement
         when Union
-          replacement = case state.alternates.size
+          alternates = @reverse_unions.includes?(sid) ? state.alternates.reverse : state.alternates
+          replacement = case alternates.size
                         when 0
                           Fail.new.as(State)
                         when 1
                           next
                         when 2
-                          BinaryUnion.new(state.alternates[0], state.alternates[1]).as(State)
+                          BinaryUnion.new(alternates[0], alternates[1]).as(State)
+                        else
+                          Union.new(alternates).as(State)
+                        end
+          remap[index] = StateID.new(final_states.size)
+          final_states << replacement
+        when Capture
+          replacement = if @manual_capture_ids.includes?(sid)
+                          slot = group_info.slot(state.pattern_id, state.group_index) ||
+                                 raise "invalid capture index"
+                          slot += 1 if @capture_end_ids.includes?(sid)
+                          Capture.new(state.next, state.pattern_id, state.group_index, slot).as(State)
                         else
                           state.as(State)
                         end
@@ -1664,6 +1830,8 @@ module Regex::Automata::NFA
         group_info,
         @look_matcher
       )
+    rescue ex : Regex::Automata::GroupInfoError
+      raise BuildError.captures(ex)
     end
 
     # Update the target of a state's transition
@@ -1900,7 +2068,7 @@ module Regex::Automata::NFA
     end
 
     def self.always_match : NFA
-      builder = Builder.new
+      builder = Builder.new(utf8: true)
       start_id = builder.add_state(Capture.new(StateID.new(0), PatternID.new(0), 0, 0))
       end_id = builder.add_state(Capture.new(StateID.new(0), PatternID.new(0), 0, 1))
       match_id = builder.add_state(Match.new(PatternID.new(0)))
