@@ -160,7 +160,7 @@ module Regex::Automata
     def initialize(config : HirCompilerConfig = HirCompilerConfig.new, syntax_config : Regex::Automata::Syntax::Config = Regex::Automata::Syntax::Config.new)
       @config = config
       @syntax_config = syntax_config
-      @builder = NFA::Builder.new(utf8: config.utf8, reverse: config.reverse, shrink: config.shrink)
+      @builder = NFA::Builder.new(utf8: config.utf8, reverse: config.reverse, shrink: config.shrink, size_limit: config.nfa_size_limit)
       @pattern_id = PatternID.new(0)
       @group_info = GroupInfo.empty
     end
@@ -553,7 +553,7 @@ module Regex::Automata
     end
 
     private def reset_builder : Nil
-      @builder = NFA::Builder.new(utf8: @config.utf8, reverse: @config.reverse, shrink: @config.shrink)
+      @builder = NFA::Builder.new(utf8: @config.utf8, reverse: @config.reverse, shrink: @config.shrink, size_limit: @config.nfa_size_limit)
       @builder.set_look_matcher(@config.look_matcher)
     end
 

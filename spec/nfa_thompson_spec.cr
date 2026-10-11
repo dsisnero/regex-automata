@@ -98,6 +98,13 @@ describe Regex::Automata::NFA::NFA do
     error.size_limit.should eq(0_i64)
   end
 
+  it "enforces the NFA size limit while states are added" do
+    builder = Regex::Automata::NFA::Builder.new(size_limit: 0_i64)
+    expect_raises(Regex::Automata::NFA::BuildError) do
+      builder.add_state(Regex::Automata::NFA::Fail.new)
+    end
+  end
+
   it "uses Thompson-specific error variants for parser, size-limit, and reverse-capture failures" do
     syntax = expect_raises(Regex::Automata::NFA::BuildError) do
       Regex::Automata::NFA::NFA.new("(")

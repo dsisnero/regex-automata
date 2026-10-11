@@ -983,8 +983,10 @@ module Regex::Automata::NFA
     @reverse : Bool
     @shrink : Bool
     @look_matcher : Regex::Automata::LookMatcher
+    @size_limit : Int64?
+    @memory_states : Int64
 
-    def initialize(utf8 : Bool = true, reverse : Bool = false, shrink : Bool = false)
+    def initialize(utf8 : Bool = true, reverse : Bool = false, shrink : Bool = false, @size_limit : Int64? = nil)
       @states = [] of State
       @start_anchored = StateID.new(0)
       @start_unanchored = StateID.new(0)
@@ -993,6 +995,7 @@ module Regex::Automata::NFA
       @reverse = reverse
       @shrink = shrink
       @look_matcher = Regex::Automata::LookMatcher.new
+      @memory_states = 0_i64
     end
 
     # Add a new state and return its ID
@@ -1002,7 +1005,39 @@ module Regex::Automata::NFA
       end
       id = StateID.new(@states.size)
       @states << state
+      @memory_states += state_memory_usage(state)
+      check_size_limit!
       id
+    end
+
+    def set_size_limit(limit : Int64?) : Nil
+      @size_limit = limit
+      check_size_limit!
+    end
+
+    def get_size_limit : Int64?
+      @size_limit
+    end
+
+    def memory_usage : Int64
+      @states.size.to_i64 * 32_i64 + @memory_states
+    end
+
+    private def check_size_limit! : Nil
+      if limit = @size_limit
+        raise BuildError.exceeded_size_limit(limit) if memory_usage > limit
+      end
+    end
+
+    private def state_memory_usage(state : State) : Int64
+      case state
+      when Sparse
+        state.transitions.size.to_i64 * sizeof(Transition).to_i64
+      when Union
+        state.alternates.size.to_i64 * sizeof(StateID).to_i64
+      else
+        0_i64
+      end
     end
 
     def set_state(state_id : StateID, state : State) : Nil
