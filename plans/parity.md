@@ -66,7 +66,7 @@
 
 - [ ] Thompson NFA construction, representation, and compiler
   - Scope: `src/nfa/thompson/{nfa,builder,compiler,literal_trie,range_trie,map,error}.rs`.
-  - Work: prove public constructors/configuration, captures policy, all state variants and transitions, byte-class analysis, look sets, literal/range trie compilation, reverse construction, limits, errors, and memory/query APIs. Reconcile private graph-layout helpers individually rather than claiming a final NFA is enough.
+  - Work: prove public constructors/configuration, captures policy, all state variants and transitions, byte-class analysis, look sets, literal/range trie compilation, reverse construction, limits, errors, and memory/query APIs. Rust Thompson compiler configuration is a sparse overlay, but `HirCompilerConfig#overwrite` currently replaces Crystal's whole concrete config; model unset options or otherwise preserve existing fields before marking builder configuration parity complete. Reconcile private graph-layout helpers individually rather than claiming a final NFA is enough.
 
 - [ ] PikeVM and bounded backtracker engines
   - Scope: `src/nfa/thompson/{pikevm,backtrack}.rs` and `tests/nfa/thompson/{pikevm,backtrack}/**`.
