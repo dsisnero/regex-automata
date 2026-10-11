@@ -66,7 +66,7 @@
 
 - [ ] Thompson NFA construction, representation, and compiler
   - Scope: `src/nfa/thompson/{nfa,builder,compiler,literal_trie,range_trie,map,error}.rs`.
-  - Work: prove public constructors/configuration, captures policy, all state variants and transitions, byte-class analysis, look sets, literal/range trie compilation, reverse construction, limits, errors, and memory/query APIs. `HirCompilerConfig` now tracks explicit overrides and merges them as Rust's sparse configuration overlay, including explicit default values. Reconcile private graph-layout helpers individually rather than claiming a final NFA is enough.
+  - Work: prove public constructors/configuration, captures policy, all state variants and transitions, byte-class analysis, look sets, literal/range trie compilation, reverse construction, limits, errors, and memory/query APIs. `HirCompilerConfig` now tracks explicit overrides and merges them as Rust's sparse configuration overlay, including explicit default values. Builder limits are now enforced as states are added, rather than only after compilation; the estimate retains Rust's 32-byte intermediate-state baseline plus transition storage, with Crystal allocation-layout differences explicitly classified. Reconcile the still-missing public hand-builder/patch API and private graph-layout helpers individually rather than claiming a final NFA is enough.
 
 - [ ] PikeVM and bounded backtracker engines
   - Scope: `src/nfa/thompson/{pikevm,backtrack}.rs` and `tests/nfa/thompson/{pikevm,backtrack}/**`.

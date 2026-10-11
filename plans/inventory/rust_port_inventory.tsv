@@ -1088,25 +1088,25 @@ src/nfa/thompson/builder.rs::method::Builder.add_sparse	method	missing	-	auto-ge
 src/nfa/thompson/builder.rs::method::Builder.add_union	method	missing	-	auto-generated
 src/nfa/thompson/builder.rs::method::Builder.add_union_reverse	method	missing	-	auto-generated
 src/nfa/thompson/builder.rs::method::Builder.build	method	missing	-	auto-generated
-src/nfa/thompson/builder.rs::method::Builder.check_size_limit	method	missing	-	auto-generated
+src/nfa/thompson/builder.rs::method::Builder.check_size_limit	method	ported	src/regex/automata/nfa.cr:1026;spec/nfa_thompson_spec.cr:102	Checks the configured limit immediately after each added builder state and when setting the limit.
 src/nfa/thompson/builder.rs::method::Builder.clear	method	missing	-	auto-generated
 src/nfa/thompson/builder.rs::method::Builder.current_pattern_id	method	missing	-	auto-generated
 src/nfa/thompson/builder.rs::method::Builder.finish_pattern	method	missing	-	auto-generated
 src/nfa/thompson/builder.rs::method::Builder.get_look_matcher	method	missing	-	auto-generated
 src/nfa/thompson/builder.rs::method::Builder.get_reverse	method	missing	-	auto-generated
-src/nfa/thompson/builder.rs::method::Builder.get_size_limit	method	missing	-	auto-generated
+src/nfa/thompson/builder.rs::method::Builder.get_size_limit	method	ported	src/regex/automata/nfa.cr:1018;spec/nfa_thompson_spec.cr:102	Returns the optional configured builder limit.
 src/nfa/thompson/builder.rs::method::Builder.get_utf8	method	missing	-	auto-generated
-src/nfa/thompson/builder.rs::method::Builder.memory_usage	method	missing	-	auto-generated
+src/nfa/thompson/builder.rs::method::Builder.memory_usage	method	partial	src/regex/automata/nfa.cr:1022;spec/nfa_thompson_spec.cr:102	Tracks the Rust-equivalent per-state estimate plus variable transition storage; Crystal object allocation layout prevents byte-identical allocator accounting.
 src/nfa/thompson/builder.rs::method::Builder.new	method	missing	-	auto-generated
 src/nfa/thompson/builder.rs::method::Builder.patch	method	missing	-	auto-generated
 src/nfa/thompson/builder.rs::method::Builder.pattern_len	method	missing	-	auto-generated
 src/nfa/thompson/builder.rs::method::Builder.set_look_matcher	method	missing	-	auto-generated
 src/nfa/thompson/builder.rs::method::Builder.set_reverse	method	missing	-	auto-generated
-src/nfa/thompson/builder.rs::method::Builder.set_size_limit	method	missing	-	auto-generated
+src/nfa/thompson/builder.rs::method::Builder.set_size_limit	method	ported	src/regex/automata/nfa.cr:1013;spec/nfa_thompson_spec.cr:102	Sets and immediately validates an optional builder size limit.
 src/nfa/thompson/builder.rs::method::Builder.set_utf8	method	missing	-	auto-generated
 src/nfa/thompson/builder.rs::method::Builder.start_pattern	method	missing	-	auto-generated
 src/nfa/thompson/builder.rs::method::State.goto	method	missing	-	auto-generated
-src/nfa/thompson/builder.rs::method::State.memory_usage	method	missing	-	auto-generated
+src/nfa/thompson/builder.rs::method::State.memory_usage	method	partial	src/regex/automata/nfa.cr:1032	Counts variable sparse/union transition storage; Crystal does not expose Rust enum allocation layout.
 src/nfa/thompson/compiler.rs::method::Compiler.add_capture_end	method	missing	-	auto-generated
 src/nfa/thompson/compiler.rs::method::Compiler.add_capture_start	method	missing	-	auto-generated
 src/nfa/thompson/compiler.rs::method::Compiler.add_empty	method	missing	-	auto-generated
