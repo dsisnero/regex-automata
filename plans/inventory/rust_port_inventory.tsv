@@ -455,7 +455,7 @@ src/dfa/remapper.rs::method::Remapper.swap	method	partial	src/regex/automata/dfa
 src/dfa/sparse.rs::const::LABEL	const	missing	-	auto-generated
 src/dfa/sparse.rs::const::VERSION	const	missing	-	auto-generated
 src/dfa/sparse.rs::method::DFA<&'a [u8]>.from_bytes	method	ported	src/regex/automata/sparse.cr:Sparse::DFA.from_bytes;spec/dfa_sparse_spec.cr	Crystal checks and decodes the sparse envelope.
-src/dfa/sparse.rs::method::DFA<&'a [u8]>.from_bytes_unchecked	method	missing	-	auto-generated
+src/dfa/sparse.rs::method::DFA<&'a [u8]>.from_bytes_unchecked	method	ported	src/regex/automata/sparse.cr:Sparse::DFA.from_bytes_unchecked;spec/dfa_sparse_spec.cr	Crystal delegates to its safe owned sparse decoder instead of borrowing unchecked byte storage.
 src/dfa/sparse.rs::method::DFA<T>.accelerator	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#accelerator	Delegates accelerator bytes to dense DFA.
 src/dfa/sparse.rs::method::DFA<T>.as_ref	method	intentional_divergence	src/regex/automata/sparse.cr:Sparse::DFA#as_ref	Crystal objects are GC-managed; borrowed view is the same object.
 src/dfa/sparse.rs::method::DFA<T>.byte_classes	method	ported	src/regex/automata/sparse.cr:Sparse::DFA#byte_classes;spec/dfa_sparse_spec.cr	Exposes dense byte-class map.
