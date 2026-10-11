@@ -471,6 +471,12 @@ describe Regex::Automata::NFA::NFA do
     all.has_capture.should be_true
     all.group_info.all_group_len.should eq(2)
     all.states.select(&.is_a?(Regex::Automata::NFA::Capture)).map(&.as(Regex::Automata::NFA::Capture).slot).sort.should eq([0, 1, 2, 3])
+    all.states.should eq([
+      s_cap(1, 0, 0, 0), s_byte('a'.ord.to_u8, 2),
+      s_cap(3, 0, 1, 2), s_byte('b'.ord.to_u8, 4),
+      s_cap(5, 0, 1, 3), s_byte('c'.ord.to_u8, 6),
+      s_cap(7, 0, 0, 1), s_match(0),
+    ])
 
     implicit = Regex::Automata::NFA::NFA.compiler
       .configure(
@@ -481,6 +487,11 @@ describe Regex::Automata::NFA::NFA do
       .build("a(b)c")
     implicit.group_info.all_group_len.should eq(1)
     implicit.states.select(&.is_a?(Regex::Automata::NFA::Capture)).map(&.as(Regex::Automata::NFA::Capture).slot).sort.should eq([0, 1])
+    implicit.states.should eq([
+      s_cap(1, 0, 0, 0), s_byte('a'.ord.to_u8, 2),
+      s_byte('b'.ord.to_u8, 3), s_byte('c'.ord.to_u8, 4),
+      s_cap(5, 0, 0, 1), s_match(0),
+    ])
 
     none = Regex::Automata::NFA::NFA.compiler
       .configure(
@@ -491,5 +502,9 @@ describe Regex::Automata::NFA::NFA do
       .build("a(b)c")
     none.has_capture.should be_false
     none.group_info.all_group_len.should eq(0)
+    none.states.should eq([
+      s_byte('a'.ord.to_u8, 1), s_byte('b'.ord.to_u8, 2),
+      s_byte('c'.ord.to_u8, 3), s_match(0),
+    ])
   end
 end

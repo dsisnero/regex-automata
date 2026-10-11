@@ -644,16 +644,16 @@ module Regex::Automata
                    raise "missing capture slot for pattern #{@pattern_id.to_i}, group #{node.index}"
       end_slot = start_slot + 1
 
-      child_ref = compile_node(node.sub)
       capture_start = @builder.add_state(
-        NFA::Capture.new(child_ref.start, @pattern_id, node.index, start_slot)
+        NFA::Capture.new(StateID::ZERO, @pattern_id, node.index, start_slot)
       )
-      capture_match_end = @builder.add_state(NFA::Match.new(@pattern_id))
+      child_ref = compile_node(node.sub)
       capture_end = @builder.add_state(
-        NFA::Capture.new(capture_match_end, @pattern_id, node.index, end_slot)
+        NFA::Capture.new(StateID::ZERO, @pattern_id, node.index, end_slot)
       )
-      @builder.update_transition_target(child_ref.end, capture_end)
-      NFA::ThompsonRef.new(capture_start, capture_match_end)
+      compiler_patch(capture_start, child_ref.start)
+      compiler_patch(child_ref.end, capture_end)
+      NFA::ThompsonRef.new(capture_start, capture_end)
     end
 
     private def reset_builder : Nil
@@ -702,25 +702,27 @@ module Regex::Automata
     end
 
     private def compile_concat(node : Regex::Syntax::Hir::Concat) : NFA::ThompsonRef
-      refs = node.children.map { |child| compile_node(child) }
+      children = node.children
+      return compile_empty if children.empty?
 
-      if refs.empty?
-        compile_empty
+      if @config.reverse
+        first = compile_node(children.last)
+        ending = first.end
+        (children.size - 2).downto(0) do |index|
+          compiled = compile_node(children[index])
+          compiler_patch(ending, compiled.start)
+          ending = compiled.end
+        end
       else
-        if @config.reverse
-          result = refs.last
-          refs[0...-1].reverse_each do |prev_ref|
-            result = @builder.build_concatenation(result, prev_ref)
-          end
-          result
-        else
-          result = refs.first
-          refs[1..].each do |next_ref|
-            result = @builder.build_concatenation(result, next_ref)
-          end
-          result
+        first = compile_node(children.first)
+        ending = first.end
+        (1...children.size).each do |index|
+          compiled = compile_node(children[index])
+          compiler_patch(ending, compiled.start)
+          ending = compiled.end
         end
       end
+      NFA::ThompsonRef.new(first.start, ending)
     end
 
     private def compile_alternation(node : Regex::Syntax::Hir::Alternation) : NFA::ThompsonRef

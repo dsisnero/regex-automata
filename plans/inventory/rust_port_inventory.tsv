@@ -1127,8 +1127,8 @@ src/nfa/thompson/compiler.rs::method::Compiler.c_alt_slice	method	missing	-	auto
 src/nfa/thompson/compiler.rs::method::Compiler.c_at_least	method	ported	src/regex/automata/hir_compiler.cr:compile_at_least;spec/nfa_thompson_spec.cr;spec/hir_compiler_spec.cr	Preserves Rust's nonempty versus nullable star lowering and minimum-copy loop construction.
 src/nfa/thompson/compiler.rs::method::Compiler.c_bounded	method	ported	src/regex/automata/hir_compiler.cr:compile_bounded;spec/nfa_thompson_spec.cr;spec/hir_compiler_spec.cr	Builds a shared exit with direct optional-branch transitions instead of an epsilon-chain closure.
 src/nfa/thompson/compiler.rs::method::Compiler.c_byte_class	method	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::method::Compiler.c_cap	method	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::method::Compiler.c_concat	method	missing	-	auto-generated
+src/nfa/thompson/compiler.rs::method::Compiler.c_cap	method	ported	src/regex/automata/hir_compiler.cr:compile_capture;spec/nfa_thompson_spec.cr	Adds capture start before compiling the child and capture end afterward, preserving Rust state order and slot policy.
+src/nfa/thompson/compiler.rs::method::Compiler.c_concat	method	ported	src/regex/automata/hir_compiler.cr:compile_concat;spec/nfa_thompson_spec.cr	Compiles children incrementally in forward or reverse order and patches each preceding end.
 src/nfa/thompson/compiler.rs::method::Compiler.c_empty	method	missing	-	auto-generated
 src/nfa/thompson/compiler.rs::method::Compiler.c_exactly	method	ported	src/regex/automata/hir_compiler.cr:compile_exactly;spec/hir_compiler_spec.cr	Compiles each required copy from HIR in order and patches the previous end.
 src/nfa/thompson/compiler.rs::method::Compiler.c_fail	method	missing	-	auto-generated
