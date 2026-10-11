@@ -44,7 +44,37 @@ private def s_fail : Regex::Automata::NFA::Fail
   Regex::Automata::NFA::Fail.new
 end
 
+private def rust_layout_nfa(pattern : String) : Regex::Automata::NFA::NFA
+  Regex::Automata::NFA::NFA.compiler
+    .configure(
+      Regex::Automata::NFA::NFA.config
+        .which_captures(Regex::Automata::NFA::WhichCaptures::None)
+        .unanchored_prefix(false)
+    )
+    .build(pattern)
+end
+
 describe Regex::Automata::NFA::NFA do
+  it "matches Rust's Thompson compiler graphs for literals, classes, and repetition" do
+    rust_layout_nfa("").states.should eq([s_match(0)])
+    rust_layout_nfa("a").states.should eq([s_byte('a'.ord.to_u8, 1), s_match(0)])
+    rust_layout_nfa("ab").states.should eq([
+      s_byte('a'.ord.to_u8, 1), s_byte('b'.ord.to_u8, 2), s_match(0),
+    ])
+    rust_layout_nfa("[a-z]").states.should eq([s_range('a'.ord.to_u8, 'z'.ord.to_u8, 1), s_match(0)])
+    rust_layout_nfa("a?").states.should eq([s_bin_union(1, 2), s_byte('a'.ord.to_u8, 2), s_match(0)])
+    rust_layout_nfa("a??").states.should eq([s_bin_union(2, 1), s_byte('a'.ord.to_u8, 2), s_match(0)])
+    rust_layout_nfa("ab+").states.should eq([
+      s_byte('a'.ord.to_u8, 1), s_byte('b'.ord.to_u8, 2), s_bin_union(1, 3), s_match(0),
+    ])
+    rust_layout_nfa("a{2,5}").states.should eq([
+      s_byte('a'.ord.to_u8, 1), s_byte('a'.ord.to_u8, 2),
+      s_bin_union(3, 8), s_byte('a'.ord.to_u8, 4),
+      s_bin_union(5, 8), s_byte('a'.ord.to_u8, 6),
+      s_bin_union(7, 8), s_byte('a'.ord.to_u8, 8), s_match(0),
+    ])
+  end
+
   it "assembles hand-built patterns with Rust builder patch and priority semantics" do
     builder = Regex::Automata::NFA::Builder.new
     builder.get_utf8.should be_false
@@ -220,6 +250,20 @@ describe Regex::Automata::NFA::NFA do
     expect_raises(Regex::Automata::NFA::BuildError) do
       accumulated.set_size_limit(0_i64)
     end
+  end
+
+  it "enforces the NFA size limit when repetition patching grows a union" do
+    error = expect_raises(Regex::Automata::NFA::BuildError) do
+      Regex::Automata::NFA::NFA.compiler
+        .configure(
+          Regex::Automata::NFA::NFA.config
+            .which_captures(Regex::Automata::NFA::WhichCaptures::None)
+            .unanchored_prefix(false)
+            .nfa_size_limit(128_i64)
+        )
+        .build("a?")
+    end
+    error.kind.should eq(Regex::Automata::NFA::BuildError::Kind::ExceededSizeLimit)
   end
 
   it "uses Thompson-specific error variants for parser, size-limit, and reverse-capture failures" do

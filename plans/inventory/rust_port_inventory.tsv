@@ -1124,27 +1124,27 @@ src/nfa/thompson/compiler.rs::method::Compiler.build_many_from_hir	method	missin
 src/nfa/thompson/compiler.rs::method::Compiler.c	method	missing	-	auto-generated
 src/nfa/thompson/compiler.rs::method::Compiler.c_alt_iter	method	missing	-	auto-generated
 src/nfa/thompson/compiler.rs::method::Compiler.c_alt_slice	method	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::method::Compiler.c_at_least	method	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::method::Compiler.c_bounded	method	missing	-	auto-generated
+src/nfa/thompson/compiler.rs::method::Compiler.c_at_least	method	ported	src/regex/automata/hir_compiler.cr:compile_at_least;spec/nfa_thompson_spec.cr;spec/hir_compiler_spec.cr	Preserves Rust's nonempty versus nullable star lowering and minimum-copy loop construction.
+src/nfa/thompson/compiler.rs::method::Compiler.c_bounded	method	ported	src/regex/automata/hir_compiler.cr:compile_bounded;spec/nfa_thompson_spec.cr;spec/hir_compiler_spec.cr	Builds a shared exit with direct optional-branch transitions instead of an epsilon-chain closure.
 src/nfa/thompson/compiler.rs::method::Compiler.c_byte_class	method	missing	-	auto-generated
 src/nfa/thompson/compiler.rs::method::Compiler.c_cap	method	missing	-	auto-generated
 src/nfa/thompson/compiler.rs::method::Compiler.c_concat	method	missing	-	auto-generated
 src/nfa/thompson/compiler.rs::method::Compiler.c_empty	method	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::method::Compiler.c_exactly	method	missing	-	auto-generated
+src/nfa/thompson/compiler.rs::method::Compiler.c_exactly	method	ported	src/regex/automata/hir_compiler.cr:compile_exactly;spec/hir_compiler_spec.cr	Compiles each required copy from HIR in order and patches the previous end.
 src/nfa/thompson/compiler.rs::method::Compiler.c_fail	method	missing	-	auto-generated
 src/nfa/thompson/compiler.rs::method::Compiler.c_literal	method	missing	-	auto-generated
 src/nfa/thompson/compiler.rs::method::Compiler.c_look	method	missing	-	auto-generated
 src/nfa/thompson/compiler.rs::method::Compiler.c_range	method	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::method::Compiler.c_repetition	method	missing	-	auto-generated
+src/nfa/thompson/compiler.rs::method::Compiler.c_repetition	method	ported	src/regex/automata/hir_compiler.cr:compile_repetition;spec/nfa_thompson_spec.cr;spec/hir_compiler_spec.cr	Dispatches the same four Rust repetition cases by minimum and maximum count.
 src/nfa/thompson/compiler.rs::method::Compiler.c_unicode_class	method	missing	-	auto-generated
 src/nfa/thompson/compiler.rs::method::Compiler.c_unicode_class_reverse_with_suffix	method	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::method::Compiler.c_zero_or_one	method	missing	-	auto-generated
+src/nfa/thompson/compiler.rs::method::Compiler.c_zero_or_one	method	ported	src/regex/automata/hir_compiler.cr:compile_zero_or_one;spec/nfa_thompson_spec.cr	Allocates union before child, preserving Rust's state order and greedy/lazy priority.
 src/nfa/thompson/compiler.rs::method::Compiler.compile	method	missing	-	auto-generated
 src/nfa/thompson/compiler.rs::method::Compiler.configure	method	missing	-	auto-generated
 src/nfa/thompson/compiler.rs::method::Compiler.finish_pattern	method	missing	-	auto-generated
 src/nfa/thompson/compiler.rs::method::Compiler.is_reverse	method	missing	-	auto-generated
 src/nfa/thompson/compiler.rs::method::Compiler.new	method	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::method::Compiler.patch	method	missing	-	auto-generated
+src/nfa/thompson/compiler.rs::method::Compiler.patch	method	partial	src/regex/automata/hir_compiler.cr:compiler_patch;src/regex/automata/nfa.cr:Builder#patch;spec/nfa_thompson_spec.cr	Delegates to builder patch except for Crystal's internal Match-as-placeholder state; other graph paths still need review.
 src/nfa/thompson/compiler.rs::method::Compiler.start_pattern	method	missing	-	auto-generated
 src/nfa/thompson/compiler.rs::method::Compiler.syntax	method	missing	-	auto-generated
 src/nfa/thompson/compiler.rs::method::Config.captures	method	ported	src/regex/automata/hir_compiler.cr:HirCompilerConfig#captures;spec/nfa_thompson_spec.cr	Maps capture enablement to WhichCaptures.

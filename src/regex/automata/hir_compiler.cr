@@ -252,7 +252,7 @@ module Regex::Automata
       reset_builder
       @pattern_id = pattern_id
       @group_info = build_group_info([{pattern_id, hir}] of Tuple(PatternID, Regex::Syntax::Hir::Hir))
-      ref = compile_node(hir.node)
+      ref = finish_compiled_ref(compile_node(hir.node), pattern_id)
       @builder.add_pattern_start(ref.start)
       @builder.set_start_unanchored(ref.start)
       @builder.set_start_anchored(ref.start)
@@ -276,7 +276,7 @@ module Regex::Automata
       hirs.each_with_index do |hir, i|
         pattern_id = PatternID.new(i.to_i32)
         @pattern_id = pattern_id
-        ref = compile_node(hir.node)
+        ref = finish_compiled_ref(compile_node(hir.node), pattern_id)
         @builder.add_pattern_start(ref.start)
         pattern_starts << ref.start
       end
@@ -316,13 +316,15 @@ module Regex::Automata
         ref = NFA::ThompsonRef.new(start_capture, end_capture)
       end
 
-      unless @builder.state(ref.end).is_a?(NFA::Match)
-        match_id = @builder.add_state(NFA::Match.new(pattern_id))
-        @builder.update_transition_target(ref.end, match_id)
-        ref = NFA::ThompsonRef.new(ref.start, match_id)
-      end
+      finish_compiled_ref(ref, pattern_id)
+    end
 
-      ref
+    private def finish_compiled_ref(ref : NFA::ThompsonRef, pattern_id : PatternID) : NFA::ThompsonRef
+      return ref if @builder.state(ref.end).is_a?(NFA::Match)
+
+      match_id = @builder.add_state(NFA::Match.new(pattern_id))
+      compiler_patch(ref.end, match_id)
+      NFA::ThompsonRef.new(ref.start, match_id)
     end
 
     private def anchored_for_all?(hirs : Array(Regex::Syntax::Hir::Hir)) : Bool
@@ -521,10 +523,112 @@ module Regex::Automata
     end
 
     private def compile_repetition(node : Regex::Syntax::Hir::Repetition) : NFA::ThompsonRef
-      child_ref = compile_node(node.sub)
       min = checked_u32_to_i32(node.min, "repetition min")
       max = node.max.try { |value| checked_u32_to_i32(value, "repetition max") }
-      @builder.build_repetition(child_ref, min, max, node.greedy?, @pattern_id)
+      if min == 0 && max == 1
+        compile_zero_or_one(node.sub, node.greedy?)
+      elsif max.nil?
+        compile_at_least(node.sub, node.greedy?, min)
+      elsif min == max
+        compile_exactly(node.sub, min)
+      else
+        compile_bounded(node.sub, node.greedy?, min, max)
+      end
+    end
+
+    private def compile_zero_or_one(sub : Regex::Syntax::Hir::Node, greedy : Bool) : NFA::ThompsonRef
+      union = repetition_union(greedy)
+      compiled = compile_node(sub)
+      ending = @builder.add_empty
+      compiler_patch(union, compiled.start)
+      compiler_patch(union, ending)
+      compiler_patch(compiled.end, ending)
+      NFA::ThompsonRef.new(union, ending)
+    end
+
+    private def compile_at_least(sub : Regex::Syntax::Hir::Node, greedy : Bool, min : Int32) : NFA::ThompsonRef
+      if min == 0
+        minimum_len = Regex::Syntax::Hir::Hir.new(sub).properties.minimum_len
+        if minimum_len && minimum_len > 0
+          union = repetition_union(greedy)
+          compiled = compile_node(sub)
+          compiler_patch(union, compiled.start)
+          compiler_patch(compiled.end, union)
+          return NFA::ThompsonRef.new(union, union)
+        end
+
+        compiled = compile_node(sub)
+        plus = repetition_union(greedy)
+        compiler_patch(compiled.end, plus)
+        compiler_patch(plus, compiled.start)
+        question = repetition_union(greedy)
+        ending = @builder.add_empty
+        compiler_patch(question, compiled.start)
+        compiler_patch(question, ending)
+        compiler_patch(plus, ending)
+        return NFA::ThompsonRef.new(question, ending)
+      end
+
+      if min == 1
+        compiled = compile_node(sub)
+        union = repetition_union(greedy)
+        compiler_patch(compiled.end, union)
+        compiler_patch(union, compiled.start)
+        return NFA::ThompsonRef.new(compiled.start, union)
+      end
+
+      prefix = compile_exactly(sub, min - 1)
+      last = compile_node(sub)
+      union = repetition_union(greedy)
+      compiler_patch(prefix.end, last.start)
+      compiler_patch(last.end, union)
+      compiler_patch(union, last.start)
+      NFA::ThompsonRef.new(prefix.start, union)
+    end
+
+    private def compile_exactly(sub : Regex::Syntax::Hir::Node, count : Int32) : NFA::ThompsonRef
+      return compile_empty if count == 0
+
+      first = compile_node(sub)
+      ending = first.end
+      (count - 1).times do
+        compiled = compile_node(sub)
+        compiler_patch(ending, compiled.start)
+        ending = compiled.end
+      end
+      NFA::ThompsonRef.new(first.start, ending)
+    end
+
+    private def compile_bounded(sub : Regex::Syntax::Hir::Node, greedy : Bool, min : Int32, max : Int32) : NFA::ThompsonRef
+      prefix = compile_exactly(sub, min)
+      ending = @builder.add_empty
+      previous_end = prefix.end
+      (min...max).each do
+        union = repetition_union(greedy)
+        compiled = compile_node(sub)
+        compiler_patch(previous_end, union)
+        compiler_patch(union, compiled.start)
+        compiler_patch(union, ending)
+        previous_end = compiled.end
+      end
+      compiler_patch(previous_end, ending)
+      NFA::ThompsonRef.new(prefix.start, ending)
+    end
+
+    private def repetition_union(greedy : Bool) : StateID
+      if greedy
+        @builder.add_union([] of StateID)
+      else
+        @builder.add_union_reverse([] of StateID)
+      end
+    end
+
+    private def compiler_patch(from : StateID, to : StateID) : Nil
+      if @builder.state(from).is_a?(NFA::Match)
+        @builder.update_transition_target(from, to)
+      else
+        @builder.patch(from, to)
+      end
     end
 
     private def compile_capture(node : Regex::Syntax::Hir::Capture) : NFA::ThompsonRef
