@@ -1147,24 +1147,24 @@ src/nfa/thompson/compiler.rs::method::Compiler.new	method	missing	-	auto-generat
 src/nfa/thompson/compiler.rs::method::Compiler.patch	method	missing	-	auto-generated
 src/nfa/thompson/compiler.rs::method::Compiler.start_pattern	method	missing	-	auto-generated
 src/nfa/thompson/compiler.rs::method::Compiler.syntax	method	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::method::Config.captures	method	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::method::Config.get_captures	method	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::method::Config.get_look_matcher	method	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::method::Config.get_nfa_size_limit	method	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::method::Config.get_reverse	method	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::method::Config.get_shrink	method	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::method::Config.get_unanchored_prefix	method	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::method::Config.get_utf8	method	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::method::Config.get_which_captures	method	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::method::Config.look_matcher	method	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::method::Config.new	method	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::method::Config.nfa_size_limit	method	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::method::Config.overwrite	method	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::method::Config.reverse	method	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::method::Config.shrink	method	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::method::Config.unanchored_prefix	method	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::method::Config.utf8	method	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::method::Config.which_captures	method	missing	-	auto-generated
+src/nfa/thompson/compiler.rs::method::Config.captures	method	ported	src/regex/automata/hir_compiler.cr:HirCompilerConfig#captures;spec/nfa_thompson_spec.cr	Maps capture enablement to WhichCaptures.
+src/nfa/thompson/compiler.rs::method::Config.get_captures	method	ported	src/regex/automata/hir_compiler.cr:HirCompilerConfig#get_captures;spec/nfa_thompson_spec.cr	Reports effective capture enablement.
+src/nfa/thompson/compiler.rs::method::Config.get_look_matcher	method	ported	src/regex/automata/hir_compiler.cr:HirCompilerConfig#get_look_matcher;spec/nfa_thompson_spec.cr	Reports effective look matcher.
+src/nfa/thompson/compiler.rs::method::Config.get_nfa_size_limit	method	ported	src/regex/automata/hir_compiler.cr:HirCompilerConfig#get_nfa_size_limit;spec/nfa_thompson_spec.cr	Reports effective optional NFA size limit.
+src/nfa/thompson/compiler.rs::method::Config.get_reverse	method	ported	src/regex/automata/hir_compiler.cr:HirCompilerConfig#get_reverse;spec/nfa_thompson_spec.cr	Reports effective reverse option.
+src/nfa/thompson/compiler.rs::method::Config.get_shrink	method	ported	src/regex/automata/hir_compiler.cr:HirCompilerConfig#get_shrink;spec/nfa_thompson_spec.cr	Reports effective shrink option.
+src/nfa/thompson/compiler.rs::method::Config.get_unanchored_prefix	method	ported	src/regex/automata/hir_compiler.cr:HirCompilerConfig#get_unanchored_prefix;spec/nfa_thompson_spec.cr	Reports effective prefix option.
+src/nfa/thompson/compiler.rs::method::Config.get_utf8	method	ported	src/regex/automata/hir_compiler.cr:HirCompilerConfig#get_utf8;spec/nfa_thompson_spec.cr	Reports effective UTF-8 option.
+src/nfa/thompson/compiler.rs::method::Config.get_which_captures	method	ported	src/regex/automata/hir_compiler.cr:HirCompilerConfig#get_which_captures;spec/nfa_thompson_spec.cr	Reports effective capture policy.
+src/nfa/thompson/compiler.rs::method::Config.look_matcher	method	ported	src/regex/automata/hir_compiler.cr:HirCompilerConfig#look_matcher;spec/nfa_thompson_spec.cr	Sets an explicit look matcher override.
+src/nfa/thompson/compiler.rs::method::Config.new	method	ported	src/regex/automata/hir_compiler.cr:HirCompilerConfig#initialize;spec/nfa_thompson_spec.cr	Constructs default effective options with no explicit overrides.
+src/nfa/thompson/compiler.rs::method::Config.nfa_size_limit	method	ported	src/regex/automata/hir_compiler.cr:HirCompilerConfig#nfa_size_limit;spec/nfa_thompson_spec.cr	Sets an explicit NFA size limit override.
+src/nfa/thompson/compiler.rs::method::Config.overwrite	method	ported	src/regex/automata/hir_compiler.cr:HirCompilerConfig#overwrite;spec/nfa_thompson_spec.cr	Merges only explicit options, including explicit default values.
+src/nfa/thompson/compiler.rs::method::Config.reverse	method	ported	src/regex/automata/hir_compiler.cr:HirCompilerConfig#reverse;spec/nfa_thompson_spec.cr	Sets explicit reverse override.
+src/nfa/thompson/compiler.rs::method::Config.shrink	method	ported	src/regex/automata/hir_compiler.cr:HirCompilerConfig#shrink;spec/nfa_thompson_spec.cr	Sets explicit shrink override.
+src/nfa/thompson/compiler.rs::method::Config.unanchored_prefix	method	ported	src/regex/automata/hir_compiler.cr:HirCompilerConfig#unanchored_prefix;spec/nfa_thompson_spec.cr	Sets explicit prefix override.
+src/nfa/thompson/compiler.rs::method::Config.utf8	method	ported	src/regex/automata/hir_compiler.cr:HirCompilerConfig#utf8;spec/nfa_thompson_spec.cr	Sets explicit UTF-8 override.
+src/nfa/thompson/compiler.rs::method::Config.which_captures	method	ported	src/regex/automata/hir_compiler.cr:HirCompilerConfig#which_captures;spec/nfa_thompson_spec.cr	Sets explicit capture-policy override.
 src/nfa/thompson/compiler.rs::method::Utf8Compiler<'a>.add	method	missing	-	auto-generated
 src/nfa/thompson/compiler.rs::method::Utf8Compiler<'a>.add_empty	method	missing	-	auto-generated
 src/nfa/thompson/compiler.rs::method::Utf8Compiler<'a>.add_suffix	method	missing	-	auto-generated
