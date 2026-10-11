@@ -19,7 +19,9 @@ if [[ "${GROUP_BY}" != "file" && "${GROUP_BY}" != "package" ]]; then
   exit 1
 fi
 
-tmp_groups="$(mktemp)"
+TEMP_DIR="${ROOT_DIR}/temp"
+mkdir -p "${TEMP_DIR}"
+tmp_groups="$(mktemp "${TEMP_DIR}/seed-bd-groups.XXXXXX")"
 trap 'rm -f "${tmp_groups}"' EXIT
 
 awk -F '\t' -v group_by="${GROUP_BY}" -v status_filter="${STATUS_FILTER}" '
