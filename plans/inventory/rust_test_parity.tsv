@@ -191,31 +191,31 @@ tests/fuzz/sparse.rs::test::match_state_inconsistency	intentional_divergence	src
 tests/fuzz/sparse.rs::test::start_state_has_valid_transitions	intentional_divergence	src/regex/automata/sparse.cr:Sparse::DFA.from_bytes;src/regex/automata/dfa.cr:DFA.from_bytes	Crystal sparse serialization wraps a validated dense DFA and has no sparse start-state transition encoding.
 tests/fuzz/sparse.rs::test::start_state_is_not_match_state	intentional_divergence	src/regex/automata/sparse.cr:Sparse::DFA.from_bytes;src/regex/automata/dfa.cr:DFA.from_bytes	Crystal sparse serialization wraps a validated dense DFA and validates the embedded dense DFA instead of a sparse state layout.
 tests/fuzz/sparse.rs::test::transition_to_invalid_but_valid_state	intentional_divergence	src/regex/automata/sparse.cr:Sparse::DFA.from_bytes;src/regex/automata/dfa.cr:DFA.from_bytes	Crystal sparse serialization wraps a validated dense DFA and has no sparse transition-state IDs to corrupt.
-tests/gen/dense/mod.rs::test::multi_pattern_v2	ported	spec/dfa_remaining_parity_spec.cr	Ports dense multi-pattern v2 behavior through native serialization.
-tests/gen/sparse/mod.rs::test::multi_pattern_v2	ported	spec/dfa_remaining_parity_spec.cr	Ports sparse multi-pattern v2 behavior through native serialization.
+tests/gen/dense/mod.rs::test::multi_pattern_v2	partial	spec/dfa_remaining_parity_spec.cr	Multi-pattern behavior and Crystal-native serialization are tested, but Rust's checked-in forward/reverse endian-specific DFA bytes are not loaded.
+tests/gen/sparse/mod.rs::test::multi_pattern_v2	partial	spec/dfa_remaining_parity_spec.cr	Multi-pattern behavior and Crystal-native serialization are tested, but Rust's checked-in forward/reverse endian-specific sparse bytes are not loaded.
 tests/hybrid/api.rs::test::prefilter_does_not_skip_pending_match	ported	spec/hybrid_spec.cr	Ports pending leftmost match preservation across prefilter starts.
 tests/hybrid/api.rs::test::quit_fwd	ported	spec/hybrid_spec.cr	Ports forward quit behavior.
 tests/hybrid/api.rs::test::quit_panics	ported	spec/hybrid_spec.cr	Ports quit configuration error behavior.
 tests/hybrid/api.rs::test::quit_rev	ported	spec/hybrid_spec.cr	Ports reverse quit behavior.
 tests/hybrid/api.rs::test::too_many_cache_resets_cause_quit	ported	spec/hybrid_spec.cr	Ports lazy cache reset/give-up behavior.
 tests/hybrid/api.rs::test::unicode_word_implicitly_works	ported	spec/hybrid_spec.cr	Ports implicit Unicode word-boundary support.
-tests/hybrid/suite.rs::test::default	ported	spec/hybrid_spec.cr	Ports default hybrid workflow.
-tests/hybrid/suite.rs::test::min_cache_capacity	ported	spec/hybrid_spec.cr	Ports minimum cache capacity validation.
-tests/hybrid/suite.rs::test::nfa_shrink	ported	spec/hybrid_spec.cr	Ports NFA shrink workflow.
-tests/hybrid/suite.rs::test::no_byte_classes	ported	spec/hybrid_spec.cr	Ports no-byte-classes workflow.
-tests/hybrid/suite.rs::test::no_cache_clearing	ported	spec/hybrid_spec.cr	Ports no-cache-clearing workflow.
-tests/hybrid/suite.rs::test::prefilter	ported	spec/hybrid_spec.cr	Ports prefilter workflow.
-tests/hybrid/suite.rs::test::specialize_start_states	ported	spec/hybrid_spec.cr	Ports specialized start-state behavior.
-tests/hybrid/suite.rs::test::starts_for_each_pattern	ported	spec/hybrid_spec.cr	Ports starts-for-each-pattern workflow.
-tests/meta/suite.rs::test::default	ported	spec/meta_regex_spec.cr	Ports default Meta construction/search behavior.
-tests/meta/suite.rs::test::no_dfa	ported	spec/meta_regex_spec.cr	Ports Meta operation with dense DFAs disabled.
-tests/meta/suite.rs::test::no_dfa_hybrid	ported	spec/meta_regex_spec.cr	Ports Meta operation with dense and hybrid DFAs disabled.
-tests/meta/suite.rs::test::no_dfa_hybrid_onepass	ported	spec/meta_regex_spec.cr	Ports Meta operation with DFA, hybrid, and one-pass engines disabled.
-tests/meta/suite.rs::test::no_dfa_hybrid_onepass_backtrack	ported	spec/meta_regex_spec.cr	Ports PikeVM-only Meta fallback configuration.
+tests/hybrid/suite.rs::test::default	partial	spec/hybrid_spec.cr	Selected default hybrid behavior is covered; the shared vendor TOML cases are not run.
+tests/hybrid/suite.rs::test::min_cache_capacity	partial	spec/hybrid_spec.cr	Selected minimum-capacity behavior is covered; the shared vendor TOML cases are not run in this mode.
+tests/hybrid/suite.rs::test::nfa_shrink	partial	spec/hybrid_spec.cr	Selected shrink behavior is covered; the shared vendor TOML cases are not run in this mode.
+tests/hybrid/suite.rs::test::no_byte_classes	partial	spec/hybrid_spec.cr	Selected no-byte-classes behavior is covered; the shared vendor TOML cases are not run in this mode.
+tests/hybrid/suite.rs::test::no_cache_clearing	partial	spec/hybrid_spec.cr	Selected cache behavior is covered; the shared vendor TOML cases are not run in this mode.
+tests/hybrid/suite.rs::test::prefilter	partial	spec/hybrid_spec.cr	Selected prefilter behavior is covered; the shared vendor TOML cases are not run in this mode.
+tests/hybrid/suite.rs::test::specialize_start_states	partial	spec/hybrid_spec.cr	Selected specialized-start behavior is covered; the shared vendor TOML cases are not run in this mode.
+tests/hybrid/suite.rs::test::starts_for_each_pattern	partial	spec/hybrid_spec.cr	Selected per-pattern-start behavior is covered; the shared vendor TOML cases are not run in this mode.
+tests/meta/suite.rs::test::default	partial	spec/meta_regex_spec.cr	Selected default Meta behavior is covered; the shared vendor TOML cases are not run.
+tests/meta/suite.rs::test::no_dfa	partial	spec/meta_regex_spec.cr	Selected no-dense behavior is covered; the shared vendor TOML cases are not run in this mode.
+tests/meta/suite.rs::test::no_dfa_hybrid	partial	spec/meta_regex_spec.cr	Selected dense/hybrid-disabled behavior is covered; the shared vendor TOML cases are not run in this mode.
+tests/meta/suite.rs::test::no_dfa_hybrid_onepass	partial	spec/meta_regex_spec.cr	Selected DFA/hybrid/one-pass-disabled behavior is covered; the shared vendor TOML cases are not run in this mode.
+tests/meta/suite.rs::test::no_dfa_hybrid_onepass_backtrack	partial	spec/meta_regex_spec.cr	Selected PikeVM-only fallback is covered; the shared vendor TOML cases are not run in this mode.
 tests/nfa/thompson/backtrack/regression.rs::test::too_many_slots_normal_pattern	ported	spec/backtrack_spec.cr	Ports normal capture-slot search behavior.
-tests/nfa/thompson/backtrack/suite.rs::test::default	ported	spec/backtrack_spec.cr	Ports default bounded-backtracker workflow.
-tests/nfa/thompson/backtrack/suite.rs::test::min_visited_capacity	ported	spec/backtrack_spec.cr	Ports visited-capacity guard behavior.
-tests/nfa/thompson/backtrack/suite.rs::test::prefilter	ported	spec/backtrack_spec.cr	Ports backtracker prefilter workflow.
+tests/nfa/thompson/backtrack/suite.rs::test::default	partial	spec/backtrack_spec.cr	Selected default backtracker behavior is covered; the shared vendor TOML cases are not run.
+tests/nfa/thompson/backtrack/suite.rs::test::min_visited_capacity	partial	spec/backtrack_spec.cr	Selected capacity-guard behavior is covered; the shared vendor TOML cases are not run in this mode.
+tests/nfa/thompson/backtrack/suite.rs::test::prefilter	partial	spec/backtrack_spec.cr	Selected prefilter behavior is covered; the shared vendor TOML cases are not run in this mode.
 tests/nfa/thompson/pikevm/regression.rs::test::too_many_slots_normal_pattern	ported	spec/pikevm_spec.cr	Ports normal capture-slot search behavior.
-tests/nfa/thompson/pikevm/suite.rs::test::default	ported	spec/pikevm_spec.cr	Ports default PikeVM workflow.
-tests/nfa/thompson/pikevm/suite.rs::test::prefilter	ported	spec/pikevm_spec.cr	Ports PikeVM prefilter workflow.
+tests/nfa/thompson/pikevm/suite.rs::test::default	partial	spec/pikevm_spec.cr	Selected default PikeVM behavior is covered; the shared vendor TOML cases are not run.
+tests/nfa/thompson/pikevm/suite.rs::test::prefilter	partial	spec/pikevm_spec.cr	Selected prefilter behavior is covered; the shared vendor TOML cases are not run in this mode.
