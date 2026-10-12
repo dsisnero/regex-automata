@@ -13,6 +13,7 @@ This document outlines the workflow for contributing changes via pull requests (
    make format
    make lint
    make test
+   make parity
    ```
 
 2. **Verify upstream parity**:
@@ -33,13 +34,13 @@ Brief description of changes (1-3 bullet points)
 
 ## Upstream Reference
 - Rust source file: `vendor/regex/regex-automata/path/to/file.rs`
-- Upstream commit: `839d16bc65b60e2006d3599d20bfa6efc14049d8`
+- Upstream commit: `72d650cb0a880a01ab6dc2137c0888e8f89740f7`
 - Related upstream issue/PR: #123 (if applicable)
 
 ## Changes
 - [ ] Behavior parity with Rust upstream
 - [ ] All upstream tests ported
-- [ ] Quality gates pass (`make format`, `make lint`, `make test`)
+- [ ] Quality gates pass (`make format`, `make lint`, `make test`, `make parity`)
 - [ ] Documentation updated
 - [ ] CHANGELOG updated (if user-facing change)
 

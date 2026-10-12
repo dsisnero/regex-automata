@@ -6,7 +6,7 @@ This repository compiles `regex-syntax` HIR into Thompson NFA and DFA (plus a la
 for fast token matching.
 
 **Upstream source:** `vendor/regex/regex-automata/` (git submodule)
-**Upstream revision:** Pinned to commit `839d16bc65b60e2006d3599d20bfa6efc14049d8` (regex-syntax-0.8.10)
+**Upstream revision:** Pinned to commit `72d650cb0a880a01ab6dc2137c0888e8f89740f7` (regex-automata 0.4.18, regex-syntax 0.8.11)
 
 ## Installation
 
@@ -15,8 +15,7 @@ Add to `shard.yml`:
 ```yaml
 dependencies:
   regex-automata:
-    github: dsisnero/logos
-    path: lib/regex-automata
+    github: dsisnero/regex-automata
 ```
 
 Then run:
@@ -102,12 +101,13 @@ make install    # Install dependencies
 make format     # Format code
 make lint       # Run ameba linter
 make test       # Run specs
+make parity     # Check Rust source and test inventories
 ```
 
 ## Upstream Reference
 
 - Rust source of truth: `vendor/regex/regex-automata/`
-- Main consumer: `src/logos/macros.cr`
+- Consumer integration should be verified against the engine-specific Crystal specs.
 
 ## License
 

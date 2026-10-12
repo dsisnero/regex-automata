@@ -5,7 +5,7 @@
 This repository is a Crystal port of Rust's `regex-automata` crate from the `rust-lang/regex` repository.
 
 **Upstream source:** `vendor/regex/regex-automata/` (git submodule)
-**Upstream revision:** Pinned to commit `839d16bc65b60e2006d3599d20bfa6efc14049d8` (regex-syntax-0.8.10)
+**Upstream revision:** Pinned to commit `72d650cb0a880a01ab6dc2137c0888e8f89740f7` (regex-automata 0.4.18, regex-syntax 0.8.11)
 
 ## Quality Gates
 
@@ -16,6 +16,7 @@ make install    # Install dependencies
 make format     # Format code
 make lint       # Run ameba linter
 make test       # Run specs
+make parity     # Check Rust source and test inventories
 ```
 
 ## Porting Workflow

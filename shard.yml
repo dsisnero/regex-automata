@@ -15,7 +15,7 @@ description: |
   This crate provides NFA and DFA construction from regular expressions,
   with support for both dense and sparse representations.
 
-repository: https://github.com/maciejhirsz/logos
+repository: https://github.com/dsisnero/regex-automata
 
 dependencies:
   regex-syntax:
