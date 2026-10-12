@@ -237,9 +237,11 @@ describe "Thompson NFA representation parity" do
   it "computes byte classes and memory usage from the final graph" do
     ascii = nfa_build("[x-za-c]")
     classes = ascii.byte_classes
-    classes.get('a'.ord.to_u8).should eq(classes.get('z'.ord.to_u8))
+    # Rust's ByteClassSet preserves byte-range boundaries even when disjoint
+    # ranges happen to have the same target state.
+    classes.get('a'.ord.to_u8).should_not eq(classes.get('z'.ord.to_u8))
     classes.get('A'.ord.to_u8).should_not eq(classes.get('a'.ord.to_u8))
-    classes.alphabet_len.should eq(3)
+    classes.alphabet_len.should eq(6)
 
     unicode = nfa_build("[α-δ🤙-🤞]")
     unicode.memory_usage.should be > ascii.memory_usage

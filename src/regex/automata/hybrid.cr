@@ -1204,6 +1204,10 @@ module Regex::Automata::Hybrid
     end
 
     def next_state(cache : Cache, current : LazyStateID, input : UInt8) : LazyStateID | CacheError
+      offset = current.as_usize_untagged + @classes.get(input).to_i
+      next_sid = cache.trans[offset]
+      return next_sid unless next_sid.is_unknown
+
       Lazy.new(self, cache).next_state(current, ::Regex::Automata::Unit.u8(input))
     end
 
@@ -1230,9 +1234,6 @@ module Regex::Automata::Hybrid
       if error = gave_up_error(cache, input)
         return error
       end
-      if offset = earliest_pure_word_boundary_match(input)
-        return ::Regex::Automata::HalfMatch.new(::Regex::Automata::PatternID::ZERO, offset)
-      end
       search = input.clone
       pre = input.get_anchored == ::Regex::Automata::Anchored::No ? get_prefilter : nil
       loop do
@@ -1247,14 +1248,6 @@ module Regex::Automata::Hybrid
         end
         result = try_search_fwd_once(cache, search)
         return result if result.is_a?(::Regex::Automata::MatchError)
-        if half = result.as?(::Regex::Automata::HalfMatch)
-          if offset = leftmost_empty_word_match_before(search, half.offset)
-            return ::Regex::Automata::HalfMatch.new(half.pattern, offset)
-          end
-          if half.offset > search.start && immediate_word_empty_match?(search)
-            return ::Regex::Automata::HalfMatch.new(half.pattern, search.start)
-          end
-        end
         return result unless result.nil?
         return nil if search.get_anchored != ::Regex::Automata::Anchored::No
         return nil if search.start >= search.end
@@ -1275,16 +1268,28 @@ module Regex::Automata::Hybrid
       while at < input.end
         next_sid = next_state(cache, current, input.haystack[at])
         return ::Regex::Automata::MatchError.gave_up(at) if next_sid.is_a?(CacheError)
-        current = next_sid.as(LazyStateID)
+        successor = next_sid.as(LazyStateID)
+        if successor == current && !current.is_tagged
+          at += 1
+          # As in Rust's lazy search loop, consume a run of cached
+          # self-transitions without repeating the tagged-state dispatch.
+          base = current.as_usize_untagged
+          while at < input.end && cache.trans[base + @classes.get(input.haystack[at]).to_i] == current
+            at += 1
+          end
+          cache.search_update(at)
+          next
+        end
+        current = successor
         if current.is_match
           match = ::Regex::Automata::HalfMatch.new(match_pattern(cache, current, 0), at)
           if input.get_earliest
             cache.search_finish(at)
-            return correct_word_boundary_empty_match(input, match)
+            return match
           end
         elsif current.is_dead
           cache.search_finish(at)
-          return correct_word_boundary_empty_match(input, match)
+          return match
         elsif current.is_quit
           cache.search_finish(at)
           return ::Regex::Automata::MatchError.quit(input.haystack[at], at)
@@ -1307,7 +1312,7 @@ module Regex::Automata::Hybrid
         return ::Regex::Automata::MatchError.quit(input.haystack[input.end], input.end)
       end
       cache.search_finish(input.end)
-      correct_word_boundary_empty_match(input, match)
+      match
     end
 
     def try_search_rev(cache : Cache, input : ::Regex::Automata::Input) : ::Regex::Automata::HalfMatch? | ::Regex::Automata::MatchError
@@ -1592,27 +1597,6 @@ module Regex::Automata::Hybrid
       nil
     end
 
-    private def correct_word_boundary_empty_match(
-      input : ::Regex::Automata::Input,
-      result : ::Regex::Automata::HalfMatch? | ::Regex::Automata::MatchError,
-    ) : ::Regex::Automata::HalfMatch? | ::Regex::Automata::MatchError
-      return result unless half_match = result.as?(::Regex::Automata::HalfMatch)
-      return result unless half_match.offset == input.start
-      return result unless input.start < input.end
-      return result unless @nfa.look_set_any.contains_word?
-
-      matcher = ::Regex::Automata::LookMatcher.new
-      return result if word_empty_match_at?(input, input.start, matcher)
-
-      ((input.start + 1)..input.end).each do |offset|
-        next unless input.is_char_boundary(offset)
-
-        return ::Regex::Automata::HalfMatch.new(half_match.pattern, offset) if word_empty_match_at?(input, offset, matcher)
-      end
-
-      nil
-    end
-
     private def gave_up_error(cache : Cache, input : ::Regex::Automata::Input) : ::Regex::Automata::MatchError?
       return nil unless @config.get_requested_cache_capacity == 0 &&
                         @config.get_skip_cache_capacity_check &&
@@ -1635,64 +1619,6 @@ module Regex::Automata::Hybrid
       else
         Start::Text
       end
-    end
-
-    private def immediate_word_empty_match?(input : ::Regex::Automata::Input) : Bool
-      return false unless @nfa.has_empty
-      return false unless @nfa.look_set_any.contains_word?
-
-      word_empty_match_at?(input, input.start, ::Regex::Automata::LookMatcher.new)
-    end
-
-    private def leftmost_empty_word_match_before(
-      input : ::Regex::Automata::Input,
-      offset : Int32,
-    ) : Int32?
-      return nil unless @nfa.has_empty
-      return nil unless @nfa.look_set_any.contains_word?
-      return nil unless offset > input.start
-
-      matcher = ::Regex::Automata::LookMatcher.new
-      input.start.upto(offset - 1) do |at|
-        next unless input.is_char_boundary(at)
-        return at if word_empty_match_at?(input, at, matcher)
-      end
-      nil
-    end
-
-    private def earliest_pure_word_boundary_match(
-      input : ::Regex::Automata::Input,
-    ) : Int32?
-      return nil unless input.get_anchored == ::Regex::Automata::Anchored::No
-      return nil unless @nfa.pattern_len == 1
-      return nil unless @nfa.has_empty
-      return nil unless @nfa.look_set_any.contains_word?
-
-      matcher = ::Regex::Automata::LookMatcher.new
-      input.start.upto(input.end) do |at|
-        next unless input.is_char_boundary(at)
-        return at if word_empty_match_at?(input, at, matcher)
-      end
-      nil
-    end
-
-    private def word_empty_match_at?(input : ::Regex::Automata::Input, at : Int32, matcher : ::Regex::Automata::LookMatcher) : Bool
-      looks = @nfa.look_set_any
-      haystack = input.haystack
-      return true if looks.contains(::Regex::Automata::Look::WordUnicode) && matcher.is_word_unicode(haystack, at)
-      return true if looks.contains(::Regex::Automata::Look::WordUnicodeNegate) && matcher.is_word_unicode_negate(haystack, at)
-      return true if looks.contains(::Regex::Automata::Look::WordAscii) && matcher.is_word_ascii(haystack, at)
-      return true if looks.contains(::Regex::Automata::Look::WordAsciiNegate) && matcher.is_word_ascii_negate(haystack, at)
-      return false if looks.contains(::Regex::Automata::Look::WordUnicode) ||
-                      looks.contains(::Regex::Automata::Look::WordUnicodeNegate) ||
-                      looks.contains(::Regex::Automata::Look::WordAscii) ||
-                      looks.contains(::Regex::Automata::Look::WordAsciiNegate)
-
-      # Preserve the existing half-boundary approximation when no full word
-      # boundary assertion participates in an empty path.
-      return matcher.is_word_unicode(haystack, at) if looks.contains_word_unicode?
-      return matcher.is_word_ascii(haystack, at) if looks.contains_word_ascii?
-      false
     end
   end
 

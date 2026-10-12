@@ -2419,25 +2419,22 @@ module Regex::Automata::NFA
     end
 
     private def compute_byte_classes : Regex::Automata::ByteClasses
-      signatures = {} of Array(Int32?) => UInt8
-      mapping = Array.new(256, 0)
-      next_class = 0
-
-      256.times do |byte|
-        byte_value = byte.to_u8
-        signature = @states.map do |state|
-          transition_target_for_byte(state, byte_value).try(&.to_i)
+      set = Regex::Automata::ByteClassSet.empty
+      @states.each do |state|
+        case state
+        when ByteRange
+          set.set_range(state.trans.start, state.trans.end)
+        when Sparse
+          state.transitions.each do |trans|
+            set.set_range(trans.start, trans.end)
+          end
+        when Look
+          look_from_kind(state.kind).iter.each do |look|
+            @look_matcher.add_to_byteset(look, set)
+          end
         end
-        class_id = signatures[signature]?
-        unless class_id
-          class_id = next_class.to_u8
-          signatures[signature] = class_id
-          next_class += 1
-        end
-        mapping[byte] = class_id.to_i
       end
-
-      Regex::Automata::ByteClasses.from_mapping(mapping, next_class)
+      set.byte_classes
     end
 
     private def compute_has_empty : Bool
@@ -2455,17 +2452,6 @@ module Regex::Automata::NFA
         else
           set
         end
-      end
-    end
-
-    private def transition_target_for_byte(state : State, byte : UInt8) : StateID?
-      case state
-      when ByteRange
-        state.trans.matches_byte(byte) ? state.trans.next : nil
-      when Sparse
-        state.matches_byte(byte)
-      else
-        nil
       end
     end
 
