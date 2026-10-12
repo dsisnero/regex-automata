@@ -466,7 +466,11 @@ module Regex::Automata::NFA
           return {hm.pattern, matched_slots}
         end
 
-        next_start = hm.offset + 1
+        return {nil, nil} if input.get_anchored != Regex::Automata::Anchored::No
+
+        # Rust's skip_splits_fwd advances the search start one byte at a time,
+        # even when the rejected match was later in the haystack.
+        next_start = input.start + 1
         return {nil, nil} if next_start > input.end
         input.set_start(next_start)
       end

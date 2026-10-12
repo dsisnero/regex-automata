@@ -2,6 +2,7 @@ require "regex-syntax"
 
 require "./regex/automata/types"
 require "./regex/automata/search"
+require "./regex/automata/empty"
 require "./regex/automata/prefilter"
 require "./regex/automata/interpolate"
 require "./regex/automata/captures"

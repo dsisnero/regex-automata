@@ -182,6 +182,15 @@ module Regex::Automata
     # This honors the search span within the context of the complete haystack,
     # which matters for look-around at the boundaries of the span.
     def try_search_fwd(input : Input) : HalfMatch? | MatchError
+      result = try_search_fwd_once(input)
+      return result unless has_empty? && is_utf8?
+      return result unless result.is_a?(HalfMatch)
+      Empty.skip_splits_fwd(input, result) do |search|
+        try_search_fwd_once(search)
+      end
+    end
+
+    private def try_search_fwd_once(input : Input) : HalfMatch? | MatchError
       return nil if input.is_done
 
       start_state = start_state_forward(input)
@@ -271,6 +280,15 @@ module Regex::Automata
     # This honors the search span within the context of the complete haystack,
     # which matters for look-around at the boundaries of the span.
     def try_search_rev(input : Input) : HalfMatch? | MatchError
+      result = try_search_rev_once(input)
+      return result unless has_empty? && is_utf8?
+      return result unless result.is_a?(HalfMatch)
+      Empty.skip_splits_rev(input, result) do |search|
+        try_search_rev_once(search)
+      end
+    end
+
+    private def try_search_rev_once(input : Input) : HalfMatch? | MatchError
       return nil if input.is_done
 
       start_state = start_state_reverse(input)

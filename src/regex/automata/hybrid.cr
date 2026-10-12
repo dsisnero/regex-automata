@@ -1218,6 +1218,15 @@ module Regex::Automata::Hybrid
     end
 
     def try_search_fwd(cache : Cache, input : ::Regex::Automata::Input) : ::Regex::Automata::HalfMatch? | ::Regex::Automata::MatchError
+      result = try_search_fwd_raw(cache, input)
+      return result unless @nfa.has_empty && @nfa.is_utf8
+      return result unless result.is_a?(::Regex::Automata::HalfMatch)
+      ::Regex::Automata::Empty.skip_splits_fwd(input, result) do |search|
+        try_search_fwd_raw(cache, search)
+      end
+    end
+
+    private def try_search_fwd_raw(cache : Cache, input : ::Regex::Automata::Input) : ::Regex::Automata::HalfMatch? | ::Regex::Automata::MatchError
       if error = gave_up_error(cache, input)
         return error
       end
@@ -1302,6 +1311,15 @@ module Regex::Automata::Hybrid
     end
 
     def try_search_rev(cache : Cache, input : ::Regex::Automata::Input) : ::Regex::Automata::HalfMatch? | ::Regex::Automata::MatchError
+      result = try_search_rev_raw(cache, input)
+      return result unless @nfa.has_empty && @nfa.is_utf8
+      return result unless result.is_a?(::Regex::Automata::HalfMatch)
+      ::Regex::Automata::Empty.skip_splits_rev(input, result) do |search|
+        try_search_rev_raw(cache, search)
+      end
+    end
+
+    private def try_search_rev_raw(cache : Cache, input : ::Regex::Automata::Input) : ::Regex::Automata::HalfMatch? | ::Regex::Automata::MatchError
       if error = gave_up_error(cache, input)
         return error
       end
@@ -1584,22 +1602,12 @@ module Regex::Automata::Hybrid
       return result unless @nfa.look_set_any.contains_word?
 
       matcher = ::Regex::Automata::LookMatcher.new
-      at_boundary = if @nfa.look_set_any.contains_word_unicode?
-                      matcher.is_word_unicode(input.haystack, input.start)
-                    else
-                      matcher.is_word_ascii(input.haystack, input.start)
-                    end
-      return result if at_boundary
+      return result if word_empty_match_at?(input, input.start, matcher)
 
       ((input.start + 1)..input.end).each do |offset|
         next unless input.is_char_boundary(offset)
 
-        next_boundary = if @nfa.look_set_any.contains_word_unicode?
-                          matcher.is_word_unicode(input.haystack, offset)
-                        else
-                          matcher.is_word_ascii(input.haystack, offset)
-                        end
-        return ::Regex::Automata::HalfMatch.new(half_match.pattern, offset) if next_boundary
+        return ::Regex::Automata::HalfMatch.new(half_match.pattern, offset) if word_empty_match_at?(input, offset, matcher)
       end
 
       nil
@@ -1633,12 +1641,7 @@ module Regex::Automata::Hybrid
       return false unless @nfa.has_empty
       return false unless @nfa.look_set_any.contains_word?
 
-      matcher = ::Regex::Automata::LookMatcher.new
-      if @nfa.look_set_any.contains_word_unicode?
-        matcher.is_word_unicode(input.haystack, input.start)
-      else
-        matcher.is_word_ascii(input.haystack, input.start)
-      end
+      word_empty_match_at?(input, input.start, ::Regex::Automata::LookMatcher.new)
     end
 
     private def leftmost_empty_word_match_before(
@@ -1652,12 +1655,7 @@ module Regex::Automata::Hybrid
       matcher = ::Regex::Automata::LookMatcher.new
       input.start.upto(offset - 1) do |at|
         next unless input.is_char_boundary(at)
-        boundary = if @nfa.look_set_any.contains_word_unicode?
-                     matcher.is_word_unicode(input.haystack, at)
-                   else
-                     matcher.is_word_ascii(input.haystack, at)
-                   end
-        return at if boundary
+        return at if word_empty_match_at?(input, at, matcher)
       end
       nil
     end
@@ -1673,14 +1671,28 @@ module Regex::Automata::Hybrid
       matcher = ::Regex::Automata::LookMatcher.new
       input.start.upto(input.end) do |at|
         next unless input.is_char_boundary(at)
-        boundary = if @nfa.look_set_any.contains_word_unicode?
-                     matcher.is_word_unicode(input.haystack, at)
-                   else
-                     matcher.is_word_ascii(input.haystack, at)
-                   end
-        return at if boundary
+        return at if word_empty_match_at?(input, at, matcher)
       end
       nil
+    end
+
+    private def word_empty_match_at?(input : ::Regex::Automata::Input, at : Int32, matcher : ::Regex::Automata::LookMatcher) : Bool
+      looks = @nfa.look_set_any
+      haystack = input.haystack
+      return true if looks.contains(::Regex::Automata::Look::WordUnicode) && matcher.is_word_unicode(haystack, at)
+      return true if looks.contains(::Regex::Automata::Look::WordUnicodeNegate) && matcher.is_word_unicode_negate(haystack, at)
+      return true if looks.contains(::Regex::Automata::Look::WordAscii) && matcher.is_word_ascii(haystack, at)
+      return true if looks.contains(::Regex::Automata::Look::WordAsciiNegate) && matcher.is_word_ascii_negate(haystack, at)
+      return false if looks.contains(::Regex::Automata::Look::WordUnicode) ||
+                      looks.contains(::Regex::Automata::Look::WordUnicodeNegate) ||
+                      looks.contains(::Regex::Automata::Look::WordAscii) ||
+                      looks.contains(::Regex::Automata::Look::WordAsciiNegate)
+
+      # Preserve the existing half-boundary approximation when no full word
+      # boundary assertion participates in an empty path.
+      return matcher.is_word_unicode(haystack, at) if looks.contains_word_unicode?
+      return matcher.is_word_ascii(haystack, at) if looks.contains_word_ascii?
+      false
     end
   end
 

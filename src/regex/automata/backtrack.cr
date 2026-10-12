@@ -416,7 +416,10 @@ module Regex::Automata::NFA
           return result if result.is_a?(Regex::Automata::MatchError) || result.nil?
           return result unless should_skip_empty_utf8_match?(input, result, slots)
 
-          next_start = result.offset + 1
+          return nil if input.get_anchored != Regex::Automata::Anchored::No
+
+          # Keep the same retry window as Rust's skip_splits_fwd.
+          next_start = input.start + 1
           return nil if next_start > input.end
           input.set_start(next_start)
         end
