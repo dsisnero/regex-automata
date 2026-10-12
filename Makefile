@@ -1,22 +1,26 @@
 .PHONY: install update format lint test clean
 
 TEMP_DIR := $(CURDIR)/temp
-CRYSTAL_CACHE_DIR := $(TEMP_DIR)/crystal-cache
+export TMPDIR := $(TEMP_DIR)
+export CRYSTAL_CACHE_DIR := $(TEMP_DIR)/crystal-cache
 
-install:
+$(TEMP_DIR):
+	mkdir -p "$@"
+
+install: | $(TEMP_DIR)
 	shards install
 
-update:
+update: | $(TEMP_DIR)
 	shards update
 
-format:
+format: | $(TEMP_DIR)
 	crystal tool format src spec
 
-lint:
+lint: | $(TEMP_DIR)
 	ameba src spec
 
-test:
-	CRYSTAL_CACHE_DIR=$(CRYSTAL_CACHE_DIR) crystal spec
+test: | $(TEMP_DIR)
+	crystal spec
 
 clean:
-	rm -rf $(TEMP_DIR) .crystal-cache/ lib/
+	rm -rf -- ./temp
