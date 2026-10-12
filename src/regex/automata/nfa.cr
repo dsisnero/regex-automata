@@ -923,10 +923,8 @@ module Regex::Automata::NFA
       @states[current].add_match
     end
 
-    def compile(builder : Builder, pattern_id : PatternID) : ThompsonRef
-      # Crystal's Builder uses a match state as the patchable end of a
-      # sub-automaton. (Rust's builder supplies an equivalent empty state.)
-      ending = builder.add_state(Match.new(pattern_id))
+    def compile(builder : Builder) : ThompsonRef
+      ending = builder.add_empty
       stack = [LiteralTrieFrame.new(0, @states[0])]
       loop do
         frame = stack.last

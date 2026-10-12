@@ -55,7 +55,7 @@ private def rust_layout_nfa(pattern : String) : Regex::Automata::NFA::NFA
 end
 
 describe Regex::Automata::NFA::NFA do
-  it "matches Rust's Thompson compiler graphs for literals, classes, and repetition" do
+  it "matches Rust's Thompson compiler graphs for literals, classes, repetition, and alternation" do
     rust_layout_nfa("").states.should eq([s_match(0)])
     rust_layout_nfa("a").states.should eq([s_byte('a'.ord.to_u8, 1), s_match(0)])
     rust_layout_nfa("ab").states.should eq([
@@ -72,6 +72,45 @@ describe Regex::Automata::NFA::NFA do
       s_bin_union(3, 8), s_byte('a'.ord.to_u8, 4),
       s_bin_union(5, 8), s_byte('a'.ord.to_u8, 6),
       s_bin_union(7, 8), s_byte('a'.ord.to_u8, 8), s_match(0),
+    ])
+    rust_layout_nfa("a|b").states.should eq([s_range('a'.ord.to_u8, 'b'.ord.to_u8, 1), s_match(0)])
+    rust_layout_nfa("α|β").states.should eq([
+      s_range(0xB1_u8, 0xB2_u8, 2), s_byte(0xCE_u8, 0), s_match(0),
+    ])
+    rust_layout_nfa("|b").states.should eq([s_byte('b'.ord.to_u8, 2), s_bin_union(2, 0), s_match(0)])
+    rust_layout_nfa("a|").states.should eq([s_byte('a'.ord.to_u8, 2), s_bin_union(0, 2), s_match(0)])
+    rust_layout_nfa("ab|cd").states.should eq([
+      s_byte('b'.ord.to_u8, 3), s_byte('d'.ord.to_u8, 3),
+      Regex::Automata::NFA::Sparse.new([
+        Regex::Automata::NFA::Transition.new('a'.ord.to_u8, 'a'.ord.to_u8, sid(0)),
+        Regex::Automata::NFA::Transition.new('c'.ord.to_u8, 'c'.ord.to_u8, sid(1)),
+      ]),
+      s_match(0),
+    ])
+  end
+
+  it "collapses one-byte invalid UTF-8 literal alternation as Rust byte HIR does" do
+    nfa = Regex::Automata::NFA::NFA.compiler
+      .configure(
+        Regex::Automata::NFA::NFA.config
+          .which_captures(Regex::Automata::NFA::WhichCaptures::None)
+          .unanchored_prefix(false)
+      )
+      .syntax(Regex::Automata::Syntax::Config.new.utf8(false))
+      .build("(?-u)\\xFE|(?-u)\\xFF")
+    nfa.states.should eq([s_range(0xFE_u8, 0xFF_u8, 1), s_match(0)])
+  end
+
+  it "uses Rust's shared-exit union for three nonliteral alternatives" do
+    nfa = Regex::Automata::NFA::NFA.compiler
+      .configure(Regex::Automata::NFA::NFA.config.which_captures(Regex::Automata::NFA::WhichCaptures::None))
+      .build("a?|b+|c*d")
+    nfa.states.should eq([
+      s_bin_union(6, 1), s_range(0_u8, 255_u8, 0),
+      s_bin_union(3, 10), s_byte('a'.ord.to_u8, 10),
+      s_byte('b'.ord.to_u8, 5), s_bin_union(4, 10),
+      s_union([2, 4, 7]), s_bin_union(8, 9),
+      s_byte('c'.ord.to_u8, 7), s_byte('d'.ord.to_u8, 10), s_match(0),
     ])
   end
 

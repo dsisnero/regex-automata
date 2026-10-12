@@ -728,24 +728,70 @@ module Regex::Automata
     private def compile_alternation(node : Regex::Syntax::Hir::Alternation) : NFA::ThompsonRef
       literals = node.children
       if literals.size > 1 && literals.all? { |child| child.is_a?(Regex::Syntax::Hir::Literal) }
+        if singleton = compile_singleton_alternation(literals)
+          return singleton
+        end
         trie = @config.reverse ? NFA::LiteralTrie.reverse : NFA::LiteralTrie.forward
         literals.each { |child| trie.add(child.as(Regex::Syntax::Hir::Literal).bytes) }
-        return trie.compile(@builder, @pattern_id)
+        return trie.compile(@builder)
       end
 
-      refs = node.children.map { |child| compile_node(child) }
+      children = node.children
+      if children.empty?
+        fail_id = @builder.add_fail
+        return NFA::ThompsonRef.new(fail_id, fail_id)
+      end
 
-      if refs.empty?
-        compile_empty
-      elsif refs.size == 1
-        refs.first
-      else
-        result = refs.first
-        refs[1..].each do |next_ref|
-          result = @builder.build_alternation(result, next_ref, @pattern_id)
+      first = compile_node(children.first)
+      return first if children.size == 1
+
+      second = compile_node(children[1])
+      union = @builder.add_union([] of StateID)
+      ending = @builder.add_empty
+      compiler_patch(union, first.start)
+      compiler_patch(first.end, ending)
+      compiler_patch(union, second.start)
+      compiler_patch(second.end, ending)
+      (2...children.size).each do |index|
+        compiled = compile_node(children[index])
+        compiler_patch(union, compiled.start)
+        compiler_patch(compiled.end, ending)
+      end
+      NFA::ThompsonRef.new(union, ending)
+    end
+
+    private def compile_singleton_alternation(children : Array(Regex::Syntax::Hir::Node)) : NFA::ThompsonRef?
+      codepoints = [] of UInt32
+      all_chars = children.all? do |child|
+        bytes = child.as(Regex::Syntax::Hir::Literal).bytes
+        if bytes.size == 1 && bytes[0] < 0x80_u8
+          codepoints << bytes[0].to_u32
+          true
+        elsif bytes.empty? || bytes.size > 4
+          false
+        else
+          text = String.new(bytes)
+          decoded = text.valid_encoding? ? text.codepoints : [] of Int32
+          if decoded.size == 1
+            codepoints << decoded.first.to_u32
+            true
+          else
+            false
+          end
         end
-        result
       end
+      if all_chars
+        ranges = codepoints.map { |codepoint| codepoint..codepoint }
+        return compile_unicode_class(Regex::Syntax::Hir::UnicodeClass.new(false, ranges))
+      end
+
+      return nil unless children.all? { |child| child.as(Regex::Syntax::Hir::Literal).bytes.size == 1 }
+
+      ranges = children.map do |child|
+        byte = child.as(Regex::Syntax::Hir::Literal).bytes[0]
+        byte..byte
+      end
+      compile_char_class(Regex::Syntax::Hir::CharClass.new(false, ranges))
     end
 
     private def syntax_parser : ::Regex::Syntax::Parser

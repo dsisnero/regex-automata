@@ -1122,8 +1122,8 @@ src/nfa/thompson/compiler.rs::method::Compiler.build_from_hir	method	missing	-	a
 src/nfa/thompson/compiler.rs::method::Compiler.build_many	method	missing	-	auto-generated
 src/nfa/thompson/compiler.rs::method::Compiler.build_many_from_hir	method	missing	-	auto-generated
 src/nfa/thompson/compiler.rs::method::Compiler.c	method	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::method::Compiler.c_alt_iter	method	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::method::Compiler.c_alt_slice	method	missing	-	auto-generated
+src/nfa/thompson/compiler.rs::method::Compiler.c_alt_iter	method	ported	src/regex/automata/hir_compiler.cr:compile_alternation;spec/nfa_thompson_spec.cr	Compiles the first two branches, then appends later branches to one priority union with a shared exit.
+src/nfa/thompson/compiler.rs::method::Compiler.c_alt_slice	method	ported	src/regex/automata/hir_compiler.cr:compile_alternation;src/regex/automata/nfa.cr:LiteralTrie#compile;spec/nfa_thompson_spec.cr	Uses a literal trie when every branch is literal; singleton literals are folded to classes as Rust HIR.alternation does.
 src/nfa/thompson/compiler.rs::method::Compiler.c_at_least	method	ported	src/regex/automata/hir_compiler.cr:compile_at_least;spec/nfa_thompson_spec.cr;spec/hir_compiler_spec.cr	Preserves Rust's nonempty versus nullable star lowering and minimum-copy loop construction.
 src/nfa/thompson/compiler.rs::method::Compiler.c_bounded	method	ported	src/regex/automata/hir_compiler.cr:compile_bounded;spec/nfa_thompson_spec.cr;spec/hir_compiler_spec.cr	Builds a shared exit with direct optional-branch transitions instead of an epsilon-chain closure.
 src/nfa/thompson/compiler.rs::method::Compiler.c_byte_class	method	missing	-	auto-generated
@@ -1131,7 +1131,7 @@ src/nfa/thompson/compiler.rs::method::Compiler.c_cap	method	ported	src/regex/aut
 src/nfa/thompson/compiler.rs::method::Compiler.c_concat	method	ported	src/regex/automata/hir_compiler.cr:compile_concat;spec/nfa_thompson_spec.cr	Compiles children incrementally in forward or reverse order and patches each preceding end.
 src/nfa/thompson/compiler.rs::method::Compiler.c_empty	method	missing	-	auto-generated
 src/nfa/thompson/compiler.rs::method::Compiler.c_exactly	method	ported	src/regex/automata/hir_compiler.cr:compile_exactly;spec/hir_compiler_spec.cr	Compiles each required copy from HIR in order and patches the previous end.
-src/nfa/thompson/compiler.rs::method::Compiler.c_fail	method	missing	-	auto-generated
+src/nfa/thompson/compiler.rs::method::Compiler.c_fail	method	ported	src/regex/automata/hir_compiler.cr:compile_alternation	An empty alternation creates a terminal fail state.
 src/nfa/thompson/compiler.rs::method::Compiler.c_literal	method	missing	-	auto-generated
 src/nfa/thompson/compiler.rs::method::Compiler.c_look	method	missing	-	auto-generated
 src/nfa/thompson/compiler.rs::method::Compiler.c_range	method	missing	-	auto-generated
@@ -1195,7 +1195,7 @@ src/nfa/thompson/error.rs::method::BuildError.unsupported_captures	method	ported
 src/nfa/thompson/error.rs::method::BuildError.word	method	ported	src/regex/automata/nfa.cr:NFA::BuildError.word;src/regex/automata/hir_compiler.cr:build_from_hir	Normalizes Unicode-word-boundary compiler failures.
 src/nfa/thompson/literal_trie.rs::method::Frame<'a>.new	method	ported	src/regex/automata/nfa.cr:LiteralTrieFrame#initialize	Explicit stack frame for non-recursive trie compilation.
 src/nfa/thompson/literal_trie.rs::method::LiteralTrie.add	method	ported	src/regex/automata/nfa.cr:LiteralTrie#add;spec/nfa_thompson_spec.cr	Adds literal bytes with forward/reverse ordering.
-src/nfa/thompson/literal_trie.rs::method::LiteralTrie.compile	method	ported	src/regex/automata/nfa.cr:LiteralTrie#compile;spec/nfa_thompson_spec.cr	Compiles chunks with an explicit traversal stack.
+src/nfa/thompson/literal_trie.rs::method::LiteralTrie.compile	method	ported	src/regex/automata/nfa.cr:LiteralTrie#compile;spec/nfa_thompson_spec.cr	Compiles chunks with an explicit traversal stack and a patchable empty end, preserving Rust's final state order.
 src/nfa/thompson/literal_trie.rs::method::LiteralTrie.compile_state_to_hir	method	intentional_divergence	-	Rust test-only debug helper; production NFA compilation is covered directly.
 src/nfa/thompson/literal_trie.rs::method::LiteralTrie.compile_to_hir	method	intentional_divergence	-	Rust test-only debug helper; production NFA compilation is covered directly.
 src/nfa/thompson/literal_trie.rs::method::LiteralTrie.fmt	method	intentional_divergence	-	Rust Debug formatting has no Crystal public API equivalent.
