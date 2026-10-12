@@ -1133,7 +1133,7 @@ src/nfa/thompson/compiler.rs::method::Compiler.c_empty	method	missing	-	auto-gen
 src/nfa/thompson/compiler.rs::method::Compiler.c_exactly	method	ported	src/regex/automata/hir_compiler.cr:compile_exactly;spec/hir_compiler_spec.cr	Compiles each required copy from HIR in order and patches the previous end.
 src/nfa/thompson/compiler.rs::method::Compiler.c_fail	method	ported	src/regex/automata/hir_compiler.cr:compile_alternation	An empty alternation creates a terminal fail state.
 src/nfa/thompson/compiler.rs::method::Compiler.c_literal	method	missing	-	auto-generated
-src/nfa/thompson/compiler.rs::method::Compiler.c_look	method	missing	-	auto-generated
+src/nfa/thompson/compiler.rs::method::Compiler.c_look	method	ported	src/regex/automata/hir_compiler.cr:compile_look;spec/thompson_syntax_adoption_spec.cr;plans/inventory/rust_thompson_compiler_assertion_audit.tsv	Exact native graph comparisons cover all 18 Rust look kinds in forward/reverse and shrink modes. Legacy syntax EndTextOptionalLF maps to strict NFA EndText, preserving Rust dollar-anchor behavior.
 src/nfa/thompson/compiler.rs::method::Compiler.c_range	method	missing	-	auto-generated
 src/nfa/thompson/compiler.rs::method::Compiler.c_repetition	method	ported	src/regex/automata/hir_compiler.cr:compile_repetition;spec/nfa_thompson_spec.cr;spec/hir_compiler_spec.cr	Dispatches the same four Rust repetition cases by minimum and maximum count.
 src/nfa/thompson/compiler.rs::method::Compiler.c_unicode_class	method	missing	-	auto-generated

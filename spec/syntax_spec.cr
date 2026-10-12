@@ -94,8 +94,8 @@ describe Regex::Automata::Syntax do
       Regex::Automata::Syntax::Config.new.unicode(false).utf8(false)
     )
 
-    hir.node.should be_a(Regex::Syntax::Hir::CharClass)
-    hir.node.as(Regex::Syntax::Hir::CharClass).intervals.should eq([0xFF_u8..0xFF_u8])
+    hir.node.should be_a(Regex::Syntax::Hir::Literal)
+    hir.node.as(Regex::Syntax::Hir::Literal).bytes.should eq(Bytes[0xFF])
     hir.properties.utf8?.should be_false
   end
 

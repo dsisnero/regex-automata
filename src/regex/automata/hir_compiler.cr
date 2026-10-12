@@ -472,7 +472,8 @@ module Regex::Automata
              when Regex::Syntax::Hir::Look::Kind::EndText
                NFA::Look::Kind::EndText
              when Regex::Syntax::Hir::Look::Kind::EndTextOptionalLF
-               NFA::Look::Kind::EndTextWithNewline
+               # The syntax shard's legacy name represents Rust's strict End.
+               NFA::Look::Kind::EndText
              else
                raise "Unsupported look kind: #{node.kind}"
              end

@@ -120,3 +120,48 @@ CI checks:
 - Code formatting (`crystal tool format --check`)
 - Linting (`ameba`)
 - Coverage thresholds
+
+## Syntax dependency adoption and exact Thompson graphs
+
+```bash
+shards install
+python3 scripts/check_thompson_syntax_adoption.py
+```
+
+The runtime dependency is pinned in `shard.yml` to reviewed regex-syntax commit
+`077d107e69b62251fb95f29f897a6bf10fbb8067`. Use normal `lib/` resolution;
+no `CRYSTAL_PATH`, path dependency, or override selects a different checkout.
+The smoke test checks the actual installed parser's `a|b` normalization and
+its reserved LookSet bits and full-byte range length fixes.
+
+The oracle compiles the pinned Rust source directly, without registry access.
+All 19 original Thompson compiler tests execute with their assertions unchanged.
+Unrelated Rust test modules are disabled in a temporary source copy to avoid
+Cargo dev dependencies. Rust's private test-only unanchored-prefix option is
+exposed only in a second disposable oracle build. Production vendor files are
+never edited. Default-prefix cases also verify the public production behavior.
+
+The 188 exact graphs include all 31 original compiler graph inputs and 157
+explicit native characterizations. They compare state types, IDs, order,
+transition ranges and targets, ordered branches, capture slots, pattern starts,
+anchored/unanchored starts, group counts, UTF-8/reverse flags, and empty-match
+metadata. Characterizations cover syntax normalization, all 18 look assertions,
+reverse/shrink modes, captures, Unicode scalar boundaries, and invalid bytes.
+The companion ledger accounts for all 38 original compiler assertion locations.
+This is an integration signoff for syntax adoption, not full NFA API, limits,
+serialization, memory-accounting, or private-helper parity.
+
+To regenerate after reviewing the pinned native behavior:
+
+```bash
+python3 scripts/check_thompson_syntax_adoption.py --write-fixture --rust-only
+python3 scripts/check_thompson_syntax_adoption.py
+```
+
+Generated source copies, binaries and logs stay in
+`temp/thompson-syntax-adoption/`. Crystal output never establishes expectations.
+
+A fresh empty `SHARDS_CACHE_PATH` was used to install the pinned commit from
+GitHub, and every installed `src/` object matched the remote Git tree. The
+existing singleton-byte wrapper spec was corrected after a native assertion
+confirmed `(?-u:[\xFF])` becomes `Literal([255])` with UTF-8 disabled.

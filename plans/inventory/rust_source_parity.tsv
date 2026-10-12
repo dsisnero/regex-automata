@@ -1133,7 +1133,7 @@ src/nfa/thompson/compiler.rs::method::Compiler.c_empty	missing	-	baseline
 src/nfa/thompson/compiler.rs::method::Compiler.c_exactly	missing	-	baseline
 src/nfa/thompson/compiler.rs::method::Compiler.c_fail	missing	-	baseline
 src/nfa/thompson/compiler.rs::method::Compiler.c_literal	missing	-	baseline
-src/nfa/thompson/compiler.rs::method::Compiler.c_look	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.c_look	ported	src/regex/automata/hir_compiler.cr:compile_look;spec/thompson_syntax_adoption_spec.cr;plans/inventory/rust_thompson_compiler_assertion_audit.tsv	Exact native graph comparisons cover all 18 Rust look kinds in forward/reverse and shrink modes. Legacy syntax EndTextOptionalLF maps to strict NFA EndText, preserving Rust dollar-anchor behavior.
 src/nfa/thompson/compiler.rs::method::Compiler.c_range	missing	-	baseline
 src/nfa/thompson/compiler.rs::method::Compiler.c_repetition	missing	-	baseline
 src/nfa/thompson/compiler.rs::method::Compiler.c_unicode_class	missing	-	baseline
