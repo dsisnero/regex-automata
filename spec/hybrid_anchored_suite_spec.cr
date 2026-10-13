@@ -9,7 +9,9 @@ private record HybridSuiteCase,
   bounds : Tuple(Int32, Int32),
   anchored : Bool,
   unicode : Bool,
+  utf8 : Bool,
   earliest : Bool,
+  match_limit : Int32?,
   match_kind : Regex::Automata::MatchKind
 
 private def anchored_suite_scalar(block : String, key : String) : String?
@@ -76,7 +78,9 @@ private def hybrid_suite_cases(file : String) : Array(HybridSuiteCase)
       bounds,
       anchored_suite_scalar(block, "anchored") == "true",
       anchored_suite_scalar(block, "unicode") != "false",
+      anchored_suite_scalar(block, "utf8") != "false",
       anchored_suite_scalar(block, "search-kind") == %q("earliest"),
+      anchored_suite_scalar(block, "match-limit").try(&.to_i32),
       anchored_suite_scalar(block, "match-kind") == %q("all") ? Regex::Automata::MatchKind::All : Regex::Automata::MatchKind::LeftmostFirst
     )
   end
@@ -93,14 +97,17 @@ private def check_hybrid_suite_case(mode : String, fixture : HybridSuiteCase) : 
   when "no_cache_clearing"       then config.minimum_cache_clear_count(0)
   when "min_cache_capacity"      then config.cache_capacity(0).skip_cache_capacity_check(true)
   end
+  syntax = Regex::Automata::Syntax::Config.new.unicode(fixture.unicode).utf8(fixture.utf8)
   if mode == "prefilter"
-    hir = Regex::Automata::Syntax.parse_with(fixture.pattern, Regex::Automata::Syntax::Config.new.unicode(fixture.unicode))
+    hir = Regex::Automata::Syntax.parse_with(fixture.pattern, syntax)
     config.prefilter(Regex::Automata::Prefilter.from_hir_prefix(fixture.match_kind, hir))
   end
   builder = Regex::Automata::Hybrid::Regex.builder
     .dfa(config)
-    .syntax(Regex::Automata::Syntax::Config.new.unicode(fixture.unicode))
-  builder.thompson(Regex::Automata::NFA::NFA.config.shrink(true)) if mode == "nfa_shrink"
+    .syntax(syntax)
+  thompson = Regex::Automata::NFA::NFA.config.utf8(fixture.utf8)
+  thompson = thompson.shrink(true) if mode == "nfa_shrink"
+  builder.thompson(thompson)
   re = builder.build(fixture.pattern)
   cache = re.create_cache
   input = Regex::Automata::Input.new(fixture.haystack)
@@ -110,7 +117,7 @@ private def check_hybrid_suite_case(mode : String, fixture : HybridSuiteCase) : 
   re.is_match(cache, input).should eq(!fixture.matches.empty?)
   got = re.find_iter(cache, input.earliest(fixture.earliest)).map do |mat|
     {mat.start, mat.end}
-  end.to_a
+  end.first(fixture.match_limit || Int32::MAX).to_a
   got.should eq(fixture.matches)
 end
 
@@ -197,6 +204,34 @@ describe "vendor hybrid bounded-substring suite" do
       next if fixture.name.starts_with?("unicode-word-")
 
       it "#{mode}: substring/#{fixture.name} find and is_match" do
+        check_hybrid_suite_case(mode, fixture)
+      end
+    end
+  end
+end
+
+describe "vendor hybrid inline-flags suite" do
+  cases = hybrid_suite_cases("flags")
+  cases.size.should eq(11)
+  modes = %w(default prefilter nfa_shrink starts_for_each_pattern specialize_start_states no_byte_classes no_cache_clearing min_cache_capacity)
+
+  modes.each do |mode|
+    cases.each do |fixture|
+      it "#{mode}: flags/#{fixture.name} find and is_match" do
+        check_hybrid_suite_case(mode, fixture)
+      end
+    end
+  end
+end
+
+describe "vendor hybrid multiline suite" do
+  cases = hybrid_suite_cases("multiline")
+  cases.size.should eq(140)
+  modes = %w(default prefilter nfa_shrink starts_for_each_pattern specialize_start_states no_byte_classes no_cache_clearing min_cache_capacity)
+
+  modes.each do |mode|
+    cases.each do |fixture|
+      it "#{mode}: multiline/#{fixture.name} find and is_match" do
         check_hybrid_suite_case(mode, fixture)
       end
     end
