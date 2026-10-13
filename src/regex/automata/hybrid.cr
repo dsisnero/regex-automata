@@ -1427,26 +1427,14 @@ module Regex::Automata::Hybrid
     end
 
     def try_search_overlapping_fwd(cache : Cache, input : ::Regex::Automata::Input, state : OverlappingState) : Nil | ::Regex::Automata::MatchError
+      result = try_search_overlapping_fwd_raw(cache, input, state)
+      return result if result.is_a?(::Regex::Automata::MatchError)
+      skip_empty_utf8_splits_overlapping(cache, input, state, true)
+    end
+
+    private def try_search_overlapping_fwd_raw(cache : Cache, input : ::Regex::Automata::Input, state : OverlappingState) : Nil | ::Regex::Automata::MatchError
       if error = gave_up_error(cache, input)
         return error
-      end
-      if get_match_kind != ::Regex::Automata::MatchKind::All
-        if state.id
-          state.mat = nil
-          return nil
-        end
-        search = input.clone
-        search.set_start(state.at == 0 ? input.start : state.at)
-        result = try_search_fwd(cache, search)
-        return result if result.is_a?(::Regex::Automata::MatchError)
-        state.id = LazyRef.new(self, cache).dead_id
-        if half = result.as?(::Regex::Automata::HalfMatch)
-          state.mat = half
-          state.at = half.offset
-        else
-          state.mat = nil
-        end
-        return nil
       end
       state.mat = nil
       return nil if input.is_done
@@ -1529,24 +1517,14 @@ module Regex::Automata::Hybrid
     end
 
     def try_search_overlapping_rev(cache : Cache, input : ::Regex::Automata::Input, state : OverlappingState) : Nil | ::Regex::Automata::MatchError
+      result = try_search_overlapping_rev_raw(cache, input, state)
+      return result if result.is_a?(::Regex::Automata::MatchError)
+      skip_empty_utf8_splits_overlapping(cache, input, state, false)
+    end
+
+    private def try_search_overlapping_rev_raw(cache : Cache, input : ::Regex::Automata::Input, state : OverlappingState) : Nil | ::Regex::Automata::MatchError
       if error = gave_up_error(cache, input)
         return error
-      end
-      if get_match_kind != ::Regex::Automata::MatchKind::All
-        if state.id
-          state.mat = nil
-          return nil
-        end
-        result = try_search_rev(cache, input)
-        return result if result.is_a?(::Regex::Automata::MatchError)
-        state.id = LazyRef.new(self, cache).dead_id
-        if half = result.as?(::Regex::Automata::HalfMatch)
-          state.mat = half
-          state.at = half.offset
-        else
-          state.mat = nil
-        end
-        return nil
       end
       state.mat = nil
       return nil if input.is_done
@@ -1616,6 +1594,26 @@ module Regex::Automata::Hybrid
         return ::Regex::Automata::MatchError.quit(input.haystack[input.start - 1], input.start - 1)
       end
       cache.search_finish(input.start)
+      nil
+    end
+
+    private def skip_empty_utf8_splits_overlapping(cache : Cache, input : ::Regex::Automata::Input,
+                                                   state : OverlappingState, forward : Bool) : Nil | ::Regex::Automata::MatchError
+      return nil unless @nfa.has_empty && @nfa.is_utf8
+      return nil unless match = state.get_match
+      if input.get_anchored != ::Regex::Automata::Anchored::No
+        state.mat = nil unless input.is_char_boundary(match.offset)
+        return nil
+      end
+      until input.is_char_boundary(match.offset)
+        result = if forward
+                   try_search_overlapping_fwd_raw(cache, input, state)
+                 else
+                   try_search_overlapping_rev_raw(cache, input, state)
+                 end
+        return result if result.is_a?(::Regex::Automata::MatchError)
+        return nil unless match = state.get_match
+      end
       nil
     end
 

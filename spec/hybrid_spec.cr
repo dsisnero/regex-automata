@@ -279,7 +279,9 @@ describe Regex::Automata::Hybrid::DFA do
       Regex::Automata::Input.new("foo123"),
       state
     ).should be_nil
-    state.get_match.should eq(Regex::Automata::HalfMatch.must(0, 6))
+    # Rust overlapping search reports the first end offset, even with
+    # leftmost-first match kind; subsequent calls report longer endings.
+    state.get_match.should eq(Regex::Automata::HalfMatch.must(0, 4))
 
     patset = Regex::Automata::PatternSet.new(dfa.pattern_len)
     dfa.try_which_overlapping_matches(cache, Regex::Automata::Input.new("foo123"), patset).should be_nil
