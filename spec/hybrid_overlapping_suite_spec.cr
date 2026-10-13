@@ -196,6 +196,19 @@ private def hybrid_overlap_matches(fixture : HybridOverlapCase,
   got
 end
 
+private def hybrid_suite_supported?(fixture : HybridOverlapCase) : Bool
+  haystack = fixture.haystack
+  bytes = haystack.is_a?(String) ? haystack.to_slice : haystack
+  return true unless bytes.any? { |byte| byte >= 0x80_u8 }
+
+  syntax = Regex::Automata::Syntax::Config.new.utf8(fixture.utf8).unicode(fixture.unicode)
+    .case_insensitive(fixture.case_insensitive)
+    .line_terminator(fixture.line_terminator)
+  fixture.patterns.none? do |pattern|
+    Regex::Automata::Syntax.parse_with(pattern, syntax).properties.look_set.contains_word_unicode
+  end
+end
+
 describe "vendor hybrid overlapping suite" do
   cases = overlap_cases("overlapping")
   cases.size.should eq(23)
@@ -265,6 +278,38 @@ describe "vendor hybrid custom line terminator suite" do
   %w(default prefilter nfa_shrink starts_for_each_pattern specialize_start_states no_byte_classes no_cache_clearing min_cache_capacity).each do |mode|
     cases.each do |fixture|
       it "#{mode}: line-terminator/#{fixture.name}" do
+        hybrid_overlap_matches(fixture, mode).should eq(fixture.matches)
+      end
+    end
+  end
+end
+
+describe "vendor hybrid no-Unicode suite" do
+  cases = overlap_cases("no-unicode")
+  cases.size.should eq(23)
+  cases.count { |fixture| hybrid_suite_supported?(fixture) }.should eq(23)
+  %w(default prefilter nfa_shrink starts_for_each_pattern specialize_start_states no_byte_classes no_cache_clearing min_cache_capacity).each do |mode|
+    cases.each do |fixture|
+      next unless hybrid_suite_supported?(fixture)
+
+      it "#{mode}: no-unicode/#{fixture.name}" do
+        hybrid_overlap_matches(fixture, mode).should eq(fixture.matches)
+      end
+    end
+  end
+end
+
+describe "vendor hybrid Unicode suite" do
+  cases = overlap_cases("unicode")
+  cases.size.should eq(84)
+  # Rust excludes Unicode word assertions on non-ASCII haystacks.
+  cases.reject { |fixture| hybrid_suite_supported?(fixture) }.map(&.name)
+    .should eq(%w(wb-100 wb-200 wb-300 wb-400))
+  %w(default prefilter nfa_shrink starts_for_each_pattern specialize_start_states no_byte_classes no_cache_clearing min_cache_capacity).each do |mode|
+    cases.each do |fixture|
+      next unless hybrid_suite_supported?(fixture)
+
+      it "#{mode}: unicode/#{fixture.name}" do
         hybrid_overlap_matches(fixture, mode).should eq(fixture.matches)
       end
     end
