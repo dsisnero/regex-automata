@@ -5,6 +5,8 @@ private record HybridOverlapCase,
   name : String,
   patterns : Array(String),
   haystack : String | Bytes,
+  bounds : Tuple(Int32, Int32),
+  anchored : Bool,
   utf8 : Bool,
   unicode : Bool,
   case_insensitive : Bool,
@@ -75,6 +77,12 @@ private def overlap_cases(file : String) : Array(HybridOverlapCase)
                else
                  haystack_string
                end
+    bounds = if raw = overlap_scalar(block, "bounds")
+               pair = JSON.parse(raw).as_a
+               {pair[0].as_i, pair[1].as_i}
+             else
+               {0, haystack.bytesize.to_i32}
+             end
     offset = block.index("matches =") || raise "matches missing"
     start = block.index('[', offset) || raise "matches array missing"
     depth = 0
@@ -100,7 +108,9 @@ private def overlap_cases(file : String) : Array(HybridOverlapCase)
         {0, span[0].as_i, span[1].as_i}
       end
     end
-    HybridOverlapCase.new(name, patterns, haystack, overlap_scalar(block, "utf8") != "false",
+    HybridOverlapCase.new(name, patterns, haystack, bounds,
+      overlap_scalar(block, "anchored") == "true",
+      overlap_scalar(block, "utf8") != "false",
       overlap_scalar(block, "unicode") != "false",
       overlap_scalar(block, "case-insensitive") == "true",
       overlap_scalar(block, "match-kind") == %q("all") ? Regex::Automata::MatchKind::All : Regex::Automata::MatchKind::LeftmostFirst,
@@ -114,7 +124,7 @@ private def hybrid_overlap_matches(fixture : HybridOverlapCase,
   config = Regex::Automata::Hybrid::DFA.config
     .match_kind(fixture.kind)
     .unicode_word_boundary(true)
-    .starts_for_each_pattern(fixture.overlapping)
+    .starts_for_each_pattern(fixture.overlapping || mode == "starts_for_each_pattern")
   case mode
   when "specialize_start_states" then config.specialize_start_states(true)
   when "no_byte_classes"         then config.byte_classes(false)
@@ -134,6 +144,8 @@ private def hybrid_overlap_matches(fixture : HybridOverlapCase,
   re = builder.build_many(fixture.patterns)
   cache = re.create_cache
   input = Regex::Automata::Input.new(fixture.haystack)
+    .range(fixture.bounds[0]...fixture.bounds[1])
+    .anchored(fixture.anchored ? Regex::Automata::Anchored::Yes : Regex::Automata::Anchored::No)
   re.is_match(cache, input.clone.earliest(true)).should eq(!fixture.matches.empty?)
   unless fixture.overlapping
     return re.find_iter(cache, input).map { |mat| {mat.pattern.to_i, mat.start, mat.end} }.to_a
@@ -207,6 +219,18 @@ describe "vendor hybrid binary-byte suite" do
       next if fixture.name.in?("word-boundary-unicode", "word-boundary-unicode-not")
 
       it "#{mode}: bytes/#{fixture.name}" do
+        hybrid_overlap_matches(fixture, mode).should eq(fixture.matches)
+      end
+    end
+  end
+end
+
+describe "vendor hybrid UTF-8 boundary suite" do
+  cases = overlap_cases("utf8")
+  cases.size.should eq(28)
+  %w(default prefilter nfa_shrink starts_for_each_pattern specialize_start_states no_byte_classes no_cache_clearing min_cache_capacity).each do |mode|
+    cases.each do |fixture|
+      it "#{mode}: utf8/#{fixture.name}" do
         hybrid_overlap_matches(fixture, mode).should eq(fixture.matches)
       end
     end
