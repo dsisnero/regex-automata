@@ -62,7 +62,8 @@ private def hybrid_suite_cases(file : String) : Array(HybridSuiteCase)
     pattern = anchored_suite_string(anchored_suite_scalar(block, "regex") || raise "missing regex")
     haystack = anchored_suite_string(anchored_suite_scalar(block, "haystack") || raise "missing haystack")
     bounds = if raw = anchored_suite_scalar(block, "bounds")
-               pair = raw.match(/\[\s*(\d+)\s*,\s*(\d+)\s*\]/) || raise "invalid bounds"
+               pair = raw.match(/\[\s*(\d+)\s*,\s*(\d+)\s*\]/) ||
+                      raw.match(/\{\s*start\s*=\s*(\d+)\s*,\s*end\s*=\s*(\d+)\s*\}/) || raise "invalid bounds"
                {pair[1].to_i32, pair[2].to_i32}
              else
                {0, haystack.bytesize.to_i32}
@@ -151,6 +152,51 @@ describe "vendor hybrid CRLF suite" do
   modes.each do |mode|
     cases.each do |fixture|
       it "#{mode}: crlf/#{fixture.name} find and is_match" do
+        check_hybrid_suite_case(mode, fixture)
+      end
+    end
+  end
+end
+
+describe "vendor hybrid iteration suite" do
+  cases = hybrid_suite_cases("iter")
+  cases.size.should eq(22)
+  modes = %w(default prefilter nfa_shrink starts_for_each_pattern specialize_start_states no_byte_classes no_cache_clearing min_cache_capacity)
+
+  modes.each do |mode|
+    cases.each do |fixture|
+      it "#{mode}: iter/#{fixture.name} find and is_match" do
+        check_hybrid_suite_case(mode, fixture)
+      end
+    end
+  end
+end
+
+describe "vendor hybrid earliest suite" do
+  cases = hybrid_suite_cases("earliest")
+  cases.size.should eq(7)
+  modes = %w(default prefilter nfa_shrink starts_for_each_pattern specialize_start_states no_byte_classes no_cache_clearing min_cache_capacity)
+
+  modes.each do |mode|
+    cases.each do |fixture|
+      it "#{mode}: earliest/#{fixture.name} find and is_match" do
+        check_hybrid_suite_case(mode, fixture)
+      end
+    end
+  end
+end
+
+describe "vendor hybrid bounded-substring suite" do
+  cases = hybrid_suite_cases("substring")
+  cases.size.should eq(4)
+  modes = %w(default prefilter nfa_shrink starts_for_each_pattern specialize_start_states no_byte_classes no_cache_clearing min_cache_capacity)
+
+  modes.each do |mode|
+    cases.each do |fixture|
+      # Rust skips Unicode word assertions on non-ASCII haystacks.
+      next if fixture.name.starts_with?("unicode-word-")
+
+      it "#{mode}: substring/#{fixture.name} find and is_match" do
         check_hybrid_suite_case(mode, fixture)
       end
     end

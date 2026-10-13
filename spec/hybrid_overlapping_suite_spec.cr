@@ -6,23 +6,60 @@ private record HybridOverlapCase,
   patterns : Array(String),
   haystack : String | Bytes,
   utf8 : Bool,
+  unicode : Bool,
+  case_insensitive : Bool,
   kind : Regex::Automata::MatchKind,
+  overlapping : Bool,
   matches : Array(Tuple(Int32, Int32, Int32))
 
 private def overlap_scalar(block : String, key : String) : String?
   prefix = "#{key} ="
   block.each_line do |line|
-    return line[prefix.size..].split('#', 2)[0].strip if line.starts_with?(prefix)
+    next unless line.starts_with?(prefix)
+    value = line[prefix.size..].strip
+    if value.starts_with?("'") || value.starts_with?("\"")
+      quote = value[0]
+      return value[0..value.rindex(quote).not_nil!]
+    end
+    return value if value.starts_with?('[')
+    return value.split('#', 2)[0].strip
   end
   nil
 end
 
 private def overlap_string(value : String) : String
-  value.starts_with?('"') ? JSON.parse(value).as_s : value[1...-1]
+  return value[1...-1] unless value.starts_with?('"')
+
+  normalized = value.gsub(/\\U([0-9A-Fa-f]{8})/) do |matched|
+    matched[2..].to_i(16).chr.to_s
+  end
+  JSON.parse(normalized).as_s
 end
 
-private def overlap_cases : Array(HybridOverlapCase)
-  path = File.join(__DIR__, "..", "vendor", "regex", "testdata", "overlapping.toml")
+private def overlap_unescape_bytes(value : String) : Bytes
+  raw = value.to_slice
+  bytes = [] of UInt8
+  at = 0
+  while at < raw.size
+    if raw[at] == '\\'.ord && at + 1 < raw.size
+      if raw[at + 1] == 'x'.ord && at + 3 < raw.size
+        bytes << String.new(raw[at + 2, 2]).to_u8(16)
+        at += 4
+        next
+      elsif raw[at + 1] == '\\'.ord
+        bytes << '\\'.ord.to_u8
+        at += 2
+        next
+      end
+    end
+    bytes << raw[at]
+    at += 1
+  end
+  Bytes.new(bytes.size) { |i| bytes[i] }
+end
+
+private def overlap_cases(file : String) : Array(HybridOverlapCase)
+  path = File.join(__DIR__, "..", "vendor", "regex", "testdata", "#{file}.toml")
   File.read(path).split("[[test]]").skip(1).map do |block|
     name = overlap_string(overlap_scalar(block, "name") || raise "name missing")
     pattern_value = overlap_scalar(block, "regex") || raise "regex missing"
@@ -34,8 +71,7 @@ private def overlap_cases : Array(HybridOverlapCase)
                end
     haystack_string = overlap_string(overlap_scalar(block, "haystack") || raise "haystack missing")
     haystack = if overlap_scalar(block, "unescape") == "true"
-                 hex = haystack_string.scan(/\\x([0-9A-Fa-f]{2})/).map { |match| match[1].to_u8(16) }
-                 Bytes.new(hex.size) { |i| hex[i] }
+                 overlap_unescape_bytes(haystack_string)
                else
                  haystack_string
                end
@@ -50,14 +86,13 @@ private def overlap_cases : Array(HybridOverlapCase)
       finish += 1
     end
     raw = block[start..finish]
-    raw = raw.gsub(/\{\s*id\s*=\s*(\d+)\s*,\s*span\s*=\s*(\[[^\]]+\])\s*\}/) do |matched|
-      match = matched.match(/id\s*=\s*(\d+).*span\s*=\s*(\[[^\]]+\])/) || raise "invalid match table"
-      %({"id":#{match[1]},"span":#{match[2]}})
+    raw = raw.gsub(/\b(id|span|spans)\s*=/) do |matched|
+      %("#{matched.split('=')[0].strip}":)
     end
     values = JSON.parse(raw.gsub(/,\s*\]/, "]")).as_a
     matches = values.map do |value|
       if table = value.as_h?
-        span = table["span"].as_a
+        span = (table["span"]? || table["spans"].as_a[0]).as_a
         {table["id"].as_i, span[0].as_i, span[1].as_i}
       else
         entry = value.as_a
@@ -66,7 +101,10 @@ private def overlap_cases : Array(HybridOverlapCase)
       end
     end
     HybridOverlapCase.new(name, patterns, haystack, overlap_scalar(block, "utf8") != "false",
+      overlap_scalar(block, "unicode") != "false",
+      overlap_scalar(block, "case-insensitive") == "true",
       overlap_scalar(block, "match-kind") == %q("all") ? Regex::Automata::MatchKind::All : Regex::Automata::MatchKind::LeftmostFirst,
+      overlap_scalar(block, "search-kind") == %q("overlapping"),
       matches)
   end
 end
@@ -76,14 +114,15 @@ private def hybrid_overlap_matches(fixture : HybridOverlapCase,
   config = Regex::Automata::Hybrid::DFA.config
     .match_kind(fixture.kind)
     .unicode_word_boundary(true)
-    .starts_for_each_pattern(true)
+    .starts_for_each_pattern(fixture.overlapping)
   case mode
   when "specialize_start_states" then config.specialize_start_states(true)
   when "no_byte_classes"         then config.byte_classes(false)
   when "no_cache_clearing"       then config.minimum_cache_clear_count(0)
   when "min_cache_capacity"      then config.cache_capacity(0).skip_cache_capacity_check(true)
   end
-  syntax = Regex::Automata::Syntax::Config.new.utf8(fixture.utf8)
+  syntax = Regex::Automata::Syntax::Config.new.utf8(fixture.utf8).unicode(fixture.unicode)
+    .case_insensitive(fixture.case_insensitive)
   if mode == "prefilter"
     hirs = fixture.patterns.map { |pattern| Regex::Automata::Syntax.parse_with(pattern, syntax) }
     config.prefilter(Regex::Automata::Prefilter.from_hirs_prefix(fixture.kind, hirs))
@@ -95,7 +134,10 @@ private def hybrid_overlap_matches(fixture : HybridOverlapCase,
   re = builder.build_many(fixture.patterns)
   cache = re.create_cache
   input = Regex::Automata::Input.new(fixture.haystack)
-  re.is_match(cache, input.earliest(true)).should eq(!fixture.matches.empty?)
+  re.is_match(cache, input.clone.earliest(true)).should eq(!fixture.matches.empty?)
+  unless fixture.overlapping
+    return re.find_iter(cache, input).map { |mat| {mat.pattern.to_i, mat.start, mat.end} }.to_a
+  end
   patset = Regex::Automata::PatternSet.new(re.pattern_len)
   re.forward.try_which_overlapping_matches(cache.forward, input, patset).should be_nil
   patset.iter.map(&.to_i).to_a.should eq(fixture.matches.map(&.[0]).uniq.sort)
@@ -121,11 +163,50 @@ private def hybrid_overlap_matches(fixture : HybridOverlapCase,
 end
 
 describe "vendor hybrid overlapping suite" do
-  cases = overlap_cases
+  cases = overlap_cases("overlapping")
   cases.size.should eq(23)
   %w(default prefilter nfa_shrink starts_for_each_pattern specialize_start_states no_byte_classes no_cache_clearing min_cache_capacity).each do |mode|
     cases.each do |fixture|
       it "#{mode}: overlapping/#{fixture.name}" do
+        hybrid_overlap_matches(fixture, mode).should eq(fixture.matches)
+      end
+    end
+  end
+end
+
+describe "vendor hybrid multi-pattern set suite" do
+  cases = overlap_cases("set")
+  cases.size.should eq(52)
+  %w(default prefilter nfa_shrink starts_for_each_pattern specialize_start_states no_byte_classes no_cache_clearing min_cache_capacity).each do |mode|
+    cases.each do |fixture|
+      it "#{mode}: set/#{fixture.name}" do
+        hybrid_overlap_matches(fixture, mode).should eq(fixture.matches)
+      end
+    end
+  end
+end
+
+describe "vendor hybrid leftmost-all suite" do
+  cases = overlap_cases("leftmost-all")
+  cases.size.should eq(3)
+  %w(default prefilter nfa_shrink starts_for_each_pattern specialize_start_states no_byte_classes no_cache_clearing min_cache_capacity).each do |mode|
+    cases.each do |fixture|
+      it "#{mode}: leftmost-all/#{fixture.name}" do
+        hybrid_overlap_matches(fixture, mode).should eq(fixture.matches)
+      end
+    end
+  end
+end
+
+describe "vendor hybrid binary-byte suite" do
+  cases = overlap_cases("bytes")
+  cases.size.should eq(26)
+  %w(default prefilter nfa_shrink starts_for_each_pattern specialize_start_states no_byte_classes no_cache_clearing min_cache_capacity).each do |mode|
+    cases.each do |fixture|
+      # Rust skips Unicode word assertions on non-ASCII haystacks.
+      next if fixture.name.in?("word-boundary-unicode", "word-boundary-unicode-not")
+
+      it "#{mode}: bytes/#{fixture.name}" do
         hybrid_overlap_matches(fixture, mode).should eq(fixture.matches)
       end
     end
