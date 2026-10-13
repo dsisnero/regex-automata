@@ -1234,28 +1234,11 @@ module Regex::Automata::Hybrid
       if error = gave_up_error(cache, input)
         return error
       end
-      search = input.clone
       pre = input.get_anchored == ::Regex::Automata::Anchored::No ? get_prefilter : nil
-      loop do
-        if pre
-          candidate = pre.find(search.haystack, ::Regex::Automata::Span.new(search.start, search.end))
-          return nil unless candidate
-
-          # Start-state construction observes the byte before the search span.
-          # Moving the Input itself, rather than slicing the haystack, keeps
-          # look-around assertions valid at a prefilter candidate.
-          search.set_start(candidate.start) if candidate.start > search.start
-        end
-        result = try_search_fwd_once(cache, search)
-        return result if result.is_a?(::Regex::Automata::MatchError)
-        return result unless result.nil?
-        return nil if search.get_anchored != ::Regex::Automata::Anchored::No
-        return nil if search.start >= search.end
-        search.set_start(search.start + 1)
-      end
+      try_search_fwd_once(cache, input, pre)
     end
 
-    private def try_search_fwd_once(cache : Cache, input : ::Regex::Automata::Input) : ::Regex::Automata::HalfMatch? | ::Regex::Automata::MatchError
+    private def try_search_fwd_once(cache : Cache, input : ::Regex::Automata::Input, pre : ::Regex::Automata::Prefilter?) : ::Regex::Automata::HalfMatch? | ::Regex::Automata::MatchError
       return nil if input.is_done
 
       sid = start_state_forward(cache, input)
@@ -1264,24 +1247,83 @@ module Regex::Automata::Hybrid
       current = sid.as(LazyStateID)
       match = nil.as(::Regex::Automata::HalfMatch?)
       at = input.start
+      universal_start = @nfa.look_set_prefix_any.empty?
+      if pre
+        candidate = pre.find(input.haystack, ::Regex::Automata::Span.new(at, input.end))
+        return nil unless candidate
+
+        if candidate.start > at
+          at = candidate.start
+          unless universal_start
+            restarted = input.clone
+            restarted.set_start(at)
+            sid = start_state_forward(cache, restarted)
+            return sid if sid.is_a?(::Regex::Automata::MatchError)
+            current = sid.as(LazyStateID)
+          end
+        end
+      end
       cache.search_start(at)
       while at < input.end
-        next_sid = next_state(cache, current, input.haystack[at])
-        return ::Regex::Automata::MatchError.gave_up(at) if next_sid.is_a?(CacheError)
-        successor = next_sid.as(LazyStateID)
-        if successor == current && !current.is_tagged
-          at += 1
-          # As in Rust's lazy search loop, consume a run of cached
-          # self-transitions without repeating the tagged-state dispatch.
-          base = current.as_usize_untagged
-          while at < input.end && cache.trans[base + @classes.get(input.haystack[at]).to_i] == current
-            at += 1
-          end
+        if current.is_tagged
           cache.search_update(at)
-          next
+          next_sid = next_state(cache, current, input.haystack[at])
+          return ::Regex::Automata::MatchError.gave_up(at) if next_sid.is_a?(CacheError)
+          current = next_sid.as(LazyStateID)
+        else
+          previous = current
+          loop do
+            # Rust groups cached untagged transitions and leaves unknown
+            # transitions for the state-building slow path below. Unlike its
+            # unsafe lookup, Crystal's Array access remains bounds checked.
+            current = cache.trans[previous.as_usize_untagged + @classes.get(input.haystack[at]).to_i]
+            break if current.is_tagged || input.end - at <= 3
+            at += 1
+
+            previous = current
+            current = cache.trans[previous.as_usize_untagged + @classes.get(input.haystack[at]).to_i]
+            break if current.is_tagged
+            at += 1
+
+            previous = current
+            current = cache.trans[previous.as_usize_untagged + @classes.get(input.haystack[at]).to_i]
+            break if current.is_tagged
+            at += 1
+
+            previous = current
+            current = cache.trans[previous.as_usize_untagged + @classes.get(input.haystack[at]).to_i]
+            break if current.is_tagged
+            at += 1
+            break if at >= input.end
+            previous = current
+          end
+          if current.is_unknown
+            cache.search_update(at)
+            next_sid = next_state(cache, previous, input.haystack[at])
+            return ::Regex::Automata::MatchError.gave_up(at) if next_sid.is_a?(CacheError)
+            current = next_sid.as(LazyStateID)
+          end
         end
-        current = successor
-        if current.is_match
+        if current.is_start && pre
+          unless match
+            candidate = pre.find(input.haystack, ::Regex::Automata::Span.new(at, input.end))
+            unless candidate
+              cache.search_finish(input.end)
+              return match
+            end
+            if candidate.start > at
+              at = candidate.start
+              unless universal_start
+                restarted = input.clone
+                restarted.set_start(at)
+                sid = start_state_forward(cache, restarted)
+                return sid if sid.is_a?(::Regex::Automata::MatchError)
+                current = sid.as(LazyStateID)
+              end
+              next
+            end
+          end
+        elsif current.is_match
           match = ::Regex::Automata::HalfMatch.new(match_pattern(cache, current, 0), at)
           if input.get_earliest
             cache.search_finish(at)
@@ -1295,7 +1337,6 @@ module Regex::Automata::Hybrid
           return ::Regex::Automata::MatchError.quit(input.haystack[at], at)
         end
         at += 1
-        cache.search_update(at) if at <= input.end
       end
 
       eoi = if byte = input.haystack[input.end]?
