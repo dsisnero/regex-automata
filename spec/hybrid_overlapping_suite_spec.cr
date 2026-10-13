@@ -5,6 +5,7 @@ private record HybridOverlapCase,
   name : String,
   patterns : Array(String),
   haystack : String | Bytes,
+  line_terminator : UInt8,
   bounds : Tuple(Int32, Int32),
   anchored : Bool,
   utf8 : Bool,
@@ -52,6 +53,18 @@ private def overlap_unescape_bytes(value : String) : Bytes
         bytes << '\\'.ord.to_u8
         at += 2
         next
+      elsif raw[at + 1] == 'n'.ord
+        bytes << '\n'.ord.to_u8
+        at += 2
+        next
+      elsif raw[at + 1] == 'r'.ord
+        bytes << '\r'.ord.to_u8
+        at += 2
+        next
+      elsif raw[at + 1] == 't'.ord
+        bytes << '\t'.ord.to_u8
+        at += 2
+        next
       end
     end
     bytes << raw[at]
@@ -77,6 +90,13 @@ private def overlap_cases(file : String) : Array(HybridOverlapCase)
                else
                  haystack_string
                end
+    line_terminator = if raw = overlap_scalar(block, "line-terminator")
+                        bytes = overlap_unescape_bytes(overlap_string(raw))
+                        raise "line terminator must be one byte" unless bytes.size == 1
+                        bytes[0]
+                      else
+                        '\n'.ord.to_u8
+                      end
     bounds = if raw = overlap_scalar(block, "bounds")
                pair = JSON.parse(raw).as_a
                {pair[0].as_i, pair[1].as_i}
@@ -108,7 +128,7 @@ private def overlap_cases(file : String) : Array(HybridOverlapCase)
         {0, span[0].as_i, span[1].as_i}
       end
     end
-    HybridOverlapCase.new(name, patterns, haystack, bounds,
+    HybridOverlapCase.new(name, patterns, haystack, line_terminator, bounds,
       overlap_scalar(block, "anchored") == "true",
       overlap_scalar(block, "utf8") != "false",
       overlap_scalar(block, "unicode") != "false",
@@ -133,12 +153,14 @@ private def hybrid_overlap_matches(fixture : HybridOverlapCase,
   end
   syntax = Regex::Automata::Syntax::Config.new.utf8(fixture.utf8).unicode(fixture.unicode)
     .case_insensitive(fixture.case_insensitive)
+    .line_terminator(fixture.line_terminator)
   if mode == "prefilter"
     hirs = fixture.patterns.map { |pattern| Regex::Automata::Syntax.parse_with(pattern, syntax) }
     config.prefilter(Regex::Automata::Prefilter.from_hirs_prefix(fixture.kind, hirs))
   end
   builder = Regex::Automata::Hybrid::Regex.builder.dfa(config).syntax(syntax)
   thompson = Regex::Automata::NFA::NFA.config.utf8(fixture.utf8)
+    .look_matcher(Regex::Automata::LookMatcher.new(fixture.line_terminator))
   thompson = thompson.shrink(true) if mode == "nfa_shrink"
   builder.thompson(thompson)
   re = builder.build_many(fixture.patterns)
@@ -231,6 +253,18 @@ describe "vendor hybrid UTF-8 boundary suite" do
   %w(default prefilter nfa_shrink starts_for_each_pattern specialize_start_states no_byte_classes no_cache_clearing min_cache_capacity).each do |mode|
     cases.each do |fixture|
       it "#{mode}: utf8/#{fixture.name}" do
+        hybrid_overlap_matches(fixture, mode).should eq(fixture.matches)
+      end
+    end
+  end
+end
+
+describe "vendor hybrid custom line terminator suite" do
+  cases = overlap_cases("line-terminator")
+  cases.size.should eq(10)
+  %w(default prefilter nfa_shrink starts_for_each_pattern specialize_start_states no_byte_classes no_cache_clearing min_cache_capacity).each do |mode|
+    cases.each do |fixture|
+      it "#{mode}: line-terminator/#{fixture.name}" do
         hybrid_overlap_matches(fixture, mode).should eq(fixture.matches)
       end
     end
