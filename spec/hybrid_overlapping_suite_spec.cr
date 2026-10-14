@@ -422,3 +422,48 @@ describe "vendor hybrid expensive suite" do
     end
   end
 end
+
+describe "vendor hybrid Fowler basic suite" do
+  cases = overlap_cases("fowler/basic")
+  cases.size.should eq(204)
+  cases.count { |fixture| hybrid_suite_supported?(fixture) }.should eq(204)
+  %w(default prefilter nfa_shrink starts_for_each_pattern specialize_start_states no_byte_classes no_cache_clearing min_cache_capacity).each do |mode|
+    cases.each do |fixture|
+      next unless hybrid_suite_supported?(fixture)
+
+      it "#{mode}: fowler/basic/#{fixture.name}" do
+        hybrid_overlap_matches(fixture, mode).should eq(fixture.matches)
+      end
+    end
+  end
+end
+
+describe "vendor hybrid Fowler null-subexpression suite" do
+  cases = overlap_cases("fowler/nullsubexpr")
+  cases.size.should eq(50)
+  cases.count { |fixture| hybrid_suite_supported?(fixture) }.should eq(50)
+  %w(default prefilter nfa_shrink starts_for_each_pattern specialize_start_states no_byte_classes no_cache_clearing min_cache_capacity).each do |mode|
+    cases.each do |fixture|
+      next unless hybrid_suite_supported?(fixture)
+
+      it "#{mode}: fowler/nullsubexpr/#{fixture.name}" do
+        hybrid_overlap_matches(fixture, mode).should eq(fixture.matches)
+      end
+    end
+  end
+end
+
+describe "vendor hybrid Fowler repetition suite" do
+  cases = overlap_cases("fowler/repetition")
+  cases.size.should eq(91)
+  cases.count { |fixture| hybrid_suite_supported?(fixture) }.should eq(91)
+  %w(default prefilter nfa_shrink starts_for_each_pattern specialize_start_states no_byte_classes no_cache_clearing min_cache_capacity).each do |mode|
+    cases.each do |fixture|
+      next unless hybrid_suite_supported?(fixture)
+
+      it "#{mode}: fowler/repetition/#{fixture.name}" do
+        hybrid_overlap_matches(fixture, mode).should eq(fixture.matches)
+      end
+    end
+  end
+end
