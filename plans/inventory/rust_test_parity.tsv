@@ -199,14 +199,14 @@ tests/hybrid/api.rs::test::quit_panics	ported	spec/hybrid_spec.cr	Ports quit con
 tests/hybrid/api.rs::test::quit_rev	ported	spec/hybrid_spec.cr	Ports reverse quit behavior.
 tests/hybrid/api.rs::test::too_many_cache_resets_cause_quit	ported	spec/hybrid_spec.cr	Ports lazy cache reset/give-up behavior.
 tests/hybrid/api.rs::test::unicode_word_implicitly_works	ported	spec/hybrid_spec.cr	Ports implicit Unicode word-boundary support.
-tests/hybrid/suite.rs::test::default	partial	spec/hybrid_anchored_suite_spec.cr,spec/hybrid_overlapping_suite_spec.cr	Nineteen of 25 TOML families run in this mode; 6 remain.
-tests/hybrid/suite.rs::test::min_cache_capacity	partial	spec/hybrid_anchored_suite_spec.cr,spec/hybrid_overlapping_suite_spec.cr	Nineteen of 25 TOML families run in this mode; 6 remain.
-tests/hybrid/suite.rs::test::nfa_shrink	partial	spec/hybrid_anchored_suite_spec.cr,spec/hybrid_overlapping_suite_spec.cr	Nineteen of 25 TOML families run in this mode; 6 remain.
-tests/hybrid/suite.rs::test::no_byte_classes	partial	spec/hybrid_anchored_suite_spec.cr,spec/hybrid_overlapping_suite_spec.cr	Nineteen of 25 TOML families run in this mode; 6 remain.
-tests/hybrid/suite.rs::test::no_cache_clearing	partial	spec/hybrid_anchored_suite_spec.cr,spec/hybrid_overlapping_suite_spec.cr	Nineteen of 25 TOML families run in this mode; 6 remain.
-tests/hybrid/suite.rs::test::prefilter	partial	spec/hybrid_anchored_suite_spec.cr,spec/hybrid_overlapping_suite_spec.cr	Nineteen of 25 TOML families run in this mode; 6 remain.
-tests/hybrid/suite.rs::test::specialize_start_states	partial	spec/hybrid_anchored_suite_spec.cr,spec/hybrid_overlapping_suite_spec.cr	Nineteen of 25 TOML families run in this mode; 6 remain.
-tests/hybrid/suite.rs::test::starts_for_each_pattern	partial	spec/hybrid_anchored_suite_spec.cr,spec/hybrid_overlapping_suite_spec.cr	Nineteen of 25 TOML families run in this mode; 6 remain.
+tests/hybrid/suite.rs::test::default	partial	spec/hybrid_anchored_suite_spec.cr,spec/hybrid_overlapping_suite_spec.cr	Twenty-one of 25 TOML families run in this mode; 4 remain.
+tests/hybrid/suite.rs::test::min_cache_capacity	partial	spec/hybrid_anchored_suite_spec.cr,spec/hybrid_overlapping_suite_spec.cr	Twenty-one of 25 TOML families run in this mode; 4 remain.
+tests/hybrid/suite.rs::test::nfa_shrink	partial	spec/hybrid_anchored_suite_spec.cr,spec/hybrid_overlapping_suite_spec.cr	Twenty-one of 25 TOML families run in this mode; 4 remain.
+tests/hybrid/suite.rs::test::no_byte_classes	partial	spec/hybrid_anchored_suite_spec.cr,spec/hybrid_overlapping_suite_spec.cr	Twenty-one of 25 TOML families run in this mode; 4 remain.
+tests/hybrid/suite.rs::test::no_cache_clearing	partial	spec/hybrid_anchored_suite_spec.cr,spec/hybrid_overlapping_suite_spec.cr	Twenty-one of 25 TOML families run in this mode; 4 remain.
+tests/hybrid/suite.rs::test::prefilter	partial	spec/hybrid_anchored_suite_spec.cr,spec/hybrid_overlapping_suite_spec.cr	Twenty-one of 25 TOML families run in this mode; 4 remain.
+tests/hybrid/suite.rs::test::specialize_start_states	partial	spec/hybrid_anchored_suite_spec.cr,spec/hybrid_overlapping_suite_spec.cr	Twenty-one of 25 TOML families run in this mode; 4 remain.
+tests/hybrid/suite.rs::test::starts_for_each_pattern	partial	spec/hybrid_anchored_suite_spec.cr,spec/hybrid_overlapping_suite_spec.cr	Twenty-one of 25 TOML families run in this mode; 4 remain.
 tests/meta/suite.rs::test::default	partial	spec/meta_regex_spec.cr	Selected default Meta behavior is covered; the shared vendor TOML cases are not run.
 tests/meta/suite.rs::test::no_dfa	partial	spec/meta_regex_spec.cr	Selected no-dense behavior is covered; the shared vendor TOML cases are not run in this mode.
 tests/meta/suite.rs::test::no_dfa_hybrid	partial	spec/meta_regex_spec.cr	Selected dense/hybrid-disabled behavior is covered; the shared vendor TOML cases are not run in this mode.

@@ -383,3 +383,27 @@ describe "vendor hybrid regression suite" do
     end
   end
 end
+
+describe "vendor hybrid crazy suite" do
+  cases = overlap_cases("crazy")
+  cases.size.should eq(52)
+  %w(default prefilter nfa_shrink starts_for_each_pattern specialize_start_states no_byte_classes no_cache_clearing min_cache_capacity).each do |mode|
+    cases.each do |fixture|
+      it "#{mode}: crazy/#{fixture.name}" do
+        hybrid_overlap_matches(fixture, mode).should eq(fixture.matches)
+      end
+    end
+  end
+end
+
+describe "vendor hybrid miscellaneous suite" do
+  cases = overlap_cases("misc")
+  cases.size.should eq(16)
+  %w(default prefilter nfa_shrink starts_for_each_pattern specialize_start_states no_byte_classes no_cache_clearing min_cache_capacity).each do |mode|
+    cases.each do |fixture|
+      it "#{mode}: misc/#{fixture.name}" do
+        hybrid_overlap_matches(fixture, mode).should eq(fixture.matches)
+      end
+    end
+  end
+end
