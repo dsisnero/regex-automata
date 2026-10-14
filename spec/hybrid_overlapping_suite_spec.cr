@@ -407,3 +407,18 @@ describe "vendor hybrid miscellaneous suite" do
     end
   end
 end
+
+describe "vendor hybrid expensive suite" do
+  cases = overlap_cases("expensive")
+  cases.map(&.name).should eq(%w(regression-many-repeat-no-stack-overflow backtrack-blow-visited-capacity))
+  %w(default prefilter nfa_shrink starts_for_each_pattern specialize_start_states no_byte_classes no_cache_clearing min_cache_capacity).each do |mode|
+    cases.each do |fixture|
+      # Rust blacklists this test outside the shrink/minimum-capacity modes.
+      next if fixture.name == "regression-many-repeat-no-stack-overflow" && !mode.in?("nfa_shrink", "min_cache_capacity")
+
+      it "#{mode}: expensive/#{fixture.name}" do
+        hybrid_overlap_matches(fixture, mode).should eq(fixture.matches)
+      end
+    end
+  end
+end
