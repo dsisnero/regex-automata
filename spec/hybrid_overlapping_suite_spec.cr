@@ -315,3 +315,33 @@ describe "vendor hybrid Unicode suite" do
     end
   end
 end
+
+describe "vendor hybrid word-boundary suite" do
+  cases = overlap_cases("word-boundary")
+  cases.size.should eq(103)
+  cases.count { |fixture| hybrid_suite_supported?(fixture) }.should eq(95)
+  %w(default prefilter nfa_shrink starts_for_each_pattern specialize_start_states no_byte_classes no_cache_clearing min_cache_capacity).each do |mode|
+    cases.each do |fixture|
+      next unless hybrid_suite_supported?(fixture)
+
+      it "#{mode}: word-boundary/#{fixture.name}" do
+        hybrid_overlap_matches(fixture, mode).should eq(fixture.matches)
+      end
+    end
+  end
+end
+
+describe "vendor hybrid special word-boundary suite" do
+  cases = overlap_cases("word-boundary-special")
+  cases.size.should eq(92)
+  cases.count { |fixture| hybrid_suite_supported?(fixture) }.should eq(68)
+  %w(default prefilter nfa_shrink starts_for_each_pattern specialize_start_states no_byte_classes no_cache_clearing min_cache_capacity).each do |mode|
+    cases.each do |fixture|
+      next unless hybrid_suite_supported?(fixture)
+
+      it "#{mode}: word-boundary-special/#{fixture.name}" do
+        hybrid_overlap_matches(fixture, mode).should eq(fixture.matches)
+      end
+    end
+  end
+end

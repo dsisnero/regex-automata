@@ -290,6 +290,22 @@ module Regex::Automata::Determinize
       look_have.includes?(::Regex::Automata::Look::WordUnicode)
     when ::Regex::Automata::NFA::Look::Kind::NonWordBoundaryUnicode
       look_have.includes?(::Regex::Automata::Look::WordUnicodeNegate)
+    when ::Regex::Automata::NFA::Look::Kind::WordStartAscii
+      look_have.includes?(::Regex::Automata::Look::WordStartAscii)
+    when ::Regex::Automata::NFA::Look::Kind::WordEndAscii
+      look_have.includes?(::Regex::Automata::Look::WordEndAscii)
+    when ::Regex::Automata::NFA::Look::Kind::WordStartUnicode
+      look_have.includes?(::Regex::Automata::Look::WordStartUnicode)
+    when ::Regex::Automata::NFA::Look::Kind::WordEndUnicode
+      look_have.includes?(::Regex::Automata::Look::WordEndUnicode)
+    when ::Regex::Automata::NFA::Look::Kind::WordStartHalfAscii
+      look_have.includes?(::Regex::Automata::Look::WordStartHalfAscii)
+    when ::Regex::Automata::NFA::Look::Kind::WordEndHalfAscii
+      look_have.includes?(::Regex::Automata::Look::WordEndHalfAscii)
+    when ::Regex::Automata::NFA::Look::Kind::WordStartHalfUnicode
+      look_have.includes?(::Regex::Automata::Look::WordStartHalfUnicode)
+    when ::Regex::Automata::NFA::Look::Kind::WordEndHalfUnicode
+      look_have.includes?(::Regex::Automata::Look::WordEndHalfUnicode)
     when ::Regex::Automata::NFA::Look::Kind::StartText
       look_have.includes?(::Regex::Automata::Look::Start)
     when ::Regex::Automata::NFA::Look::Kind::EndText,
@@ -318,6 +334,22 @@ module Regex::Automata::Determinize
       ::Regex::Automata::LookSet.singleton(::Regex::Automata::Look::WordUnicode)
     when ::Regex::Automata::NFA::Look::Kind::NonWordBoundaryUnicode
       ::Regex::Automata::LookSet.singleton(::Regex::Automata::Look::WordUnicodeNegate)
+    when ::Regex::Automata::NFA::Look::Kind::WordStartAscii
+      ::Regex::Automata::LookSet.singleton(::Regex::Automata::Look::WordStartAscii)
+    when ::Regex::Automata::NFA::Look::Kind::WordEndAscii
+      ::Regex::Automata::LookSet.singleton(::Regex::Automata::Look::WordEndAscii)
+    when ::Regex::Automata::NFA::Look::Kind::WordStartUnicode
+      ::Regex::Automata::LookSet.singleton(::Regex::Automata::Look::WordStartUnicode)
+    when ::Regex::Automata::NFA::Look::Kind::WordEndUnicode
+      ::Regex::Automata::LookSet.singleton(::Regex::Automata::Look::WordEndUnicode)
+    when ::Regex::Automata::NFA::Look::Kind::WordStartHalfAscii
+      ::Regex::Automata::LookSet.singleton(::Regex::Automata::Look::WordStartHalfAscii)
+    when ::Regex::Automata::NFA::Look::Kind::WordEndHalfAscii
+      ::Regex::Automata::LookSet.singleton(::Regex::Automata::Look::WordEndHalfAscii)
+    when ::Regex::Automata::NFA::Look::Kind::WordStartHalfUnicode
+      ::Regex::Automata::LookSet.singleton(::Regex::Automata::Look::WordStartHalfUnicode)
+    when ::Regex::Automata::NFA::Look::Kind::WordEndHalfUnicode
+      ::Regex::Automata::LookSet.singleton(::Regex::Automata::Look::WordEndHalfUnicode)
     when ::Regex::Automata::NFA::Look::Kind::StartText
       ::Regex::Automata::LookSet.singleton(::Regex::Automata::Look::Start)
     when ::Regex::Automata::NFA::Look::Kind::EndText,
