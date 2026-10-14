@@ -129,6 +129,46 @@ describe Regex::Automata::Hybrid::Config do
         .build("[a-z]+")
     end
   end
+
+  it "keeps disjoint quit-byte ranges as distinct contiguous byte classes" do
+    syntax = Regex::Automata::Syntax::Config.new
+    hir = Regex::Automata::Syntax.parse_with("a", syntax)
+    nfa = Regex::Automata::HirCompiler.new(
+      Regex::Automata::NFA::NFA.config.captures(false),
+      syntax
+    ).build_many_from_hir([hir])
+    config = Regex::Automata::Hybrid::DFA.config
+      .quit(0x01_u8, true)
+      .quit(0x03_u8, true)
+    quit = config.quit_set_from_nfa(nfa)
+    classes = config.byte_classes_from_nfa(nfa, quit)
+
+    # Rust ByteClassSet::add_set adds boundaries around each quit range.
+    (0..3).each { |byte| classes[byte].should be < classes[byte + 1] }
+    classes[0].should eq(0)
+    classes[1].should eq(1)
+    classes[2].should eq(2)
+    classes[3].should eq(3)
+    classes[4].should eq(4)
+
+    base_minimum = Regex::Automata::Hybrid::DFA.config.get_minimum_cache_capacity(nfa)
+    split_minimum = config.get_minimum_cache_capacity(nfa)
+    split_minimum.should be > base_minimum
+
+    dfa = Regex::Automata::Hybrid::Builder.new
+      .configure(config.cache_capacity(0).skip_cache_capacity_check(true))
+      .build_from_nfa(nfa)
+    dfa.get_cache_capacity.should eq(split_minimum)
+    dfa.get_byte_classes.to_bytes.should eq(classes.to_bytes)
+
+    cache = dfa.create_cache
+    dfa.try_search_fwd(cache, Regex::Automata::Input.new(Bytes[0x02_u8, 0x61_u8])).should eq(
+      Regex::Automata::HalfMatch.must(0, 2)
+    )
+    dfa.try_search_fwd(cache, Regex::Automata::Input.new(Bytes[0x01_u8, 0x61_u8])).should eq(
+      Regex::Automata::MatchError.quit(0x01_u8, 0)
+    )
+  end
 end
 
 describe Regex::Automata::Hybrid::Cache do

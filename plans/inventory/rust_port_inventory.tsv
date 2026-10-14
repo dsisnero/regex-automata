@@ -575,7 +575,7 @@ src/hybrid/dfa.rs::const::MIN_STATES	const	ported	src/regex/automata/hybrid.cr:8
 src/hybrid/dfa.rs::const::SENTINEL_STATES	const	ported	src/regex/automata/hybrid.cr:7;spec/hybrid_spec.cr	Preserves the three lazy sentinel states.
 src/hybrid/dfa.rs::const::STATE_SIZE	const	intentional_divergence	src/regex/automata/hybrid.cr	Crystal object layout is not a stable storage contract.
 src/hybrid/dfa.rs::method::Builder.build	method	ported	src/regex/automata/hybrid.cr:1717;spec/hybrid_spec.cr	Builds configured lazy DFAs.
-src/hybrid/dfa.rs::method::Builder.build_from_nfa	method	ported	src/regex/automata/hybrid.cr:1739;spec/hybrid_spec.cr	Builds from a precompiled Thompson NFA.
+src/hybrid/dfa.rs::method::Builder.build_from_nfa	method	ported	src/regex/automata/hybrid.cr:1716;spec/hybrid_spec.cr	Builds from a precompiled Thompson NFA using quit-split classes and their minimum cache capacity.
 src/hybrid/dfa.rs::method::Builder.build_many	method	ported	src/regex/automata/hybrid.cr:1721;spec/hybrid_spec.cr	Builds multi-pattern lazy DFAs.
 src/hybrid/dfa.rs::method::Builder.configure	method	ported	src/regex/automata/hybrid.cr:1702;spec/hybrid_spec.cr	Merges configuration with Rust overwrite semantics.
 src/hybrid/dfa.rs::method::Builder.new	method	ported	src/regex/automata/hybrid.cr:1698;spec/hybrid_spec.cr	Default builder constructor.
@@ -590,13 +590,13 @@ src/hybrid/dfa.rs::method::Cache.search_start	method	ported	src/regex/automata/h
 src/hybrid/dfa.rs::method::Cache.search_total_len	method	ported	src/regex/automata/hybrid.cr:610;spec/hybrid_spec.cr	Reports absolute directional search length.
 src/hybrid/dfa.rs::method::Cache.search_update	method	ported	src/regex/automata/hybrid.cr:592;spec/hybrid_spec.cr	Maintains directional search progress.
 src/hybrid/dfa.rs::method::Config.byte_classes	method	ported	src/regex/automata/hybrid.cr:344;spec/hybrid_spec.cr	Configures byte classes.
-src/hybrid/dfa.rs::method::Config.byte_classes_from_nfa	method	ported	src/regex/automata/hybrid.cr:448;spec/hybrid_spec.cr	Derives effective byte classes from the NFA.
+src/hybrid/dfa.rs::method::Config.byte_classes_from_nfa	method	ported	src/regex/automata/hybrid.cr:448;spec/hybrid_spec.cr	Preserves Rust's contiguous NFA and quit-range boundaries; disjoint equal-signature ranges remain distinct.
 src/hybrid/dfa.rs::method::Config.cache_capacity	method	ported	src/regex/automata/hybrid.cr:288;spec/hybrid_spec.cr	Configures lazy-cache capacity.
 src/hybrid/dfa.rs::method::Config.get_byte_classes	method	ported	src/regex/automata/hybrid.cr:395;spec/hybrid_spec.cr	Returns effective byte-class setting.
 src/hybrid/dfa.rs::method::Config.get_cache_capacity	method	ported	src/regex/automata/hybrid.cr:351;spec/hybrid_spec.cr	Returns effective cache capacity.
 src/hybrid/dfa.rs::method::Config.get_match_kind	method	ported	src/regex/automata/hybrid.cr:383;spec/hybrid_spec.cr	Returns effective match kind.
 src/hybrid/dfa.rs::method::Config.get_minimum_bytes_per_state	method	ported	src/regex/automata/hybrid.cr:367;spec/hybrid_spec.cr	Returns optional clear-efficiency threshold.
-src/hybrid/dfa.rs::method::Config.get_minimum_cache_capacity	method	ported	src/regex/automata/hybrid.cr:475;spec/hybrid_spec.cr	Computes NFA-dependent minimum cache capacity.
+src/hybrid/dfa.rs::method::Config.get_minimum_cache_capacity	method	ported	src/regex/automata/hybrid.cr:475;spec/hybrid_spec.cr	Computes NFA-dependent minimum capacity using the quit-split alphabet stride.
 src/hybrid/dfa.rs::method::Config.get_minimum_cache_clear_count	method	ported	src/regex/automata/hybrid.cr:363;spec/hybrid_spec.cr	Returns optional clear-count threshold.
 src/hybrid/dfa.rs::method::Config.get_prefilter	method	ported	src/regex/automata/hybrid.cr:371;spec/hybrid_spec.cr	Returns configured prefilter.
 src/hybrid/dfa.rs::method::Config.get_quit	method	ported	src/regex/automata/hybrid.cr:375;spec/hybrid_spec.cr	Queries the effective quit byte set.
@@ -611,7 +611,7 @@ src/hybrid/dfa.rs::method::Config.new	method	ported	src/regex/automata/hybrid.cr
 src/hybrid/dfa.rs::method::Config.overwrite	method	ported	src/regex/automata/hybrid.cr:485;spec/hybrid_spec.cr	Preserves explicit configuration overwrite rules.
 src/hybrid/dfa.rs::method::Config.prefilter	method	ported	src/regex/automata/hybrid.cr:281;spec/hybrid_spec.cr	Configures a prefilter.
 src/hybrid/dfa.rs::method::Config.quit	method	ported	src/regex/automata/hybrid.cr:272;spec/hybrid_spec.cr	Configures individual quit bytes.
-src/hybrid/dfa.rs::method::Config.quit_set_from_nfa	method	ported	src/regex/automata/hybrid.cr:430;spec/hybrid_spec.cr	Derives quit bytes from an NFA.
+src/hybrid/dfa.rs::method::Config.quit_set_from_nfa	method	ported	src/regex/automata/hybrid.cr:430;spec/hybrid_spec.cr	Derives quit bytes from an NFA; disjoint quit bytes are covered by the class/capacity spec.
 src/hybrid/dfa.rs::method::Config.skip_cache_capacity_check	method	ported	src/regex/automata/hybrid.cr:299;spec/hybrid_spec.cr	Configures capacity-check bypass.
 src/hybrid/dfa.rs::method::Config.specialize_start_states	method	ported	src/regex/automata/hybrid.cr:330;spec/hybrid_spec.cr	Configures specialized starts.
 src/hybrid/dfa.rs::method::Config.starts_for_each_pattern	method	ported	src/regex/automata/hybrid.cr:337;spec/hybrid_spec.cr	Configures per-pattern starts.
