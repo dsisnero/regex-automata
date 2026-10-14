@@ -65,7 +65,22 @@ module ThompsonGraphSnapshot
         .unanchored_prefix(opts[1] == "1").reverse(opts[2] == "1")
         .shrink(opts[3] == "1").utf8(opts[5] == "1"))
       .syntax(Regex::Automata::Syntax::Config.new.utf8(opts[4] == "1"))
-    if name.starts_with?("empty_class_")
+    if name.starts_with?("direct_hir_")
+      children = if patterns_hex == "-"
+                   [] of Regex::Syntax::Hir::Node
+                 else
+                   patterns_hex.split(',').map do |hex|
+                     bytes = hex == "_" ? Bytes.empty : hex.hexbytes
+                     Regex::Syntax::Hir::Literal.new(bytes).as(Regex::Syntax::Hir::Node)
+                   end
+                 end
+      hir = if name.ends_with?("_raw")
+              Regex::Syntax::Hir::Hir.new(Regex::Syntax::Hir::Alternation.new(children))
+            else
+              Regex::Syntax::Hir::Hir.alternation(children)
+            end
+      compiler.build_from_hir(hir)
+    elsif name.starts_with?("empty_class_")
       node = name == "empty_class_bytes" ? Regex::Syntax::Hir::CharClass.empty : Regex::Syntax::Hir::UnicodeClass.empty
       compiler.build_from_hir(Regex::Syntax::Hir::Hir.new(node))
     else

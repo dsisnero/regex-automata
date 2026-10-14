@@ -165,3 +165,68 @@ A fresh empty `SHARDS_CACHE_PATH` was used to install the pinned commit from
 GitHub, and every installed `src/` object matched the remote Git tree. The
 existing singleton-byte wrapper spec was corrected after a native assertion
 confirmed `(?-u:[\xFF])` becomes `Literal([255])` with UTF-8 disabled.
+
+
+## Direct-HIR singleton alternation compatibility
+
+```bash
+python3 scripts/check_direct_hir_alternation.py
+```
+
+This rebuilds the pinned native oracle and runs all 19 original Rust compiler
+unit tests before comparing 138 additional native graph characterizations.
+The fixture is generated only by Rust `Hir::alternation` followed by Thompson
+compilation. Crystal compares both smart constructors and raw `Alternation`
+nodes, yielding 276 exact assertions. The matrix covers empty/singleton inputs,
+branch order, duplicates, two/four-byte scalars, the surrogate boundary, invalid
+bytes and byte sequences, mixed scalar/byte alternatives, and literal tries.
+Forward/reverse and shrink modes are included; explicit captures are tested only
+forward because Rust rejects them in reverse mode. These are new native
+characterizations, separate from the original compiler test ports.
+
+The initial test run failed 12 raw duplicate-scalar graphs. The fallback now
+passes its canonical class through the existing syntax `character_class` smart
+constructor, so a singleton class lowers to a literal exactly as Rust does.
+A disposable copy with the fallback removed fails 49 comparisons. Retain this
+compatibility path for public raw Crystal nodes; normalized parser and smart
+constructor output does not need it. This is a Crystal representation contract,
+not a claim that Rust permits bypassing its HIR constructors.
+
+Regenerate deliberately after reviewing the native contract:
+
+```bash
+python3 scripts/check_direct_hir_alternation.py --write-fixture --rust-only
+python3 scripts/check_direct_hir_alternation.py
+```
+
+### Compiler benchmark evidence
+
+```bash
+crystal build --release scripts/bench_direct_hir_alternation.cr -o temp/bench-direct-hir-final
+ITERATIONS=3000 RUNS=4 temp/bench-direct-hir-final
+```
+
+Use the same harness with `hir_compiler.cr` from baseline `4d1ed89` to build
+`temp/bench-direct-hir-baseline`, then compare the saved binaries. The recorded
+comparison used three interleaved process repetitions, alternating executable
+order. Each case builds the same preconstructed HIR 3,000 times per sample,
+with one cold sample and three warm samples per process. GC collection and
+parsing are outside timing; accumulated state counts keep results observable.
+Single-threaded release builds used Crystal 1.21.1/LLVM 23.1.3 on arm64 macOS.
+Numbers below are microseconds per public `build_from_hir` call, averaged across
+three cold and nine warm samples respectively (2026-10-13).
+
+| HIR input | Baseline cold | Corrected cold | Baseline warm | Corrected warm |
+|---|---:|---:|---:|---:|
+| Parsed scalar class | 164.329 | 184.330 | 167.444 | 186.628 |
+| Parsed literal trie | 8.469 | 8.956 | 8.577 | 8.918 |
+| Raw ASCII singletons | 1.784 | 2.165 | 1.915 | 2.230 |
+| Raw Unicode singletons | 176.976 | 187.128 | 169.212 | 184.845 |
+| Raw duplicate scalar | 174.549 | 2.086 | 178.216 | 2.045 |
+
+The duplicate path avoids Unicode class compilation after literal lowering.
+The raw ASCII mean adds about 0.315 microseconds; the other cases have overlapping
+warm ranges on this shared host (for example parsed scalar 146.675–187.924 vs
+155.875–221.672). This is a correctness fix with a targeted duplicate-path win,
+not evidence of a general compiler throughput improvement. Logs and binaries
+remain under `temp/`; the benchmark accepts `ITERATIONS` and `RUNS` for reruns.

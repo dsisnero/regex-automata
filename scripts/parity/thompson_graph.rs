@@ -111,7 +111,30 @@ fn main() {
                 .utf8(opts[5] == "1"),
         );
         compiler.syntax(syntax::Config::new().utf8(opts[4] == "1"));
-        let nfa = if cols[0].starts_with("empty_class_") {
+        let nfa = if cols[0].starts_with("direct_hir_") {
+            use regex_syntax::hir::Hir;
+            let literals = if cols[2] == "-" {
+                vec![]
+            } else {
+                cols[2]
+                    .split(',')
+                    .map(|hex| {
+                        let bytes = if hex == "_" {
+                            vec![]
+                        } else {
+                            (0..hex.len())
+                                .step_by(2)
+                                .map(|i| u8::from_str_radix(&hex[i..i + 2], 16).unwrap())
+                                .collect()
+                        };
+                        Hir::literal(bytes)
+                    })
+                    .collect()
+            };
+            compiler
+                .build_from_hir(&Hir::alternation(literals))
+                .unwrap()
+        } else if cols[0].starts_with("empty_class_") {
             use regex_syntax::hir::{Class, ClassBytes, ClassUnicode, Hir};
             let class = if cols[0] == "empty_class_bytes" {
                 Class::Bytes(ClassBytes::empty())

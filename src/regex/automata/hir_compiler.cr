@@ -783,7 +783,10 @@ module Regex::Automata
       end
       if all_chars
         ranges = codepoints.map { |codepoint| codepoint..codepoint }
-        return compile_unicode_class(Regex::Syntax::Hir::UnicodeClass.new(false, ranges))
+        # Raw Crystal node constructors can bypass Hir.alternation normalization.
+        # Preserve that compatibility path, including Rust's class-to-literal fold.
+        return compile_node(Regex::Syntax::Hir::Hir.character_class(
+          Regex::Syntax::Hir::UnicodeClass.new(false, ranges)).node)
       end
 
       return nil unless children.all? { |child| child.as(Regex::Syntax::Hir::Literal).bytes.size == 1 }
@@ -792,7 +795,8 @@ module Regex::Automata
         byte = child.as(Regex::Syntax::Hir::Literal).bytes[0]
         byte..byte
       end
-      compile_char_class(Regex::Syntax::Hir::CharClass.new(false, ranges))
+      compile_node(Regex::Syntax::Hir::Hir.character_class(
+        Regex::Syntax::Hir::CharClass.new(false, ranges)).node)
     end
 
     private def syntax_parser : ::Regex::Syntax::Parser

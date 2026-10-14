@@ -1123,7 +1123,7 @@ src/nfa/thompson/compiler.rs::method::Compiler.build_many	missing	-	baseline
 src/nfa/thompson/compiler.rs::method::Compiler.build_many_from_hir	missing	-	baseline
 src/nfa/thompson/compiler.rs::method::Compiler.c	missing	-	baseline
 src/nfa/thompson/compiler.rs::method::Compiler.c_alt_iter	missing	-	baseline
-src/nfa/thompson/compiler.rs::method::Compiler.c_alt_slice	missing	-	baseline
+src/nfa/thompson/compiler.rs::method::Compiler.c_alt_slice	ported	src/regex/automata/hir_compiler.cr:compile_alternation;src/regex/automata/hir_compiler.cr:compile_singleton_alternation;spec/direct_hir_alternation_spec.cr;spec/thompson_syntax_adoption_spec.cr	Native c_alt_slice graphs plus 138 Hir::alternation characterizations cover empty/singleton, literal tries, Unicode/byte singleton classes, duplicates, invalid bytes, and ordering. Crystal raw nodes need a compatibility fold absent from Rust immutable HIR; the syntax character_class smart constructor preserves singleton-class literal lowering. Removing that fallback fails 49 graph comparisons; corrected raw and smart forms pass all 276 comparisons.
 src/nfa/thompson/compiler.rs::method::Compiler.c_at_least	missing	-	baseline
 src/nfa/thompson/compiler.rs::method::Compiler.c_bounded	missing	-	baseline
 src/nfa/thompson/compiler.rs::method::Compiler.c_byte_class	missing	-	baseline
