@@ -6,12 +6,15 @@ private record HybridOverlapCase,
   patterns : Array(String),
   haystack : String | Bytes,
   line_terminator : UInt8,
+  compiles : Bool,
+  match_limit : Int32?,
   bounds : Tuple(Int32, Int32),
   anchored : Bool,
   utf8 : Bool,
   unicode : Bool,
   case_insensitive : Bool,
   kind : Regex::Automata::MatchKind,
+  earliest : Bool,
   overlapping : Bool,
   matches : Array(Tuple(Int32, Int32, Int32))
 
@@ -31,6 +34,7 @@ private def overlap_scalar(block : String, key : String) : String?
 end
 
 private def overlap_string(value : String) : String
+  return value[3...-3] if value.starts_with?("'''") && value.ends_with?("'''")
   return value[1...-1] unless value.starts_with?('"')
 
   normalized = value.gsub(/\\U([0-9A-Fa-f]{8})/) do |matched|
@@ -128,13 +132,17 @@ private def overlap_cases(file : String) : Array(HybridOverlapCase)
         {0, span[0].as_i, span[1].as_i}
       end
     end
-    HybridOverlapCase.new(name, patterns, haystack, line_terminator, bounds,
+    match_limit = overlap_scalar(block, "match-limit").try(&.to_i32)
+    search_kind = overlap_scalar(block, "search-kind").try { |value| overlap_string(value) }
+    HybridOverlapCase.new(name, patterns, haystack, line_terminator,
+      overlap_scalar(block, "compiles") != "false", match_limit, bounds,
       overlap_scalar(block, "anchored") == "true",
       overlap_scalar(block, "utf8") != "false",
       overlap_scalar(block, "unicode") != "false",
       overlap_scalar(block, "case-insensitive") == "true",
-      overlap_scalar(block, "match-kind") == %q("all") ? Regex::Automata::MatchKind::All : Regex::Automata::MatchKind::LeftmostFirst,
-      overlap_scalar(block, "search-kind") == %q("overlapping"),
+      overlap_scalar(block, "match-kind").try { |value| overlap_string(value) } == "all" ? Regex::Automata::MatchKind::All : Regex::Automata::MatchKind::LeftmostFirst,
+      search_kind == "earliest",
+      search_kind == "overlapping",
       matches)
   end
 end
@@ -170,7 +178,8 @@ private def hybrid_overlap_matches(fixture : HybridOverlapCase,
     .anchored(fixture.anchored ? Regex::Automata::Anchored::Yes : Regex::Automata::Anchored::No)
   re.is_match(cache, input.clone.earliest(true)).should eq(!fixture.matches.empty?)
   unless fixture.overlapping
-    return re.find_iter(cache, input).map { |mat| {mat.pattern.to_i, mat.start, mat.end} }.to_a
+    return re.find_iter(cache, input.clone.earliest(fixture.earliest)).first(fixture.match_limit || Int32::MAX)
+      .map { |mat| {mat.pattern.to_i, mat.start, mat.end} }.to_a
   end
   patset = Regex::Automata::PatternSet.new(re.pattern_len)
   re.forward.try_which_overlapping_matches(cache.forward, input, patset).should be_nil
@@ -197,6 +206,8 @@ private def hybrid_overlap_matches(fixture : HybridOverlapCase,
 end
 
 private def hybrid_suite_supported?(fixture : HybridOverlapCase) : Bool
+  return true unless fixture.compiles
+
   haystack = fixture.haystack
   bytes = haystack.is_a?(String) ? haystack.to_slice : haystack
   return true unless bytes.any? { |byte| byte >= 0x80_u8 }
@@ -341,6 +352,33 @@ describe "vendor hybrid special word-boundary suite" do
 
       it "#{mode}: word-boundary-special/#{fixture.name}" do
         hybrid_overlap_matches(fixture, mode).should eq(fixture.matches)
+      end
+    end
+  end
+end
+
+describe "vendor hybrid regression suite" do
+  cases = overlap_cases("regression")
+  cases.size.should eq(105)
+  cases.count { |fixture| hybrid_suite_supported?(fixture) }.should eq(100)
+  cases.count { |fixture| !fixture.compiles }.should eq(5)
+  cases.find { |fixture| fixture.name == "i969" }.not_nil!.earliest.should be_true
+  cases.find { |fixture| fixture.name == "reverse-suffix-all-no-early-matches-010" }.not_nil!.kind
+    .should eq(Regex::Automata::MatchKind::All)
+  cases.find { |fixture| fixture.name == "fowler-basic154-unanchored" }.not_nil!.patterns
+    .should eq(["a([bc]*)c*"])
+  %w(default prefilter nfa_shrink starts_for_each_pattern specialize_start_states no_byte_classes no_cache_clearing min_cache_capacity).each do |mode|
+    cases.each do |fixture|
+      next unless hybrid_suite_supported?(fixture)
+
+      it "#{mode}: regression/#{fixture.name}" do
+        if fixture.compiles
+          hybrid_overlap_matches(fixture, mode).should eq(fixture.matches)
+        elsif mode == "prefilter"
+          expect_raises(Regex::Syntax::Error) { hybrid_overlap_matches(fixture, mode) }
+        else
+          expect_raises(Regex::Automata::Hybrid::BuildError) { hybrid_overlap_matches(fixture, mode) }
+        end
       end
     end
   end
