@@ -79,8 +79,9 @@ module Regex::Automata
       @dense[0, @len].each { |sid| yield sid }
     end
 
-    def memory_usage : Int32
-      ((@dense.size * sizeof(StateID)) + (@sparse.size * sizeof(StateID))).to_i32
+    def memory_usage : UInt64
+      (@dense.size.to_u64 * sizeof(StateID).to_u64) +
+        (@sparse.size.to_u64 * sizeof(StateID).to_u64)
     end
   end
 
@@ -107,7 +108,7 @@ module Regex::Automata
       @set2.resize(capacity)
     end
 
-    def memory_usage : Int32
+    def memory_usage : UInt64
       @set1.memory_usage + @set2.memory_usage
     end
   end

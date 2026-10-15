@@ -19,7 +19,7 @@ module Regex::Automata::Hybrid
       new("error building NFA", err.is_size_limit_exceeded, err.size_limit, err)
     end
 
-    def self.insufficient_cache_capacity(minimum : Int32, given : Int32) : BuildError
+    def self.insufficient_cache_capacity(minimum : UInt64, given : UInt64) : BuildError
       new("given cache capacity (#{given}) is smaller than minimum required (#{minimum})")
     end
 
@@ -205,8 +205,8 @@ module Regex::Automata::Hybrid
 
   class Config
     @dense_config : ::Regex::Automata::Config
-    @cache_capacity : Int32?
-    @requested_cache_capacity : Int32?
+    @cache_capacity : UInt64?
+    @requested_cache_capacity : UInt64?
     @skip_cache_capacity_check : Bool?
     @prefilter_value : ::Regex::Automata::Prefilter?
     @prefilter_set : Bool
@@ -222,9 +222,9 @@ module Regex::Automata::Hybrid
     @specialize_start_states_set : Bool
     @quitset_value : ::Regex::Automata::ByteSet?
     @quitset_set : Bool
-    @minimum_cache_clear_count : Int32?
+    @minimum_cache_clear_count : UInt64?
     @minimum_cache_clear_count_set : Bool
-    @minimum_bytes_per_state : Int32?
+    @minimum_bytes_per_state : UInt64?
     @minimum_bytes_per_state_set : Bool
 
     def initialize
@@ -242,8 +242,8 @@ module Regex::Automata::Hybrid
 
     protected def initialize(
       @dense_config : ::Regex::Automata::Config,
-      @cache_capacity : Int32?,
-      @requested_cache_capacity : Int32?,
+      @cache_capacity : UInt64?,
+      @requested_cache_capacity : UInt64?,
       @skip_cache_capacity_check : Bool?,
       @prefilter_value : ::Regex::Automata::Prefilter?,
       @prefilter_set : Bool,
@@ -259,9 +259,9 @@ module Regex::Automata::Hybrid
       @specialize_start_states_set : Bool,
       @quitset_value : ::Regex::Automata::ByteSet?,
       @quitset_set : Bool,
-      @minimum_cache_clear_count : Int32?,
+      @minimum_cache_clear_count : UInt64?,
       @minimum_cache_clear_count_set : Bool,
-      @minimum_bytes_per_state : Int32?,
+      @minimum_bytes_per_state : UInt64?,
       @minimum_bytes_per_state_set : Bool,
     )
     end
@@ -290,9 +290,9 @@ module Regex::Automata::Hybrid
       self
     end
 
-    def cache_capacity(bytes : Int32) : Config
-      @cache_capacity = bytes
-      @requested_cache_capacity = bytes
+    def cache_capacity(bytes : Int) : Config
+      @cache_capacity = bytes.to_u64
+      @requested_cache_capacity = bytes.to_u64
       self
     end
 
@@ -301,14 +301,14 @@ module Regex::Automata::Hybrid
       self
     end
 
-    def minimum_cache_clear_count(min : Int32?) : Config
-      @minimum_cache_clear_count = min
+    def minimum_cache_clear_count(min : Int?) : Config
+      @minimum_cache_clear_count = min.try(&.to_u64)
       @minimum_cache_clear_count_set = true
       self
     end
 
-    def minimum_bytes_per_state(min : Int32?) : Config
-      @minimum_bytes_per_state = min
+    def minimum_bytes_per_state(min : Int?) : Config
+      @minimum_bytes_per_state = min.try(&.to_u64)
       @minimum_bytes_per_state_set = true
       self
     end
@@ -348,23 +348,23 @@ module Regex::Automata::Hybrid
       self
     end
 
-    def get_cache_capacity : Int32
-      @cache_capacity || DEFAULT_CACHE_CAPACITY
+    def get_cache_capacity : UInt64
+      @cache_capacity || DEFAULT_CACHE_CAPACITY.to_u64
     end
 
     def get_skip_cache_capacity_check : Bool
       @skip_cache_capacity_check || false
     end
 
-    def get_requested_cache_capacity : Int32?
+    def get_requested_cache_capacity : UInt64?
       @requested_cache_capacity
     end
 
-    def get_minimum_cache_clear_count : Int32?
+    def get_minimum_cache_clear_count : UInt64?
       @minimum_cache_clear_count_set ? @minimum_cache_clear_count : nil
     end
 
-    def get_minimum_bytes_per_state : Int32?
+    def get_minimum_bytes_per_state : UInt64?
       @minimum_bytes_per_state_set ? @minimum_bytes_per_state : nil
     end
 
@@ -472,7 +472,7 @@ module Regex::Automata::Hybrid
       ::Regex::Automata::ByteClasses.from_mapping(mapping, class_id + 1)
     end
 
-    def get_minimum_cache_capacity(nfa : ::Regex::Automata::NFA::NFA) : Int32
+    def get_minimum_cache_capacity(nfa : ::Regex::Automata::NFA::NFA) : UInt64
       quit = quit_set_from_nfa(nfa)
       classes = byte_classes_from_nfa(nfa, quit)
       ::Regex::Automata::Hybrid.minimum_cache_capacity(
@@ -545,7 +545,7 @@ module Regex::Automata::Hybrid
   end
 
   class Cache
-    property clear_count : Int32
+    property clear_count : UInt64
     getter trans : Array(LazyStateID)
     getter starts : Array(LazyStateID)
     getter states : Array(::Regex::Automata::Determinize::State)
@@ -553,7 +553,7 @@ module Regex::Automata::Hybrid
     getter sparses : SparseSets
     getter stack : Array(::Regex::Automata::StateID)
     property scratch_state_builder : ::Regex::Automata::Determinize::StateBuilderEmpty
-    property memory_usage_state : Int32
+    property memory_usage_state : UInt64
     property bytes_searched : Int64
     property progress : SearchProgress?
     property state_saver : StateSaver
@@ -566,8 +566,8 @@ module Regex::Automata::Hybrid
       @sparses = SparseSets.new(@dfa.get_nfa.states.size.to_i32)
       @stack = [] of ::Regex::Automata::StateID
       @scratch_state_builder = ::Regex::Automata::Determinize::StateBuilderEmpty.new
-      @memory_usage_state = 0
-      @clear_count = 0
+      @memory_usage_state = 0_u64
+      @clear_count = 0_u64
       @bytes_searched = 0_i64
       @progress = nil
       @state_saver = StateSaver.none
@@ -612,17 +612,17 @@ module Regex::Automata::Hybrid
       @bytes_searched + (@progress.try(&.len) || 0)
     end
 
-    def memory_usage : Int32
-      id_size = sizeof(LazyStateID).to_i32
-      state_size = sizeof(::Regex::Automata::Determinize::State).to_i32
+    def memory_usage : UInt64
+      id_size = sizeof(LazyStateID).to_u64
+      state_size = sizeof(::Regex::Automata::Determinize::State).to_u64
 
-      (@trans.size * id_size) +
-        (@starts.size * id_size) +
-        (@states.size * state_size) +
-        (@states_to_id.size * (state_size + id_size)) +
+      (@trans.size.to_u64 * id_size) +
+        (@starts.size.to_u64 * id_size) +
+        (@states.size.to_u64 * state_size) +
+        (@states_to_id.size.to_u64 * (state_size + id_size)) +
         @sparses.memory_usage +
-        (@stack.@capacity * ::Regex::Automata::StateID::SIZE) +
-        @scratch_state_builder.capacity +
+        (@stack.@capacity.to_u64 * ::Regex::Automata::StateID::SIZE.to_u64) +
+        @scratch_state_builder.capacity.to_u64 +
         @memory_usage_state
     end
   end
@@ -713,7 +713,7 @@ module Regex::Automata::Hybrid
       @cache.state_saver = StateSaver.none
       clear_cache
       @cache.sparses.resize(@dfa.get_nfa.states.size.to_i32)
-      @cache.clear_count = 0
+      @cache.clear_count = 0_u64
       @cache.progress = nil
     end
 
@@ -726,7 +726,7 @@ module Regex::Automata::Hybrid
       @cache.starts.clear
       @cache.states.clear
       @cache.states_to_id.clear
-      @cache.memory_usage_state = 0
+      @cache.memory_usage_state = 0_u64
       @cache.clear_count += 1
       @cache.bytes_searched = 0_i64
       if progress = @cache.progress
@@ -747,8 +747,13 @@ module Regex::Automata::Hybrid
       if minimum = config.get_minimum_cache_clear_count
         if @cache.clear_count >= minimum
           if bytes_per_state = config.get_minimum_bytes_per_state
-            minimum_bytes = bytes_per_state.to_i64 * @cache.states.size.to_i64
-            return CacheError.bad_efficiency if @cache.search_total_len < minimum_bytes
+            state_count = @cache.states.size.to_u64
+            minimum_bytes = if state_count > 0 && bytes_per_state > UInt64::MAX // state_count
+                              UInt64::MAX
+                            else
+                              bytes_per_state * state_count
+                            end
+            return CacheError.bad_efficiency if @cache.search_total_len.to_u64 < minimum_bytes
           else
             return CacheError.too_many_cache_clears
           end
@@ -798,7 +803,7 @@ module Regex::Automata::Hybrid
           set_transition(id, ::Regex::Automata::Unit.u8(byte), quit_id)
         end
       end
-      @cache.memory_usage_state += state.memory_usage
+      @cache.memory_usage_state += state.memory_usage.to_u64
       @cache.states << state
       @cache.states_to_id[state] = id
       id
@@ -944,10 +949,7 @@ module Regex::Automata::Hybrid
 
     private def state_fits_in_cache(state_heap_size : Int32) : Bool
       needed = @cache.memory_usage +
-               (@dfa.stride * sizeof(LazyStateID).to_i32) +
-               sizeof(::Regex::Automata::Determinize::State).to_i32 +
-               (sizeof(::Regex::Automata::Determinize::State).to_i32 + sizeof(LazyStateID).to_i32) +
-               state_heap_size
+               memory_usage_for_one_more_state(state_heap_size)
       needed <= @dfa.cache_capacity
     end
 
@@ -956,11 +958,11 @@ module Regex::Automata::Hybrid
       needed <= @dfa.cache_capacity
     end
 
-    private def memory_usage_for_one_more_state(state_heap_size : Int32) : Int32
-      (@dfa.stride * sizeof(LazyStateID).to_i32) +
-        sizeof(::Regex::Automata::Determinize::State).to_i32 +
-        (sizeof(::Regex::Automata::Determinize::State).to_i32 + sizeof(LazyStateID).to_i32) +
-        state_heap_size
+    private def memory_usage_for_one_more_state(state_heap_size : Int32) : UInt64
+      (@dfa.stride.to_u64 * sizeof(LazyStateID).to_u64) +
+        sizeof(::Regex::Automata::Determinize::State).to_u64 +
+        (sizeof(::Regex::Automata::Determinize::State).to_u64 + sizeof(LazyStateID).to_u64) +
+        state_heap_size.to_u64
     end
 
     private def save_state(id : LazyStateID) : Nil
@@ -1054,7 +1056,7 @@ module Regex::Automata::Hybrid
     @start_map : ::Regex::Automata::StartByteMap
     @classes : ::Regex::Automata::ByteClasses
     @quitset : ::Regex::Automata::ByteSet
-    @cache_capacity : Int32
+    @cache_capacity : UInt64
 
     def initialize(
       @config : Config,
@@ -1062,7 +1064,7 @@ module Regex::Automata::Hybrid
       @start_map : ::Regex::Automata::StartByteMap,
       @classes : ::Regex::Automata::ByteClasses,
       @quitset : ::Regex::Automata::ByteSet,
-      @cache_capacity : Int32,
+      @cache_capacity : UInt64,
       @dense : ::Regex::Automata::DFA::DFA? = nil,
     )
     end
@@ -1125,7 +1127,7 @@ module Regex::Automata::Hybrid
       @classes
     end
 
-    def get_cache_capacity : Int32
+    def get_cache_capacity : UInt64
       @cache_capacity
     end
 
@@ -1137,7 +1139,7 @@ module Regex::Automata::Hybrid
       0
     end
 
-    def cache_capacity : Int32
+    def cache_capacity : UInt64
       get_cache_capacity
     end
 
@@ -1766,27 +1768,27 @@ module Regex::Automata::Hybrid
     nfa : ::Regex::Automata::NFA::NFA,
     classes : ::Regex::Automata::ByteClasses,
     starts_for_each_pattern : Bool,
-  ) : Int32
-    id_size = sizeof(LazyStateID).to_i32
-    state_size = sizeof(::Regex::Automata::Determinize::State).to_i32
+  ) : UInt64
+    id_size = sizeof(LazyStateID).to_u64
+    state_size = sizeof(::Regex::Automata::Determinize::State).to_u64
 
-    stride = 1 << classes.stride2
-    states_len = nfa.states.size.to_i32
-    sparses = 2 * states_len * ::Regex::Automata::StateID::SIZE
-    trans = MIN_STATES * stride * id_size
+    stride = 1_u64 << classes.stride2
+    states_len = nfa.states.size.to_u64
+    sparses = 2_u64 * states_len * ::Regex::Automata::StateID::SIZE.to_u64
+    trans = MIN_STATES.to_u64 * stride * id_size
 
-    starts = Start.len * id_size
+    starts = Start.len.to_u64 * id_size
     if starts_for_each_pattern
-      starts += Start.len * nfa.pattern_len * id_size
+      starts += Start.len.to_u64 * nfa.pattern_len.to_u64 * id_size
     end
 
-    non_sentinel = MIN_STATES - SENTINEL_STATES
-    dead_state_size = ::Regex::Automata::Determinize::State.dead.memory_usage
-    max_state_size = 5 + 4 + (nfa.pattern_len * 4) + (states_len * 5)
-    states = (SENTINEL_STATES * (state_size + dead_state_size)) +
+    non_sentinel = (MIN_STATES - SENTINEL_STATES).to_u64
+    dead_state_size = ::Regex::Automata::Determinize::State.dead.memory_usage.to_u64
+    max_state_size = 5_u64 + 4_u64 + (nfa.pattern_len.to_u64 * 4_u64) + (states_len * 5_u64)
+    states = (SENTINEL_STATES.to_u64 * (state_size + dead_state_size)) +
              (non_sentinel * (state_size + max_state_size))
-    states_to_sid = (MIN_STATES * state_size) + (MIN_STATES * id_size)
-    stack = states_len * ::Regex::Automata::StateID::SIZE
+    states_to_sid = (MIN_STATES.to_u64 * state_size) + (MIN_STATES.to_u64 * id_size)
+    stack = states_len * ::Regex::Automata::StateID::SIZE.to_u64
     scratch_state_builder = max_state_size
 
     trans +
@@ -1943,7 +1945,7 @@ module Regex::Automata::Hybrid
       re.reset_cache(self)
     end
 
-    def memory_usage : Int32
+    def memory_usage : UInt64
       @forward.memory_usage + @reverse.memory_usage
     end
 

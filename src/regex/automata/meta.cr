@@ -42,8 +42,8 @@ module Regex::Automata::Meta
       reset_hybrid_cache(regex.reverse_suffix_hybrid, @reverse_suffix_hybrid_cache) { |value| @reverse_suffix_hybrid_cache = value }
     end
 
-    def memory_usage : Int32
-      @cache.memory_usage +
+    def memory_usage : UInt64
+      @cache.memory_usage.to_u64 +
         (@reverse_anchored_hybrid_cache.try(&.memory_usage) || 0) +
         (@reverse_suffix_hybrid_cache.try(&.memory_usage) || 0) +
         (@reverse_inner_hybrid_cache.try(&.memory_usage) || 0) +

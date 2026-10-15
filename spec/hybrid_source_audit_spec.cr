@@ -1,6 +1,177 @@
 require "./spec_helper"
 
 describe "pinned Rust hybrid DFA API examples" do
+  it "matches every Rust hybrid Config default getter" do
+    config = Regex::Automata::Hybrid::DFA.config
+
+    config.get_match_kind.should eq(Regex::Automata::MatchKind::LeftmostFirst)
+    config.get_prefilter.should be_nil
+    config.get_starts_for_each_pattern.should be_false
+    config.get_byte_classes.should be_true
+    config.get_unicode_word_boundary.should be_false
+    config.get_quit('x'.ord.to_u8).should be_false
+    config.get_specialize_start_states.should be_false
+    config.get_cache_capacity.should eq(2_u64 * (1_u64 << 20))
+    config.get_skip_cache_capacity_check.should be_false
+    config.get_minimum_cache_clear_count.should be_nil
+    config.get_minimum_bytes_per_state.should be_nil
+  end
+
+  it "overwrites every explicit hybrid builder option without losing defaults" do
+    prefilter = Regex::Automata::Prefilter.new(
+      Regex::Automata::MatchKind::LeftmostFirst,
+      ["a"]
+    ).not_nil!
+    builder = Regex::Automata::Hybrid::Builder.new
+      .configure(
+        Regex::Automata::Hybrid::DFA.config
+          .match_kind(Regex::Automata::MatchKind::All)
+          .prefilter(prefilter)
+          .starts_for_each_pattern(true)
+          .byte_classes(false)
+          .unicode_word_boundary(true)
+          .quit('x'.ord.to_u8, true)
+          .specialize_start_states(true)
+          .cache_capacity(3_000_000)
+          .skip_cache_capacity_check(true)
+          .minimum_cache_clear_count(4)
+          .minimum_bytes_per_state(10)
+      )
+      .configure(
+        Regex::Automata::Hybrid::DFA.config
+          .match_kind(Regex::Automata::MatchKind::LeftmostFirst)
+          .prefilter(nil)
+          .starts_for_each_pattern(false)
+          .byte_classes(true)
+          .unicode_word_boundary(false)
+          .quit('y'.ord.to_u8, true)
+          .specialize_start_states(false)
+          .cache_capacity(2_000_000)
+          .skip_cache_capacity_check(false)
+          .minimum_cache_clear_count(nil)
+          .minimum_bytes_per_state(nil)
+      )
+    config = builder.build("a").get_config
+
+    config.get_match_kind.should eq(Regex::Automata::MatchKind::LeftmostFirst)
+    config.get_prefilter.should be_nil
+    config.get_starts_for_each_pattern.should be_false
+    config.get_byte_classes.should be_true
+    config.get_unicode_word_boundary.should be_false
+    config.get_quit('x'.ord.to_u8).should be_false
+    config.get_quit('y'.ord.to_u8).should be_true
+    config.get_specialize_start_states.should be_false
+    config.get_cache_capacity.should eq(2_000_000_u64)
+    config.get_skip_cache_capacity_check.should be_false
+    config.get_minimum_cache_clear_count.should be_nil
+    config.get_minimum_bytes_per_state.should be_nil
+  end
+
+  it "accepts Rust usize-width hybrid capacity and clear thresholds" do
+    beyond_i32 = Int32::MAX.to_u64 + 1_u64
+    config = Regex::Automata::Hybrid::DFA.config
+      .cache_capacity(beyond_i32)
+      .minimum_cache_clear_count(beyond_i32)
+      .minimum_bytes_per_state(UInt64::MAX)
+
+    config.get_cache_capacity.should eq(beyond_i32)
+    config.get_minimum_cache_clear_count.should eq(beyond_i32)
+    config.get_minimum_bytes_per_state.should eq(UInt64::MAX)
+
+    dfa = Regex::Automata::Hybrid::Builder.new.configure(config).build("a")
+    dfa.get_cache_capacity.should eq(beyond_i32)
+    dfa.get_config.get_cache_capacity.should eq(beyond_i32)
+    config.get_minimum_cache_capacity(dfa.get_nfa).should be_a(UInt64)
+  end
+
+  it "ports Rust's all-matches overlapping configuration example" do
+    dfa = Regex::Automata::Hybrid::Builder.new
+      .configure(Regex::Automata::Hybrid::DFA.config.match_kind(Regex::Automata::MatchKind::All))
+      .build_many(["\\w+$", "\\S+$"])
+    cache = dfa.create_cache
+    input = Regex::Automata::Input.new("@foo")
+    state = Regex::Automata::Hybrid::OverlappingState.start
+
+    dfa.try_search_overlapping_fwd(cache, input, state).should be_nil
+    state.get_match.should eq(Regex::Automata::HalfMatch.must(1, 4))
+    dfa.try_search_overlapping_fwd(cache, input, state).should be_nil
+    state.get_match.should eq(Regex::Automata::HalfMatch.must(0, 4))
+  end
+
+  it "ports Rust's reverse all-matches start-of-match example" do
+    pattern = "[a-z]+r"
+    input = Regex::Automata::Input.new("123foobar456")
+    forward = Regex::Automata::Hybrid::DFA.new(pattern)
+    reverse = Regex::Automata::Hybrid::Builder.new
+      .thompson(Regex::Automata::NFA::NFA.config.reverse(true))
+      .configure(Regex::Automata::Hybrid::DFA.config.match_kind(Regex::Automata::MatchKind::All))
+      .build(pattern)
+    forward_result = forward.try_search_fwd(forward.create_cache, input)
+    forward_result.should eq(Regex::Automata::HalfMatch.must(0, 9))
+
+    reverse_input = input.range(0...forward_result.as(Regex::Automata::HalfMatch).offset)
+      .anchored(Regex::Automata::Anchored::Yes)
+    reverse.try_search_rev(reverse.create_cache, reverse_input).should eq(
+      Regex::Automata::HalfMatch.must(0, 3)
+    )
+  end
+
+  it "ports Rust's newline quit-byte configuration example" do
+    dfa = Regex::Automata::Hybrid::Builder.new
+      .configure(Regex::Automata::Hybrid::DFA.config.quit('\n'.ord.to_u8, true))
+      .build("foo\\p{any}+bar")
+
+    dfa.try_search_fwd(dfa.create_cache, Regex::Automata::Input.new("foo\nbar")).should eq(
+      Regex::Automata::MatchError.quit('\n'.ord.to_u8, 3)
+    )
+  end
+
+  it "ports Rust's large Unicode cache-capacity and skip-check examples" do
+    pattern = "\\p{L}{1000}"
+    expect_raises(Regex::Automata::Hybrid::BuildError) do
+      Regex::Automata::Hybrid::DFA.new(pattern)
+    end
+
+    dfa = Regex::Automata::Hybrid::Builder.new
+      .configure(Regex::Automata::Hybrid::DFA.config.cache_capacity(100 * (1 << 20)))
+      .build(pattern)
+    haystack = "ͰͲͶͿΆΈΉΊΌΎΏΑΒΓΔΕΖΗΘΙ" * 50
+    expected = Regex::Automata::HalfMatch.must(0, 2000)
+    dfa.try_search_fwd(dfa.create_cache, Regex::Automata::Input.new(haystack)).should eq(expected)
+
+    skip = Regex::Automata::Hybrid::Builder.new
+      .configure(Regex::Automata::Hybrid::DFA.config.skip_cache_capacity_check(true))
+      .build_from_nfa(dfa.get_nfa)
+    skip.try_search_fwd(skip.create_cache, Regex::Automata::Input.new(haystack)).should eq(expected)
+  end
+
+  it "ports Rust's minimum-cache-clear-count search sequence" do
+    dfa = Regex::Automata::Hybrid::Builder.new
+      .configure(
+        Regex::Automata::Hybrid::DFA.config
+          .skip_cache_capacity_check(true)
+          .cache_capacity(0)
+          .minimum_cache_clear_count(0)
+      )
+      .build("[aβ]{100}")
+    cache = dfa.create_cache
+    ascii = Regex::Automata::Input.new("a" * 101)
+    beta = Regex::Automata::Input.new("β" * 101)
+
+    [ascii, beta].each do |input|
+      result = dfa.try_search_fwd(cache, input)
+      result.should be_a(Regex::Automata::MatchError)
+      result.as(Regex::Automata::MatchError).gave_up?.should be_true
+    end
+
+    cache.reset(dfa)
+    [beta, ascii].each do |input|
+      result = dfa.try_search_fwd(cache, input)
+      result.should be_a(Regex::Automata::MatchError)
+      result.as(Regex::Automata::MatchError).gave_up?.should be_true
+    end
+  end
+
   it "keeps requested quit settings separate from Unicode-derived quit bytes" do
     dfa = Regex::Automata::Hybrid::Builder.new
       .configure(Regex::Automata::Hybrid::DFA.config.unicode_word_boundary(true))

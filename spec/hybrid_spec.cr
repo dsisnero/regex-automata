@@ -248,6 +248,13 @@ describe Regex::Automata::Hybrid::Config do
 end
 
 describe Regex::Automata::Hybrid::Cache do
+  it "accounts for aggregate cache bytes beyond Int32 without allocating them" do
+    cache = Regex::Automata::Hybrid::DFA.new("a").create_cache
+    cache.memory_usage_state = Int32::MAX.to_u64
+
+    cache.memory_usage.should be > Int32::MAX.to_u64
+  end
+
   it "counts retained stack allocation after clearing and resetting" do
     dfa = Regex::Automata::Hybrid::DFA.new("[ab]+")
     cache = dfa.create_cache
@@ -318,7 +325,7 @@ describe Regex::Automata::Hybrid::Cache do
   it "saturates the efficiency threshold instead of overflowing" do
     config = Regex::Automata::Hybrid::DFA.config
       .minimum_cache_clear_count(0)
-      .minimum_bytes_per_state(Int32::MAX)
+      .minimum_bytes_per_state(UInt64::MAX)
     dfa = Regex::Automata::Hybrid::Builder.new.configure(config).build("a")
     cache = dfa.create_cache
     cache.search_start(0)
@@ -327,6 +334,19 @@ describe Regex::Automata::Hybrid::Cache do
       Regex::Automata::Hybrid::CacheError
     )
     cache.clear_count.should eq(0)
+  end
+
+  it "compares a usize-width cache clear count without narrowing" do
+    threshold = Int32::MAX.to_u64 + 1_u64
+    config = Regex::Automata::Hybrid::DFA.config.minimum_cache_clear_count(threshold)
+    dfa = Regex::Automata::Hybrid::Builder.new.configure(config).build("a")
+    cache = dfa.create_cache
+    cache.clear_count = threshold
+
+    Regex::Automata::Hybrid.try_clear_cache_for_spec(dfa, cache).should be_a(
+      Regex::Automata::Hybrid::CacheError
+    )
+    cache.clear_count.should eq(threshold)
   end
 
   it "keeps only post-clear progress when measuring cache efficiency" do

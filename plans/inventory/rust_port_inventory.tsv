@@ -581,23 +581,23 @@ src/hybrid/dfa.rs::method::Builder.configure	method	ported	src/regex/automata/hy
 src/hybrid/dfa.rs::method::Builder.new	method	ported	src/regex/automata/hybrid.cr:1698;spec/hybrid_spec.cr	Default builder constructor.
 src/hybrid/dfa.rs::method::Builder.syntax	method	ported	src/regex/automata/hybrid.cr:Builder#syntax;spec/hybrid_source_audit_spec.cr	Applies syntax configuration; Rust's invalid-UTF-8 byte example is ported.
 src/hybrid/dfa.rs::method::Builder.thompson	method	ported	src/regex/automata/hybrid.cr:Builder#thompson;spec/hybrid_source_audit_spec.cr	Merges repeated Thompson settings, preserving reverse when a later call sets shrink.
-src/hybrid/dfa.rs::method::Cache.clear_count	method	ported	src/regex/automata/hybrid.cr:544;spec/hybrid_spec.cr	Tracks lazy-cache clears.
-src/hybrid/dfa.rs::method::Cache.memory_usage	method	ported	src/regex/automata/hybrid.cr:Cache#memory_usage;spec/hybrid_spec.cr	Counts retained stack allocation, not just logical stack length.
+src/hybrid/dfa.rs::method::Cache.clear_count	method	ported	src/regex/automata/hybrid.cr:Cache#clear_count;spec/hybrid_spec.cr	Tracks lazy-cache clears as UInt64, including thresholds above Int32::MAX.
+src/hybrid/dfa.rs::method::Cache.memory_usage	method	ported	src/regex/automata/hybrid.cr:Cache#memory_usage;spec/hybrid_spec.cr	Counts retained stack allocation and sums aggregate bytes as UInt64 without Int32 overflow.
 src/hybrid/dfa.rs::method::Cache.new	method	ported	src/regex/automata/hybrid.cr:575;spec/hybrid_spec.cr	Creates cache coupled to a lazy DFA.
 src/hybrid/dfa.rs::method::Cache.reset	method	ported	src/regex/automata/hybrid.cr:Cache#reset;spec/hybrid_spec.cr	Retargets a different DFA, drops progress and clear count, and retains reusable buffers.
 src/hybrid/dfa.rs::method::Cache.search_finish	method	ported	src/regex/automata/hybrid.cr:600;spec/hybrid_spec.cr	Maintains directional search progress.
 src/hybrid/dfa.rs::method::Cache.search_start	method	ported	src/regex/automata/hybrid.cr:585;spec/hybrid_spec.cr	Maintains directional search progress.
-src/hybrid/dfa.rs::method::Cache.search_total_len	method	ported	src/regex/automata/hybrid.cr:Cache#search_total_len;spec/hybrid_spec.cr	Reports absolute directional search length with a wide cumulative counter.
+src/hybrid/dfa.rs::method::Cache.search_total_len	method	partial	src/regex/automata/hybrid.cr:Cache#search_total_len;spec/hybrid_spec.cr	Reports absolute directional search length, but its Int64 cumulative counter has not yet been audited against Rust's full usize range.
 src/hybrid/dfa.rs::method::Cache.search_update	method	ported	src/regex/automata/hybrid.cr:592;spec/hybrid_spec.cr	Maintains directional search progress.
 src/hybrid/dfa.rs::method::Config.byte_classes	method	ported	src/regex/automata/hybrid.cr:344;spec/hybrid_spec.cr	Configures byte classes.
 src/hybrid/dfa.rs::method::Config.byte_classes_from_nfa	method	ported	src/regex/automata/hybrid.cr:448;spec/hybrid_spec.cr	Preserves Rust's contiguous NFA and quit-range boundaries; disjoint equal-signature ranges remain distinct.
-src/hybrid/dfa.rs::method::Config.cache_capacity	method	partial	src/regex/automata/hybrid.cr:Config#cache_capacity;spec/hybrid_spec.cr;spec/hybrid_source_audit_spec.cr	Preserves requested versus promoted effective capacity, but currently accepts Int32 instead of Rust usize; wide-input audit remains.
+src/hybrid/dfa.rs::method::Config.cache_capacity	method	ported	src/regex/automata/hybrid.cr:Config#cache_capacity;spec/hybrid_spec.cr;spec/hybrid_source_audit_spec.cr	Accepts Rust usize-width capacity; the large Unicode doctest and values above Int32::MAX are covered.
 src/hybrid/dfa.rs::method::Config.get_byte_classes	method	ported	src/regex/automata/hybrid.cr:395;spec/hybrid_spec.cr	Returns effective byte-class setting.
-src/hybrid/dfa.rs::method::Config.get_cache_capacity	method	partial	src/regex/automata/hybrid.cr:Config#get_cache_capacity;spec/hybrid_spec.cr;spec/hybrid_source_audit_spec.cr	Returns requested configuration capacity, separate from DFA effective capacity; result is Int32 instead of Rust usize.
+src/hybrid/dfa.rs::method::Config.get_cache_capacity	method	ported	src/regex/automata/hybrid.cr:Config#get_cache_capacity;spec/hybrid_spec.cr;spec/hybrid_source_audit_spec.cr	Returns requested UInt64 configuration capacity, separate from DFA effective capacity.
 src/hybrid/dfa.rs::method::Config.get_match_kind	method	ported	src/regex/automata/hybrid.cr:383;spec/hybrid_spec.cr	Returns effective match kind.
-src/hybrid/dfa.rs::method::Config.get_minimum_bytes_per_state	method	partial	src/regex/automata/hybrid.cr:Config#get_minimum_bytes_per_state;spec/hybrid_spec.cr	Returns optional clear-efficiency threshold; currently Int32 instead of Rust usize.
-src/hybrid/dfa.rs::method::Config.get_minimum_cache_capacity	method	partial	src/regex/automata/hybrid.cr:Config#get_minimum_cache_capacity;spec/hybrid_spec.cr	Computes NFA-dependent minimum using the quit-split alphabet; current Int32 result needs Rust usize-width audit.
-src/hybrid/dfa.rs::method::Config.get_minimum_cache_clear_count	method	partial	src/regex/automata/hybrid.cr:Config#get_minimum_cache_clear_count;spec/hybrid_spec.cr	Returns optional clear-count threshold; currently Int32 instead of Rust usize.
+src/hybrid/dfa.rs::method::Config.get_minimum_bytes_per_state	method	ported	src/regex/automata/hybrid.cr:Config#get_minimum_bytes_per_state;spec/hybrid_spec.cr;spec/hybrid_source_audit_spec.cr	Returns optional UInt64 clear-efficiency threshold, including UInt64::MAX.
+src/hybrid/dfa.rs::method::Config.get_minimum_cache_capacity	method	ported	src/regex/automata/hybrid.cr:Config#get_minimum_cache_capacity;spec/hybrid_spec.cr;spec/hybrid_source_audit_spec.cr	Computes NFA-dependent minimum with UInt64 arithmetic and quit-split alphabet stride.
+src/hybrid/dfa.rs::method::Config.get_minimum_cache_clear_count	method	ported	src/regex/automata/hybrid.cr:Config#get_minimum_cache_clear_count;spec/hybrid_spec.cr;spec/hybrid_source_audit_spec.cr	Returns optional UInt64 clear-count threshold.
 src/hybrid/dfa.rs::method::Config.get_prefilter	method	ported	src/regex/automata/hybrid.cr:371;spec/hybrid_spec.cr	Returns configured prefilter.
 src/hybrid/dfa.rs::method::Config.get_quit	method	ported	src/regex/automata/hybrid.cr:Config#get_quit;spec/hybrid_spec.cr;spec/hybrid_source_audit_spec.cr	Queries requested quit bytes; NFA-derived Unicode quits are kept separately in DFA's effective quit set.
 src/hybrid/dfa.rs::method::Config.get_skip_cache_capacity_check	method	ported	src/regex/automata/hybrid.cr:355;spec/hybrid_spec.cr	Returns cache-capacity-check setting.
@@ -605,8 +605,8 @@ src/hybrid/dfa.rs::method::Config.get_specialize_start_states	method	ported	src/
 src/hybrid/dfa.rs::method::Config.get_starts_for_each_pattern	method	ported	src/regex/automata/hybrid.cr:391;spec/hybrid_spec.cr	Returns per-pattern-start setting.
 src/hybrid/dfa.rs::method::Config.get_unicode_word_boundary	method	ported	src/regex/automata/hybrid.cr:379;spec/hybrid_spec.cr	Returns Unicode-boundary heuristic setting.
 src/hybrid/dfa.rs::method::Config.match_kind	method	ported	src/regex/automata/hybrid.cr:323;spec/hybrid_spec.cr	Configures match kind.
-src/hybrid/dfa.rs::method::Config.minimum_bytes_per_state	method	partial	src/regex/automata/hybrid.cr:Config#minimum_bytes_per_state;spec/hybrid_spec.cr	Configures clear-efficiency threshold; currently Int32 instead of Rust usize.
-src/hybrid/dfa.rs::method::Config.minimum_cache_clear_count	method	partial	src/regex/automata/hybrid.cr:Config#minimum_cache_clear_count;spec/hybrid_spec.cr	Configures clear-count threshold; currently Int32 instead of Rust usize.
+src/hybrid/dfa.rs::method::Config.minimum_bytes_per_state	method	ported	src/regex/automata/hybrid.cr:Config#minimum_bytes_per_state;spec/hybrid_spec.cr;spec/hybrid_source_audit_spec.cr	Accepts Rust usize-width clear-efficiency threshold; cold-path multiplication saturates at UInt64::MAX.
+src/hybrid/dfa.rs::method::Config.minimum_cache_clear_count	method	ported	src/regex/automata/hybrid.cr:Config#minimum_cache_clear_count;spec/hybrid_spec.cr;spec/hybrid_source_audit_spec.cr	Accepts Rust usize-width clear-count threshold; direct four-search doctest is ported.
 src/hybrid/dfa.rs::method::Config.new	method	ported	src/regex/automata/hybrid.cr:268;spec/hybrid_spec.cr	Default hybrid configuration.
 src/hybrid/dfa.rs::method::Config.overwrite	method	ported	src/regex/automata/hybrid.cr:Config#overwrite;spec/hybrid_spec.cr;spec/hybrid_source_audit_spec.cr	Preserves explicit option precedence and atomically replaces quit sets without replaying invalid intermediate choices.
 src/hybrid/dfa.rs::method::Config.prefilter	method	ported	src/regex/automata/hybrid.cr:Config#prefilter;spec/hybrid_spec.cr;spec/hybrid_source_audit_spec.cr	Configures a prefilter and stores the first automatic start-specialization choice, including when a later call clears the prefilter.
@@ -731,7 +731,7 @@ src/hybrid/regex.rs::method::Cache.as_parts	method	ported	src/regex/automata/hyb
 src/hybrid/regex.rs::method::Cache.as_parts_mut	method	ported	src/regex/automata/hybrid.cr:1965;spec/hybrid_spec.cr	Crystal references are mutable, so this returns the same pair contract.
 src/hybrid/regex.rs::method::Cache.forward	method	ported	src/regex/automata/hybrid.cr:1941;spec/hybrid_spec.cr	Exposes forward cache.
 src/hybrid/regex.rs::method::Cache.forward_mut	method	ported	src/regex/automata/hybrid.cr:1941;spec/hybrid_spec.cr	Crystal getter supplies mutable object reference.
-src/hybrid/regex.rs::method::Cache.memory_usage	method	ported	src/regex/automata/hybrid.cr:1957;spec/hybrid_spec.cr	Sums forward and reverse cache storage.
+src/hybrid/regex.rs::method::Cache.memory_usage	method	ported	src/regex/automata/hybrid.cr:RegexCache#memory_usage;spec/hybrid_spec.cr	Sums forward and reverse cache storage as UInt64.
 src/hybrid/regex.rs::method::Cache.new	method	ported	src/regex/automata/hybrid.cr:1949;spec/hybrid_spec.cr	Creates caches for wrapper DFAs.
 src/hybrid/regex.rs::method::Cache.reset	method	ported	src/regex/automata/hybrid.cr:1953;spec/hybrid_spec.cr	Retargets both reusable caches.
 src/hybrid/regex.rs::method::Cache.reverse	method	ported	src/regex/automata/hybrid.cr:1942;spec/hybrid_spec.cr	Exposes reverse cache.
@@ -773,7 +773,7 @@ src/meta/regex.rs::method::Builder.build_many_from_hir	method	missing	-	auto-gen
 src/meta/regex.rs::method::Builder.configure	method	missing	-	auto-generated
 src/meta/regex.rs::method::Builder.new	method	missing	-	auto-generated
 src/meta/regex.rs::method::Builder.syntax	method	missing	-	auto-generated
-src/meta/regex.rs::method::Cache.memory_usage	method	intentional_divergence	src/regex/automata/meta.cr:Cache#memory_usage;spec/meta_regex_spec.cr	Reports PikeVM scratch only because this port's Meta execution model does not retain Rust hybrid, backtrack, and one-pass cache objects.
+src/meta/regex.rs::method::Cache.memory_usage	method	partial	src/regex/automata/meta.cr:Cache#memory_usage;spec/meta_regex_spec.cr	Now sums PikeVM scratch and retained reverse hybrid caches as UInt64; full Rust wrapper-cache ownership/accounting remains for the Meta feature.
 src/meta/regex.rs::method::Cache.new	method	ported	src/regex/automata/meta.cr:Cache#initialize;spec/meta_regex_spec.cr	Creates reusable PikeVM scratch for the owning meta regex.
 src/meta/regex.rs::method::Cache.reset	method	ported	src/regex/automata/meta.cr:Cache#reset;spec/meta_regex_spec.cr	Resets reusable scratch and permits subsequent searches.
 src/meta/regex.rs::method::CapturesMatches<'r, 'h>.count	method	ported	src/regex/automata/meta.cr:CapturesMatches#count;spec/meta_regex_spec.cr	Consumes the iterator and returns its match count.
@@ -1275,7 +1275,7 @@ src/nfa/thompson/nfa.rs::method::Transition.matches	method	missing	-	auto-genera
 src/nfa/thompson/nfa.rs::method::Transition.matches_byte	method	missing	-	auto-generated
 src/nfa/thompson/nfa.rs::method::Transition.matches_unit	method	missing	-	auto-generated
 src/nfa/thompson/pikevm.rs::const::LIMIT	const	intentional_divergence	-	Rust-only trace-output limit for the optional internal PikeVM instrumentation feature.
-src/nfa/thompson/pikevm.rs::method::ActiveStates.memory_usage	method	ported	src/regex/automata/pikevm.cr:253;spec/pikevm_spec.cr	Reports sparse-set and reusable per-state slot-table storage.
+src/nfa/thompson/pikevm.rs::method::ActiveStates.memory_usage	method	ported	src/regex/automata/pikevm.cr:303;spec/pikevm_spec.cr	Reports sparse-set and reusable per-state slot-table storage with UInt64 aggregate arithmetic.
 src/nfa/thompson/pikevm.rs::method::ActiveStates.new	method	ported	src/regex/automata/pikevm.cr:211;spec/pikevm_spec.cr	Creates reusable active states with a cache-owned slot table.
 src/nfa/thompson/pikevm.rs::method::ActiveStates.reset	method	ported	src/regex/automata/pikevm.cr:218;spec/pikevm_spec.cr	Resizes active-state and slot-table storage for a new PikeVM.
 src/nfa/thompson/pikevm.rs::method::ActiveStates.setup_search	method	ported	src/regex/automata/pikevm.cr:147;spec/pikevm_spec.cr	Cache setup clears active states and sets the caller slot width for the next search.
@@ -1286,7 +1286,7 @@ src/nfa/thompson/pikevm.rs::method::Builder.configure	method	ported	src/regex/au
 src/nfa/thompson/pikevm.rs::method::Builder.new	method	ported	src/regex/automata/pikevm.cr:67;spec/pikevm_spec.cr	Default builder constructor.
 src/nfa/thompson/pikevm.rs::method::Builder.syntax	method	ported	src/regex/automata/pikevm.cr:95;spec/pikevm_spec.cr	Applies syntax configuration.
 src/nfa/thompson/pikevm.rs::method::Builder.thompson	method	ported	src/regex/automata/pikevm.cr:100;spec/pikevm_spec.cr	Applies Thompson configuration.
-src/nfa/thompson/pikevm.rs::method::Cache.memory_usage	method	ported	src/regex/automata/pikevm.cr:139;spec/pikevm_spec.cr	Reports active-state and slot storage.
+src/nfa/thompson/pikevm.rs::method::Cache.memory_usage	method	ported	src/regex/automata/pikevm.cr:141;spec/pikevm_spec.cr	Reports active-state and slot storage with UInt64 aggregate arithmetic.
 src/nfa/thompson/pikevm.rs::method::Cache.new	method	ported	src/regex/automata/pikevm.cr:118;spec/pikevm_spec.cr	Creates cache coupled to PikeVM.
 src/nfa/thompson/pikevm.rs::method::Cache.reset	method	ported	src/regex/automata/pikevm.cr:122;spec/pikevm_spec.cr	Resets reusable VM state.
 src/nfa/thompson/pikevm.rs::method::Cache.setup_search	method	ported	src/regex/automata/pikevm.cr:127;spec/pikevm_spec.cr	Initializes per-search cache state.
@@ -1861,12 +1861,12 @@ src/util/sparse_set.rs::method::SparseSet.insert	method	ported	src/regex/automat
 src/util/sparse_set.rs::method::SparseSet.is_empty	method	ported	src/regex/automata/sparse_set.cr:SparseSet#is_empty;spec/sparse_set_spec.cr	Empty state is covered.
 src/util/sparse_set.rs::method::SparseSet.iter	method	ported	src/regex/automata/sparse_set.cr:SparseSet#iter;spec/sparse_set_spec.cr	Insertion-order iteration is covered.
 src/util/sparse_set.rs::method::SparseSet.len	method	ported	src/regex/automata/sparse_set.cr:SparseSet#len;spec/sparse_set_spec.cr	Length is covered.
-src/util/sparse_set.rs::method::SparseSet.memory_usage	method	ported	src/regex/automata/sparse_set.cr:SparseSet#memory_usage	Counts the fixed dense and sparse StateID arrays, matching Rust's representation-level accounting.
+src/util/sparse_set.rs::method::SparseSet.memory_usage	method	ported	src/regex/automata/sparse_set.cr:SparseSet#memory_usage;spec/hybrid_spec.cr	Counts fixed dense/sparse StateID arrays with UInt64 arithmetic, matching Rust usize accounting.
 src/util/sparse_set.rs::method::SparseSet.new	method	ported	src/regex/automata/sparse_set.cr:SparseSet#initialize;spec/sparse_set_spec.cr	Construction is covered.
 src/util/sparse_set.rs::method::SparseSet.resize	method	ported	src/regex/automata/sparse_set.cr:SparseSet#resize;spec/sparse_set_spec.cr;spec/hybrid_spec.cr	Resize clears entries and retains same-size buffers for lazy-cache reset, as Rust Vec::resize does.
 src/util/sparse_set.rs::method::SparseSetIter<'a>.next	method	ported	src/regex/automata/sparse_set.cr:SparseSetIter#next	Crystal Array iterator provides equivalent iteration.
 src/util/sparse_set.rs::method::SparseSets.clear	method	ported	src/regex/automata/sparse_set.cr:SparseSets#clear;spec/sparse_set_spec.cr	Pair clearing is covered.
-src/util/sparse_set.rs::method::SparseSets.memory_usage	method	ported	src/regex/automata/sparse_set.cr:SparseSets#memory_usage	Sums the two fixed-capacity sparse-set allocations.
+src/util/sparse_set.rs::method::SparseSets.memory_usage	method	ported	src/regex/automata/sparse_set.cr:SparseSets#memory_usage;spec/hybrid_spec.cr	Sums two fixed-capacity sparse-set allocations as UInt64.
 src/util/sparse_set.rs::method::SparseSets.new	method	ported	src/regex/automata/sparse_set.cr:SparseSets#initialize;spec/sparse_set_spec.cr	Pair construction is covered.
 src/util/sparse_set.rs::method::SparseSets.resize	method	ported	src/regex/automata/sparse_set.cr:SparseSets#resize;spec/sparse_set_spec.cr	Paired resize uses clearing semantics.
 src/util/sparse_set.rs::method::SparseSets.swap	method	ported	src/regex/automata/sparse_set.cr:SparseSets#swap;spec/sparse_set_spec.cr	Swap is covered.

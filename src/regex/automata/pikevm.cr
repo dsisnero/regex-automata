@@ -138,7 +138,7 @@ module Regex::Automata::NFA
         @next.clear
       end
 
-      def memory_usage : Int32
+      def memory_usage : UInt64
         @curr.memory_usage + @next.memory_usage
       end
     end
@@ -300,7 +300,7 @@ module Regex::Automata::NFA
         @closure_seen.insert(id)
       end
 
-      def memory_usage : Int32
+      def memory_usage : UInt64
         @set.memory_usage + @closure_seen.memory_usage + @slot_table.memory_usage
       end
     end
