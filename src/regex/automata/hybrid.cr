@@ -283,17 +283,16 @@ module Regex::Automata::Hybrid
       @dense_config = @dense_config.dup.prefilter(prefilter)
       @prefilter_value = prefilter
       @prefilter_set = true
+      unless @specialize_start_states_set
+        @specialize_start_states_value = @dense_config.get_specialize_start_states
+        @specialize_start_states_set = true
+      end
       self
     end
 
     def cache_capacity(bytes : Int32) : Config
       @cache_capacity = bytes
       @requested_cache_capacity = bytes
-      self
-    end
-
-    def set_effective_cache_capacity(bytes : Int32) : Config
-      @cache_capacity = bytes
       self
     end
 
@@ -484,19 +483,22 @@ module Regex::Automata::Hybrid
     end
 
     def overwrite(other : Config) : Config
-      merged_dense = @dense_config.dup
-      merged_dense.prefilter(other.@prefilter_value) if other.@prefilter_set
-      merged_dense.match_kind(other.@match_kind_value.not_nil!) if other.@match_kind_set
-      merged_dense.starts_for_each_pattern(other.@starts_for_each_pattern_value.not_nil!) if other.@starts_for_each_pattern_set
-      merged_dense.byte_classes(other.@byte_classes_value.not_nil!) if other.@byte_classes_set
-      merged_dense.unicode_word_boundary(other.@unicode_word_boundary_value.not_nil!) if other.@unicode_word_boundary_set
-      merged_dense.specialize_start_states(other.@specialize_start_states_value.not_nil!) if other.@specialize_start_states_set
-      if other.@quitset_set
-        quitset = other.@quitset_value || ::Regex::Automata::ByteSet.new
-        256.times do |byte|
-          merged_dense.quit(byte.to_u8, quitset.contains(byte.to_u8))
-        end
-      end
+      merged_dense = ::Regex::Automata::Config.new
+      prefilter_set = other.@prefilter_set || @prefilter_set
+      prefilter_value = other.@prefilter_set ? other.@prefilter_value : @prefilter_value
+      merged_dense.prefilter(prefilter_value) if prefilter_set
+      match_kind = other.@match_kind_set ? other.@match_kind_value : @match_kind_value
+      merged_dense.match_kind(match_kind.not_nil!) if other.@match_kind_set || @match_kind_set
+      starts_for_each_pattern = other.@starts_for_each_pattern_set ? other.@starts_for_each_pattern_value : @starts_for_each_pattern_value
+      merged_dense.starts_for_each_pattern(starts_for_each_pattern.not_nil!) if other.@starts_for_each_pattern_set || @starts_for_each_pattern_set
+      byte_classes = other.@byte_classes_set ? other.@byte_classes_value : @byte_classes_value
+      merged_dense.byte_classes(byte_classes.not_nil!) if other.@byte_classes_set || @byte_classes_set
+      unicode_word_boundary = other.@unicode_word_boundary_set ? other.@unicode_word_boundary_value : @unicode_word_boundary_value
+      merged_dense.unicode_word_boundary(unicode_word_boundary.not_nil!) if other.@unicode_word_boundary_set || @unicode_word_boundary_set
+      specialize_start_states = other.@specialize_start_states_set ? other.@specialize_start_states_value : @specialize_start_states_value
+      merged_dense.specialize_start_states(specialize_start_states.not_nil!) if other.@specialize_start_states_set || @specialize_start_states_set
+      quitset = other.@quitset_set ? other.@quitset_value : @quitset_value
+      quitset.try &.each { |byte| merged_dense.quit(byte, true) }
 
       Config.new(
         merged_dense,
@@ -1700,7 +1702,7 @@ module Regex::Automata::Hybrid
     end
 
     def thompson(config : ::Regex::Automata::HirCompilerConfig) : Builder
-      @thompson_config = config
+      @thompson_config = @thompson_config.overwrite(config)
       self
     end
 
@@ -1730,15 +1732,12 @@ module Regex::Automata::Hybrid
       effective_config = @config.dup
       quitset = effective_config.quit_set_from_nfa(nfa)
       classes = effective_config.byte_classes_from_nfa(nfa, quitset)
-      quitset.each do |byte|
-        effective_config.quit(byte, true) unless effective_config.get_quit(byte)
-      end
 
       min_cache = effective_config.get_minimum_cache_capacity(nfa)
       cache_capacity = effective_config.get_cache_capacity
       if cache_capacity < min_cache
         if effective_config.get_skip_cache_capacity_check
-          effective_config.set_effective_cache_capacity(min_cache)
+          cache_capacity = min_cache
         else
           raise BuildError.insufficient_cache_capacity(min_cache, cache_capacity)
         end
@@ -1749,7 +1748,7 @@ module Regex::Automata::Hybrid
       end
 
       start_map = ::Regex::Automata::StartByteMap.new(nfa.look_matcher)
-      DFA.new(effective_config, nfa, start_map, classes, quitset, effective_config.get_cache_capacity, nil)
+      DFA.new(effective_config, nfa, start_map, classes, quitset, cache_capacity, nil)
     end
 
     private def minimum_lazy_state_id(

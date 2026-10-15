@@ -555,8 +555,10 @@ describe Regex::Automata::Hybrid::DFA do
     heuristic = Regex::Automata::Hybrid::Builder.new
       .configure(Regex::Automata::Hybrid::DFA.config.unicode_word_boundary(true))
       .build("\\b")
-    heuristic.get_config.get_quit(0x80_u8).should be_true
-    heuristic.get_config.get_quit(0xFF_u8).should be_true
+    heuristic.get_config.get_quit(0x80_u8).should be_false
+    heuristic.get_config.get_quit(0xFF_u8).should be_false
+    heuristic.get_quitset.contains(0x80_u8).should be_true
+    heuristic.get_quitset.contains(0xFF_u8).should be_true
 
     quit_config = Regex::Automata::Hybrid::DFA.config
     (0x80..0xFF).each do |byte|
