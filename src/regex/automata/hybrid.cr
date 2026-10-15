@@ -1172,8 +1172,12 @@ module Regex::Automata::Hybrid
       sid.as?(LazyStateID)
     end
 
+    def start_state(cache : Cache, config : ::Regex::Automata::StartConfig) : LazyStateID | StartError
+      Lazy.new(self, cache).start_state(config)
+    end
+
     def start_state(cache : Cache, input : ::Regex::Automata::Input) : LazyStateID | StartError
-      Lazy.new(self, cache).start_state(::Regex::Automata::StartConfig.from_input_forward(input))
+      start_state(cache, ::Regex::Automata::StartConfig.from_input_forward(input))
     end
 
     def start_state_forward(cache : Cache, input : ::Regex::Automata::Input) : LazyStateID | ::Regex::Automata::MatchError
