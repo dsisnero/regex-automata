@@ -17,6 +17,14 @@ class Regex::Automata::Hybrid::Lazy
   def set_start_state_for_spec(id : ::Regex::Automata::Hybrid::LazyStateID) : Nil
     set_start_state(::Regex::Automata::Anchored::No, ::Regex::Automata::Start::Text, nil, id)
   end
+
+  def save_state_for_spec(id : ::Regex::Automata::Hybrid::LazyStateID) : Nil
+    save_state(id)
+  end
+
+  def saved_state_id_for_spec : ::Regex::Automata::Hybrid::LazyStateID
+    saved_state_id
+  end
 end
 
 module Regex::Automata::Hybrid
@@ -366,6 +374,25 @@ describe Regex::Automata::Hybrid::Cache do
     cache.search_total_len.should eq(5)
   end
 
+  it "preserves a tagged start state when a cold clear remaps its ID" do
+    dfa = Regex::Automata::Hybrid::Builder.new
+      .configure(Regex::Automata::Hybrid::DFA.config.specialize_start_states(true))
+      .build("a+")
+    cache = dfa.create_cache
+    input = Regex::Automata::Input.new("aaa")
+    start = dfa.start_state_forward(cache, input).as(Regex::Automata::Hybrid::LazyStateID)
+    start.is_start.should be_true
+    before = cache.states[start.as_usize_untagged >> dfa.stride2].to_slice.dup
+    lazy = Regex::Automata::Hybrid.lazy_for_spec(dfa, cache)
+
+    lazy.save_state_for_spec(start)
+    lazy.clear_for_spec
+    restored = lazy.saved_state_id_for_spec
+    restored.is_start.should be_true
+    cache.states[restored.as_usize_untagged >> dfa.stride2].to_slice.should eq(before)
+    dfa.next_state(cache, restored, 'a'.ord.to_u8).should be_a(Regex::Automata::Hybrid::LazyStateID)
+  end
+
   it "searches normally with a skipped undersized requested capacity until the cache actually fills" do
     dfa = Regex::Automata::Hybrid::Builder.new
       .configure(
@@ -412,6 +439,42 @@ describe Regex::Automata::Hybrid::Cache do
       cache.search_finish(Int32::MAX)
     end
     cache.search_total_len.should eq(Int32::MAX.to_i64 * 2)
+  end
+
+  it "tracks Rust usize-width forward, reverse, and cumulative progress" do
+    cache = Regex::Automata::Hybrid::DFA.new("a").create_cache
+    beyond_i64 = Int64::MAX.to_u64 + 1_u64
+
+    cache.search_start(0_u64)
+    cache.search_update(beyond_i64)
+    cache.search_total_len.should eq(beyond_i64)
+    cache.search_finish(beyond_i64)
+
+    cache.search_start(beyond_i64)
+    cache.search_finish(beyond_i64 - 2_u64)
+    cache.search_total_len.should eq(beyond_i64 + 2_u64)
+  end
+
+  it "uses full-width progress when deciding whether a cache clear is efficient" do
+    threshold = Int64::MAX.to_u64 + 1_u64
+    config = Regex::Automata::Hybrid::DFA.config
+      .minimum_cache_clear_count(0)
+      .minimum_bytes_per_state(threshold // 4_u64)
+    dfa = Regex::Automata::Hybrid::Builder.new.configure(config).build("a")
+    cache = dfa.create_cache
+    cache.search_start(0_u64)
+    cache.search_update(threshold)
+
+    Regex::Automata::Hybrid.try_clear_cache_for_spec(dfa, cache).should be_nil
+    cache.clear_count.should eq(1_u64)
+    cache.search_total_len.should eq(0_u64)
+  end
+
+  it "requires an active search before progress updates or completion" do
+    cache = Regex::Automata::Hybrid::DFA.new("a").create_cache
+    expect_raises(Exception, "no in-progress search to update") { cache.search_update(1) }
+    expect_raises(Exception, "no in-progress search to finish") { cache.search_finish(1) }
+    cache.search_total_len.should eq(0_u64)
   end
 end
 

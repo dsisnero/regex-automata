@@ -585,10 +585,10 @@ src/hybrid/dfa.rs::method::Cache.clear_count	method	ported	src/regex/automata/hy
 src/hybrid/dfa.rs::method::Cache.memory_usage	method	ported	src/regex/automata/hybrid.cr:Cache#memory_usage;spec/hybrid_spec.cr	Counts retained stack allocation and sums aggregate bytes as UInt64 without Int32 overflow.
 src/hybrid/dfa.rs::method::Cache.new	method	ported	src/regex/automata/hybrid.cr:575;spec/hybrid_spec.cr	Creates cache coupled to a lazy DFA.
 src/hybrid/dfa.rs::method::Cache.reset	method	ported	src/regex/automata/hybrid.cr:Cache#reset;spec/hybrid_spec.cr	Retargets a different DFA, drops progress and clear count, and retains reusable buffers.
-src/hybrid/dfa.rs::method::Cache.search_finish	method	ported	src/regex/automata/hybrid.cr:600;spec/hybrid_spec.cr	Maintains directional search progress.
-src/hybrid/dfa.rs::method::Cache.search_start	method	ported	src/regex/automata/hybrid.cr:585;spec/hybrid_spec.cr	Maintains directional search progress.
-src/hybrid/dfa.rs::method::Cache.search_total_len	method	partial	src/regex/automata/hybrid.cr:Cache#search_total_len;spec/hybrid_spec.cr	Reports absolute directional search length, but its Int64 cumulative counter has not yet been audited against Rust's full usize range.
-src/hybrid/dfa.rs::method::Cache.search_update	method	ported	src/regex/automata/hybrid.cr:592;spec/hybrid_spec.cr	Maintains directional search progress.
+src/hybrid/dfa.rs::method::Cache.search_finish	method	ported	src/regex/automata/hybrid.cr:Cache#search_finish;spec/hybrid_spec.cr	Finishes forward/reverse progress at Rust usize width, including cumulative totals above Int64::MAX; raises without an active search.
+src/hybrid/dfa.rs::method::Cache.search_start	method	ported	src/regex/automata/hybrid.cr:Cache#search_start;spec/hybrid_spec.cr	Starts usize-width progress and automatically finishes an unfinished prior search.
+src/hybrid/dfa.rs::method::Cache.search_total_len	method	ported	src/regex/automata/hybrid.cr:Cache#search_total_len;spec/hybrid_spec.cr	Reports full UInt64 directional and cumulative search length, including values beyond Int64::MAX and post-clear reset.
+src/hybrid/dfa.rs::method::Cache.search_update	method	ported	src/regex/automata/hybrid.cr:Cache#search_update;spec/hybrid_spec.cr	Updates forward/reverse usize-width progress; raises without an active search.
 src/hybrid/dfa.rs::method::Config.byte_classes	method	ported	src/regex/automata/hybrid.cr:344;spec/hybrid_spec.cr	Configures byte classes.
 src/hybrid/dfa.rs::method::Config.byte_classes_from_nfa	method	ported	src/regex/automata/hybrid.cr:448;spec/hybrid_spec.cr	Preserves Rust's contiguous NFA and quit-range boundaries; disjoint equal-signature ranges remain distinct.
 src/hybrid/dfa.rs::method::Config.cache_capacity	method	ported	src/regex/automata/hybrid.cr:Config#cache_capacity;spec/hybrid_spec.cr;spec/hybrid_source_audit_spec.cr	Accepts Rust usize-width capacity; the large Unicode doctest and values above Int32::MAX are covered.
@@ -658,8 +658,8 @@ src/hybrid/dfa.rs::method::Lazy<'i, 'c>.new	method	ported	src/regex/automata/hyb
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.next_state_id	method	ported	src/regex/automata/hybrid.cr:Lazy#next_state_id;spec/hybrid_spec.cr	Checks lazy-state IDs and retries after a policy-checked cache clear on ID exhaustion.
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.put_state_builder	method	ported	src/regex/automata/hybrid.cr:923;spec/hybrid_spec.cr	Returns scratch builder for reuse.
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.reset_cache	method	ported	src/regex/automata/hybrid.cr:707;spec/hybrid_spec.cr	Resets lazy cache, progress, and state saver.
-src/hybrid/dfa.rs::method::Lazy<'i, 'c>.save_state	method	ported	src/regex/automata/hybrid.cr:958;spec/hybrid_spec.cr	cold cache-clear state preservation
-src/hybrid/dfa.rs::method::Lazy<'i, 'c>.saved_state_id	method	ported	src/regex/automata/hybrid.cr:962;spec/hybrid_spec.cr	cold cache-clear state preservation
+src/hybrid/dfa.rs::method::Lazy<'i, 'c>.save_state	method	ported	src/regex/automata/hybrid.cr:Lazy#save_state;spec/hybrid_spec.cr	Saves a tagged active start state and its bytes for cold clear remapping.
+src/hybrid/dfa.rs::method::Lazy<'i, 'c>.saved_state_id	method	ported	src/regex/automata/hybrid.cr:Lazy#saved_state_id;spec/hybrid_spec.cr	Returns the remapped tagged start ID after a cold clear.
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.set_all_transitions	method	ported	src/regex/automata/hybrid.cr:966;spec/hybrid_spec.cr	Sets each representative transition.
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.set_start_state	method	ported	src/regex/automata/hybrid.cr:Lazy#set_start_state;spec/hybrid_spec.cr	Checks ID validity and configuration before storing contextual start-state IDs.
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.set_transition	method	ported	src/regex/automata/hybrid.cr:Lazy#set_transition;spec/hybrid_spec.cr	Checks source and destination IDs before storing a byte-class transition.
@@ -677,7 +677,7 @@ src/hybrid/dfa.rs::method::LazyRef<'i, 'c>.state_fits_in_cache	method	ported	src
 src/hybrid/dfa.rs::method::LazyRef<'i, 'c>.unknown_id	method	ported	src/regex/automata/hybrid.cr:993;spec/hybrid_spec.cr	Computes tagged unknown sentinel.
 src/hybrid/dfa.rs::method::OverlappingState.get_match	method	ported	src/regex/automata/hybrid.cr:200;spec/hybrid_spec.cr	Exposes overlap match result.
 src/hybrid/dfa.rs::method::OverlappingState.start	method	ported	src/regex/automata/hybrid.cr:196;spec/hybrid_spec.cr	Constructs overlap search state.
-src/hybrid/dfa.rs::method::SearchProgress.len	method	ported	src/regex/automata/hybrid.cr:640;spec/hybrid_spec.cr	Reports directional search progress length.
+src/hybrid/dfa.rs::method::SearchProgress.len	method	ported	src/regex/automata/hybrid.cr:SearchProgress#len;spec/hybrid_spec.cr	Reports absolute directional progress as UInt64, including positions above Int64::MAX.
 src/hybrid/dfa.rs::method::StateSaver.none	method	ported	src/regex/automata/hybrid.cr:649;spec/hybrid_spec.cr	cold cache-clear state preservation
 src/hybrid/dfa.rs::method::StateSaver.take_saved	method	ported	src/regex/automata/hybrid.cr:668;spec/hybrid_spec.cr	cold cache-clear state preservation
 src/hybrid/dfa.rs::method::StateSaver.take_to_save	method	ported	src/regex/automata/hybrid.cr:661;spec/hybrid_spec.cr	cold cache-clear state preservation

@@ -554,7 +554,7 @@ module Regex::Automata::Hybrid
     getter stack : Array(::Regex::Automata::StateID)
     property scratch_state_builder : ::Regex::Automata::Determinize::StateBuilderEmpty
     property memory_usage_state : UInt64
-    property bytes_searched : Int64
+    property bytes_searched : UInt64
     property progress : SearchProgress?
     property state_saver : StateSaver
 
@@ -568,7 +568,7 @@ module Regex::Automata::Hybrid
       @scratch_state_builder = ::Regex::Automata::Determinize::StateBuilderEmpty.new
       @memory_usage_state = 0_u64
       @clear_count = 0_u64
-      @bytes_searched = 0_i64
+      @bytes_searched = 0_u64
       @progress = nil
       @state_saver = StateSaver.none
       Lazy.new(@dfa, self).init_cache
@@ -583,24 +583,25 @@ module Regex::Automata::Hybrid
       Lazy.new(@dfa, self).reset_cache
     end
 
-    def search_start(at : Int32) : Nil
+    def search_start(at : Int) : Nil
       if progress = @progress
         @bytes_searched += progress.len
       end
-      @progress = SearchProgress.new(at, at)
+      position = at.to_u64
+      @progress = SearchProgress.new(position, position)
     end
 
-    def search_update(at : Int32) : Nil
+    def search_update(at : Int) : Nil
       if progress = @progress
-        progress.at = at
+        progress.at = at.to_u64
       else
         raise "no in-progress search to update"
       end
     end
 
-    def search_finish(at : Int32) : Nil
+    def search_finish(at : Int) : Nil
       if progress = @progress
-        progress.at = at
+        progress.at = at.to_u64
         @bytes_searched += progress.len
         @progress = nil
       else
@@ -608,7 +609,7 @@ module Regex::Automata::Hybrid
       end
     end
 
-    def search_total_len : Int64
+    def search_total_len : UInt64
       @bytes_searched + (@progress.try(&.len) || 0)
     end
 
@@ -628,14 +629,14 @@ module Regex::Automata::Hybrid
   end
 
   private class SearchProgress
-    property at : Int32
-    property start : Int32
+    property at : UInt64
+    property start : UInt64
 
-    def initialize(@start : Int32, @at : Int32)
+    def initialize(@start : UInt64, @at : UInt64)
     end
 
-    def len : Int64
-      (@start.to_i64 - @at).abs
+    def len : UInt64
+      @start <= @at ? @at - @start : @start - @at
     end
   end
 
@@ -728,7 +729,7 @@ module Regex::Automata::Hybrid
       @cache.states_to_id.clear
       @cache.memory_usage_state = 0_u64
       @cache.clear_count += 1
-      @cache.bytes_searched = 0_i64
+      @cache.bytes_searched = 0_u64
       if progress = @cache.progress
         progress.start = progress.at
       end
@@ -753,7 +754,7 @@ module Regex::Automata::Hybrid
                             else
                               bytes_per_state * state_count
                             end
-            return CacheError.bad_efficiency if @cache.search_total_len.to_u64 < minimum_bytes
+            return CacheError.bad_efficiency if @cache.search_total_len < minimum_bytes
           else
             return CacheError.too_many_cache_clears
           end
