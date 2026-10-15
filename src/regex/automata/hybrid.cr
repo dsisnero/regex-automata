@@ -85,9 +85,9 @@ module Regex::Automata::Hybrid
   end
 
   struct LazyStateIDError
-    getter attempted : Int64
+    getter attempted : Int64 | UInt64
 
-    def initialize(@attempted : Int64)
+    def initialize(@attempted : Int64 | UInt64)
     end
 
     def message : String
@@ -110,14 +110,15 @@ module Regex::Automata::Hybrid
     end
 
     def self.new(id : Int) : LazyStateID | LazyStateIDError
-      attempted = id.to_i64
-      return LazyStateIDError.new(attempted) if attempted < 0 || attempted > MAX
+      return LazyStateIDError.new(id.to_i64) if id < 0
+      attempted = id.to_u64
+      return LazyStateIDError.new(attempted) if attempted > MAX
 
       LazyStateID.new(id.to_i32)
     end
 
     def self.new_unchecked(id : Int) : LazyStateID
-      LazyStateID.new(id.to_i32)
+      LazyStateID.new(id.to_i32!)
     end
 
     def as_i : Int32
@@ -128,8 +129,8 @@ module Regex::Automata::Hybrid
       as_i
     end
 
-    def as_usize_unchecked : Int32
-      @value
+    def as_usize_unchecked : Int64
+      @value.to_u32!.to_i64
     end
 
     def to_unknown : LazyStateID
@@ -784,7 +785,9 @@ module Regex::Automata::Hybrid
         result = try_clear_cache
         return result if result.is_a?(CacheError)
       end
-      id = idmap.call(next_state_id)
+      next_id = next_state_id
+      return next_id if next_id.is_a?(CacheError)
+      id = idmap.call(next_id)
       id = id.to_match if state.is_match?
       @cache.trans.concat(Array.new(@dfa.stride) { as_ref.unknown_id })
       if !@dfa.get_quitset.empty? && !as_ref.is_sentinel(id)
@@ -803,21 +806,22 @@ module Regex::Automata::Hybrid
       builder : ::Regex::Automata::Determinize::StateBuilderNFA,
       &idmap : LazyStateID -> LazyStateID
     ) : LazyStateID | CacheError
-      state = builder.to_state
-      if cached_id = @cache.states_to_id[state]?
+      if cached_id = @cache.states_to_id[::Regex::Automata::Determinize::State.new(builder.as_bytes)]?
         put_state_builder(builder)
         return cached_id
       end
-      result = add_state(state, &idmap)
+      result = add_state(builder.to_state, &idmap)
       put_state_builder(builder)
       result
     end
 
-    private def next_state_id : LazyStateID
+    private def next_state_id : LazyStateID | CacheError
       result = LazyStateID.new(@cache.trans.size)
       return result.as(LazyStateID) if result.is_a?(LazyStateID)
 
-      raise BuildError.insufficient_state_id_capacity(result.as(LazyStateIDError))
+      cleared = try_clear_cache
+      return cleared if cleared.is_a?(CacheError)
+      LazyStateID.new(@cache.trans.size).as(LazyStateID)
     end
 
     private def cache_next_state(
@@ -918,6 +922,10 @@ module Regex::Automata::Hybrid
       pattern : ::Regex::Automata::PatternID?,
       id : LazyStateID,
     ) : Nil
+      raise "invalid hybrid start state id: #{id.inspect}" unless as_ref.is_valid(id)
+      if anchored == ::Regex::Automata::Anchored::Pattern && !@dfa.get_config.get_starts_for_each_pattern
+        raise "attempted to search for a specific pattern without enabling starts_for_each_pattern"
+      end
       index = case anchored
               when ::Regex::Automata::Anchored::No
                 start.as_usize
@@ -972,6 +980,8 @@ module Regex::Automata::Hybrid
       unit : ::Regex::Automata::Unit,
       to : LazyStateID,
     ) : Nil
+      raise "invalid 'from' id: #{from.inspect}" unless as_ref.is_valid(from)
+      raise "invalid 'to' id: #{to.inspect}" unless as_ref.is_valid(to)
       offset = from.as_usize_untagged + @dfa.get_byte_classes.get_by_unit(unit)
       @cache.trans[offset] = to
     end
@@ -1202,10 +1212,16 @@ module Regex::Automata::Hybrid
       Lazy.new(self, cache).next_state(current, ::Regex::Automata::Unit.u8(input))
     end
 
-    def next_state_untagged(cache : Cache, current : LazyStateID, input : UInt8) : LazyStateID | CacheError
-      result = next_state(cache, current, input)
-      return result if result.is_a?(CacheError)
-      LazyStateID.new_unchecked(result.as(LazyStateID).as_usize_untagged)
+    def next_state_untagged(cache : Cache, current : LazyStateID, input : UInt8) : LazyStateID
+      offset = current.as_usize_unchecked.to_i32! + @classes.get(input).to_i
+      cache.trans[offset]
+    end
+
+    # The caller must supply an untagged state ID from this cache's current
+    # generation. As in Rust, invalid IDs may read beyond the transition row.
+    def next_state_untagged_unchecked(cache : Cache, current : LazyStateID, input : UInt8) : LazyStateID
+      offset = current.as_usize_unchecked.to_i32! + @classes.get(input).to_i
+      cache.trans.unsafe_fetch(offset)
     end
 
     def next_eoi_state(cache : Cache, current : LazyStateID) : LazyStateID | CacheError

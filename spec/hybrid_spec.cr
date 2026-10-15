@@ -9,6 +9,14 @@ class Regex::Automata::Hybrid::Lazy
   def try_clear_for_spec
     try_clear_cache
   end
+
+  def set_transition_for_spec(from : ::Regex::Automata::Hybrid::LazyStateID, to : ::Regex::Automata::Hybrid::LazyStateID) : Nil
+    set_transition(from, ::Regex::Automata::Unit.u8('a'.ord.to_u8), to)
+  end
+
+  def set_start_state_for_spec(id : ::Regex::Automata::Hybrid::LazyStateID) : Nil
+    set_start_state(::Regex::Automata::Anchored::No, ::Regex::Automata::Start::Text, nil, id)
+  end
 end
 
 module Regex::Automata::Hybrid
@@ -19,9 +27,23 @@ module Regex::Automata::Hybrid
   def self.try_clear_cache_for_spec(dfa : DFA, cache : Cache)
     Lazy.new(dfa, cache).try_clear_for_spec
   end
+
+  def self.lazy_for_spec(dfa : DFA, cache : Cache) : Lazy
+    Lazy.new(dfa, cache)
+  end
 end
 
 describe Regex::Automata::Hybrid::LazyStateID do
+  it "exposes Rust's unsigned raw representation for every tag" do
+    id = Regex::Automata::Hybrid::LazyStateID.new_unchecked(7)
+    id.to_unknown.as_usize_unchecked.should eq((1_i64 << 31) | 7)
+    Regex::Automata::Hybrid::LazyStateID.new_unchecked((1_i64 << 31) | 7).should eq(id.to_unknown)
+    id.to_dead.as_usize_unchecked.should eq((1_i64 << 30) | 7)
+    id.to_quit.as_usize_unchecked.should eq((1_i64 << 29) | 7)
+    id.to_start.as_usize_unchecked.should eq((1_i64 << 28) | 7)
+    id.to_match.as_usize_unchecked.should eq((1_i64 << 27) | 7)
+  end
+
   it "reports overflow with the vendored lazy-state-id error semantics" do
     err = Regex::Automata::Hybrid::LazyStateIDError
       .new((Regex::Automata::Hybrid::LazyStateID::MAX + 1).to_i64)
@@ -29,6 +51,16 @@ describe Regex::Automata::Hybrid::LazyStateID do
     err.attempted.should eq((Regex::Automata::Hybrid::LazyStateID::MAX + 1).to_i64)
     err.message.should eq(
       "failed to create LazyStateID from #{Regex::Automata::Hybrid::LazyStateID::MAX + 1}, which exceeds #{Regex::Automata::Hybrid::LazyStateID::MAX}"
+    )
+  end
+
+  it "reports the full unsigned usize value for an oversized state id" do
+    result = Regex::Automata::Hybrid::LazyStateID.new(UInt64::MAX)
+    result.should be_a(Regex::Automata::Hybrid::LazyStateIDError)
+    error = result.as(Regex::Automata::Hybrid::LazyStateIDError)
+    error.attempted.should eq(UInt64::MAX)
+    error.message.should eq(
+      "failed to create LazyStateID from #{UInt64::MAX}, which exceeds #{Regex::Automata::Hybrid::LazyStateID::MAX}"
     )
   end
 
@@ -337,6 +369,116 @@ describe Regex::Automata::Hybrid::Cache do
       cache.search_finish(Int32::MAX)
     end
     cache.search_total_len.should eq(Int32::MAX.to_i64 * 2)
+  end
+end
+
+describe "hybrid tagged transitions and start maps" do
+  it "finds delayed matches through the direct byte and EOI transition API" do
+    dfa = Regex::Automata::Hybrid::DFA.new_many(["[a-z]+r", "[0-9]{4}"])
+    cache = dfa.create_cache
+    input = Regex::Automata::Input.new("bar")
+    id = dfa.start_state_forward(cache, input).as(Regex::Automata::Hybrid::LazyStateID)
+    "bar".to_slice.each do |byte|
+      id = dfa.next_state(cache, id, byte).as(Regex::Automata::Hybrid::LazyStateID)
+    end
+    id.is_match.should be_false
+    id = dfa.next_eoi_state(cache, id).as(Regex::Automata::Hybrid::LazyStateID)
+    id.is_match.should be_true
+    dfa.match_len(cache, id).should eq(1)
+    dfa.match_pattern(cache, id, 0).should eq(Regex::Automata::PatternID.new(0))
+  end
+
+  it "keeps untagged transition lookup read-only and preserves cached tags" do
+    dfa = Regex::Automata::Hybrid::DFA.new("a")
+    cache = dfa.create_cache
+    start = dfa.start_state_forward(cache, Regex::Automata::Input.new("a")).as(Regex::Automata::Hybrid::LazyStateID)
+    start.is_tagged.should be_false
+    states_before = cache.states.size
+    transitions_before = cache.trans.size
+
+    missing = dfa.next_state_untagged(cache, start, 'a'.ord.to_u8).as(Regex::Automata::Hybrid::LazyStateID)
+    missing.is_unknown.should be_true
+    dfa.next_state_untagged_unchecked(cache, start, 'a'.ord.to_u8).should eq(missing)
+    cache.states.size.should eq(states_before)
+    cache.trans.size.should eq(transitions_before)
+
+    computed = dfa.next_state(cache, start, 'a'.ord.to_u8).as(Regex::Automata::Hybrid::LazyStateID)
+    computed.is_unknown.should be_false
+    dfa.next_state_untagged(cache, start, 'a'.ord.to_u8).should eq(computed)
+    dfa.next_state_untagged_unchecked(cache, start, 'a'.ord.to_u8).should eq(computed)
+
+    match = dfa.next_state(cache, computed, 'z'.ord.to_u8).as(Regex::Automata::Hybrid::LazyStateID)
+    match.is_match.should be_true
+    dfa.next_state_untagged(cache, computed, 'z'.ord.to_u8).should eq(match)
+    dfa.next_state_untagged_unchecked(cache, computed, 'z'.ord.to_u8).should eq(match)
+  end
+
+  it "loops every sentinel row and initializes pattern-start slots lazily" do
+    dfa = Regex::Automata::Hybrid::Builder.new
+      .configure(Regex::Automata::Hybrid::DFA.config.starts_for_each_pattern(true))
+      .build_many(["a", "b"])
+    cache = dfa.create_cache
+    stride = dfa.stride
+    unknown = Regex::Automata::Hybrid::LazyStateID.new_unchecked(0).to_unknown
+    dead = Regex::Automata::Hybrid::LazyStateID.new_unchecked(stride).to_dead
+    quit = Regex::Automata::Hybrid::LazyStateID.new_unchecked(2 * stride).to_quit
+    {unknown, dead, quit}.each_with_index do |id, row|
+      dfa.get_byte_classes.representatives.each do |unit|
+        column = dfa.get_byte_classes.get_by_unit(unit)
+        cache.trans[row * stride + column].should eq(id)
+      end
+    end
+
+    group_len = Regex::Automata::Start.len
+    cache.starts.size.should eq(group_len * 4)
+    cache.starts.each { |id| id.should eq(unknown) }
+    input = Regex::Automata::Input.new("a")
+      .anchored_pattern(Regex::Automata::PatternID.new(0))
+    first = dfa.start_state_forward(cache, input).as(Regex::Automata::Hybrid::LazyStateID)
+    slot = (2 * group_len) + Regex::Automata::Start::Text.as_usize
+    cache.starts[slot].should eq(first)
+    count = cache.states.size
+    dfa.start_state_forward(cache, input).should eq(first)
+    cache.states.size.should eq(count)
+    cache.starts[slot + group_len].should eq(unknown)
+  end
+
+  it "caches all six look-behind start categories in their Rust slots" do
+    term = 0_u8
+    dfa = Regex::Automata::Hybrid::Builder.new
+      .syntax(Regex::Automata::Syntax::Config.new.line_terminator(term))
+      .thompson(Regex::Automata::NFA::NFA.config.look_matcher(Regex::Automata::LookMatcher.new(term)))
+      .build("(?m)^a")
+    cache = dfa.create_cache
+    unknown = Regex::Automata::Hybrid::LazyStateID.new_unchecked(0).to_unknown
+    bytes = {
+      {Regex::Automata::Start::NonWordByte, ' '.ord.to_u8},
+      {Regex::Automata::Start::WordByte, 'b'.ord.to_u8},
+      {Regex::Automata::Start::LineLF, '\n'.ord.to_u8},
+      {Regex::Automata::Start::LineCR, '\r'.ord.to_u8},
+      {Regex::Automata::Start::CustomLineTerminator, term},
+    }
+    text = dfa.start_state(cache, Regex::Automata::Input.new("a"))
+    text.should be_a(Regex::Automata::Hybrid::LazyStateID)
+    cache.starts[Regex::Automata::Start::Text.as_usize].should eq(text)
+    bytes.each do |kind, preceding|
+      slot = kind.as_usize
+      cache.starts[slot].should eq(unknown)
+      input = Regex::Automata::Input.new(Bytes[preceding, 'a'.ord.to_u8]).span(1...2)
+      id = dfa.start_state(cache, input)
+      id.should be_a(Regex::Automata::Hybrid::LazyStateID)
+      cache.starts[slot].should eq(id)
+    end
+  end
+
+  it "rejects invalid state IDs in cold transition and start-map writes" do
+    dfa = Regex::Automata::Hybrid::DFA.new("a")
+    cache = dfa.create_cache
+    lazy = Regex::Automata::Hybrid.lazy_for_spec(dfa, cache)
+    invalid = Regex::Automata::Hybrid::LazyStateID.new_unchecked(cache.trans.size + dfa.stride)
+    valid = Regex::Automata::Hybrid::LazyStateID.new_unchecked(0).to_unknown
+    expect_raises(Exception) { lazy.set_transition_for_spec(valid, invalid) }
+    expect_raises(Exception) { lazy.set_start_state_for_spec(invalid) }
   end
 end
 

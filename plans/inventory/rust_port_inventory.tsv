@@ -629,10 +629,10 @@ src/hybrid/dfa.rs::method::DFA.memory_usage	method	ported	src/regex/automata/hyb
 src/hybrid/dfa.rs::method::DFA.never_match	method	ported	src/regex/automata/hybrid.cr:1079;spec/hybrid_spec.cr	Constructs a never-match lazy DFA.
 src/hybrid/dfa.rs::method::DFA.new	method	ported	src/regex/automata/hybrid.cr:1067;spec/hybrid_spec.cr	Builds a default lazy DFA.
 src/hybrid/dfa.rs::method::DFA.new_many	method	ported	src/regex/automata/hybrid.cr:1071;spec/hybrid_spec.cr	Builds a default multi-pattern lazy DFA.
-src/hybrid/dfa.rs::method::DFA.next_eoi_state	method	ported	src/regex/automata/hybrid.cr:1216;spec/hybrid_spec.cr	Computes EOI transition through the cache.
+src/hybrid/dfa.rs::method::DFA.next_eoi_state	method	ported	src/regex/automata/hybrid.cr:DFA#next_eoi_state;spec/hybrid_spec.cr	Computes delayed match transitions on EOI through the cache.
 src/hybrid/dfa.rs::method::DFA.next_state	method	ported	src/regex/automata/hybrid.cr:1206;spec/hybrid_spec.cr	Computes cached byte transitions.
-src/hybrid/dfa.rs::method::DFA.next_state_untagged	method	ported	src/regex/automata/hybrid.cr:1210;spec/hybrid_spec.cr	Computes cached untagged byte transitions.
-src/hybrid/dfa.rs::method::DFA.next_state_untagged_unchecked	method	intentional_divergence	src/regex/automata/hybrid.cr:1210	Crystal retains bounds-checked state access instead of Rust unsafe indexing.
+src/hybrid/dfa.rs::method::DFA.next_state_untagged	method	ported	src/regex/automata/hybrid.cr:DFA#next_state_untagged;spec/hybrid_spec.cr	Read-only checked lookup preserves cached tags and may return unknown, as Rust does.
+src/hybrid/dfa.rs::method::DFA.next_state_untagged_unchecked	method	ported	src/regex/automata/hybrid.cr:DFA#next_state_untagged_unchecked;spec/hybrid_spec.cr	Uses Crystal Array#unsafe_fetch with Rust's current-cache and untagged-ID caller preconditions.
 src/hybrid/dfa.rs::method::DFA.pattern_len	method	ported	src/regex/automata/hybrid.cr:1129;spec/hybrid_spec.cr	Returns pattern count.
 src/hybrid/dfa.rs::method::DFA.reset_cache	method	ported	src/regex/automata/hybrid.cr:1095;spec/hybrid_spec.cr	Retargets reusable cache.
 src/hybrid/dfa.rs::method::DFA.start_state	method	ported	src/regex/automata/hybrid.cr:1174;spec/hybrid_spec.cr	Builds start state from input context.
@@ -645,7 +645,7 @@ src/hybrid/dfa.rs::method::DFA.try_search_overlapping_fwd	method	ported	src/rege
 src/hybrid/dfa.rs::method::DFA.try_search_overlapping_rev	method	ported	src/regex/automata/hybrid.cr:1467;spec/hybrid_spec.cr	Runs reverse overlapping search.
 src/hybrid/dfa.rs::method::DFA.try_search_rev	method	ported	src/regex/automata/hybrid.cr:1304;spec/hybrid_spec.cr	Runs reverse lazy search.
 src/hybrid/dfa.rs::method::DFA.try_which_overlapping_matches	method	ported	src/regex/automata/hybrid.cr:1558;spec/hybrid_spec.cr	Runs overlapping pattern-set search.
-src/hybrid/dfa.rs::method::Lazy<'i, 'c>.add_builder_state	method	ported	src/regex/automata/hybrid.cr:823;spec/hybrid_spec.cr	Caches builder states or reuses existing IDs.
+src/hybrid/dfa.rs::method::Lazy<'i, 'c>.add_builder_state	method	ported	src/regex/automata/hybrid.cr:Lazy#add_builder_state;spec/hybrid_spec.cr	Probes serialized builder bytes before allocating a state; reuses existing IDs and scratch storage.
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.add_state	method	ported	src/regex/automata/hybrid.cr:799;spec/hybrid_spec.cr	Installs a lazy state and its transition row.
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.as_ref	method	ported	src/regex/automata/hybrid.cr:714;spec/hybrid_spec.cr	Creates the cache-view helper.
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.cache_next_state	method	ported	src/regex/automata/hybrid.cr:819;spec/hybrid_spec.cr	preserves active state through cold cache clears
@@ -655,17 +655,17 @@ src/hybrid/dfa.rs::method::Lazy<'i, 'c>.clear_cache	method	ported	src/regex/auto
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.get_state_builder	method	ported	src/regex/automata/hybrid.cr:917;spec/hybrid_spec.cr	Reuses scratch state builder.
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.init_cache	method	ported	src/regex/automata/hybrid.cr:688;spec/hybrid_spec.cr	Initializes start and sentinel states.
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.new	method	ported	src/regex/automata/hybrid.cr:685;spec/hybrid_spec.cr	Constructs the lazy cache builder.
-src/hybrid/dfa.rs::method::Lazy<'i, 'c>.next_state_id	method	ported	src/regex/automata/hybrid.cr:831;spec/hybrid_spec.cr	Allocates checked lazy-state IDs.
+src/hybrid/dfa.rs::method::Lazy<'i, 'c>.next_state_id	method	ported	src/regex/automata/hybrid.cr:Lazy#next_state_id;spec/hybrid_spec.cr	Checks lazy-state IDs and retries after a policy-checked cache clear on ID exhaustion.
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.put_state_builder	method	ported	src/regex/automata/hybrid.cr:923;spec/hybrid_spec.cr	Returns scratch builder for reuse.
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.reset_cache	method	ported	src/regex/automata/hybrid.cr:707;spec/hybrid_spec.cr	Resets lazy cache, progress, and state saver.
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.save_state	method	ported	src/regex/automata/hybrid.cr:958;spec/hybrid_spec.cr	cold cache-clear state preservation
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.saved_state_id	method	ported	src/regex/automata/hybrid.cr:962;spec/hybrid_spec.cr	cold cache-clear state preservation
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.set_all_transitions	method	ported	src/regex/automata/hybrid.cr:966;spec/hybrid_spec.cr	Sets each representative transition.
-src/hybrid/dfa.rs::method::Lazy<'i, 'c>.set_start_state	method	ported	src/regex/automata/hybrid.cr:930;spec/hybrid_spec.cr	Stores contextual start-state IDs.
-src/hybrid/dfa.rs::method::Lazy<'i, 'c>.set_transition	method	ported	src/regex/automata/hybrid.cr:972;spec/hybrid_spec.cr	Stores a byte-class transition.
+src/hybrid/dfa.rs::method::Lazy<'i, 'c>.set_start_state	method	ported	src/regex/automata/hybrid.cr:Lazy#set_start_state;spec/hybrid_spec.cr	Checks ID validity and configuration before storing contextual start-state IDs.
+src/hybrid/dfa.rs::method::Lazy<'i, 'c>.set_transition	method	ported	src/regex/automata/hybrid.cr:Lazy#set_transition;spec/hybrid_spec.cr	Checks source and destination IDs before storing a byte-class transition.
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.try_clear_cache	method	ported	src/regex/automata/hybrid.cr:Lazy#try_clear_cache;spec/hybrid_spec.cr	Checks clear count and bytes-per-state before mutation with nonoverflowing threshold arithmetic; efficient progress permits clearing.
 src/hybrid/dfa.rs::method::LazyRef<'i, 'c>.dead_id	method	ported	src/regex/automata/hybrid.cr:994;spec/hybrid_spec.cr	Computes tagged dead sentinel.
-src/hybrid/dfa.rs::method::LazyRef<'i, 'c>.get_cached_start_id	method	ported	src/regex/automata/hybrid.cr:1024;spec/hybrid_spec.cr	Retrieves contextual cached start IDs.
+src/hybrid/dfa.rs::method::LazyRef<'i, 'c>.get_cached_start_id	method	ported	src/regex/automata/hybrid.cr:LazyRef#get_cached_start_id;spec/hybrid_spec.cr	Retrieves six look-behind contexts in each anchored and per-pattern start group.
 src/hybrid/dfa.rs::method::LazyRef<'i, 'c>.get_cached_state	method	ported	src/regex/automata/hybrid.cr:1019;spec/hybrid_spec.cr	Retrieves cached determinized state.
 src/hybrid/dfa.rs::method::LazyRef<'i, 'c>.is_sentinel	method	ported	src/regex/automata/hybrid.cr:1005;spec/hybrid_spec.cr	Identifies all lazy sentinels.
 src/hybrid/dfa.rs::method::LazyRef<'i, 'c>.is_valid	method	ported	src/regex/automata/hybrid.cr:1009;spec/hybrid_spec.cr	Checks cached transition-row alignment.
@@ -702,7 +702,7 @@ src/hybrid/id.rs::const::MASK_START	const	ported	src/regex/automata/hybrid.cr:10
 src/hybrid/id.rs::const::MASK_UNKNOWN	const	ported	src/regex/automata/hybrid.cr:103;spec/hybrid_spec.cr	Preserves the unknown-state tag bit.
 src/hybrid/id.rs::const::MAX	const	ported	src/regex/automata/hybrid.cr:108;spec/hybrid_spec.cr	Matches the untagged lazy-state upper bound.
 src/hybrid/id.rs::const::MAX_BIT	const	ported	src/regex/automata/hybrid.cr:102;spec/hybrid_spec.cr	Uses the 32-bit target tag layout.
-src/hybrid/id.rs::method::LazyStateID.as_usize_unchecked	method	ported	src/regex/automata/hybrid.cr:131;spec/hybrid_spec.cr	Exposes raw tagged value for internal search paths.
+src/hybrid/id.rs::method::LazyStateID.as_usize_unchecked	method	ported	src/regex/automata/hybrid.cr:LazyStateID#as_usize_unchecked;spec/hybrid_spec.cr	Exposes the unsigned raw tagged value, including the top-bit unknown tag.
 src/hybrid/id.rs::method::LazyStateID.as_usize_untagged	method	ported	src/regex/automata/hybrid.cr:127;spec/hybrid_spec.cr	Strips tag bits while retaining state ID.
 src/hybrid/id.rs::method::LazyStateID.is_dead	method	ported	src/regex/automata/hybrid.cr:163;spec/hybrid_spec.cr	Checks the dead tag.
 src/hybrid/id.rs::method::LazyStateID.is_match	method	ported	src/regex/automata/hybrid.cr:175;spec/hybrid_spec.cr	Checks the match tag.
@@ -710,14 +710,14 @@ src/hybrid/id.rs::method::LazyStateID.is_quit	method	ported	src/regex/automata/h
 src/hybrid/id.rs::method::LazyStateID.is_start	method	ported	src/regex/automata/hybrid.cr:171;spec/hybrid_spec.cr	Checks the start tag.
 src/hybrid/id.rs::method::LazyStateID.is_tagged	method	ported	src/regex/automata/hybrid.cr:155;spec/hybrid_spec.cr	Checks for any lazy-state tag.
 src/hybrid/id.rs::method::LazyStateID.is_unknown	method	ported	src/regex/automata/hybrid.cr:159;spec/hybrid_spec.cr	Checks the unknown tag.
-src/hybrid/id.rs::method::LazyStateID.new	method	ported	src/regex/automata/hybrid.cr:112;spec/hybrid_spec.cr	Returns typed overflow errors for invalid IDs.
-src/hybrid/id.rs::method::LazyStateID.new_unchecked	method	ported	src/regex/automata/hybrid.cr:119;spec/hybrid_spec.cr	Constructs internal tagged-state IDs.
+src/hybrid/id.rs::method::LazyStateID.new	method	ported	src/regex/automata/hybrid.cr:LazyStateID.new;spec/hybrid_spec.cr	Returns typed overflow errors with the full UInt64 attempted value.
+src/hybrid/id.rs::method::LazyStateID.new_unchecked	method	ported	src/regex/automata/hybrid.cr:LazyStateID.new_unchecked;spec/hybrid_spec.cr	Preserves Rust's low-32-bit cast for internal tagged-state IDs.
 src/hybrid/id.rs::method::LazyStateID.to_dead	method	ported	src/regex/automata/hybrid.cr:139;spec/hybrid_spec.cr	Adds the dead tag.
 src/hybrid/id.rs::method::LazyStateID.to_match	method	ported	src/regex/automata/hybrid.cr:151;spec/hybrid_spec.cr	Adds the match tag.
 src/hybrid/id.rs::method::LazyStateID.to_quit	method	ported	src/regex/automata/hybrid.cr:143;spec/hybrid_spec.cr	Adds the quit tag.
 src/hybrid/id.rs::method::LazyStateID.to_start	method	ported	src/regex/automata/hybrid.cr:147;spec/hybrid_spec.cr	Adds the start tag.
 src/hybrid/id.rs::method::LazyStateID.to_unknown	method	ported	src/regex/automata/hybrid.cr:135;spec/hybrid_spec.cr	Adds the unknown tag.
-src/hybrid/id.rs::method::LazyStateIDError.attempted	method	ported	src/regex/automata/hybrid.cr:90;spec/hybrid_spec.cr	Exposes attempted overflowing ID.
+src/hybrid/id.rs::method::LazyStateIDError.attempted	method	ported	src/regex/automata/hybrid.cr:LazyStateIDError#attempted;spec/hybrid_spec.cr	Exposes full-width attempted IDs, including UInt64::MAX.
 src/hybrid/id.rs::method::LazyStateIDError.fmt	method	ported	src/regex/automata/hybrid.cr:93;spec/hybrid_spec.cr	Preserves Rust-compatible overflow diagnostic text.
 src/hybrid/regex.rs::method::Builder.build	method	ported	src/regex/automata/hybrid.cr:2000;spec/hybrid_spec.cr	Builds hybrid regex wrappers.
 src/hybrid/regex.rs::method::Builder.build_from_dfas	method	ported	src/regex/automata/hybrid.cr:2021;spec/hybrid_spec.cr	Builds wrapper from forward and reverse DFAs.
