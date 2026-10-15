@@ -551,7 +551,7 @@ module Regex::Automata::Hybrid
     getter stack : Array(::Regex::Automata::StateID)
     property scratch_state_builder : ::Regex::Automata::Determinize::StateBuilderEmpty
     property memory_usage_state : Int32
-    property bytes_searched : Int32
+    property bytes_searched : Int64
     property progress : SearchProgress?
     property state_saver : StateSaver
 
@@ -565,10 +565,9 @@ module Regex::Automata::Hybrid
       @scratch_state_builder = ::Regex::Automata::Determinize::StateBuilderEmpty.new
       @memory_usage_state = 0
       @clear_count = 0
-      @bytes_searched = 0
+      @bytes_searched = 0_i64
       @progress = nil
       @state_saver = StateSaver.none
-      @phase = 0
       Lazy.new(@dfa, self).init_cache
     end
 
@@ -579,7 +578,6 @@ module Regex::Automata::Hybrid
     def reset(dfa : DFA) : Nil
       @dfa = dfa
       Lazy.new(@dfa, self).reset_cache
-      @phase += 1
     end
 
     def search_start(at : Int32) : Nil
@@ -607,7 +605,7 @@ module Regex::Automata::Hybrid
       end
     end
 
-    def search_total_len : Int32
+    def search_total_len : Int64
       @bytes_searched + (@progress.try(&.len) || 0)
     end
 
@@ -620,25 +618,21 @@ module Regex::Automata::Hybrid
         (@states.size * state_size) +
         (@states_to_id.size * (state_size + id_size)) +
         @sparses.memory_usage +
-        (@stack.size * ::Regex::Automata::StateID::SIZE) +
+        (@stack.@capacity * ::Regex::Automata::StateID::SIZE) +
         @scratch_state_builder.capacity +
         @memory_usage_state
-    end
-
-    def phase : Int32
-      @phase
     end
   end
 
   private class SearchProgress
     property at : Int32
-    getter start : Int32
+    property start : Int32
 
     def initialize(@start : Int32, @at : Int32)
     end
 
-    def len : Int32
-      (@start - @at).abs
+    def len : Int64
+      (@start.to_i64 - @at).abs
     end
   end
 
@@ -731,9 +725,9 @@ module Regex::Automata::Hybrid
       @cache.states_to_id.clear
       @cache.memory_usage_state = 0
       @cache.clear_count += 1
-      @cache.bytes_searched = 0
+      @cache.bytes_searched = 0_i64
       if progress = @cache.progress
-        progress.at = progress.start
+        progress.start = progress.at
       end
       init_cache
       if saved = @cache.state_saver.take_to_save
@@ -750,7 +744,8 @@ module Regex::Automata::Hybrid
       if minimum = config.get_minimum_cache_clear_count
         if @cache.clear_count >= minimum
           if bytes_per_state = config.get_minimum_bytes_per_state
-            return CacheError.bad_efficiency if @cache.search_total_len < bytes_per_state * @cache.states.size
+            minimum_bytes = bytes_per_state.to_i64 * @cache.states.size.to_i64
+            return CacheError.bad_efficiency if @cache.search_total_len < minimum_bytes
           else
             return CacheError.too_many_cache_clears
           end
@@ -938,8 +933,6 @@ module Regex::Automata::Hybrid
     end
 
     private def state_fits_in_cache(state_heap_size : Int32) : Bool
-      return true if @dfa.get_config.get_skip_cache_capacity_check
-
       needed = @cache.memory_usage +
                (@dfa.stride * sizeof(LazyStateID).to_i32) +
                sizeof(::Regex::Automata::Determinize::State).to_i32 +
@@ -949,8 +942,6 @@ module Regex::Automata::Hybrid
     end
 
     private def state_builder_fits_in_cache(builder : ::Regex::Automata::Determinize::StateBuilderNFA) : Bool
-      return true if @dfa.get_config.get_skip_cache_capacity_check
-
       needed = @cache.memory_usage + memory_usage_for_one_more_state(builder.as_bytes.size.to_i32)
       needed <= @dfa.cache_capacity
     end
@@ -1231,9 +1222,6 @@ module Regex::Automata::Hybrid
     end
 
     private def try_search_fwd_raw(cache : Cache, input : ::Regex::Automata::Input) : ::Regex::Automata::HalfMatch? | ::Regex::Automata::MatchError
-      if error = gave_up_error(cache, input)
-        return error
-      end
       pre = input.get_anchored == ::Regex::Automata::Anchored::No ? get_prefilter : nil
       try_search_fwd_once(cache, input, pre)
     end
@@ -1366,9 +1354,6 @@ module Regex::Automata::Hybrid
     end
 
     private def try_search_rev_raw(cache : Cache, input : ::Regex::Automata::Input) : ::Regex::Automata::HalfMatch? | ::Regex::Automata::MatchError
-      if error = gave_up_error(cache, input)
-        return error
-      end
       return nil if input.is_done
 
       sid = start_state_reverse(cache, input)
@@ -1433,9 +1418,6 @@ module Regex::Automata::Hybrid
     end
 
     private def try_search_overlapping_fwd_raw(cache : Cache, input : ::Regex::Automata::Input, state : OverlappingState) : Nil | ::Regex::Automata::MatchError
-      if error = gave_up_error(cache, input)
-        return error
-      end
       state.mat = nil
       return nil if input.is_done
       pre = input.get_anchored == ::Regex::Automata::Anchored::No ? get_prefilter : nil
@@ -1523,9 +1505,6 @@ module Regex::Automata::Hybrid
     end
 
     private def try_search_overlapping_rev_raw(cache : Cache, input : ::Regex::Automata::Input, state : OverlappingState) : Nil | ::Regex::Automata::MatchError
-      if error = gave_up_error(cache, input)
-        return error
-      end
       state.mat = nil
       return nil if input.is_done
 
@@ -1618,10 +1597,6 @@ module Regex::Automata::Hybrid
     end
 
     def try_which_overlapping_matches(cache : Cache, input : ::Regex::Automata::Input, patset : ::Regex::Automata::PatternSet) : Nil | ::Regex::Automata::MatchError
-      if error = gave_up_error(cache, input)
-        return error
-      end
-
       patset.clear
       state = OverlappingState.start
       loop do
@@ -1634,21 +1609,6 @@ module Regex::Automata::Hybrid
         patset.try_insert(half_match.pattern)
       end
       nil
-    end
-
-    private def gave_up_error(cache : Cache, input : ::Regex::Automata::Input) : ::Regex::Automata::MatchError?
-      return nil unless @config.get_requested_cache_capacity == 0 &&
-                        @config.get_skip_cache_capacity_check &&
-                        @config.get_minimum_cache_clear_count == 0
-
-      slice = input.haystack[input.start, input.end - input.start]
-      has_non_ascii = slice.any? { |byte| byte >= 0x80 }
-      offset = if cache.phase == 0
-                 has_non_ascii ? 2 : 24
-               else
-                 has_non_ascii ? 26 : 13
-               end
-      ::Regex::Automata::MatchError.gave_up(offset)
     end
 
     def start_of(config : ::Regex::Automata::StartConfig) : Start | StartError

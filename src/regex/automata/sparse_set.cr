@@ -18,8 +18,17 @@ module Regex::Automata
       raise ArgumentError.new("sparse set capacity cannot exceed #{StateID::LIMIT}") if capacity.to_i64 > StateID::LIMIT
 
       @len = 0
-      @dense = Array(StateID).new(capacity, StateID.new(0))
-      @sparse = Array(StateID).new(capacity, StateID.new(0))
+      if @dense.size > capacity
+        while @dense.size > capacity
+          @dense.pop
+          @sparse.pop
+        end
+      else
+        while @dense.size < capacity
+          @dense << StateID.new(0)
+          @sparse << StateID.new(0)
+        end
+      end
     end
 
     def capacity : Int32

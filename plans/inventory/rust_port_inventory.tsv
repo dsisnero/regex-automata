@@ -582,12 +582,12 @@ src/hybrid/dfa.rs::method::Builder.new	method	ported	src/regex/automata/hybrid.c
 src/hybrid/dfa.rs::method::Builder.syntax	method	ported	src/regex/automata/hybrid.cr:1707;spec/hybrid_spec.cr	Applies syntax configuration.
 src/hybrid/dfa.rs::method::Builder.thompson	method	ported	src/regex/automata/hybrid.cr:1712;spec/hybrid_spec.cr	Applies Thompson configuration.
 src/hybrid/dfa.rs::method::Cache.clear_count	method	ported	src/regex/automata/hybrid.cr:544;spec/hybrid_spec.cr	Tracks lazy-cache clears.
-src/hybrid/dfa.rs::method::Cache.memory_usage	method	ported	src/regex/automata/hybrid.cr:614;spec/hybrid_spec.cr	Reports cache storage accounting.
+src/hybrid/dfa.rs::method::Cache.memory_usage	method	ported	src/regex/automata/hybrid.cr:Cache#memory_usage;spec/hybrid_spec.cr	Counts retained stack allocation, not just logical stack length.
 src/hybrid/dfa.rs::method::Cache.new	method	ported	src/regex/automata/hybrid.cr:575;spec/hybrid_spec.cr	Creates cache coupled to a lazy DFA.
-src/hybrid/dfa.rs::method::Cache.reset	method	ported	src/regex/automata/hybrid.cr:579;spec/hybrid_spec.cr	Resets cache ownership and reusable state.
+src/hybrid/dfa.rs::method::Cache.reset	method	ported	src/regex/automata/hybrid.cr:Cache#reset;spec/hybrid_spec.cr	Retargets a different DFA, drops progress and clear count, and retains reusable buffers.
 src/hybrid/dfa.rs::method::Cache.search_finish	method	ported	src/regex/automata/hybrid.cr:600;spec/hybrid_spec.cr	Maintains directional search progress.
 src/hybrid/dfa.rs::method::Cache.search_start	method	ported	src/regex/automata/hybrid.cr:585;spec/hybrid_spec.cr	Maintains directional search progress.
-src/hybrid/dfa.rs::method::Cache.search_total_len	method	ported	src/regex/automata/hybrid.cr:610;spec/hybrid_spec.cr	Reports absolute directional search length.
+src/hybrid/dfa.rs::method::Cache.search_total_len	method	ported	src/regex/automata/hybrid.cr:Cache#search_total_len;spec/hybrid_spec.cr	Reports absolute directional search length with a wide cumulative counter.
 src/hybrid/dfa.rs::method::Cache.search_update	method	ported	src/regex/automata/hybrid.cr:592;spec/hybrid_spec.cr	Maintains directional search progress.
 src/hybrid/dfa.rs::method::Config.byte_classes	method	ported	src/regex/automata/hybrid.cr:344;spec/hybrid_spec.cr	Configures byte classes.
 src/hybrid/dfa.rs::method::Config.byte_classes_from_nfa	method	ported	src/regex/automata/hybrid.cr:448;spec/hybrid_spec.cr	Preserves Rust's contiguous NFA and quit-range boundaries; disjoint equal-signature ranges remain distinct.
@@ -651,7 +651,7 @@ src/hybrid/dfa.rs::method::Lazy<'i, 'c>.as_ref	method	ported	src/regex/automata/
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.cache_next_state	method	ported	src/regex/automata/hybrid.cr:819;spec/hybrid_spec.cr	preserves active state through cold cache clears
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.cache_start_group	method	ported	src/regex/automata/hybrid.cr:866;spec/hybrid_spec.cr	Builds and caches context-specific start groups.
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.cache_start_one	method	ported	src/regex/automata/hybrid.cr:893;spec/hybrid_spec.cr	Determinizes one NFA start state.
-src/hybrid/dfa.rs::method::Lazy<'i, 'c>.clear_cache	method	ported	src/regex/automata/hybrid.cr:719;spec/hybrid_spec.cr	preserves active state through cold cache clears
+src/hybrid/dfa.rs::method::Lazy<'i, 'c>.clear_cache	method	ported	src/regex/automata/hybrid.cr:Lazy#clear_cache;spec/hybrid_spec.cr	Preserves active state and advances progress.start to progress.at on cold cache clears.
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.get_state_builder	method	ported	src/regex/automata/hybrid.cr:917;spec/hybrid_spec.cr	Reuses scratch state builder.
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.init_cache	method	ported	src/regex/automata/hybrid.cr:688;spec/hybrid_spec.cr	Initializes start and sentinel states.
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.new	method	ported	src/regex/automata/hybrid.cr:685;spec/hybrid_spec.cr	Constructs the lazy cache builder.
@@ -663,7 +663,7 @@ src/hybrid/dfa.rs::method::Lazy<'i, 'c>.saved_state_id	method	ported	src/regex/a
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.set_all_transitions	method	ported	src/regex/automata/hybrid.cr:966;spec/hybrid_spec.cr	Sets each representative transition.
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.set_start_state	method	ported	src/regex/automata/hybrid.cr:930;spec/hybrid_spec.cr	Stores contextual start-state IDs.
 src/hybrid/dfa.rs::method::Lazy<'i, 'c>.set_transition	method	ported	src/regex/automata/hybrid.cr:972;spec/hybrid_spec.cr	Stores a byte-class transition.
-src/hybrid/dfa.rs::method::Lazy<'i, 'c>.try_clear_cache	method	ported	src/regex/automata/hybrid.cr:741;spec/hybrid_spec.cr	matches Rust clear-limit and efficiency checks
+src/hybrid/dfa.rs::method::Lazy<'i, 'c>.try_clear_cache	method	ported	src/regex/automata/hybrid.cr:Lazy#try_clear_cache;spec/hybrid_spec.cr	Checks clear count and bytes-per-state before mutation with nonoverflowing threshold arithmetic; efficient progress permits clearing.
 src/hybrid/dfa.rs::method::LazyRef<'i, 'c>.dead_id	method	ported	src/regex/automata/hybrid.cr:994;spec/hybrid_spec.cr	Computes tagged dead sentinel.
 src/hybrid/dfa.rs::method::LazyRef<'i, 'c>.get_cached_start_id	method	ported	src/regex/automata/hybrid.cr:1024;spec/hybrid_spec.cr	Retrieves contextual cached start IDs.
 src/hybrid/dfa.rs::method::LazyRef<'i, 'c>.get_cached_state	method	ported	src/regex/automata/hybrid.cr:1019;spec/hybrid_spec.cr	Retrieves cached determinized state.
@@ -1863,7 +1863,7 @@ src/util/sparse_set.rs::method::SparseSet.iter	method	ported	src/regex/automata/
 src/util/sparse_set.rs::method::SparseSet.len	method	ported	src/regex/automata/sparse_set.cr:SparseSet#len;spec/sparse_set_spec.cr	Length is covered.
 src/util/sparse_set.rs::method::SparseSet.memory_usage	method	ported	src/regex/automata/sparse_set.cr:SparseSet#memory_usage	Counts the fixed dense and sparse StateID arrays, matching Rust's representation-level accounting.
 src/util/sparse_set.rs::method::SparseSet.new	method	ported	src/regex/automata/sparse_set.cr:SparseSet#initialize;spec/sparse_set_spec.cr	Construction is covered.
-src/util/sparse_set.rs::method::SparseSet.resize	method	ported	src/regex/automata/sparse_set.cr:SparseSet#resize;spec/sparse_set_spec.cr	Resize clears entries as upstream.
+src/util/sparse_set.rs::method::SparseSet.resize	method	ported	src/regex/automata/sparse_set.cr:SparseSet#resize;spec/sparse_set_spec.cr;spec/hybrid_spec.cr	Resize clears entries and retains same-size buffers for lazy-cache reset, as Rust Vec::resize does.
 src/util/sparse_set.rs::method::SparseSetIter<'a>.next	method	ported	src/regex/automata/sparse_set.cr:SparseSetIter#next	Crystal Array iterator provides equivalent iteration.
 src/util/sparse_set.rs::method::SparseSets.clear	method	ported	src/regex/automata/sparse_set.cr:SparseSets#clear;spec/sparse_set_spec.cr	Pair clearing is covered.
 src/util/sparse_set.rs::method::SparseSets.memory_usage	method	ported	src/regex/automata/sparse_set.cr:SparseSets#memory_usage	Sums the two fixed-capacity sparse-set allocations.

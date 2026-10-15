@@ -1,5 +1,26 @@
 require "./spec_helper"
 
+# White-box access to Rust's private cache-clear path for accounting parity.
+class Regex::Automata::Hybrid::Lazy
+  def clear_for_spec : Nil
+    clear_cache
+  end
+
+  def try_clear_for_spec
+    try_clear_cache
+  end
+end
+
+module Regex::Automata::Hybrid
+  def self.clear_cache_for_spec(dfa : DFA, cache : Cache) : Nil
+    Lazy.new(dfa, cache).clear_for_spec
+  end
+
+  def self.try_clear_cache_for_spec(dfa : DFA, cache : Cache)
+    Lazy.new(dfa, cache).try_clear_for_spec
+  end
+end
+
 describe Regex::Automata::Hybrid::LazyStateID do
   it "reports overflow with the vendored lazy-state-id error semantics" do
     err = Regex::Automata::Hybrid::LazyStateIDError
@@ -172,6 +193,119 @@ describe Regex::Automata::Hybrid::Config do
 end
 
 describe Regex::Automata::Hybrid::Cache do
+  it "counts retained stack allocation after clearing and resetting" do
+    dfa = Regex::Automata::Hybrid::DFA.new("[ab]+")
+    cache = dfa.create_cache
+    initial = cache.memory_usage
+    100.times { cache.stack << Regex::Automata::StateID.must(0) }
+    allocated = cache.stack.@capacity * Regex::Automata::StateID::SIZE
+    cache.memory_usage.should eq(initial + allocated)
+
+    Regex::Automata::Hybrid.clear_cache_for_spec(dfa, cache)
+    cache.stack.clear
+    cache.memory_usage.should eq(initial + allocated)
+    cache.reset(dfa)
+    cache.clear_count.should eq(0)
+    cache.memory_usage.should eq(initial + allocated)
+  end
+
+  it "reuses sparse-set buffers when resetting against the same DFA" do
+    dfa = Regex::Automata::Hybrid::DFA.new("[ab]+")
+    cache = dfa.create_cache
+    dense = cache.sparses.set1.@dense.to_unsafe
+    sparse = cache.sparses.set1.@sparse.to_unsafe
+    cache.reset(dfa)
+    cache.sparses.set1.@dense.to_unsafe.should eq(dense)
+    cache.sparses.set1.@sparse.to_unsafe.should eq(sparse)
+  end
+
+  it "retargets a cache to a different DFA and clears prior progress" do
+    first = Regex::Automata::Hybrid::DFA.new("\\w")
+    second = Regex::Automata::Hybrid::DFA.new("\\W")
+    cache = first.create_cache
+    first.try_search_fwd(cache, Regex::Automata::Input.new("Δ")).should eq(
+      Regex::Automata::HalfMatch.must(0, 2)
+    )
+    cache.search_start(10)
+    cache.search_update(15)
+
+    cache.reset(second)
+    cache.clear_count.should eq(0)
+    cache.search_total_len.should eq(0)
+    cache.sparses.set1.capacity.should eq(second.get_nfa.states.size)
+    second.try_search_fwd(cache, Regex::Automata::Input.new("☃")).should eq(
+      Regex::Automata::HalfMatch.must(0, 3)
+    )
+  end
+
+  it "checks clear limits before mutating the cache and accepts efficient progress" do
+    config = Regex::Automata::Hybrid::DFA.config
+      .minimum_cache_clear_count(0)
+      .minimum_bytes_per_state(10)
+    dfa = Regex::Automata::Hybrid::Builder.new.configure(config).build("[ab]+")
+    cache = dfa.create_cache
+    initial = cache.memory_usage
+    error = Regex::Automata::Hybrid.try_clear_cache_for_spec(dfa, cache)
+    error.should be_a(Regex::Automata::Hybrid::CacheError)
+    error.as(Regex::Automata::Hybrid::CacheError).message.should eq(
+      Regex::Automata::Hybrid::CacheError.bad_efficiency.message
+    )
+    cache.clear_count.should eq(0)
+    cache.memory_usage.should eq(initial)
+
+    cache.search_start(0)
+    cache.search_update(100)
+    Regex::Automata::Hybrid.try_clear_cache_for_spec(dfa, cache).should be_nil
+    cache.clear_count.should eq(1)
+    cache.search_total_len.should eq(0)
+  end
+
+  it "saturates the efficiency threshold instead of overflowing" do
+    config = Regex::Automata::Hybrid::DFA.config
+      .minimum_cache_clear_count(0)
+      .minimum_bytes_per_state(Int32::MAX)
+    dfa = Regex::Automata::Hybrid::Builder.new.configure(config).build("a")
+    cache = dfa.create_cache
+    cache.search_start(0)
+    cache.search_update(1)
+    Regex::Automata::Hybrid.try_clear_cache_for_spec(dfa, cache).should be_a(
+      Regex::Automata::Hybrid::CacheError
+    )
+    cache.clear_count.should eq(0)
+  end
+
+  it "keeps only post-clear progress when measuring cache efficiency" do
+    dfa = Regex::Automata::Hybrid::DFA.new("[ab]+")
+    cache = dfa.create_cache
+    cache.search_start(10)
+    cache.search_update(17)
+
+    # Rust's clear_cache advances progress.start to progress.at. Exercise the
+    # cold path directly so this checks accounting independently of search.
+    Regex::Automata::Hybrid.clear_cache_for_spec(dfa, cache)
+    cache.clear_count.should eq(1)
+    cache.search_total_len.should eq(0)
+    cache.search_update(20)
+    cache.search_total_len.should eq(3)
+    cache.search_finish(22)
+    cache.search_total_len.should eq(5)
+  end
+
+  it "searches normally with a skipped undersized requested capacity until the cache actually fills" do
+    dfa = Regex::Automata::Hybrid::Builder.new
+      .configure(
+        Regex::Automata::Hybrid::DFA.config
+          .cache_capacity(0)
+          .skip_cache_capacity_check(true)
+          .minimum_cache_clear_count(0)
+      )
+      .build("a")
+    cache = dfa.create_cache
+    dfa.try_search_fwd(cache, Regex::Automata::Input.new("a")).should eq(
+      Regex::Automata::HalfMatch.must(0, 1)
+    )
+  end
+
   it "tracks reverse search progress by absolute distance" do
     dfa = Regex::Automata::Hybrid::DFA.new("[0-9]+")
     cache = dfa.create_cache
@@ -193,6 +327,16 @@ describe Regex::Automata::Hybrid::Cache do
     cache.search_finish(2)
 
     cache.search_total_len.should eq(6)
+  end
+
+  it "accumulates repeated search distances beyond a single Int32 range" do
+    dfa = Regex::Automata::Hybrid::DFA.new("a")
+    cache = dfa.create_cache
+    2.times do
+      cache.search_start(0)
+      cache.search_finish(Int32::MAX)
+    end
+    cache.search_total_len.should eq(Int32::MAX.to_i64 * 2)
   end
 end
 
