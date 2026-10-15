@@ -58,7 +58,7 @@ module Regex::Automata::Hybrid
     end
 
     def self.quit(byte : UInt8) : StartError
-      new("error computing start state because the look-behind byte #{byte} triggered a quit state", byte: byte)
+      new("error computing start state because the look-behind byte #{::Regex::Automata::DebugByte.new(byte).inspect} triggered a quit state", byte: byte)
     end
 
     def self.unsupported_anchored(mode : ::Regex::Automata::Anchored, pattern : ::Regex::Automata::PatternID? = nil) : StartError
@@ -1182,7 +1182,8 @@ module Regex::Automata::Hybrid
 
       error = result.as(StartError)
       if byte = error.byte
-        ::Regex::Automata::MatchError.quit(byte, input.start)
+        raise "no quit in start without look-behind" if input.start == 0
+        ::Regex::Automata::MatchError.quit(byte, input.start - 1)
       elsif mode = error.mode
         ::Regex::Automata::MatchError.unsupported_anchored(mode, error.pattern)
       else
@@ -1718,7 +1719,7 @@ module Regex::Automata::Hybrid
     rescue ex : ::Regex::Automata::BuildError
       raise BuildError.nfa(ex)
     rescue ex : ::Regex::Syntax::AST::Error | ::Regex::Syntax::Hir::Error
-      raise BuildError.new(ex.message)
+      raise BuildError.nfa(::Regex::Automata::NFA::BuildError.syntax(ex))
     end
 
     def build_from_nfa(nfa : ::Regex::Automata::NFA::NFA) : DFA

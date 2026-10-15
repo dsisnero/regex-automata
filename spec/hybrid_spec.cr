@@ -92,6 +92,20 @@ describe Regex::Automata::Hybrid::LazyStateID do
 end
 
 describe Regex::Automata::Hybrid::BuildError do
+  it "wraps pattern syntax failures through the Thompson NFA error" do
+    err = expect_raises(Regex::Automata::Hybrid::BuildError, "error building NFA") do
+      Regex::Automata::Hybrid::DFA.new("(")
+    end
+
+    nfa_error = err.source
+    nfa_error.should be_a(Regex::Automata::NFA::BuildError)
+    nfa_error = nfa_error.as(Regex::Automata::NFA::BuildError)
+    nfa_error.kind.should eq(
+      Regex::Automata::NFA::BuildError::Kind::Syntax
+    )
+    nfa_error.source.should_not be_nil
+  end
+
   it "uses the vendored lazy-state-id-capacity error message" do
     inner = Regex::Automata::Hybrid::LazyStateIDError.new(
       (Regex::Automata::Hybrid::LazyStateID::MAX + 1).to_i64
@@ -115,6 +129,15 @@ describe Regex::Automata::Hybrid::BuildError do
 end
 
 describe Regex::Automata::Hybrid::StartError do
+  it "formats quit look-behind bytes with Rust's DebugByte representation" do
+    Regex::Automata::Hybrid::StartError.quit(' '.ord.to_u8).message.should eq(
+      "error computing start state because the look-behind byte ' ' triggered a quit state"
+    )
+    Regex::Automata::Hybrid::StartError.quit(0xFF_u8).message.should eq(
+      "error computing start state because the look-behind byte \\xFF triggered a quit state"
+    )
+  end
+
   it "includes the specific pattern id in unsupported-anchored messages" do
     err = Regex::Automata::Hybrid::StartError
       .unsupported_anchored(
@@ -483,6 +506,44 @@ describe "hybrid tagged transitions and start maps" do
 end
 
 describe Regex::Automata::Hybrid::DFA do
+  it "reports a forward start quit at the look-behind offset" do
+    dfa = Regex::Automata::Hybrid::Builder.new
+      .configure(Regex::Automata::Hybrid::DFA.config.quit('x'.ord.to_u8, true))
+      .build("a")
+    cache = dfa.create_cache
+    input = Regex::Automata::Input.new("xa").span(1...2)
+
+    dfa.start_state(cache, input).should be_a(Regex::Automata::Hybrid::StartError)
+    dfa.start_state_forward(cache, input).should eq(
+      Regex::Automata::MatchError.quit('x'.ord.to_u8, 0)
+    )
+    dfa.try_search_fwd(cache, input).should eq(
+      Regex::Automata::MatchError.quit('x'.ord.to_u8, 0)
+    )
+
+    # Rust checks the look-behind quit byte before unsupported anchoring.
+    anchored = input.clone.anchored_pattern(Regex::Automata::PatternID.new(0))
+    dfa.start_state_forward(cache, anchored).should eq(
+      Regex::Automata::MatchError.quit('x'.ord.to_u8, 0)
+    )
+  end
+
+  it "reports a reverse start quit at the look-ahead offset" do
+    dfa = Regex::Automata::Hybrid::Builder.new
+      .configure(Regex::Automata::Hybrid::DFA.config.quit('x'.ord.to_u8, true))
+      .thompson(Regex::Automata::NFA::NFA.config.reverse(true))
+      .build("a")
+    cache = dfa.create_cache
+    input = Regex::Automata::Input.new("ax").span(0...1)
+
+    dfa.start_state_reverse(cache, input).should eq(
+      Regex::Automata::MatchError.quit('x'.ord.to_u8, 1)
+    )
+    dfa.try_search_rev(cache, input).should eq(
+      Regex::Automata::MatchError.quit('x'.ord.to_u8, 1)
+    )
+  end
+
   it "rejects Unicode word boundaries unless heuristic support or a full non-ASCII quitset is enabled" do
     expect_raises(
       Regex::Automata::Hybrid::BuildError,

@@ -570,10 +570,10 @@ src/dfa/start.rs::method::StartKind.has_anchored	method	intentional_divergence	s
 src/dfa/start.rs::method::StartKind.has_unanchored	method	intentional_divergence	src/regex/automata/start_table.cr:113	StartTable applies unanchored capability directly; no extra predicate is needed on the enum hot path
 src/dfa/start.rs::method::StartKind.write_to	method	intentional_divergence	src/regex/automata/dfa.cr:622	Crystal's versioned DFA wire format writes flags and full start tables instead of a standalone StartKind field
 src/dfa/start.rs::method::StartKind.write_to_len	method	intentional_divergence	src/regex/automata/dfa.cr:622	Crystal's versioned DFA wire format sizes flags and full start tables instead of a standalone StartKind field
-src/hybrid/dfa.rs::const::ID_SIZE	const	intentional_divergence	src/regex/automata/hybrid.cr:109	Crystal's tagged Int32 state IDs have no Rust byte-layout constant.
+src/hybrid/dfa.rs::const::ID_SIZE	const	intentional_divergence	src/regex/automata/hybrid.cr:Cache#memory_usage;src/regex/automata/hybrid.cr:Hybrid.minimum_cache_capacity;spec/hybrid_spec.cr	Rust-local size_of::<LazyStateID>() is computed inline as sizeof(LazyStateID) in Crystal; the tagged value remains four bytes, with no search-loop work.
 src/hybrid/dfa.rs::const::MIN_STATES	const	ported	src/regex/automata/hybrid.cr:8;spec/hybrid_spec.cr	Uses the same sentinel-plus-start minimum-state invariant.
 src/hybrid/dfa.rs::const::SENTINEL_STATES	const	ported	src/regex/automata/hybrid.cr:7;spec/hybrid_spec.cr	Preserves the three lazy sentinel states.
-src/hybrid/dfa.rs::const::STATE_SIZE	const	intentional_divergence	src/regex/automata/hybrid.cr	Crystal object layout is not a stable storage contract.
+src/hybrid/dfa.rs::const::STATE_SIZE	const	intentional_divergence	src/regex/automata/hybrid.cr:Cache#memory_usage;src/regex/automata/hybrid.cr:Hybrid.minimum_cache_capacity;spec/hybrid_spec.cr	Rust-local size_of::<State>() is computed inline as sizeof(Determinize::State); Crystal's slice-backed State layout differs, so cache accounting uses its actual representation without search-loop work.
 src/hybrid/dfa.rs::method::Builder.build	method	ported	src/regex/automata/hybrid.cr:1717;spec/hybrid_spec.cr	Builds configured lazy DFAs.
 src/hybrid/dfa.rs::method::Builder.build_from_nfa	method	ported	src/regex/automata/hybrid.cr:1716;spec/hybrid_spec.cr	Builds from a precompiled Thompson NFA using quit-split classes and their minimum cache capacity.
 src/hybrid/dfa.rs::method::Builder.build_many	method	ported	src/regex/automata/hybrid.cr:1721;spec/hybrid_spec.cr	Builds multi-pattern lazy DFAs.
@@ -681,7 +681,7 @@ src/hybrid/dfa.rs::method::SearchProgress.len	method	ported	src/regex/automata/h
 src/hybrid/dfa.rs::method::StateSaver.none	method	ported	src/regex/automata/hybrid.cr:649;spec/hybrid_spec.cr	cold cache-clear state preservation
 src/hybrid/dfa.rs::method::StateSaver.take_saved	method	ported	src/regex/automata/hybrid.cr:668;spec/hybrid_spec.cr	cold cache-clear state preservation
 src/hybrid/dfa.rs::method::StateSaver.take_to_save	method	ported	src/regex/automata/hybrid.cr:661;spec/hybrid_spec.cr	cold cache-clear state preservation
-src/hybrid/error.rs::method::BuildError.fmt	method	ported	src/regex/automata/hybrid.cr:Hybrid::BuildError;spec/hybrid_spec.cr	Constructor messages match Rust variants.
+src/hybrid/error.rs::method::BuildError.fmt	method	ported	src/regex/automata/hybrid.cr:Hybrid::BuildError;spec/hybrid_spec.cr	Constructor messages match Rust variants; pattern syntax failures now wrap a Thompson NFA syntax cause.
 src/hybrid/error.rs::method::BuildError.insufficient_cache_capacity	method	ported	src/regex/automata/hybrid.cr:Hybrid::BuildError.insufficient_cache_capacity;spec/hybrid_spec.cr	Hybrid cache-capacity diagnostic.
 src/hybrid/error.rs::method::BuildError.insufficient_state_id_capacity	method	ported	src/regex/automata/hybrid.cr:Hybrid::BuildError.insufficient_state_id_capacity;spec/hybrid_spec.cr	Lazy state-ID capacity diagnostic.
 src/hybrid/error.rs::method::BuildError.nfa	method	ported	src/regex/automata/hybrid.cr:Hybrid::BuildError.nfa;spec/hybrid_spec.cr	Wraps and retains the Thompson NFA cause.
@@ -691,8 +691,8 @@ src/hybrid/error.rs::method::CacheError.bad_efficiency	method	ported	src/regex/a
 src/hybrid/error.rs::method::CacheError.fmt	method	ported	src/regex/automata/hybrid.cr:Hybrid::CacheError;spec/hybrid_spec.cr	Rust-compatible cache error message.
 src/hybrid/error.rs::method::CacheError.too_many_cache_clears	method	ported	src/regex/automata/hybrid.cr:Hybrid::CacheError.too_many_cache_clears;spec/hybrid_spec.cr	Cache-clear error constructor.
 src/hybrid/error.rs::method::StartError.cache	method	ported	src/regex/automata/hybrid.cr:Hybrid::StartError.cache;spec/hybrid_spec.cr	Retains cache cause.
-src/hybrid/error.rs::method::StartError.fmt	method	ported	src/regex/automata/hybrid.cr:Hybrid::StartError;spec/hybrid_spec.cr	Variant-specific start-error messages.
-src/hybrid/error.rs::method::StartError.quit	method	ported	src/regex/automata/hybrid.cr:Hybrid::StartError.quit;spec/hybrid_spec.cr	Quit-byte start error.
+src/hybrid/error.rs::method::StartError.fmt	method	ported	src/regex/automata/hybrid.cr:Hybrid::StartError;spec/hybrid_spec.cr	Variant-specific start-error messages, including DebugByte-escaped quit look-behind bytes.
+src/hybrid/error.rs::method::StartError.quit	method	ported	src/regex/automata/hybrid.cr:Hybrid::StartError.quit;spec/hybrid_spec.cr	Quit-byte start error uses Rust DebugByte formatting; forward conversion reports the preceding byte offset.
 src/hybrid/error.rs::method::StartError.source	method	ported	src/regex/automata/hybrid.cr:Hybrid::StartError#source;spec/hybrid_spec.cr	Exposes cache cause.
 src/hybrid/error.rs::method::StartError.unsupported_anchored	method	ported	src/regex/automata/hybrid.cr:Hybrid::StartError.unsupported_anchored;spec/hybrid_spec.cr	Anchoring error with optional pattern ID.
 src/hybrid/id.rs::const::MASK_DEAD	const	ported	src/regex/automata/hybrid.cr:104;spec/hybrid_spec.cr	Preserves the dead-state tag bit.
