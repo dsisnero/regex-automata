@@ -1393,9 +1393,44 @@ module Regex::Automata::Hybrid
       at = input.end - 1
       cache.search_start(at)
       loop do
-        next_sid = next_state(cache, current, input.haystack[at])
-        return ::Regex::Automata::MatchError.gave_up(at) if next_sid.is_a?(CacheError)
-        current = next_sid.as(LazyStateID)
+        if current.is_tagged
+          cache.search_update(at)
+          next_sid = next_state(cache, current, input.haystack[at])
+          return ::Regex::Automata::MatchError.gave_up(at) if next_sid.is_a?(CacheError)
+          current = next_sid.as(LazyStateID)
+        else
+          previous = current
+          loop do
+            # As in Rust's reverse search, consume four cached untagged
+            # transitions per iteration and only enter the checked builder
+            # path on an unknown transition. The index is guarded by `at`.
+            current = cache.trans[previous.as_usize_untagged + @classes.get(input.haystack[at]).to_i]
+            break if current.is_tagged || at - input.start <= 3
+            at -= 1
+
+            previous = current
+            current = cache.trans[previous.as_usize_untagged + @classes.get(input.haystack[at]).to_i]
+            break if current.is_tagged
+            at -= 1
+
+            previous = current
+            current = cache.trans[previous.as_usize_untagged + @classes.get(input.haystack[at]).to_i]
+            break if current.is_tagged
+            at -= 1
+
+            previous = current
+            current = cache.trans[previous.as_usize_untagged + @classes.get(input.haystack[at]).to_i]
+            break if current.is_tagged
+            at -= 1
+            previous = current
+          end
+          if current.is_unknown
+            cache.search_update(at)
+            next_sid = next_state(cache, previous, input.haystack[at])
+            return ::Regex::Automata::MatchError.gave_up(at) if next_sid.is_a?(CacheError)
+            current = next_sid.as(LazyStateID)
+          end
+        end
         if current.is_match
           match = ::Regex::Automata::HalfMatch.new(match_pattern(cache, current, 0), at + 1)
           if input.get_earliest
@@ -1411,7 +1446,6 @@ module Regex::Automata::Hybrid
         end
         break if at == input.start
         at -= 1
-        cache.search_update(at)
       end
 
       eoi = if input.start > 0
@@ -1465,7 +1499,6 @@ module Regex::Automata::Hybrid
         if current.is_start && pre
           candidate = pre.find(input.haystack, ::Regex::Automata::Span.new(state.at, input.end))
           unless candidate
-            cache.search_finish(state.at)
             return nil
           end
 
@@ -1478,7 +1511,6 @@ module Regex::Automata::Hybrid
               return restarted if restarted.is_a?(::Regex::Automata::MatchError)
               current = restarted.as(LazyStateID)
             end
-            cache.search_update(state.at)
             next
           end
         elsif current.is_match
