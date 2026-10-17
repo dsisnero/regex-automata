@@ -125,12 +125,12 @@ module Regex::Automata::Hybrid
       @value & MAX
     end
 
-    def as_usize_untagged : Int32
-      as_i
+    def as_usize_untagged : UInt64
+      as_i.to_u64
     end
 
-    def as_usize_unchecked : Int64
-      @value.to_u32!.to_i64
+    def as_usize_unchecked : UInt64
+      @value.to_u32!.to_u64
     end
 
     def to_unknown : LazyStateID
@@ -987,7 +987,7 @@ module Regex::Automata::Hybrid
     ) : Nil
       raise "invalid 'from' id: #{from.inspect}" unless as_ref.is_valid(from)
       raise "invalid 'to' id: #{to.inspect}" unless as_ref.is_valid(to)
-      offset = from.as_usize_untagged + @dfa.get_byte_classes.get_by_unit(unit)
+      offset = from.as_i + @dfa.get_byte_classes.get_by_unit(unit)
       @cache.trans[offset] = to
     end
   end
@@ -1013,17 +1013,17 @@ module Regex::Automata::Hybrid
     end
 
     def is_valid(id : LazyStateID) : Bool
-      raw = id.as_usize_untagged
+      raw = id.as_i
       raw < @cache.trans.size && (raw % @dfa.stride) == 0
     end
 
     def transition(current : LazyStateID, unit : ::Regex::Automata::Unit) : LazyStateID
-      offset = current.as_usize_untagged + @dfa.get_byte_classes.get_by_unit(unit)
+      offset = current.as_i + @dfa.get_byte_classes.get_by_unit(unit)
       @cache.trans[offset]
     end
 
     def get_cached_state(sid : LazyStateID) : ::Regex::Automata::Determinize::State
-      index = sid.as_usize_untagged >> @dfa.stride2
+      index = sid.as_i >> @dfa.stride2
       @cache.states[index]
     end
 
@@ -1216,7 +1216,7 @@ module Regex::Automata::Hybrid
     end
 
     def next_state(cache : Cache, current : LazyStateID, input : UInt8) : LazyStateID | CacheError
-      offset = current.as_usize_untagged + @classes.get(input).to_i
+      offset = current.as_i + @classes.get(input).to_i
       next_sid = cache.trans[offset]
       return next_sid unless next_sid.is_unknown
 
@@ -1291,22 +1291,22 @@ module Regex::Automata::Hybrid
             # Rust groups cached untagged transitions and leaves unknown
             # transitions for the state-building slow path below. Unlike its
             # unsafe lookup, Crystal's Array access remains bounds checked.
-            current = cache.trans[previous.as_usize_untagged + @classes.get(input.haystack[at]).to_i]
+            current = cache.trans[previous.as_i + @classes.get(input.haystack[at]).to_i]
             break if current.is_tagged || input.end - at <= 3
             at += 1
 
             previous = current
-            current = cache.trans[previous.as_usize_untagged + @classes.get(input.haystack[at]).to_i]
+            current = cache.trans[previous.as_i + @classes.get(input.haystack[at]).to_i]
             break if current.is_tagged
             at += 1
 
             previous = current
-            current = cache.trans[previous.as_usize_untagged + @classes.get(input.haystack[at]).to_i]
+            current = cache.trans[previous.as_i + @classes.get(input.haystack[at]).to_i]
             break if current.is_tagged
             at += 1
 
             previous = current
-            current = cache.trans[previous.as_usize_untagged + @classes.get(input.haystack[at]).to_i]
+            current = cache.trans[previous.as_i + @classes.get(input.haystack[at]).to_i]
             break if current.is_tagged
             at += 1
             break if at >= input.end
@@ -1415,22 +1415,22 @@ module Regex::Automata::Hybrid
             # As in Rust's reverse search, consume four cached untagged
             # transitions per iteration and only enter the checked builder
             # path on an unknown transition. The index is guarded by `at`.
-            current = cache.trans[previous.as_usize_untagged + @classes.get(input.haystack[at]).to_i]
+            current = cache.trans[previous.as_i + @classes.get(input.haystack[at]).to_i]
             break if current.is_tagged || at - input.start <= 3
             at -= 1
 
             previous = current
-            current = cache.trans[previous.as_usize_untagged + @classes.get(input.haystack[at]).to_i]
+            current = cache.trans[previous.as_i + @classes.get(input.haystack[at]).to_i]
             break if current.is_tagged
             at -= 1
 
             previous = current
-            current = cache.trans[previous.as_usize_untagged + @classes.get(input.haystack[at]).to_i]
+            current = cache.trans[previous.as_i + @classes.get(input.haystack[at]).to_i]
             break if current.is_tagged
             at -= 1
 
             previous = current
-            current = cache.trans[previous.as_usize_untagged + @classes.get(input.haystack[at]).to_i]
+            current = cache.trans[previous.as_i + @classes.get(input.haystack[at]).to_i]
             break if current.is_tagged
             at -= 1
             previous = current

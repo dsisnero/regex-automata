@@ -691,8 +691,8 @@ src/hybrid/error.rs::method::CacheError.bad_efficiency	method	ported	src/regex/a
 src/hybrid/error.rs::method::CacheError.fmt	method	ported	src/regex/automata/hybrid.cr:Hybrid::CacheError;spec/hybrid_spec.cr	Rust-compatible cache error message.
 src/hybrid/error.rs::method::CacheError.too_many_cache_clears	method	ported	src/regex/automata/hybrid.cr:Hybrid::CacheError.too_many_cache_clears;spec/hybrid_spec.cr	Cache-clear error constructor.
 src/hybrid/error.rs::method::StartError.cache	method	ported	src/regex/automata/hybrid.cr:Hybrid::StartError.cache;spec/hybrid_spec.cr	Retains cache cause.
-src/hybrid/error.rs::method::StartError.fmt	method	ported	src/regex/automata/hybrid.cr:Hybrid::StartError;spec/hybrid_spec.cr	Variant-specific start-error messages, including DebugByte-escaped quit look-behind bytes.
-src/hybrid/error.rs::method::StartError.quit	method	ported	src/regex/automata/hybrid.cr:Hybrid::StartError.quit;spec/hybrid_spec.cr	Quit-byte start error uses Rust DebugByte formatting; forward conversion reports the preceding byte offset.
+src/hybrid/error.rs::method::StartError.fmt	method	ported	src/regex/automata/hybrid.cr:Hybrid::StartError;spec/hybrid_spec.cr;spec/hybrid_id_error_source_audit_spec.cr	All anchored/cache/quit variants match Rust display, including quote-escaped quit bytes.
+src/hybrid/error.rs::method::StartError.quit	method	ported	src/regex/automata/hybrid.cr:Hybrid::StartError.quit;spec/hybrid_spec.cr;spec/hybrid_id_error_source_audit_spec.cr	Quit-byte start error uses Rust DebugByte formatting, including escaped quotes; forward conversion reports the preceding byte offset.
 src/hybrid/error.rs::method::StartError.source	method	ported	src/regex/automata/hybrid.cr:Hybrid::StartError#source;spec/hybrid_spec.cr	Exposes cache cause.
 src/hybrid/error.rs::method::StartError.unsupported_anchored	method	ported	src/regex/automata/hybrid.cr:Hybrid::StartError.unsupported_anchored;spec/hybrid_spec.cr	Anchoring error with optional pattern ID.
 src/hybrid/id.rs::const::MASK_DEAD	const	ported	src/regex/automata/hybrid.cr:104;spec/hybrid_spec.cr	Preserves the dead-state tag bit.
@@ -702,8 +702,8 @@ src/hybrid/id.rs::const::MASK_START	const	ported	src/regex/automata/hybrid.cr:10
 src/hybrid/id.rs::const::MASK_UNKNOWN	const	ported	src/regex/automata/hybrid.cr:103;spec/hybrid_spec.cr	Preserves the unknown-state tag bit.
 src/hybrid/id.rs::const::MAX	const	ported	src/regex/automata/hybrid.cr:108;spec/hybrid_spec.cr	Matches the untagged lazy-state upper bound.
 src/hybrid/id.rs::const::MAX_BIT	const	ported	src/regex/automata/hybrid.cr:102;spec/hybrid_spec.cr	Uses the 32-bit target tag layout.
-src/hybrid/id.rs::method::LazyStateID.as_usize_unchecked	method	ported	src/regex/automata/hybrid.cr:LazyStateID#as_usize_unchecked;spec/hybrid_spec.cr	Exposes the unsigned raw tagged value, including the top-bit unknown tag.
-src/hybrid/id.rs::method::LazyStateID.as_usize_untagged	method	ported	src/regex/automata/hybrid.cr:127;spec/hybrid_spec.cr	Strips tag bits while retaining state ID.
+src/hybrid/id.rs::method::LazyStateID.as_usize_unchecked	method	ported	src/regex/automata/hybrid.cr:LazyStateID#as_usize_unchecked;spec/hybrid_spec.cr;spec/hybrid_id_error_source_audit_spec.cr	Returns UInt64 for Rust usize-width raw tagged value, including the top-bit unknown tag.
+src/hybrid/id.rs::method::LazyStateID.as_usize_untagged	method	ported	src/regex/automata/hybrid.cr:LazyStateID#as_usize_untagged;spec/hybrid_spec.cr;spec/hybrid_id_error_source_audit_spec.cr	Strips tag bits and returns UInt64; internal hot indexes use Int32 as_i.
 src/hybrid/id.rs::method::LazyStateID.is_dead	method	ported	src/regex/automata/hybrid.cr:163;spec/hybrid_spec.cr	Checks the dead tag.
 src/hybrid/id.rs::method::LazyStateID.is_match	method	ported	src/regex/automata/hybrid.cr:175;spec/hybrid_spec.cr	Checks the match tag.
 src/hybrid/id.rs::method::LazyStateID.is_quit	method	ported	src/regex/automata/hybrid.cr:167;spec/hybrid_spec.cr	Checks the quit tag.

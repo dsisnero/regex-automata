@@ -24,6 +24,8 @@ module Regex::Automata
         io << "\\\\"
       when '\''.ord.to_u8
         io << "\\'"
+      when '"'.ord.to_u8
+        io << "\\\""
       else
         if printable_ascii?(@byte)
           io.write_byte(@byte)
