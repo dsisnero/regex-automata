@@ -1,6 +1,126 @@
 require "./spec_helper"
 
 describe "pinned Rust hybrid DFA API examples" do
+  it "ports Rust's multi-pattern match_len and match_pattern transition example" do
+    dfa = Regex::Automata::Hybrid::Builder.new
+      .configure(Regex::Automata::Hybrid::DFA.config.match_kind(Regex::Automata::MatchKind::All))
+      .build_many(["\\w+", "[a-z]+", "[A-Z]+", "\\S+"])
+    cache = dfa.create_cache
+    input = Regex::Automata::Input.new("@bar")
+    state = dfa.start_state_forward(cache, input).as(Regex::Automata::Hybrid::LazyStateID)
+    "@bar".to_slice.each do |byte|
+      state = dfa.next_state(cache, state, byte).as(Regex::Automata::Hybrid::LazyStateID)
+    end
+    state = dfa.next_eoi_state(cache, state).as(Regex::Automata::Hybrid::LazyStateID)
+
+    state.is_match.should be_true
+    dfa.match_len(cache, state).should eq(3)
+    (0...3).map { |index| dfa.match_pattern(cache, state, index).to_i }.should eq([3, 0, 1])
+  end
+
+  it "rejects match_len on a non-match state as Rust does" do
+    dfa = Regex::Automata::Hybrid::DFA.new("a")
+    cache = dfa.create_cache
+    state = dfa.start_state_forward(cache, Regex::Automata::Input.new("a"))
+      .as(Regex::Automata::Hybrid::LazyStateID)
+    state.is_match.should be_false
+
+    expect_raises(Exception) { dfa.match_len(cache, state) }
+  end
+
+  it "reports Rust usize-width DFA-owned memory separately from its cache" do
+    dfa = Regex::Automata::Hybrid::DFA.new("[a-z]+")
+    dfa.memory_usage.should be_a(UInt64)
+    dfa.memory_usage.should eq(0_u64)
+    dfa.create_cache.memory_usage.should be > 0_u64
+  end
+
+  it "ports Rust's reverse overlapping UTF-8 boundary examples" do
+    {true, false}.each do |utf8|
+      dfa = Regex::Automata::Hybrid::Builder.new
+        .configure(Regex::Automata::Hybrid::DFA.config.match_kind(Regex::Automata::MatchKind::All))
+        .thompson(Regex::Automata::NFA::NFA.config.reverse(true).utf8(utf8))
+        .build_many(["", "☃"])
+      cache = dfa.create_cache
+      input = Regex::Automata::Input.new("☃")
+      state = Regex::Automata::Hybrid::OverlappingState.start
+      matches = [] of Regex::Automata::HalfMatch
+      loop do
+        dfa.try_search_overlapping_rev(cache, input, state).should be_nil
+        match = state.get_match
+        break unless match
+        matches << match
+      end
+
+      expected = if utf8
+                   [
+                     Regex::Automata::HalfMatch.must(0, 3),
+                     Regex::Automata::HalfMatch.must(1, 0),
+                     Regex::Automata::HalfMatch.must(0, 0),
+                   ]
+                 else
+                   [
+                     Regex::Automata::HalfMatch.must(0, 3),
+                     Regex::Automata::HalfMatch.must(0, 2),
+                     Regex::Automata::HalfMatch.must(0, 1),
+                     Regex::Automata::HalfMatch.must(1, 0),
+                     Regex::Automata::HalfMatch.must(0, 0),
+                   ]
+                 end
+      matches.should eq(expected)
+    end
+  end
+
+  it "ports Rust's all-pattern overlapping set example" do
+    patterns = ["\\w+", "\\d+", "\\pL+", "foo", "bar", "barfoo", "foobar"]
+    dfa = Regex::Automata::Hybrid::Builder.new
+      .configure(Regex::Automata::Hybrid::DFA.config.match_kind(Regex::Automata::MatchKind::All))
+      .build_many(patterns)
+    cache = dfa.create_cache
+    patset = Regex::Automata::PatternSet.new(dfa.pattern_len)
+
+    dfa.try_which_overlapping_matches(cache, Regex::Automata::Input.new("foobar"), patset).should be_nil
+    patset.iter.map(&.to_i).to_a.should eq([0, 2, 3, 4, 6])
+  end
+
+  it "retains caller-owned pattern-set entries across independent searches" do
+    dfa = Regex::Automata::Hybrid::Builder.new
+      .configure(Regex::Automata::Hybrid::DFA.config.match_kind(Regex::Automata::MatchKind::All))
+      .build_many(["foo", "bar"])
+    cache = dfa.create_cache
+    patset = Regex::Automata::PatternSet.new(2)
+    patset.insert(Regex::Automata::PatternID.new(1))
+
+    dfa.try_which_overlapping_matches(cache, Regex::Automata::Input.new("foo"), patset).should be_nil
+    patset.iter.map(&.to_i).to_a.should eq([0, 1])
+  end
+
+  it "stops collecting overlapping pattern IDs at the earliest match" do
+    dfa = Regex::Automata::Hybrid::Builder.new
+      .configure(Regex::Automata::Hybrid::DFA.config.match_kind(Regex::Automata::MatchKind::All))
+      .build_many(["a", "aa"])
+    cache = dfa.create_cache
+    patset = Regex::Automata::PatternSet.new(2)
+
+    dfa.try_which_overlapping_matches(cache, Regex::Automata::Input.new("aa").earliest(true), patset).should be_nil
+    patset.iter.map(&.to_i).to_a.should eq([0])
+  end
+
+  it "stops scanning once the pattern set is full, before a later quit byte" do
+    dfa = Regex::Automata::Hybrid::Builder.new
+      .configure(
+        Regex::Automata::Hybrid::DFA.config
+          .match_kind(Regex::Automata::MatchKind::All)
+          .quit('x'.ord.to_u8, true)
+      )
+      .build("a")
+    cache = dfa.create_cache
+    patset = Regex::Automata::PatternSet.new(1)
+
+    dfa.try_which_overlapping_matches(cache, Regex::Automata::Input.new("a x"), patset).should be_nil
+    patset.iter.map(&.to_i).to_a.should eq([0])
+  end
+
   it "matches every Rust hybrid Config default getter" do
     config = Regex::Automata::Hybrid::DFA.config
 

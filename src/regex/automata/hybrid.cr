@@ -1136,8 +1136,8 @@ module Regex::Automata::Hybrid
       @nfa.pattern_len
     end
 
-    def memory_usage : Int32
-      0
+    def memory_usage : UInt64
+      0_u64
     end
 
     def cache_capacity : UInt64
@@ -1161,11 +1161,12 @@ module Regex::Automata::Hybrid
     end
 
     def match_len(cache : Cache, id : LazyStateID) : Int32
-      return 0 unless id.is_match
+      raise "hybrid state is not a match state" unless id.is_match
       LazyRef.new(self, cache).get_cached_state(id).match_len
     end
 
     def match_pattern(cache : Cache, id : LazyStateID, index : Int32) : ::Regex::Automata::PatternID
+      return ::Regex::Automata::PatternID::ZERO if pattern_len == 1
       LazyRef.new(self, cache).get_cached_state(id).match_pattern(index)
     end
 
@@ -1655,7 +1656,6 @@ module Regex::Automata::Hybrid
     end
 
     def try_which_overlapping_matches(cache : Cache, input : ::Regex::Automata::Input, patset : ::Regex::Automata::PatternSet) : Nil | ::Regex::Automata::MatchError
-      patset.clear
       state = OverlappingState.start
       loop do
         result = try_search_overlapping_fwd(cache, input, state)
@@ -1665,6 +1665,7 @@ module Regex::Automata::Hybrid
         break unless half_match
 
         patset.try_insert(half_match.pattern)
+        break if patset.is_full || input.get_earliest
       end
       nil
     end
@@ -1833,7 +1834,7 @@ module Regex::Automata::Hybrid
       @forward.pattern_len
     end
 
-    def memory_usage : Int32
+    def memory_usage : UInt64
       @forward.memory_usage + @reverse.memory_usage
     end
 
