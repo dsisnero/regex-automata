@@ -719,37 +719,37 @@ src/hybrid/id.rs::method::LazyStateID.to_start	method	ported	src/regex/automata/
 src/hybrid/id.rs::method::LazyStateID.to_unknown	method	ported	src/regex/automata/hybrid.cr:135;spec/hybrid_spec.cr	Adds the unknown tag.
 src/hybrid/id.rs::method::LazyStateIDError.attempted	method	ported	src/regex/automata/hybrid.cr:LazyStateIDError#attempted;spec/hybrid_spec.cr	Exposes full-width attempted IDs, including UInt64::MAX.
 src/hybrid/id.rs::method::LazyStateIDError.fmt	method	ported	src/regex/automata/hybrid.cr:93;spec/hybrid_spec.cr	Preserves Rust-compatible overflow diagnostic text.
-src/hybrid/regex.rs::method::Builder.build	method	ported	src/regex/automata/hybrid.cr:2000;spec/hybrid_spec.cr	Builds hybrid regex wrappers.
+src/hybrid/regex.rs::method::Builder.build	method	ported	src/regex/automata/hybrid.cr:RegexBuilder#build;spec/hybrid_spec.cr;spec/hybrid_regex_source_audit_spec.cr	Builds one-pattern wrappers; direct Rust byte-oriented and quit examples pass.
 src/hybrid/regex.rs::method::Builder.build_from_dfas	method	ported	src/regex/automata/hybrid.cr:RegexBuilder#build_from_dfas;spec/hybrid_source_audit_spec.cr	Combines separately configured forward and reverse DFAs as in Rust's doctest.
-src/hybrid/regex.rs::method::Builder.build_many	method	ported	src/regex/automata/hybrid.cr:2004;spec/hybrid_spec.cr	Builds multi-pattern hybrid wrappers.
+src/hybrid/regex.rs::method::Builder.build_many	method	ported	src/regex/automata/hybrid.cr:RegexBuilder#build_many;spec/hybrid_spec.cr;spec/hybrid_regex_source_audit_spec.cr	Builds forward leftmost-first and reverse all-match DFAs, including an empty pattern list.
 src/hybrid/regex.rs::method::Builder.default	method	ported	src/regex/automata/hybrid.cr:1977;spec/hybrid_spec.cr	Crystal constructor supplies the default builder.
-src/hybrid/regex.rs::method::Builder.dfa	method	ported	src/regex/automata/hybrid.cr:1981;spec/hybrid_spec.cr	Applies hybrid DFA configuration.
+src/hybrid/regex.rs::method::Builder.dfa	method	ported	src/regex/automata/hybrid.cr:RegexBuilder#dfa;spec/hybrid_spec.cr;spec/hybrid_regex_source_audit_spec.cr	Repeated DFA configurations merge; reverse build retains only Rust's prefilter/start-specialization/match-kind overrides.
 src/hybrid/regex.rs::method::Builder.new	method	ported	src/regex/automata/hybrid.cr:1977;spec/hybrid_spec.cr	Default wrapper builder constructor.
-src/hybrid/regex.rs::method::Builder.syntax	method	ported	src/regex/automata/hybrid.cr:1986;spec/hybrid_spec.cr	Applies syntax configuration.
-src/hybrid/regex.rs::method::Builder.thompson	method	ported	src/regex/automata/hybrid.cr:1991;spec/hybrid_spec.cr	Applies Thompson configuration.
-src/hybrid/regex.rs::method::Cache.as_parts	method	ported	src/regex/automata/hybrid.cr:1961;spec/hybrid_spec.cr	Returns forward and reverse caches.
-src/hybrid/regex.rs::method::Cache.as_parts_mut	method	ported	src/regex/automata/hybrid.cr:1965;spec/hybrid_spec.cr	Crystal references are mutable, so this returns the same pair contract.
+src/hybrid/regex.rs::method::Builder.syntax	method	ported	src/regex/automata/hybrid.cr:RegexBuilder#syntax;spec/hybrid_spec.cr;spec/hybrid_regex_source_audit_spec.cr	Applies syntax configuration; Rust's invalid-UTF-8 byte example is ported directly.
+src/hybrid/regex.rs::method::Builder.thompson	method	ported	src/regex/automata/hybrid.cr:RegexBuilder#thompson;spec/hybrid_regex_source_audit_spec.cr	Merges successive Thompson overrides as Rust's underlying DFA builder does; red-green spec caught dropped UTF-8 mode.
+src/hybrid/regex.rs::method::Cache.as_parts	method	ported	src/regex/automata/hybrid.cr:RegexCache#as_parts;spec/hybrid_spec.cr;spec/hybrid_regex_source_audit_spec.cr	Returns the same forward and reverse cache objects after reset.
+src/hybrid/regex.rs::method::Cache.as_parts_mut	method	ported	src/regex/automata/hybrid.cr:RegexCache#as_parts_mut;spec/hybrid_regex_source_audit_spec.cr	Crystal references are mutable; returns the same reverse cache object after reset.
 src/hybrid/regex.rs::method::Cache.forward	method	ported	src/regex/automata/hybrid.cr:1941;spec/hybrid_spec.cr	Exposes forward cache.
 src/hybrid/regex.rs::method::Cache.forward_mut	method	ported	src/regex/automata/hybrid.cr:1941;spec/hybrid_spec.cr	Crystal getter supplies mutable object reference.
-src/hybrid/regex.rs::method::Cache.memory_usage	method	ported	src/regex/automata/hybrid.cr:RegexCache#memory_usage;spec/hybrid_spec.cr	Sums forward and reverse cache storage as UInt64.
+src/hybrid/regex.rs::method::Cache.memory_usage	method	ported	src/regex/automata/hybrid.cr:RegexCache#memory_usage;spec/hybrid_spec.cr;spec/hybrid_regex_source_audit_spec.cr	Sums forward and reverse cache storage as UInt64, including after retargeting.
 src/hybrid/regex.rs::method::Cache.new	method	ported	src/regex/automata/hybrid.cr:1949;spec/hybrid_spec.cr	Creates caches for wrapper DFAs.
-src/hybrid/regex.rs::method::Cache.reset	method	ported	src/regex/automata/hybrid.cr:1953;spec/hybrid_spec.cr	Retargets both reusable caches.
+src/hybrid/regex.rs::method::Cache.reset	method	ported	src/regex/automata/hybrid.cr:RegexCache#reset;spec/hybrid_regex_source_audit_spec.cr	Retargets both reusable caches and resets both clear counts.
 src/hybrid/regex.rs::method::Cache.reverse	method	ported	src/regex/automata/hybrid.cr:1942;spec/hybrid_spec.cr	Exposes reverse cache.
 src/hybrid/regex.rs::method::Cache.reverse_mut	method	ported	src/regex/automata/hybrid.cr:1942;spec/hybrid_spec.cr	Crystal getter supplies mutable object reference.
-src/hybrid/regex.rs::method::FindMatches<'r, 'c, 'h>.next	method	ported	src/regex/automata/hybrid.cr:1931;spec/hybrid_spec.cr	Advances non-overlapping matches.
+src/hybrid/regex.rs::method::FindMatches<'r, 'c, 'h>.next	method	ported	src/regex/automata/hybrid.cr:FindMatches#next;spec/hybrid_spec.cr;spec/hybrid_regex_source_audit_spec.cr	Advances non-overlapping matches, skips UTF-8 interior empty matches, and raises on delayed-match quit as pinned Rust does.
 src/hybrid/regex.rs::method::Regex.builder	method	ported	src/regex/automata/hybrid.cr:1827;spec/hybrid_spec.cr	Creates wrapper builder.
 src/hybrid/regex.rs::method::Regex.create_cache	method	ported	src/regex/automata/hybrid.cr:1831;spec/hybrid_spec.cr	Creates coupled forward/reverse cache.
-src/hybrid/regex.rs::method::Regex.find	method	ported	src/regex/automata/hybrid.cr:1863;spec/hybrid_spec.cr	Finds leftmost match with reverse start resolution.
-src/hybrid/regex.rs::method::Regex.find_iter	method	ported	src/regex/automata/hybrid.cr:1869;spec/hybrid_spec.cr	Creates non-overlapping match iterator.
+src/hybrid/regex.rs::method::Regex.find	method	ported	src/regex/automata/hybrid.cr:Regex#find;spec/hybrid_spec.cr;spec/hybrid_regex_source_audit_spec.cr	Finds leftmost match with reverse start resolution and raises on fallible quit.
+src/hybrid/regex.rs::method::Regex.find_iter	method	ported	src/regex/automata/hybrid.cr:Regex#find_iter;spec/hybrid_spec.cr;spec/hybrid_regex_source_audit_spec.cr	Rust multi-pattern priority and non-overlapping/UTF-8-empty iteration examples pass.
 src/hybrid/regex.rs::method::Regex.forward	method	ported	src/regex/automata/hybrid.cr:1848;spec/hybrid_spec.cr	Exposes forward DFA.
 src/hybrid/regex.rs::method::Regex.is_anchored	method	ported	src/regex/automata/hybrid.cr:1897;spec/hybrid_spec.cr	Determines wrapper anchored behavior from Input and NFA.
-src/hybrid/regex.rs::method::Regex.is_match	method	ported	src/regex/automata/hybrid.cr:1856;spec/hybrid_spec.cr	Runs earliest existence search.
+src/hybrid/regex.rs::method::Regex.is_match	method	ported	src/regex/automata/hybrid.cr:Regex#is_match;spec/hybrid_spec.cr;spec/hybrid_regex_source_audit_spec.cr	Runs earliest forward-only existence search and can return before a later quit byte.
 src/hybrid/regex.rs::method::Regex.new	method	ported	src/regex/automata/hybrid.cr:1819;spec/hybrid_spec.cr	Builds one-pattern wrapper.
-src/hybrid/regex.rs::method::Regex.new_many	method	ported	src/regex/automata/hybrid.cr:1823;spec/hybrid_spec.cr	Builds multi-pattern wrapper.
-src/hybrid/regex.rs::method::Regex.pattern_len	method	ported	src/regex/automata/hybrid.cr:1840;spec/hybrid_spec.cr	Returns pattern count.
+src/hybrid/regex.rs::method::Regex.new_many	method	ported	src/regex/automata/hybrid.cr:Regex.new_many;spec/hybrid_spec.cr;spec/hybrid_regex_source_audit_spec.cr	Builds multi-pattern or empty never-matching wrapper.
+src/hybrid/regex.rs::method::Regex.pattern_len	method	ported	src/regex/automata/hybrid.cr:Regex#pattern_len;spec/hybrid_regex_source_audit_spec.cr	Asserts forward/reverse pattern counts agree before returning; red-green spec caught missing Rust assertion.
 src/hybrid/regex.rs::method::Regex.reset_cache	method	ported	src/regex/automata/hybrid.cr:Regex#reset_cache;spec/hybrid_spec.cr;spec/hybrid_source_audit_spec.cr	Retargets both caches; Rust's Unicode word/nonword reset example is ported directly.
 src/hybrid/regex.rs::method::Regex.reverse	method	ported	src/regex/automata/hybrid.cr:1852;spec/hybrid_spec.cr	Exposes reverse DFA.
-src/hybrid/regex.rs::method::Regex.try_search	method	ported	src/regex/automata/hybrid.cr:1873;spec/hybrid_spec.cr	Combines forward end and reverse start searches.
+src/hybrid/regex.rs::method::Regex.try_search	method	ported	src/regex/automata/hybrid.cr:Regex#try_search;spec/hybrid_spec.cr;spec/hybrid_regex_source_audit_spec.cr	Combines forward end and reverse start searches, propagates quit errors, and skips reverse on anchored/initial-empty matches.
 src/meta/error.rs::method::BuildError.ast	method	skipped	src/regex/automata/meta_error.cr:BuildError.syntax_error	Rust-private AST conversion; Crystal's regex-syntax parser supplies a unified syntax error.
 src/meta/error.rs::method::BuildError.fmt	method	intentional_divergence	src/regex/automata/meta_error.cr:BuildError	Crystal Exception formatting replaces Rust Display.
 src/meta/error.rs::method::BuildError.hir	method	skipped	src/regex/automata/meta_error.cr:BuildError.syntax_error	Rust-private HIR conversion; Crystal's regex-syntax parser supplies a unified syntax error.

@@ -1831,6 +1831,7 @@ module Regex::Automata::Hybrid
     end
 
     def pattern_len : Int32
+      raise "forward and reverse DFAs have different pattern counts" unless @forward.pattern_len == @reverse.pattern_len
       @forward.pattern_len
     end
 
@@ -1986,7 +1987,7 @@ module Regex::Automata::Hybrid
     end
 
     def thompson(config : ::Regex::Automata::HirCompilerConfig) : RegexBuilder
-      @thompson_config = config
+      @thompson_config = @thompson_config.overwrite(config)
       self
     end
 
