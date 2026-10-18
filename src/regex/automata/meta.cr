@@ -21,7 +21,6 @@ module Regex::Automata::Meta
     @reverse_anchored_hybrid_cache : ::Regex::Automata::Hybrid::Cache?
     @reverse_inner_hybrid_cache : ::Regex::Automata::Hybrid::Cache?
     @reverse_inner_forward_hybrid_cache : ::Regex::Automata::Hybrid::Cache?
-    @reverse_suffix_hybrid_cache : ::Regex::Automata::Hybrid::Cache?
 
     def initialize(regex : Regex)
       @pikevm = regex.pikevm?
@@ -33,7 +32,6 @@ module Regex::Automata::Meta
       @reverse_anchored_hybrid_cache = regex.reverse_anchored_hybrid.try(&.create_cache)
       @reverse_inner_hybrid_cache = regex.reverse_inner_hybrid.try(&.create_cache)
       @reverse_inner_forward_hybrid_cache = regex.reverse_inner_forward_hybrid.try(&.create_cache)
-      @reverse_suffix_hybrid_cache = regex.reverse_suffix_hybrid.try(&.create_cache)
     end
 
     def reset(regex : Regex) : Nil
@@ -68,7 +66,6 @@ module Regex::Automata::Meta
       end
       reset_hybrid_cache(regex.reverse_inner_hybrid, @reverse_inner_hybrid_cache) { |value| @reverse_inner_hybrid_cache = value }
       reset_hybrid_cache(regex.reverse_inner_forward_hybrid, @reverse_inner_forward_hybrid_cache) { |value| @reverse_inner_forward_hybrid_cache = value }
-      reset_hybrid_cache(regex.reverse_suffix_hybrid, @reverse_suffix_hybrid_cache) { |value| @reverse_suffix_hybrid_cache = value }
     end
 
     def memory_usage : UInt64
@@ -77,7 +74,6 @@ module Regex::Automata::Meta
         (@core_onepass_cache.try(&.memory_usage) || 0) +
         (@core_backtrack_cache.try(&.memory_usage) || 0) +
         (@reverse_anchored_hybrid_cache.try(&.memory_usage) || 0) +
-        (@reverse_suffix_hybrid_cache.try(&.memory_usage) || 0) +
         (@reverse_inner_hybrid_cache.try(&.memory_usage) || 0) +
         (@reverse_inner_forward_hybrid_cache.try(&.memory_usage) || 0)
     end
@@ -94,7 +90,10 @@ module Regex::Automata::Meta
     getter reverse_anchored_hybrid_cache : ::Regex::Automata::Hybrid::Cache?
     getter reverse_inner_hybrid_cache : ::Regex::Automata::Hybrid::Cache?
     getter reverse_inner_forward_hybrid_cache : ::Regex::Automata::Hybrid::Cache?
-    getter reverse_suffix_hybrid_cache : ::Regex::Automata::Hybrid::Cache?
+
+    def reverse_suffix_hybrid_cache : ::Regex::Automata::Hybrid::Cache?
+      @core_hybrid_cache.try(&.reverse)
+    end
 
     private def reset_hybrid_cache(hybrid : ::Regex::Automata::Hybrid::DFA?, existing : ::Regex::Automata::Hybrid::Cache?, &)
       if hybrid
@@ -448,7 +447,7 @@ module Regex::Automata::Meta
       core_onepass = build_core_onepass(nfa, props_union)
       core_backtrack = build_core_backtrack(nfa, core_prefilter)
       core_reverse_nfa, core_dfa, core_hybrid = build_core_dfas(hirs_array, nfa, core_prefilter, props_union)
-      reverse_suffix_prefilter, reverse_suffix_dfa, reverse_suffix_hybrid = build_reverse_suffix_strategy(hirs_array, props_union, core_prefilter, literal_prefilter)
+      reverse_suffix_prefilter, reverse_suffix_dfa, reverse_suffix_hybrid = build_reverse_suffix_strategy(hirs_array, props_union, core_prefilter, literal_prefilter, core_dfa, core_hybrid)
       reverse_inner_prefilter, reverse_inner_dfa, reverse_inner_forward_dfa, reverse_inner_hybrid, reverse_inner_forward_hybrid = build_reverse_inner_strategy(hirs_array, props_union, core_prefilter, literal_prefilter, reverse_suffix_prefilter)
       reverse_anchored_dfa, reverse_anchored_hybrid = build_reverse_anchored(hirs_array, props_union)
       Regex.new(
@@ -733,10 +732,13 @@ module Regex::Automata::Meta
       props_union : ::Regex::Syntax::Hir::Properties,
       core_prefilter : ::Regex::Automata::Prefilter?,
       literal_prefilter : ::Regex::Automata::Prefilter?,
+      core_dfa : ::Regex::Automata::DFA::Regex?,
+      core_hybrid : ::Regex::Automata::Hybrid::Regex?,
     ) : Tuple(::Regex::Automata::Prefilter?, ::Regex::Automata::DFA::DFA?, ::Regex::Automata::Hybrid::DFA?)
       return {nil, nil, nil} unless @config.get_auto_prefilter
       return {nil, nil, nil} unless @config.get_match_kind == ::Regex::Automata::MatchKind::LeftmostFirst
       return {nil, nil, nil} if props_union.look_set_prefix.contains(::Regex::Syntax::Hir::Look::Kind::StartText)
+      return {nil, nil, nil} unless core_dfa || core_hybrid
       return {nil, nil, nil} if core_prefilter.try(&.is_fast)
       return {nil, nil, nil} if literal_prefilter.try(&.is_fast)
 
@@ -756,14 +758,8 @@ module Regex::Automata::Meta
       pre = ::Regex::Automata::Prefilter.new(@config.get_match_kind, [suffix])
       return {nil, nil, nil} unless pre && pre.is_fast
 
-      if @config.get_dfa
-        begin
-          return {pre, build_reverse_dense_dfa(hirs), nil}
-        rescue ex : ::Regex::Automata::BuildError
-        end
-      end
-      return {nil, nil, nil} unless @config.get_hybrid
-      {pre, nil, build_reverse_hybrid_dfa(hirs)}
+      return {pre, core_dfa.reverse.as(::Regex::Automata::DFA::DFA), nil} if core_dfa
+      {pre, nil, core_hybrid.not_nil!.reverse}
     rescue ex : ::Regex::Automata::BuildError
       {nil, nil, nil}
     end
@@ -1305,7 +1301,6 @@ module Regex::Automata::Meta
         (@literal_prefilter.try(&.memory_usage) || 0) +
         (@reverse_anchored_dfa.try(&.memory_usage) || 0) +
         (@reverse_suffix_prefilter.try(&.memory_usage) || 0) +
-        (@reverse_suffix_dfa.try(&.memory_usage) || 0) +
         (@reverse_inner_prefilter.try(&.memory_usage) || 0) +
         (@reverse_inner_dfa.try(&.memory_usage) || 0) +
         (@reverse_inner_forward_dfa.try(&.memory_usage) || 0)
@@ -1377,8 +1372,14 @@ module Regex::Automata::Meta
         return literal
       end
       return nil if literal_strategy?
-      if suffix_match = reverse_suffix_search(cache, input)
-        return suffix_match
+      if reverse_suffix_selected?
+        return core_search(cache, input) if input.anchored.is_anchored
+        result = reverse_suffix_search(cache, input)
+        if result.is_a?(::Regex::Automata::Meta::RetryError)
+          return core_search(cache, input) if result.is_a?(::Regex::Automata::Meta::RetryQuadraticError)
+          return core_search_nofail(cache, input)
+        end
+        return result
       end
       if inner_match = reverse_inner_search(cache, input)
         return inner_match
@@ -1395,6 +1396,15 @@ module Regex::Automata::Meta
           return core_search_half_nofail(cache, input)
         end
         return result.try { |match| ::Regex::Automata::HalfMatch.new(match.pattern, input.end) }
+      end
+      if reverse_suffix_selected?
+        return core_search_half(cache, input) if input.anchored.is_anchored
+        result = reverse_suffix_search(cache, input)
+        if result.is_a?(::Regex::Automata::Meta::RetryError)
+          return core_search_half(cache, input) if result.is_a?(::Regex::Automata::Meta::RetryQuadraticError)
+          return core_search_half_nofail(cache, input)
+        end
+        return result.try { |match| ::Regex::Automata::HalfMatch.new(match.pattern, match.end) }
       end
       unless core_strategy?
         return search_with(cache, input).try { |match| ::Regex::Automata::HalfMatch.new(match.pattern, match.end) }
@@ -1441,8 +1451,8 @@ module Regex::Automata::Meta
         set_match_captures(caps, literal)
         return
       end
-      if suffix_match = reverse_suffix_search(cache, input)
-        search_captures_from_match(cache, input, caps, suffix_match)
+      if reverse_suffix_selected?
+        caps.set_pattern(reverse_suffix_search_slots(cache, input, caps.slots))
         return
       end
       if inner_match = reverse_inner_search(cache, input)
@@ -1475,8 +1485,8 @@ module Regex::Automata::Meta
         set_match_slots(slots, literal)
         return literal.pattern
       end
-      if suffix_match = reverse_suffix_search(cache, input)
-        return search_slots_from_match(cache, input, slots, suffix_match)
+      if reverse_suffix_selected?
+        return reverse_suffix_search_slots(cache, input, slots)
       end
       if inner_match = reverse_inner_search(cache, input)
         return search_slots_from_match(cache, input, slots, inner_match)
@@ -1505,8 +1515,8 @@ module Regex::Automata::Meta
         set_match_slots(slots, literal)
         return literal.pattern
       end
-      if suffix_match = reverse_suffix_search(cache, input)
-        return search_slots_from_match(cache, input, slots, suffix_match)
+      if reverse_suffix_selected?
+        return reverse_suffix_search_slots(cache, input, slots)
       end
       if inner_match = reverse_inner_search(cache, input)
         return search_slots_from_match(cache, input, slots, inner_match)
@@ -1562,6 +1572,10 @@ module Regex::Automata::Meta
         result = engine.forward.try_search_fwd(cache.core_hybrid_cache.not_nil!.forward, input)
         return !result.nil? unless result.is_a?(::Regex::Automata::MatchError)
       end
+      core_is_match_nofail(cache, input)
+    end
+
+    private def core_is_match_nofail(cache : Cache, input : ::Regex::Automata::Input) : Bool
       if engine = core_onepass_for(input)
         slots = [] of ::Regex::Automata::NonMaxUsize?
         result = engine.try_search_slots(cache.core_onepass_cache.not_nil!, input, slots)
@@ -1668,6 +1682,12 @@ module Regex::Automata::Meta
 
     def is_match_with(cache : Cache, input : ::Regex::Automata::Input) : Bool
       return false if impossible_input?(input)
+      if reverse_suffix_selected?
+        return core_is_match(cache, input) if input.anchored.is_anchored
+        result = reverse_suffix_start(cache, input)
+        return core_is_match_nofail(cache, input) if result.is_a?(::Regex::Automata::Meta::RetryError)
+        return !result.nil?
+      end
       return core_is_match(cache, input) if core_strategy?
       !search_half_with(cache, input).nil?
     end
@@ -1864,6 +1884,10 @@ module Regex::Automata::Meta
       !@reverse_anchored_dfa.nil? || !@reverse_anchored_hybrid.nil?
     end
 
+    private def reverse_suffix_selected? : Bool
+      !@reverse_suffix_prefilter.nil? && (!@reverse_suffix_dfa.nil? || !@reverse_suffix_hybrid.nil?)
+    end
+
     private def reverse_anchored_search(cache : Cache, input : ::Regex::Automata::Input) : ::Regex::Automata::Match? | ::Regex::Automata::MatchError
       if dfa = @reverse_anchored_dfa
         return reverse_match_from_dfa(dfa, input)
@@ -1878,15 +1902,14 @@ module Regex::Automata::Meta
       ::Regex::Automata::Match.new(result.pattern, result.offset, input.end)
     end
 
-    private def reverse_suffix_search(cache : Cache, input : ::Regex::Automata::Input) : ::Regex::Automata::Match?
+    private def reverse_suffix_search(cache : Cache, input : ::Regex::Automata::Input) : ::Regex::Automata::Match? | ::Regex::Automata::Meta::RetryError
       prefilter = @reverse_suffix_prefilter
       return nil unless prefilter
-      return nil if input.anchored.is_anchored
 
       hm_start = reverse_suffix_start(cache, input)
       case hm_start
       when ::Regex::Automata::Meta::RetryError
-        return pikevm.find(cache.raw_cache, input)
+        return hm_start
       when Nil
         return nil
       end
@@ -1894,7 +1917,47 @@ module Regex::Automata::Meta
       scoped = input.clone
         .span(hm_start.offset...input.end)
         .anchored(::Regex::Automata::Anchored::Pattern, hm_start.pattern)
-      pikevm.find(cache.raw_cache, scoped)
+      end_match = reverse_suffix_forward_half(cache, scoped)
+      return ::Regex::Automata::Meta::RetryFailError.new(end_match.offset || input.start) if end_match.is_a?(::Regex::Automata::MatchError)
+      raise "suffix match plus reverse match implies there must be a match" unless end_match
+      ::Regex::Automata::Match.new(hm_start.pattern, hm_start.offset, end_match.offset)
+    end
+
+    private def reverse_suffix_forward_half(cache : Cache, input : ::Regex::Automata::Input) : ::Regex::Automata::HalfMatch? | ::Regex::Automata::MatchError
+      if engine = @core_dfa
+        engine.forward.try_search_fwd(input)
+      elsif engine = @core_hybrid
+        engine.forward.try_search_fwd(cache.core_hybrid_cache.not_nil!.forward, input)
+      else
+        raise "ReverseSuffix always has a DFA"
+      end
+    end
+
+    private def reverse_suffix_search_slots(cache : Cache, input : ::Regex::Automata::Input, slots : Array(T)) : ::Regex::Automata::PatternID? forall T
+      return core_search_slots(cache, input, slots) if input.anchored.is_anchored
+      unless capture_search_needed?(slots.size)
+        found = search_with(cache, input)
+        clear_slots(slots)
+        return nil unless found
+        set_match_slots(slots, found)
+        return found.pattern
+      end
+
+      result = reverse_suffix_start(cache, input)
+      case result
+      when ::Regex::Automata::Meta::RetryQuadraticError
+        core_search_slots(cache, input, slots)
+      when ::Regex::Automata::Meta::RetryFailError
+        core_search_slots_nofail(cache, input, slots)
+      when ::Regex::Automata::HalfMatch
+        scoped = input.clone
+          .span(result.offset...input.end)
+          .anchored(::Regex::Automata::Anchored::Pattern, result.pattern)
+        core_search_slots_nofail(cache, scoped, slots)
+      else
+        clear_slots(slots)
+        nil
+      end
     end
 
     private def reverse_suffix_start(cache : Cache, input : ::Regex::Automata::Input) : ::Regex::Automata::HalfMatch? | ::Regex::Automata::Meta::RetryError
@@ -1910,7 +1973,7 @@ module Regex::Automata::Meta
         return nil unless litmatch
 
         revinput = input.clone
-          .span(min_start...litmatch.end)
+          .span(input.start...litmatch.end)
           .anchored(::Regex::Automata::Anchored::Yes)
         start_match = if dfa
                         ::Regex::Automata::Meta::Limited.dfa_try_search_half_rev(dfa, revinput, min_start)

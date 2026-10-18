@@ -929,21 +929,21 @@ src/meta/strategy.rs::method::ReverseInner.try_search_full	method	missing	-	auto
 src/meta/strategy.rs::method::ReverseInner.try_search_half_fwd_stopat	method	missing	-	auto-generated
 src/meta/strategy.rs::method::ReverseInner.try_search_half_rev_limited	method	missing	-	auto-generated
 src/meta/strategy.rs::method::ReverseInner.which_overlapping_matches	method	missing	-	auto-generated
-src/meta/strategy.rs::method::ReverseSuffix.create_cache	method	missing	-	auto-generated
-src/meta/strategy.rs::method::ReverseSuffix.group_info	method	missing	-	auto-generated
-src/meta/strategy.rs::method::ReverseSuffix.is_accelerated	method	missing	-	auto-generated
-src/meta/strategy.rs::method::ReverseSuffix.is_match	method	missing	-	auto-generated
-src/meta/strategy.rs::method::ReverseSuffix.memory_usage	method	missing	-	auto-generated
+src/meta/strategy.rs::method::ReverseSuffix.create_cache	method	ported	src/regex/automata/meta.cr:Regex#create_cache	Delegates to Core cache.
+src/meta/strategy.rs::method::ReverseSuffix.group_info	method	ported	src/regex/automata/meta.cr:Regex#pattern_len	Uses Core capture metadata.
+src/meta/strategy.rs::method::ReverseSuffix.is_accelerated	method	ported	src/regex/automata/meta.cr:Regex#is_accelerated	Selected suffix prefilter reports acceleration.
+src/meta/strategy.rs::method::ReverseSuffix.is_match	method	ported	src/regex/automata/meta.cr:Regex#is_match_with	Reverse-start fast path and no-fail fallback.
+src/meta/strategy.rs::method::ReverseSuffix.memory_usage	method	partial	src/regex/automata/meta.cr:Regex#memory_usage	Broader Meta hybrid-cache accounting remains open.
 src/meta/strategy.rs::method::ReverseSuffix.name	method	missing	-	auto-generated
-src/meta/strategy.rs::method::ReverseSuffix.new	method	missing	-	auto-generated
-src/meta/strategy.rs::method::ReverseSuffix.reset_cache	method	missing	-	auto-generated
-src/meta/strategy.rs::method::ReverseSuffix.search	method	missing	-	auto-generated
-src/meta/strategy.rs::method::ReverseSuffix.search_half	method	missing	-	auto-generated
-src/meta/strategy.rs::method::ReverseSuffix.search_slots	method	missing	-	auto-generated
-src/meta/strategy.rs::method::ReverseSuffix.try_search_half_fwd	method	missing	-	auto-generated
-src/meta/strategy.rs::method::ReverseSuffix.try_search_half_rev_limited	method	missing	-	auto-generated
-src/meta/strategy.rs::method::ReverseSuffix.try_search_half_start	method	missing	-	auto-generated
-src/meta/strategy.rs::method::ReverseSuffix.which_overlapping_matches	method	missing	-	auto-generated
+src/meta/strategy.rs::method::ReverseSuffix.new	method	ported	src/regex/automata/meta.cr:Regex::Builder#build_reverse_suffix_strategy	Pinned Rust admission matrix.
+src/meta/strategy.rs::method::ReverseSuffix.reset_cache	method	ported	src/regex/automata/meta.cr:Regex#reset	Delegates to Core cache reset.
+src/meta/strategy.rs::method::ReverseSuffix.search	method	ported	src/regex/automata/meta.cr:Regex#search_with	Exclusive dispatch and Rust fallback classification.
+src/meta/strategy.rs::method::ReverseSuffix.search_half	method	ported	src/regex/automata/meta.cr:Regex#search_half_with	Forward endpoint confirmation.
+src/meta/strategy.rs::method::ReverseSuffix.search_slots	method	ported	src/regex/automata/meta.cr:Regex#reverse_suffix_search_slots	Capture rerun and slot misses.
+src/meta/strategy.rs::method::ReverseSuffix.try_search_half_fwd	method	ported	src/regex/automata/meta.cr:Regex#reverse_suffix_forward_half	Uses Core forward DFA or lazy DFA.
+src/meta/strategy.rs::method::ReverseSuffix.try_search_half_rev_limited	method	ported	src/regex/automata/meta.cr:Regex#reverse_suffix_start	Uses Limited reverse DFA guard.
+src/meta/strategy.rs::method::ReverseSuffix.try_search_half_start	method	ported	src/regex/automata/meta.cr:Regex#reverse_suffix_start	Preserves input span while advancing quadratic guard.
+src/meta/strategy.rs::method::ReverseSuffix.which_overlapping_matches	method	ported	src/regex/automata/meta.cr:Regex#which_overlapping_matches_with	Delegates to Core.
 src/meta/wrappers.rs::method::BoundedBacktracker.create_cache	method	missing	-	auto-generated
 src/meta/wrappers.rs::method::BoundedBacktracker.get	method	missing	-	auto-generated
 src/meta/wrappers.rs::method::BoundedBacktracker.new	method	missing	-	auto-generated

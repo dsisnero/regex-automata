@@ -929,21 +929,21 @@ src/meta/strategy.rs::method::ReverseInner.try_search_full	missing	-	baseline
 src/meta/strategy.rs::method::ReverseInner.try_search_half_fwd_stopat	missing	-	baseline
 src/meta/strategy.rs::method::ReverseInner.try_search_half_rev_limited	missing	-	baseline
 src/meta/strategy.rs::method::ReverseInner.which_overlapping_matches	missing	-	baseline
-src/meta/strategy.rs::method::ReverseSuffix.create_cache	missing	-	baseline
-src/meta/strategy.rs::method::ReverseSuffix.group_info	missing	-	baseline
-src/meta/strategy.rs::method::ReverseSuffix.is_accelerated	missing	-	baseline
-src/meta/strategy.rs::method::ReverseSuffix.is_match	missing	-	baseline
-src/meta/strategy.rs::method::ReverseSuffix.memory_usage	missing	-	baseline
+src/meta/strategy.rs::method::ReverseSuffix.create_cache	ported	src/regex/automata/meta.cr:Regex#create_cache	Delegates to the Core cache.
+src/meta/strategy.rs::method::ReverseSuffix.group_info	ported	src/regex/automata/meta.cr:Regex#pattern_len	Uses Core capture metadata.
+src/meta/strategy.rs::method::ReverseSuffix.is_accelerated	ported	src/regex/automata/meta.cr:Regex#is_accelerated	Selected fast suffix prefilter reports acceleration.
+src/meta/strategy.rs::method::ReverseSuffix.is_match	ported	src/regex/automata/meta.cr:Regex#is_match_with;spec/meta_reverse_suffix_dispatch_spec.cr	Reverse-start fast path and no-fail fallback.
+src/meta/strategy.rs::method::ReverseSuffix.memory_usage	partial	src/regex/automata/meta.cr:Regex#memory_usage	Includes suffix prefilter; broader Meta hybrid-cache accounting remains open.
 src/meta/strategy.rs::method::ReverseSuffix.name	missing	-	baseline
-src/meta/strategy.rs::method::ReverseSuffix.new	missing	-	baseline
-src/meta/strategy.rs::method::ReverseSuffix.reset_cache	missing	-	baseline
-src/meta/strategy.rs::method::ReverseSuffix.search	missing	-	baseline
-src/meta/strategy.rs::method::ReverseSuffix.search_half	missing	-	baseline
-src/meta/strategy.rs::method::ReverseSuffix.search_slots	missing	-	baseline
-src/meta/strategy.rs::method::ReverseSuffix.try_search_half_fwd	missing	-	baseline
-src/meta/strategy.rs::method::ReverseSuffix.try_search_half_rev_limited	missing	-	baseline
-src/meta/strategy.rs::method::ReverseSuffix.try_search_half_start	missing	-	baseline
-src/meta/strategy.rs::method::ReverseSuffix.which_overlapping_matches	missing	-	baseline
+src/meta/strategy.rs::method::ReverseSuffix.new	ported	src/regex/automata/meta.cr:Regex::Builder#build_reverse_suffix_strategy;spec/meta_reverse_suffix_dispatch_spec.cr	Pinned Rust admission matrix.
+src/meta/strategy.rs::method::ReverseSuffix.reset_cache	ported	src/regex/automata/meta.cr:Regex#reset	Delegates to Core cache reset.
+src/meta/strategy.rs::method::ReverseSuffix.search	ported	src/regex/automata/meta.cr:Regex#search_with;spec/meta_reverse_suffix_dispatch_spec.cr	Exclusive dispatch and Rust fallback classification.
+src/meta/strategy.rs::method::ReverseSuffix.search_half	ported	src/regex/automata/meta.cr:Regex#search_half_with;spec/meta_reverse_suffix_dispatch_spec.cr	Forward endpoint confirmation.
+src/meta/strategy.rs::method::ReverseSuffix.search_slots	ported	src/regex/automata/meta.cr:Regex#reverse_suffix_search_slots;spec/meta_reverse_suffix_dispatch_spec.cr	Capture rerun and slot misses.
+src/meta/strategy.rs::method::ReverseSuffix.try_search_half_fwd	ported	src/regex/automata/meta.cr:Regex#reverse_suffix_forward_half	Uses Core forward DFA or lazy DFA.
+src/meta/strategy.rs::method::ReverseSuffix.try_search_half_rev_limited	ported	src/regex/automata/meta.cr:Regex#reverse_suffix_start	Uses Limited reverse DFA guard.
+src/meta/strategy.rs::method::ReverseSuffix.try_search_half_start	ported	src/regex/automata/meta.cr:Regex#reverse_suffix_start;spec/meta_reverse_suffix_dispatch_spec.cr	Preserves input span while advancing quadratic guard.
+src/meta/strategy.rs::method::ReverseSuffix.which_overlapping_matches	ported	src/regex/automata/meta.cr:Regex#which_overlapping_matches_with;spec/meta_reverse_suffix_dispatch_spec.cr	Delegates to Core.
 src/meta/wrappers.rs::method::BoundedBacktracker.create_cache	missing	-	baseline
 src/meta/wrappers.rs::method::BoundedBacktracker.get	missing	-	baseline
 src/meta/wrappers.rs::method::BoundedBacktracker.new	missing	-	baseline
