@@ -94,7 +94,11 @@ describe Regex::Automata::Meta::Regex do
       .configure(Regex::Automata::Meta::Regex.config.line_terminator(0_u8))
       .build("^foo$")
 
+    if core = re.core_dfa
+      core.try_search(Regex::Automata::Input.new("\0foo\0")).should eq(Regex::Automata::Match.must(0, 1...4))
+    end
     re.find("\0foo\0").should eq(Regex::Automata::Match.must(0, 1...4))
+    re.find("\nfoo\n").should be_nil
   end
 
   it "no_dfa_hybrid" do

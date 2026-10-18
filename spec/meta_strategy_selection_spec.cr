@@ -9,11 +9,119 @@ class Regex::Automata::Meta::Regex
   def literal_prefilter_for_spec : ::Regex::Automata::Prefilter?
     @literal_prefilter
   end
+
+  def core_engines_for_spec : {Bool, Bool, Bool, Bool}
+    {!@core_dfa.nil?, !@core_hybrid.nil?, !@core_onepass.nil?, !@core_backtrack.nil?}
+  end
 end
 
 class Regex::Automata::Prefilter
   def aho_for_spec? : Bool
     !@aho.nil?
+  end
+end
+
+describe "pinned Rust meta Core dispatch" do
+  it "selects Core and admits the full DFA for a small nonliteral pattern" do
+    re = Regex::Automata::Meta::Regex.new("[a-z]+")
+    re.literal_bypass_for_spec?.should be_false
+    re.core_engines_for_spec[0].should be_true
+    cache = re.create_cache
+    re.search_with(cache, Regex::Automata::Input.new("123abc")).should eq(Regex::Automata::Match.must(0, 3...6))
+    cache.raw_cache.setup_calls_for_spec.should eq(0)
+    re.is_match_with(cache, Regex::Automata::Input.new("123abc").earliest(true)).should be_true
+    cache.raw_cache.setup_calls_for_spec.should eq(0)
+  end
+
+  it "selects lazy DFA when full DFA is disabled and no reverse strategy applies" do
+    re = Regex::Automata::Meta::Regex.builder
+      .configure(Regex::Automata::Meta::Regex.config.dfa(false).auto_prefilter(false))
+      .build("[a-z]+")
+    re.core_engines_for_spec[0].should be_false
+    re.core_engines_for_spec[1].should be_true
+    cache = re.create_cache
+    re.search_with(cache, Regex::Automata::Input.new("123abc")).should eq(Regex::Automata::Match.must(0, 3...6))
+    cache.raw_cache.setup_calls_for_spec.should eq(0)
+  end
+
+  it "uses the Rust nofail order for anchored captures when DFAs are disabled" do
+    re = Regex::Automata::Meta::Regex.builder
+      .configure(Regex::Automata::Meta::Regex.config.dfa(false).hybrid(false))
+      .build("([a-z]+)")
+    re.core_engines_for_spec[2].should be_true
+    re.core_engines_for_spec[3].should be_true
+    cache = re.create_cache
+    slots = [nil, nil, nil, nil] of Int32?
+    re.search_slots_with(cache, Regex::Automata::Input.new("abc").anchored(Regex::Automata::Anchored::Yes), slots).should eq(Regex::Automata::PatternID.new(0))
+    slots.should eq([0, 3, 0, 3])
+    cache.raw_cache.setup_calls_for_spec.should eq(0)
+  end
+
+  it "uses the bounded backtracker before PikeVM when OnePass is disabled" do
+    re = Regex::Automata::Meta::Regex.builder
+      .configure(Regex::Automata::Meta::Regex.config.dfa(false).hybrid(false).onepass(false))
+      .build("([a-z]+)")
+    re.core_engines_for_spec.should eq({false, false, false, true})
+    cache = re.create_cache
+    slots = [nil, nil, nil, nil] of Int32?
+    re.search_slots_with(cache, Regex::Automata::Input.new("abc"), slots).should eq(Regex::Automata::PatternID.new(0))
+    slots.should eq([0, 3, 0, 3])
+    cache.raw_cache.setup_calls_for_spec.should eq(0)
+  end
+
+  it "uses PikeVM when all optional Core engines are disabled" do
+    re = Regex::Automata::Meta::Regex.builder
+      .configure(Regex::Automata::Meta::Regex.config.dfa(false).hybrid(false).onepass(false).backtrack(false))
+      .build("([a-z]+)")
+    re.core_engines_for_spec.should eq({false, false, false, false})
+    cache = re.create_cache
+    re.search_with(cache, Regex::Automata::Input.new("123abc")).should eq(Regex::Automata::Match.must(0, 3...6))
+    cache.raw_cache.setup_calls_for_spec.should be > 0
+    re.is_match_with(cache, Regex::Automata::Input.new("123abc").earliest(true)).should be_true
+  end
+
+  it "reruns capture extraction on the matched span after a full-DFA hit" do
+    re = Regex::Automata::Meta::Regex.new("([a-z]+)([0-9]+)")
+    re.core_engines_for_spec[0].should be_true
+    cache = re.create_cache
+    slots = Array(Int32?).new(6, nil)
+    re.search_slots_with(cache, Regex::Automata::Input.new("xxabc123!"), slots).should eq(Regex::Automata::PatternID.new(0))
+    slots.should eq([0, 8, 0, 5, 5, 8])
+    cache.raw_cache.setup_calls_for_spec.should eq(0)
+  end
+
+  it "preserves input span and anchoring in full-DFA overlapping searches" do
+    re = Regex::Automata::Meta::Regex.builder
+      .configure(Regex::Automata::Meta::Regex.config.dfa_size_limit(1_000_000_i64))
+      .build_many(["[a-z]+", "[0-9]+"])
+    re.core_engines_for_spec[0].should be_true
+    patset = Regex::Automata::PatternSet.new(2)
+    re.which_overlapping_matches(
+      Regex::Automata::Input.new("abc123xyz").span(3...6).anchored(Regex::Automata::Anchored::Yes),
+      patset
+    )
+    patset.iter.to_a.should eq([Regex::Automata::PatternID.new(1)])
+  end
+
+  it "retries with a nofail engine when a full DFA quits on a Unicode word boundary" do
+    re = Regex::Automata::Meta::Regex.builder
+      .configure(Regex::Automata::Meta::Regex.config.dfa_size_limit(1_000_000_i64))
+      .build("\\bélan\\b")
+    re.core_engines_for_spec[0].should be_true
+    input = Regex::Automata::Input.new("élan")
+    re.core_dfa.not_nil!.try_search(input).should be_a(Regex::Automata::MatchError)
+    re.find("élan").should eq(Regex::Automata::Match.must(0, 0...5))
+  end
+
+  it "retries with a nofail engine when a lazy DFA quits on a Unicode word boundary" do
+    re = Regex::Automata::Meta::Regex.builder
+      .configure(Regex::Automata::Meta::Regex.config.dfa(false))
+      .build("\\bélan\\b")
+    re.core_engines_for_spec[1].should be_true
+    input = Regex::Automata::Input.new("élan")
+    raw = re.core_hybrid.not_nil!
+    raw.try_search(raw.create_cache, input).should be_a(Regex::Automata::MatchError)
+    re.find("élan").should eq(Regex::Automata::Match.must(0, 0...5))
   end
 end
 

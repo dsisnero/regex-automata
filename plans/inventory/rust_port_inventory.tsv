@@ -869,24 +869,24 @@ src/meta/regex.rs::method::SplitN<'r, 'h>.input	method	ported	src/regex/automata
 src/meta/regex.rs::method::SplitN<'r, 'h>.next	method	ported	src/regex/automata/meta.cr:SplitN#next;spec/meta_regex_spec.cr	Honors Rust splitn zero, one, and bounded limits.
 src/meta/regex.rs::method::SplitN<'r, 'h>.size_hint	method	intentional_divergence	src/regex/automata/meta.cr:SplitN	Crystal Iterator does not expose Rust's size_hint protocol.
 src/meta/reverse_inner.rs::method::InnerPrefilter.new	method	ported	src/regex/automata/meta.cr:886;spec/meta_regex_spec.cr	Crystal represents the private Rust struct as the {prefix, prefilter, literals} tuple returned by reverse_inner_prefilter
-src/meta/strategy.rs::method::Core.create_cache	method	missing	-	auto-generated
-src/meta/strategy.rs::method::Core.group_info	method	missing	-	auto-generated
-src/meta/strategy.rs::method::Core.is_accelerated	method	missing	-	auto-generated
-src/meta/strategy.rs::method::Core.is_capture_search_needed	method	missing	-	auto-generated
-src/meta/strategy.rs::method::Core.is_match	method	missing	-	auto-generated
-src/meta/strategy.rs::method::Core.is_match_nofail	method	missing	-	auto-generated
-src/meta/strategy.rs::method::Core.memory_usage	method	missing	-	auto-generated
-src/meta/strategy.rs::method::Core.name	method	missing	-	auto-generated
-src/meta/strategy.rs::method::Core.new	method	missing	-	auto-generated
-src/meta/strategy.rs::method::Core.reset_cache	method	missing	-	auto-generated
-src/meta/strategy.rs::method::Core.search	method	missing	-	auto-generated
-src/meta/strategy.rs::method::Core.search_half	method	missing	-	auto-generated
-src/meta/strategy.rs::method::Core.search_half_nofail	method	missing	-	auto-generated
-src/meta/strategy.rs::method::Core.search_nofail	method	missing	-	auto-generated
-src/meta/strategy.rs::method::Core.search_slots	method	missing	-	auto-generated
-src/meta/strategy.rs::method::Core.search_slots_nofail	method	missing	-	auto-generated
-src/meta/strategy.rs::method::Core.try_search_mayfail	method	missing	-	auto-generated
-src/meta/strategy.rs::method::Core.which_overlapping_matches	method	missing	-	auto-generated
+src/meta/strategy.rs::method::Core.create_cache	method	partial	src/regex/automata/meta.cr:Cache#initialize;spec/meta_strategy_selection_spec.cr	Core owns full/lazy DFA and OnePass/backtracker caches; PikeVM scratch is still allocated eagerly rather than Rust's lazy PikeVM cache.
+src/meta/strategy.rs::method::Core.group_info	method	ported	src/regex/automata/meta.cr:Regex#group_info;spec/meta_regex_spec.cr	Core group metadata is the compiled NFA group info.
+src/meta/strategy.rs::method::Core.is_accelerated	method	ported	src/regex/automata/meta.cr:Regex#is_accelerated;spec/meta_regex_spec.cr	Core acceleration follows its selected prefix prefilter.
+src/meta/strategy.rs::method::Core.is_capture_search_needed	method	ported	src/regex/automata/meta.cr:Regex#core_search_slots;spec/meta_strategy_selection_spec.cr	Explicit capture rerun is skipped when only implicit slots are supplied.
+src/meta/strategy.rs::method::Core.is_match	method	ported	src/regex/automata/meta.cr:Regex#core_is_match;spec/meta_strategy_selection_spec.cr	Full then lazy forward DFA precede nofail engines with fallible retry.
+src/meta/strategy.rs::method::Core.is_match_nofail	method	ported	src/regex/automata/meta.cr:Regex#core_is_match;spec/meta_strategy_selection_spec.cr	OnePass then bounded backtracker then PikeVM follow Rust admission order.
+src/meta/strategy.rs::method::Core.memory_usage	method	partial	src/regex/automata/meta.cr:Regex#memory_usage;spec/meta_regex_spec.cr	Includes NFA, reverse NFA, OnePass and dense DFA; RegexInfo property footprint and eager PikeVM ownership remain different.
+src/meta/strategy.rs::method::Core.name	method	intentional_divergence	src/regex/automata/meta.cr:Regex#core_strategy?	Crystal fuses the private Core strategy into the Meta facade; the private name is checked through selector specs rather than exposed.
+src/meta/strategy.rs::method::Core.new	method	ported	src/regex/automata/meta.cr:Builder#build_core_dfas;spec/meta_strategy_selection_spec.cr	Rust full-before-lazy DFA admission and optional OnePass/backtracker construction are ported with the configured limits.
+src/meta/strategy.rs::method::Core.reset_cache	method	partial	src/regex/automata/meta.cr:Cache#reset;spec/meta_regex_spec.cr	All optional Core caches retarget; eager PikeVM scratch differs from Rust's lazy allocation.
+src/meta/strategy.rs::method::Core.search	method	ported	src/regex/automata/meta.cr:Regex#core_search;spec/meta_strategy_selection_spec.cr	Full then lazy DFA and nofail retry on quit follow Rust priority.
+src/meta/strategy.rs::method::Core.search_half	method	ported	src/regex/automata/meta.cr:Regex#search_half_with;spec/meta_regex_spec.cr	Forward-only DFA half search precedes nofail match projection.
+src/meta/strategy.rs::method::Core.search_half_nofail	method	ported	src/regex/automata/meta.cr:Regex#search_half_with;spec/meta_regex_spec.cr	Nofail match is projected to pattern and end offset.
+src/meta/strategy.rs::method::Core.search_nofail	method	ported	src/regex/automata/meta.cr:Regex#core_search_nofail;spec/meta_strategy_selection_spec.cr	OnePass, bounded backtracker and PikeVM are selected in Rust order.
+src/meta/strategy.rs::method::Core.search_slots	method	ported	src/regex/automata/meta.cr:Regex#core_search_slots;spec/meta_strategy_selection_spec.cr	Implicit slots use fast match; explicit captures use OnePass directly or rerun anchored on DFA match bounds.
+src/meta/strategy.rs::method::Core.search_slots_nofail	method	ported	src/regex/automata/meta.cr:Regex#core_search_slots_nofail;spec/meta_strategy_selection_spec.cr	OnePass, bounded backtracker and PikeVM resolve capture slots.
+src/meta/strategy.rs::method::Core.try_search_mayfail	method	ported	src/regex/automata/meta.cr:Regex#core_search;spec/meta_strategy_selection_spec.cr	Full DFA precedes lazy DFA and returns fallible results for nofail retry.
+src/meta/strategy.rs::method::Core.which_overlapping_matches	method	ported	src/regex/automata/meta.cr:Regex#which_overlapping_matches_with;spec/meta_strategy_selection_spec.cr	Full or lazy forward DFA precedes PikeVM fallback; full DFA honors Input span and anchoring.
 src/meta/strategy.rs::method::Pre<()>.from_alternation_literals	method	ported	src/regex/automata/meta.cr:Builder#alternation_literals;spec/meta_strategy_selection_spec.cr	Rust 3000-literal threshold and capture/look/multi-pattern/MatchKind exclusions drive a direct Aho-Corasick matcher.
 src/meta/strategy.rs::method::Pre<()>.from_prefixes	method	ported	src/regex/automata/meta.cr:Builder#exact_literal_strategy;spec/meta_strategy_selection_spec.cr	Exact single-pattern no-capture/no-look leftmost-first admission follows pinned private selector tests.
 src/meta/strategy.rs::method::Pre<P>.create_cache	method	partial	src/regex/automata/meta.cr:Cache#initialize;spec/meta_regex_spec.cr	Direct-literal caches work, but still allocate unused PikeVM scratch instead of Rust's Pre-only cache.

@@ -1391,12 +1391,12 @@ module Regex::Automata::DFA
       1 << stride2
     end
 
-    # Returns the serialized byte size of this DFA.
-    #
-    # This matches the current port's on-wire representation and gives a
-    # concrete, implementation-backed notion of memory footprint.
+    # Rust dense::DFA::memory_usage counts the four live backing tables,
+    # excluding the wire header and alignment used by serialization.
     def memory_usage : Int32
-      to_bytes_native_endian[0].size
+      @tt.not_nil!.len * 4 + @st.iter.size * 4 +
+        @ms.memory_usage * 4 // sizeof(PatternID) +
+        4 + @accelerators.count { |needles| !needles.empty? } * 8
     end
 
     # Returns the number of matches in the given state
@@ -1639,7 +1639,8 @@ module Regex::Automata::DFA
         end
       end
 
-      @st.start(config.anchored, StartTable.from_look_behind(config.look_behind), config.pattern)
+      kind = config.look_behind.try { |byte| @st.start_map.get(byte) } || Start::Text
+      @st.start(config.anchored, kind, config.pattern)
     end
 
     # Returns the start state for a forward search (for backward compatibility)
@@ -2174,6 +2175,7 @@ module Regex::Automata::DFA
       unanchored_start_states.each do |start_kind, start_id|
         unanchored_start_lookup[start_id] = start_kind
       end
+      start_byte_map = StartByteMap.new(nfa.look_matcher)
 
       while !queue.empty?
         dfa_id = queue.pop
@@ -2196,7 +2198,7 @@ module Regex::Automata::DFA
           current_look_have = look_have
 
           # Look-ahead assertions based on the current byte.
-          if byte == '\n'.ord.to_u8
+          if byte == nfa.look_matcher.get_line_terminator
             current_look_have = current_look_have.insert(Look::EndLF)
             if !is_half_crlf
               current_look_have = current_look_have.insert(Look::EndCRLF)
@@ -2235,7 +2237,7 @@ module Regex::Automata::DFA
           next_look_have = LookSet.new
 
           # Start of line assertions are true after a line terminator.
-          if byte == '\n'.ord.to_u8
+          if byte == nfa.look_matcher.get_line_terminator
             next_look_have = next_look_have.insert(Look::StartLF)
             if @nfa_has_crlf
               next_look_have = next_look_have.insert(Look::StartCRLF)
@@ -2319,7 +2321,7 @@ module Regex::Automata::DFA
               # look-behind sensitive assertions like word boundaries and line
               # anchors can still begin matching later in the haystack.
               if !nfa.is_always_start_anchored && unanchored_start_lookup.has_key?(dfa_id)
-                next_start_kind = StartTable.from_look_behind(byte)
+                next_start_kind = start_byte_map.get(byte)
                 next_start_id = unanchored_start_states[next_start_kind]? || unanchored_start_states[Start::Text]
                 @transition_table.set_transition_by_class(
                   @transition_table.to_state_id(dfa_id.to_i),
@@ -2542,13 +2544,14 @@ module Regex::Automata::DFA
           look_have = look_have.insert(Look::WordStartHalfUnicode) if @nfa_has_unicode_word
         end
       when Start::LineLF
-        look_have = look_have.insert(Look::StartLF)
+        look_have = look_have.insert(Look::StartLF) if @nfa.not_nil!.look_matcher.get_line_terminator == '\n'.ord.to_u8
         look_have = look_have.insert(Look::StartCRLF) if @nfa_has_crlf
         if @nfa_has_word
           look_have = look_have.insert(Look::WordStartHalfAscii)
           look_have = look_have.insert(Look::WordStartHalfUnicode) if @nfa_has_unicode_word
         end
       when Start::LineCR
+        look_have = look_have.insert(Look::StartLF) if @nfa.not_nil!.look_matcher.get_line_terminator == '\r'.ord.to_u8
         look_have = look_have.insert(Look::StartCRLF) if @nfa_has_crlf
         if @nfa_has_word
           look_have = look_have.insert(Look::WordStartHalfAscii)
@@ -2557,6 +2560,7 @@ module Regex::Automata::DFA
       when Start::WordByte
         is_from_word = true
       when Start::NonWordByte, Start::CustomLineTerminator
+        look_have = look_have.insert(Look::StartLF) if start_kind == Start::CustomLineTerminator
         if @nfa_has_word
           look_have = look_have.insert(Look::WordStartHalfAscii)
           look_have = look_have.insert(Look::WordStartHalfUnicode) if @nfa_has_unicode_word
@@ -2710,6 +2714,7 @@ module Regex::Automata::DFA
 
       text_start_id = start_states[Start::Text]? || start_ids.first
       text_tt_id = tt.to_state_id(text_start_id.to_i)
+      start_byte_map = StartByteMap.new(@nfa.not_nil!.look_matcher)
 
       start_ids.each do |start_id|
         start_kind = start_states.key_for(start_id)
@@ -2727,7 +2732,7 @@ module Regex::Automata::DFA
                !start_tt_ids.includes?(text_next)
               tt.set_transition_by_class(tt_id, byte_class, text_next)
             else
-              next_start_kind = StartTable.from_look_behind(byte)
+              next_start_kind = start_byte_map.get(byte)
               next_start_id = start_states[next_start_kind]? || text_start_id
               tt.set_transition_by_class(tt_id, byte_class, tt.to_state_id(next_start_id.to_i))
             end
