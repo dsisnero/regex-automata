@@ -868,7 +868,7 @@ src/meta/regex.rs::method::Split<'r, 'h>.next	missing	-	baseline
 src/meta/regex.rs::method::SplitN<'r, 'h>.input	missing	-	baseline
 src/meta/regex.rs::method::SplitN<'r, 'h>.next	missing	-	baseline
 src/meta/regex.rs::method::SplitN<'r, 'h>.size_hint	missing	-	baseline
-src/meta/reverse_inner.rs::method::InnerPrefilter.new	missing	-	baseline
+src/meta/reverse_inner.rs::method::InnerPrefilter.new	ported	src/regex/automata/meta.cr:Builder#extract_reverse_inner_strategy;spec/meta_reverse_inner_dispatch_spec.cr	Private tuple preserves prefix, prefilter, literals; pinned admission matrix.
 src/meta/strategy.rs::method::Core.create_cache	missing	-	baseline
 src/meta/strategy.rs::method::Core.group_info	missing	-	baseline
 src/meta/strategy.rs::method::Core.is_accelerated	missing	-	baseline
@@ -914,21 +914,21 @@ src/meta/strategy.rs::method::ReverseAnchored.search_half	ported	src/regex/autom
 src/meta/strategy.rs::method::ReverseAnchored.search_slots	ported	src/regex/automata/meta.cr:search_slots_with;spec/meta_reverse_anchored_dispatch_spec.cr	Clean miss clears slots; reverse error retries no-fail capture search.
 src/meta/strategy.rs::method::ReverseAnchored.try_search_half_anchored_rev	ported	src/regex/automata/meta.cr:reverse_anchored_search;src/regex/automata/meta.cr:reverse_match_from_dfa;spec/meta_reverse_anchored_dispatch_spec.cr	Hybrid reverse input is explicitly anchored; DFA and hybrid errors remain distinguishable from clean misses.
 src/meta/strategy.rs::method::ReverseAnchored.which_overlapping_matches	ported	src/regex/automata/meta.cr:which_overlapping_matches_with;spec/meta_reverse_anchored_dispatch_spec.cr	Overlapping pattern discovery delegates to Core.
-src/meta/strategy.rs::method::ReverseInner.create_cache	missing	-	baseline
-src/meta/strategy.rs::method::ReverseInner.group_info	missing	-	baseline
-src/meta/strategy.rs::method::ReverseInner.is_accelerated	missing	-	baseline
-src/meta/strategy.rs::method::ReverseInner.is_match	missing	-	baseline
-src/meta/strategy.rs::method::ReverseInner.memory_usage	missing	-	baseline
+src/meta/strategy.rs::method::ReverseInner.create_cache	ported	src/regex/automata/meta.cr:Regex#create_cache;spec/meta_reverse_inner_dispatch_spec.cr	Pinned ReverseInner strategy semantics and dispatch covered.
+src/meta/strategy.rs::method::ReverseInner.group_info	ported	src/regex/automata/meta.cr:Regex#pattern_len;spec/meta_reverse_inner_dispatch_spec.cr	Pinned ReverseInner strategy semantics and dispatch covered.
+src/meta/strategy.rs::method::ReverseInner.is_accelerated	ported	src/regex/automata/meta.cr:Regex#is_accelerated;spec/meta_reverse_inner_dispatch_spec.cr	Pinned ReverseInner strategy semantics and dispatch covered.
+src/meta/strategy.rs::method::ReverseInner.is_match	ported	src/regex/automata/meta.cr:Regex#is_match_with;spec/meta_reverse_inner_dispatch_spec.cr	Pinned ReverseInner strategy semantics and dispatch covered.
+src/meta/strategy.rs::method::ReverseInner.memory_usage	partial	src/regex/automata/meta.cr:Regex#memory_usage;spec/meta_reverse_inner_dispatch_spec.cr	Reverse-prefix NFA accounting remains with broader Meta memory audit.
 src/meta/strategy.rs::method::ReverseInner.name	missing	-	baseline
-src/meta/strategy.rs::method::ReverseInner.new	missing	-	baseline
-src/meta/strategy.rs::method::ReverseInner.reset_cache	missing	-	baseline
-src/meta/strategy.rs::method::ReverseInner.search	missing	-	baseline
-src/meta/strategy.rs::method::ReverseInner.search_half	missing	-	baseline
-src/meta/strategy.rs::method::ReverseInner.search_slots	missing	-	baseline
-src/meta/strategy.rs::method::ReverseInner.try_search_full	missing	-	baseline
-src/meta/strategy.rs::method::ReverseInner.try_search_half_fwd_stopat	missing	-	baseline
-src/meta/strategy.rs::method::ReverseInner.try_search_half_rev_limited	missing	-	baseline
-src/meta/strategy.rs::method::ReverseInner.which_overlapping_matches	missing	-	baseline
+src/meta/strategy.rs::method::ReverseInner.new	ported	src/regex/automata/meta.cr:Builder#build_reverse_inner_strategy;spec/meta_reverse_inner_dispatch_spec.cr	Pinned ReverseInner strategy semantics and dispatch covered.
+src/meta/strategy.rs::method::ReverseInner.reset_cache	ported	src/regex/automata/meta.cr:Regex#reset;spec/meta_reverse_inner_dispatch_spec.cr	Pinned ReverseInner strategy semantics and dispatch covered.
+src/meta/strategy.rs::method::ReverseInner.search	ported	src/regex/automata/meta.cr:Regex#search_with;spec/meta_reverse_inner_dispatch_spec.cr	Pinned ReverseInner strategy semantics and dispatch covered.
+src/meta/strategy.rs::method::ReverseInner.search_half	ported	src/regex/automata/meta.cr:Regex#search_half_with;spec/meta_reverse_inner_dispatch_spec.cr	Pinned ReverseInner strategy semantics and dispatch covered.
+src/meta/strategy.rs::method::ReverseInner.search_slots	ported	src/regex/automata/meta.cr:Regex#reverse_inner_search_slots;spec/meta_reverse_inner_dispatch_spec.cr	Pinned ReverseInner strategy semantics and dispatch covered.
+src/meta/strategy.rs::method::ReverseInner.try_search_full	ported	src/regex/automata/meta.cr:Regex#reverse_inner_search;spec/meta_reverse_inner_dispatch_spec.cr	Pinned ReverseInner strategy semantics and dispatch covered.
+src/meta/strategy.rs::method::ReverseInner.try_search_half_fwd_stopat	ported	src/regex/automata/meta_stopat.cr:StopAt#dfa_try_search_half_fwd;spec/meta_reverse_inner_dispatch_spec.cr	Pinned ReverseInner strategy semantics and dispatch covered.
+src/meta/strategy.rs::method::ReverseInner.try_search_half_rev_limited	ported	src/regex/automata/meta_limited.cr:Limited#dfa_try_search_half_rev;spec/meta_reverse_inner_dispatch_spec.cr	Pinned ReverseInner strategy semantics and dispatch covered.
+src/meta/strategy.rs::method::ReverseInner.which_overlapping_matches	ported	src/regex/automata/meta.cr:Regex#which_overlapping_matches_with;spec/meta_reverse_inner_dispatch_spec.cr	Pinned ReverseInner strategy semantics and dispatch covered.
 src/meta/strategy.rs::method::ReverseSuffix.create_cache	ported	src/regex/automata/meta.cr:Regex#create_cache	Delegates to the Core cache.
 src/meta/strategy.rs::method::ReverseSuffix.group_info	ported	src/regex/automata/meta.cr:Regex#pattern_len	Uses Core capture metadata.
 src/meta/strategy.rs::method::ReverseSuffix.is_accelerated	ported	src/regex/automata/meta.cr:Regex#is_accelerated	Selected fast suffix prefilter reports acceleration.
