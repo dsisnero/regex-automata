@@ -453,8 +453,9 @@ module Regex::Automata::Meta
     ) : {::Regex::Automata::Prefilter?, Array(::Regex::Automata::PatternID)?}
       return {nil, nil} unless @config.get_auto_prefilter
       return {nil, nil} if @config.get_prefilter
+      return {nil, nil} unless hirs.size == 1
       return {nil, nil} unless group_info.explicit_slot_len == 0
-      return {nil, nil} if hirs.size > 1 && @config.get_match_kind != ::Regex::Automata::MatchKind::LeftmostFirst
+      return {nil, nil} unless @config.get_match_kind == ::Regex::Automata::MatchKind::LeftmostFirst
 
       literals = [] of Bytes
       pattern_ids = [] of ::Regex::Automata::PatternID
@@ -500,7 +501,7 @@ module Regex::Automata::Meta
 
       literals = extract_alternation_literals(hir.node)
       return nil unless literals
-      return nil if literals.empty?
+      return nil if literals.size < 3_000
 
       literals
     end
@@ -1142,8 +1143,8 @@ module Regex::Automata::Meta
     end
 
     def is_accelerated : Bool
+      return @literal_prefilter.not_nil!.is_fast if literal_strategy?
       @core_prefilter.try(&.is_fast) == true ||
-        literal_strategy? ||
         !@reverse_anchored_dfa.nil? || !@reverse_anchored_hybrid.nil? ||
         @reverse_suffix_prefilter.try(&.is_fast) == true ||
         @reverse_inner_prefilter.try(&.is_fast) == true
@@ -1203,6 +1204,7 @@ module Regex::Automata::Meta
       if literal = literal_search(input)
         return literal
       end
+      return nil if literal_strategy?
       if suffix_match = reverse_suffix_search(cache, input)
         return suffix_match
       end
@@ -1266,7 +1268,10 @@ module Regex::Automata::Meta
       if inner_match = reverse_inner_search(cache, input)
         return search_slots_from_match(cache, input, slots, inner_match)
       end
-      clear_slots(slots) if literal_strategy?
+      if literal_strategy?
+        clear_slots(slots)
+        return nil
+      end
       @pikevm.search_slots(cache.raw_cache, input, slots)
     end
 
@@ -1288,7 +1293,10 @@ module Regex::Automata::Meta
       if inner_match = reverse_inner_search(cache, input)
         return search_slots_from_match(cache, input, slots, inner_match)
       end
-      clear_slots(slots) if literal_strategy?
+      if literal_strategy?
+        clear_slots(slots)
+        return nil
+      end
       @pikevm.search_slots(cache.raw_cache, input, slots)
     end
 
@@ -1364,6 +1372,20 @@ module Regex::Automata::Meta
 
       needles = prefilter.needles
       span = ::Regex::Automata::Span.new(input.start, input.end)
+      if prefilter.indexed_matcher?
+        return case input.anchored
+        when ::Regex::Automata::Anchored::No
+          prefilter.find_with_index(input.haystack, span)
+        when ::Regex::Automata::Anchored::Yes, ::Regex::Automata::Anchored::Pattern
+          if input.anchored == ::Regex::Automata::Anchored::Pattern && input.pattern != pattern_ids[0]
+            nil
+          else
+            prefilter.prefix_with_index(input.haystack, span)
+          end
+        else
+          nil
+        end
+      end
       case input.anchored
       when ::Regex::Automata::Anchored::No
         literal_find_candidate(input.haystack, span, needles, pattern_ids, nil)
@@ -1433,21 +1455,7 @@ module Regex::Automata::Meta
     ) : Nil
       candidate = literal_search_candidate(input)
       return unless candidate
-
-      prefilter = @literal_prefilter.not_nil!
-      pattern_ids = @literal_pattern_ids.not_nil!
-      needles = prefilter.needles
-      match_start = candidate[1].start
-      limit = input.end
-      needles.each_with_index do |needle, index|
-        case input.anchored
-        when ::Regex::Automata::Anchored::Pattern
-          next unless input.pattern == pattern_ids[index]
-        end
-        next unless literal_matches_at?(input.haystack, needle, match_start, limit)
-
-        patset.insert(pattern_ids[index])
-      end
+      patset.insert(@literal_pattern_ids.not_nil![candidate[0]])
     end
 
     private def better_literal_match?(
@@ -1475,17 +1483,6 @@ module Regex::Automata::Meta
         at += 1
       end
       nil
-    end
-
-    private def literal_matches_at?(
-      haystack : Bytes,
-      needle : Bytes,
-      offset : Int32,
-      limit : Int32,
-    ) : Bool
-      return false if offset < 0 || offset + needle.size > limit
-
-      literal_starts_with?(haystack, offset, needle)
     end
 
     private def literal_starts_with?(haystack : Bytes, offset : Int32, needle : Bytes) : Bool

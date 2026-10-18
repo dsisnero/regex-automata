@@ -104,7 +104,7 @@ describe Regex::Automata::Prefilter do
     ).should be_nil
   end
 
-  it "marks tiny single-byte sets as fast" do
+  it "marks tiny single-byte and short multi-substring sets as fast" do
     fast = Regex::Automata::Prefilter.new(
       Regex::Automata::MatchKind::All,
       ["a", "b", "c"]
@@ -114,11 +114,33 @@ describe Regex::Automata::Prefilter do
       Regex::Automata::Span.new(2, 3)
     )
 
-    slow = Regex::Automata::Prefilter.new(
+    multi = Regex::Automata::Prefilter.new(
       Regex::Automata::MatchKind::All,
       ["alpha", "beta"]
     ).not_nil!
-    slow.is_fast.should be_false
+    multi.is_fast.should be_true
+  end
+
+  it "keeps leftmost start and pattern priority through failure-link overlaps" do
+    pre = Regex::Automata::Prefilter.new(
+      Regex::Automata::MatchKind::LeftmostFirst,
+      ["samwise", "sam", "wise"]
+    ).not_nil!
+    haystack = "xxsamwise".to_slice
+    span = Regex::Automata::Span.new(0, haystack.size)
+    pre.find_with_index(haystack, span).should eq({0, Regex::Automata::Span.new(2, 9)})
+    pre.prefix_with_index(haystack, span).should be_nil
+    pre.prefix_with_index(haystack, Regex::Automata::Span.new(2, 9)).should eq(
+      {0, Regex::Automata::Span.new(2, 9)}
+    )
+
+    overlapping = Regex::Automata::Prefilter.new(
+      Regex::Automata::MatchKind::LeftmostFirst,
+      ["aab", "ab"]
+    ).not_nil!
+    overlapping.find("aab".to_slice, Regex::Automata::Span.new(0, 3)).should eq(
+      Regex::Automata::Span.new(0, 3)
+    )
   end
 
   it "treats a single substring needle as fast" do

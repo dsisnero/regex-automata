@@ -833,7 +833,7 @@ src/meta/regex.rs::method::Regex.find	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.find_iter	method	ported	src/regex/automata/meta.cr:Regex#find_iter;spec/meta_regex_spec.cr	Creates non-overlapping match iterators with mutable input state and zero-argument count.
 src/meta/regex.rs::method::Regex.get_config	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.group_info	method	missing	-	auto-generated
-src/meta/regex.rs::method::Regex.is_accelerated	method	missing	-	auto-generated
+src/meta/regex.rs::method::Regex.is_accelerated	method	partial	src/regex/automata/meta.cr:Regex#is_accelerated;spec/meta_regex_spec.cr;spec/meta_strategy_selection_spec.cr	Direct literal and core-prefilter acceleration signals match pinned Rust probes; reverse strategy and complete Core wrapper selection remain to audit.
 src/meta/regex.rs::method::Regex.is_match	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.memory_usage	method	ported	src/regex/automata/meta.cr:Regex#memory_usage;spec/meta_regex_spec.cr	Accounts for the active PikeVM, prefilter, and compiled reverse-DFA strategy components.
 src/meta/regex.rs::method::Regex.new	method	missing	-	auto-generated
@@ -887,20 +887,20 @@ src/meta/strategy.rs::method::Core.search_slots	method	missing	-	auto-generated
 src/meta/strategy.rs::method::Core.search_slots_nofail	method	missing	-	auto-generated
 src/meta/strategy.rs::method::Core.try_search_mayfail	method	missing	-	auto-generated
 src/meta/strategy.rs::method::Core.which_overlapping_matches	method	missing	-	auto-generated
-src/meta/strategy.rs::method::Pre<()>.from_alternation_literals	method	missing	-	auto-generated
-src/meta/strategy.rs::method::Pre<()>.from_prefixes	method	missing	-	auto-generated
-src/meta/strategy.rs::method::Pre<P>.create_cache	method	missing	-	auto-generated
-src/meta/strategy.rs::method::Pre<P>.group_info	method	missing	-	auto-generated
-src/meta/strategy.rs::method::Pre<P>.is_accelerated	method	missing	-	auto-generated
-src/meta/strategy.rs::method::Pre<P>.is_match	method	missing	-	auto-generated
+src/meta/strategy.rs::method::Pre<()>.from_alternation_literals	method	ported	src/regex/automata/meta.cr:Builder#alternation_literals;spec/meta_strategy_selection_spec.cr	Rust 3000-literal threshold and capture/look/multi-pattern/MatchKind exclusions drive a direct Aho-Corasick matcher.
+src/meta/strategy.rs::method::Pre<()>.from_prefixes	method	ported	src/regex/automata/meta.cr:Builder#exact_literal_strategy;spec/meta_strategy_selection_spec.cr	Exact single-pattern no-capture/no-look leftmost-first admission follows pinned private selector tests.
+src/meta/strategy.rs::method::Pre<P>.create_cache	method	partial	src/regex/automata/meta.cr:Cache#initialize;spec/meta_regex_spec.cr	Direct-literal caches work, but still allocate unused PikeVM scratch instead of Rust's Pre-only cache.
+src/meta/strategy.rs::method::Pre<P>.group_info	method	partial	src/regex/automata/meta.cr:Regex#create_captures;spec/meta_regex_spec.cr	Implicit one-pattern capture result works; current group info comes from an unnecessarily compiled NFA.
+src/meta/strategy.rs::method::Pre<P>.is_accelerated	method	partial	src/regex/automata/meta.cr:Regex#is_accelerated;spec/meta_strategy_selection_spec.cr	Pinned Rust probe confirms fast short-literal choices and non-fast large Aho-Corasick choice. Crystal uses failure-link Aho-Corasick instead of packed-SIMD Teddy where stdlib offers no Teddy primitive; full choice diagnostics and Pre ownership remain.
+src/meta/strategy.rs::method::Pre<P>.is_match	method	partial	src/regex/automata/meta.cr:Regex#is_match;spec/meta_regex_spec.cr	Direct literal result follows the Pre search path; complete Pre-only ownership is pending.
 src/meta/strategy.rs::method::Pre<P>.memory_usage	method	missing	-	auto-generated
 src/meta/strategy.rs::method::Pre<P>.name	method	missing	-	auto-generated
-src/meta/strategy.rs::method::Pre<P>.new	method	missing	-	auto-generated
+src/meta/strategy.rs::method::Pre<P>.new	method	partial	src/regex/automata/meta.cr:Builder#exact_literal_strategy;spec/meta_strategy_selection_spec.cr	Selector builds direct prefilter but currently also builds unused NFA/PikeVM; Pre-only construction remains.
 src/meta/strategy.rs::method::Pre<P>.reset_cache	method	missing	-	auto-generated
-src/meta/strategy.rs::method::Pre<P>.search	method	missing	-	auto-generated
-src/meta/strategy.rs::method::Pre<P>.search_half	method	missing	-	auto-generated
-src/meta/strategy.rs::method::Pre<P>.search_slots	method	missing	-	auto-generated
-src/meta/strategy.rs::method::Pre<P>.which_overlapping_matches	method	missing	-	auto-generated
+src/meta/strategy.rs::method::Pre<P>.search	method	partial	src/regex/automata/meta.cr:Regex#search_with;spec/meta_strategy_selection_spec.cr	Direct literal hits and misses avoid PikeVM; direct Pre construction and cache ownership remain unported.
+src/meta/strategy.rs::method::Pre<P>.search_half	method	partial	src/regex/automata/meta.cr:Regex#search_half_with;spec/meta_regex_spec.cr	Direct literal half-match behavior is tested; Pre-only cache ownership remains.
+src/meta/strategy.rs::method::Pre<P>.search_slots	method	partial	src/regex/automata/meta.cr:Regex#search_slots_with;spec/meta_strategy_selection_spec.cr	Direct literal matches and misses set or clear slots without a PikeVM fallback; Pre-only cache ownership remains.
+src/meta/strategy.rs::method::Pre<P>.which_overlapping_matches	method	partial	src/regex/automata/meta.cr:Regex#literal_overlapping_matches;spec/meta_strategy_selection_spec.cr	Single-pattern Pre inserts only the selected pattern without rescanning all literals; ownership and full Pre-row audit remain.
 src/meta/strategy.rs::method::ReverseAnchored.create_cache	method	missing	-	auto-generated
 src/meta/strategy.rs::method::ReverseAnchored.group_info	method	missing	-	auto-generated
 src/meta/strategy.rs::method::ReverseAnchored.is_accelerated	method	missing	-	auto-generated

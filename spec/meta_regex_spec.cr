@@ -223,7 +223,7 @@ describe Regex::Automata::Meta::Regex do
     Regex::Automata::Meta::Regex.new("\\w").is_accelerated.should be_false
   end
 
-  it "uses the large alternation literal bypass when heuristic extraction gives up" do
+  it "uses the core prefilter below Rust's large-alternation bypass threshold" do
     pattern = large_literal_alternation(1000)
     re = Regex::Automata::Meta::Regex.new(pattern)
     cache = re.create_cache
@@ -319,7 +319,7 @@ describe Regex::Automata::Meta::Regex do
     re.find("xxtok0777yy").should eq(Regex::Automata::Match.must(0, 2...9))
   end
 
-  it "uses the literal fast path for exact multi-pattern literal sets" do
+  it "uses the core engine for exact multi-pattern literal sets" do
     re = Regex::Automata::Meta::Regex.builder.build_many(["foo", "bar", "foobar"] of String)
     cache = re.create_cache
     caps = re.create_captures
@@ -355,7 +355,7 @@ describe Regex::Automata::Meta::Regex do
     )
     patset.contains(Regex::Automata::PatternID.new(0)).should be_true
     patset.contains(Regex::Automata::PatternID.new(1)).should be_false
-    patset.contains(Regex::Automata::PatternID.new(2)).should be_true
+    patset.contains(Regex::Automata::PatternID.new(2)).should be_false
   end
 
   it "uses automatic core prefilters for non-literal meta regexes" do
@@ -605,8 +605,10 @@ describe Regex::Automata::Meta::Regex do
     patset.iter.to_a.should eq([Regex::Automata::PatternID.new(0)])
   end
 
-  it "accumulates literal overlapping matches without clearing the pattern set" do
-    re = Regex::Automata::Meta::Regex.builder.build_many(["foo", "foobar"] of String)
+  it "accumulates core overlapping matches under Rust's all-match mode without clearing the pattern set" do
+    re = Regex::Automata::Meta::Regex.builder
+      .configure(Regex::Automata::Meta::Regex.config.match_kind(Regex::Automata::MatchKind::All))
+      .build_many(["foo", "foobar"] of String)
     cache = re.create_cache
     patset = Regex::Automata::PatternSet.new(re.pattern_len + 1)
     patset.insert(Regex::Automata::PatternID.new(2))
