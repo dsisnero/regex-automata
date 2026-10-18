@@ -901,19 +901,19 @@ src/meta/strategy.rs::method::Pre<P>.search	missing	-	baseline
 src/meta/strategy.rs::method::Pre<P>.search_half	missing	-	baseline
 src/meta/strategy.rs::method::Pre<P>.search_slots	missing	-	baseline
 src/meta/strategy.rs::method::Pre<P>.which_overlapping_matches	missing	-	baseline
-src/meta/strategy.rs::method::ReverseAnchored.create_cache	missing	-	baseline
-src/meta/strategy.rs::method::ReverseAnchored.group_info	missing	-	baseline
-src/meta/strategy.rs::method::ReverseAnchored.is_accelerated	missing	-	baseline
-src/meta/strategy.rs::method::ReverseAnchored.is_match	missing	-	baseline
-src/meta/strategy.rs::method::ReverseAnchored.memory_usage	missing	-	baseline
+src/meta/strategy.rs::method::ReverseAnchored.create_cache	ported	src/regex/automata/meta.cr:Cache.initialize;spec/meta_regex_spec.cr	Selected reverse strategy shares Core cache engines.
+src/meta/strategy.rs::method::ReverseAnchored.group_info	ported	src/regex/automata/meta.cr:Regex.group_info;spec/meta_regex_spec.cr	Uses Core NFA capture group info.
+src/meta/strategy.rs::method::ReverseAnchored.is_accelerated	ported	src/regex/automata/meta.cr:is_accelerated;spec/meta_regex_spec.cr	Selected reverse anchored strategy reports acceleration.
+src/meta/strategy.rs::method::ReverseAnchored.is_match	ported	src/regex/automata/meta.cr:is_match_with;src/regex/automata/meta.cr:search_half_with;spec/meta_reverse_anchored_dispatch_spec.cr	Clean reverse misses return false; reverse errors use Core no-fail search.
+src/meta/strategy.rs::method::ReverseAnchored.memory_usage	ported	src/regex/automata/meta.cr:memory_usage;spec/meta_regex_spec.cr	Reverse anchored engine is part of Core-owned compiled memory.
 src/meta/strategy.rs::method::ReverseAnchored.name	missing	-	baseline
-src/meta/strategy.rs::method::ReverseAnchored.new	missing	-	baseline
-src/meta/strategy.rs::method::ReverseAnchored.reset_cache	missing	-	baseline
-src/meta/strategy.rs::method::ReverseAnchored.search	missing	-	baseline
-src/meta/strategy.rs::method::ReverseAnchored.search_half	missing	-	baseline
-src/meta/strategy.rs::method::ReverseAnchored.search_slots	missing	-	baseline
-src/meta/strategy.rs::method::ReverseAnchored.try_search_half_anchored_rev	missing	-	baseline
-src/meta/strategy.rs::method::ReverseAnchored.which_overlapping_matches	missing	-	baseline
+src/meta/strategy.rs::method::ReverseAnchored.new	ported	src/regex/automata/meta.cr:build_reverse_anchored;spec/meta_regex_spec.cr;spec/meta_reverse_anchored_dispatch_spec.cr	End-only anchor admits dense or hybrid reverse search before suffix/inner strategies.
+src/meta/strategy.rs::method::ReverseAnchored.reset_cache	ported	src/regex/automata/meta.cr:Cache.reset;spec/meta_regex_spec.cr	Selected reverse strategy resets Core and hybrid caches.
+src/meta/strategy.rs::method::ReverseAnchored.search	ported	src/regex/automata/meta.cr:search_with;src/regex/automata/meta.cr:reverse_anchored_search;spec/meta_reverse_anchored_dispatch_spec.cr	Clean reverse miss is final; MatchError retries Core no-fail; anchored input dispatches Core.
+src/meta/strategy.rs::method::ReverseAnchored.search_half	ported	src/regex/automata/meta.cr:search_half_with;src/regex/automata/meta.cr:core_search_half;spec/meta_reverse_anchored_dispatch_spec.cr	Half-match endpoint is input end; anchored input uses Core forward half search.
+src/meta/strategy.rs::method::ReverseAnchored.search_slots	ported	src/regex/automata/meta.cr:search_slots_with;spec/meta_reverse_anchored_dispatch_spec.cr	Clean miss clears slots; reverse error retries no-fail capture search.
+src/meta/strategy.rs::method::ReverseAnchored.try_search_half_anchored_rev	ported	src/regex/automata/meta.cr:reverse_anchored_search;src/regex/automata/meta.cr:reverse_match_from_dfa;spec/meta_reverse_anchored_dispatch_spec.cr	Hybrid reverse input is explicitly anchored; DFA and hybrid errors remain distinguishable from clean misses.
+src/meta/strategy.rs::method::ReverseAnchored.which_overlapping_matches	ported	src/regex/automata/meta.cr:which_overlapping_matches_with;spec/meta_reverse_anchored_dispatch_spec.cr	Overlapping pattern discovery delegates to Core.
 src/meta/strategy.rs::method::ReverseInner.create_cache	missing	-	baseline
 src/meta/strategy.rs::method::ReverseInner.group_info	missing	-	baseline
 src/meta/strategy.rs::method::ReverseInner.is_accelerated	missing	-	baseline

@@ -1367,8 +1367,11 @@ module Regex::Automata::Meta
 
     def search_with(cache : Cache, input : ::Regex::Automata::Input) : ::Regex::Automata::Match?
       return nil if impossible_input?(input)
-      if reverse_match = reverse_anchored_search(cache, input)
-        return reverse_match
+      if reverse_anchored_selected?
+        return core_search(cache, input) if input.anchored.is_anchored
+        result = reverse_anchored_search(cache, input)
+        return core_search_nofail(cache, input) if result.is_a?(::Regex::Automata::MatchError)
+        return result
       end
       if literal = literal_search(input)
         return literal
@@ -1385,12 +1388,21 @@ module Regex::Automata::Meta
 
     def search_half_with(cache : Cache, input : ::Regex::Automata::Input) : ::Regex::Automata::HalfMatch?
       return nil if impossible_input?(input)
-      if reverse_match = reverse_anchored_search(cache, input)
-        return ::Regex::Automata::HalfMatch.new(reverse_match.pattern, input.end)
+      if reverse_anchored_selected?
+        return core_search_half(cache, input) if input.anchored.is_anchored
+        result = reverse_anchored_search(cache, input)
+        if result.is_a?(::Regex::Automata::MatchError)
+          return core_search_half_nofail(cache, input)
+        end
+        return result.try { |match| ::Regex::Automata::HalfMatch.new(match.pattern, input.end) }
       end
       unless core_strategy?
         return search_with(cache, input).try { |match| ::Regex::Automata::HalfMatch.new(match.pattern, match.end) }
       end
+      core_search_half(cache, input)
+    end
+
+    private def core_search_half(cache : Cache, input : ::Regex::Automata::Input) : ::Regex::Automata::HalfMatch?
       if core = @core_dfa
         result = core.forward.try_search_fwd(input)
         return result unless result.is_a?(::Regex::Automata::MatchError)
@@ -1398,6 +1410,10 @@ module Regex::Automata::Meta
         result = core.forward.try_search_fwd(cache.core_hybrid_cache.not_nil!.forward, input)
         return result unless result.is_a?(::Regex::Automata::MatchError)
       end
+      core_search_half_nofail(cache, input)
+    end
+
+    private def core_search_half_nofail(cache : Cache, input : ::Regex::Automata::Input) : ::Regex::Automata::HalfMatch?
       core_search_nofail(cache, input).try { |match| ::Regex::Automata::HalfMatch.new(match.pattern, match.end) }
     end
 
@@ -1406,8 +1422,19 @@ module Regex::Automata::Meta
         caps.clear
         return
       end
-      if reverse_match = reverse_anchored_search(cache, input)
-        search_captures_from_match(cache, input, caps, reverse_match)
+      if reverse_anchored_selected?
+        if input.anchored.is_anchored
+          caps.set_pattern(core_search_slots(cache, input, caps.slots))
+          return
+        end
+        result = reverse_anchored_search(cache, input)
+        if result.is_a?(::Regex::Automata::MatchError)
+          caps.set_pattern(core_search_slots_nofail(cache, input, caps.slots))
+        elsif result
+          search_captures_from_match(cache, input, caps, result)
+        else
+          caps.clear
+        end
         return
       end
       if literal = literal_search(input)
@@ -1436,8 +1463,13 @@ module Regex::Automata::Meta
         clear_slots(slots)
         return nil
       end
-      if reverse_match = reverse_anchored_search(cache, input)
-        return search_slots_from_match(cache, input, slots, reverse_match)
+      if reverse_anchored_selected?
+        return core_search_slots(cache, input, slots) if input.anchored.is_anchored
+        result = reverse_anchored_search(cache, input)
+        return core_search_slots_nofail(cache, input, slots) if result.is_a?(::Regex::Automata::MatchError)
+        return search_slots_from_match(cache, input, slots, result) if result
+        clear_slots(slots)
+        return nil
       end
       if literal = literal_search(input)
         set_match_slots(slots, literal)
@@ -1461,8 +1493,13 @@ module Regex::Automata::Meta
         clear_slots(slots)
         return nil
       end
-      if reverse_match = reverse_anchored_search(cache, input)
-        return search_slots_from_match(cache, input, slots, reverse_match)
+      if reverse_anchored_selected?
+        return core_search_slots(cache, input, slots) if input.anchored.is_anchored
+        result = reverse_anchored_search(cache, input)
+        return core_search_slots_nofail(cache, input, slots) if result.is_a?(::Regex::Automata::MatchError)
+        return search_slots_from_match(cache, input, slots, result) if result
+        clear_slots(slots)
+        return nil
       end
       if literal = literal_search(input)
         set_match_slots(slots, literal)
@@ -1613,6 +1650,13 @@ module Regex::Automata::Meta
                  return pikevm.search_slots(cache.raw_cache, input, slots)
                end
       raise result if result.is_a?(::Regex::Automata::MatchError)
+      result
+    end
+
+    private def core_search_slots_nofail(cache : Cache, input : ::Regex::Automata::Input, slots : Array(Int32?)) : ::Regex::Automata::PatternID?
+      converted = Array(::Regex::Automata::NonMaxUsize?).new(slots.size, nil)
+      result = core_search_slots_nofail(cache, input, converted)
+      converted.each_with_index { |slot, index| slots[index] = slot.try(&.get) }
       result
     end
 
@@ -1816,16 +1860,20 @@ module Regex::Automata::Meta
       false
     end
 
-    private def reverse_anchored_search(cache : Cache, input : ::Regex::Automata::Input) : ::Regex::Automata::Match?
-      return nil if input.anchored.is_anchored
+    private def reverse_anchored_selected? : Bool
+      !@reverse_anchored_dfa.nil? || !@reverse_anchored_hybrid.nil?
+    end
+
+    private def reverse_anchored_search(cache : Cache, input : ::Regex::Automata::Input) : ::Regex::Automata::Match? | ::Regex::Automata::MatchError
       if dfa = @reverse_anchored_dfa
-        return reverse_match_from_dfa(dfa, input).try { |match| ::Regex::Automata::Match.new(match.pattern, match.start, input.end) }
+        return reverse_match_from_dfa(dfa, input)
       end
       hybrid = @reverse_anchored_hybrid
       hybrid_cache = cache.reverse_anchored_hybrid_cache
       return nil unless hybrid && hybrid_cache
 
-      result = hybrid.try_search_rev(hybrid_cache, input)
+      result = hybrid.try_search_rev(hybrid_cache, input.clone.anchored(::Regex::Automata::Anchored::Yes))
+      return result if result.is_a?(::Regex::Automata::MatchError)
       return nil unless result.is_a?(::Regex::Automata::HalfMatch)
       ::Regex::Automata::Match.new(result.pattern, result.offset, input.end)
     end
@@ -1966,9 +2014,10 @@ module Regex::Automata::Meta
     private def reverse_match_from_dfa(
       dfa : ::Regex::Automata::DFA::DFA,
       input : ::Regex::Automata::Input,
-    ) : ::Regex::Automata::Match?
+    ) : ::Regex::Automata::Match? | ::Regex::Automata::MatchError
       slice = input.haystack[input.start, input.end - input.start]
       result = dfa.try_search_rev(slice)
+      return result if result.is_a?(::Regex::Automata::MatchError)
       return nil unless result.is_a?(Tuple(Int32, Array(::Regex::Automata::PatternID)))
 
       start_offset, pattern_ids = result
