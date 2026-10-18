@@ -858,7 +858,7 @@ src/meta/regex.rs::method::RegexInfo.is_always_anchored_end	missing	-	baseline
 src/meta/regex.rs::method::RegexInfo.is_always_anchored_start	missing	-	baseline
 src/meta/regex.rs::method::RegexInfo.is_anchored_start	missing	-	baseline
 src/meta/regex.rs::method::RegexInfo.is_impossible	missing	-	baseline
-src/meta/regex.rs::method::RegexInfo.memory_usage	missing	-	baseline
+src/meta/regex.rs::method::RegexInfo.memory_usage	ported	src/regex/automata/meta.cr:build_many_from_hir;src/regex/automata/meta.cr:memory_usage;spec/meta_pre_ownership_spec.cr	Core sums per-HIR and union property memory; Pre reports only prefilter memory.
 src/meta/regex.rs::method::RegexInfo.new	missing	-	baseline
 src/meta/regex.rs::method::RegexInfo.pattern_len	missing	-	baseline
 src/meta/regex.rs::method::RegexInfo.props	missing	-	baseline
@@ -889,14 +889,14 @@ src/meta/strategy.rs::method::Core.try_search_mayfail	missing	-	baseline
 src/meta/strategy.rs::method::Core.which_overlapping_matches	missing	-	baseline
 src/meta/strategy.rs::method::Pre<()>.from_alternation_literals	missing	-	baseline
 src/meta/strategy.rs::method::Pre<()>.from_prefixes	missing	-	baseline
-src/meta/strategy.rs::method::Pre<P>.create_cache	missing	-	baseline
-src/meta/strategy.rs::method::Pre<P>.group_info	missing	-	baseline
+src/meta/strategy.rs::method::Pre<P>.create_cache	ported	src/regex/automata/meta.cr:Cache.initialize;spec/meta_pre_ownership_spec.cr	Pre allocates capture storage but no engine scratch.
+src/meta/strategy.rs::method::Pre<P>.group_info	ported	src/regex/automata/meta.cr:Regex.initialize;spec/meta_pre_ownership_spec.cr	One implicit capture group for one pattern.
 src/meta/strategy.rs::method::Pre<P>.is_accelerated	missing	-	baseline
 src/meta/strategy.rs::method::Pre<P>.is_match	missing	-	baseline
-src/meta/strategy.rs::method::Pre<P>.memory_usage	missing	-	baseline
+src/meta/strategy.rs::method::Pre<P>.memory_usage	ported	src/regex/automata/meta.cr:Regex.memory_usage;spec/meta_pre_ownership_spec.cr	Only selected prefilter memory is counted.
 src/meta/strategy.rs::method::Pre<P>.name	missing	-	baseline
-src/meta/strategy.rs::method::Pre<P>.new	missing	-	baseline
-src/meta/strategy.rs::method::Pre<P>.reset_cache	missing	-	baseline
+src/meta/strategy.rs::method::Pre<P>.new	ported	src/regex/automata/meta.cr:build_many_from_hir;spec/meta_pre_ownership_spec.cr	Literal strategy short-circuits before NFA and Core engine compilation.
+src/meta/strategy.rs::method::Pre<P>.reset_cache	ported	src/regex/automata/meta.cr:Cache.reset;spec/meta_pre_ownership_spec.cr	Pre reset is a no-op and does not allocate scratch.
 src/meta/strategy.rs::method::Pre<P>.search	missing	-	baseline
 src/meta/strategy.rs::method::Pre<P>.search_half	missing	-	baseline
 src/meta/strategy.rs::method::Pre<P>.search_slots	missing	-	baseline
@@ -999,10 +999,10 @@ src/meta/wrappers.rs::method::OnePassEngine.search_slots	missing	-	baseline
 src/meta/wrappers.rs::method::PikeVM.create_cache	missing	-	baseline
 src/meta/wrappers.rs::method::PikeVM.get	missing	-	baseline
 src/meta/wrappers.rs::method::PikeVM.new	missing	-	baseline
-src/meta/wrappers.rs::method::PikeVMCache.get	missing	-	baseline
-src/meta/wrappers.rs::method::PikeVMCache.memory_usage	missing	-	baseline
-src/meta/wrappers.rs::method::PikeVMCache.none	missing	-	baseline
-src/meta/wrappers.rs::method::PikeVMCache.reset	missing	-	baseline
+src/meta/wrappers.rs::method::PikeVMCache.get	ported	src/regex/automata/meta.cr:Cache.raw_cache;spec/meta_pre_ownership_spec.cr	Core PikeVM scratch is created on first use.
+src/meta/wrappers.rs::method::PikeVMCache.memory_usage	ported	src/regex/automata/meta.cr:Cache.memory_usage;spec/meta_pre_ownership_spec.cr	Absent scratch contributes zero.
+src/meta/wrappers.rs::method::PikeVMCache.none	ported	src/regex/automata/meta.cr:Cache.initialize;spec/meta_pre_ownership_spec.cr	Meta caches start without PikeVM scratch.
+src/meta/wrappers.rs::method::PikeVMCache.reset	ported	src/regex/automata/meta.cr:Cache.reset;spec/meta_pre_ownership_spec.cr	Core reset creates scratch if needed; Pre reset remains a no-op.
 src/meta/wrappers.rs::method::PikeVMEngine.is_match	missing	-	baseline
 src/meta/wrappers.rs::method::PikeVMEngine.new	missing	-	baseline
 src/meta/wrappers.rs::method::PikeVMEngine.search_slots	missing	-	baseline

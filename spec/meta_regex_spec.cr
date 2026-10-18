@@ -155,7 +155,7 @@ describe Regex::Automata::Meta::Regex do
     error = expect_raises(Regex::Automata::Meta::BuildError) do
       Regex::Automata::Meta::Regex.builder
         .configure(Regex::Automata::Meta::Regex.config.nfa_size_limit(0_i64))
-        .build("abc")
+        .build("a+")
     end
 
     error.pattern.should be_nil

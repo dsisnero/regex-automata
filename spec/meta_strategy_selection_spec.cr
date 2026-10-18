@@ -28,9 +28,9 @@ describe "pinned Rust meta Core dispatch" do
     re.core_engines_for_spec[0].should be_true
     cache = re.create_cache
     re.search_with(cache, Regex::Automata::Input.new("123abc")).should eq(Regex::Automata::Match.must(0, 3...6))
-    cache.raw_cache.setup_calls_for_spec.should eq(0)
+    cache.pike_scratch_allocated_for_spec?.should be_false
     re.is_match_with(cache, Regex::Automata::Input.new("123abc").earliest(true)).should be_true
-    cache.raw_cache.setup_calls_for_spec.should eq(0)
+    cache.pike_scratch_allocated_for_spec?.should be_false
   end
 
   it "selects lazy DFA when full DFA is disabled and no reverse strategy applies" do
@@ -41,7 +41,7 @@ describe "pinned Rust meta Core dispatch" do
     re.core_engines_for_spec[1].should be_true
     cache = re.create_cache
     re.search_with(cache, Regex::Automata::Input.new("123abc")).should eq(Regex::Automata::Match.must(0, 3...6))
-    cache.raw_cache.setup_calls_for_spec.should eq(0)
+    cache.pike_scratch_allocated_for_spec?.should be_false
   end
 
   it "uses the Rust nofail order for anchored captures when DFAs are disabled" do
@@ -208,10 +208,10 @@ describe "pinned Rust meta literal strategy selection" do
     slots = [nil, nil] of Int32?
 
     re.search_with(cache, Regex::Automata::Input.new("xxSherlock")).should eq(Regex::Automata::Match.must(0, 2...10))
-    cache.raw_cache.setup_calls_for_spec.should eq(0)
+    cache.pike_scratch_allocated_for_spec?.should be_false
     re.search_with(cache, Regex::Automata::Input.new("xxWatson")).should be_nil
-    cache.raw_cache.setup_calls_for_spec.should eq(0)
+    cache.pike_scratch_allocated_for_spec?.should be_false
     re.search_slots_with(cache, Regex::Automata::Input.new("xxWatson"), slots).should be_nil
-    cache.raw_cache.setup_calls_for_spec.should eq(0)
+    cache.pike_scratch_allocated_for_spec?.should be_false
   end
 end
