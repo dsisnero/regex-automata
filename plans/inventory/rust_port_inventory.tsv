@@ -793,7 +793,7 @@ src/meta/regex.rs::method::Config.get_dfa	method	ported	src/regex/automata/meta.
 src/meta/regex.rs::method::Config.get_dfa_size_limit	method	ported	src/regex/automata/meta.cr:Config#get_dfa_size_limit;spec/meta_regex_spec.cr	Defaults to Rust's 40 KiB DFA budget.
 src/meta/regex.rs::method::Config.get_dfa_state_limit	method	ported	src/regex/automata/meta.cr:Config#get_dfa_state_limit;spec/meta_regex_spec.cr	Defaults to Rust's 30-state admission budget.
 src/meta/regex.rs::method::Config.get_hybrid	method	missing	-	auto-generated
-src/meta/regex.rs::method::Config.get_hybrid_cache_capacity	method	missing	-	auto-generated
+src/meta/regex.rs::method::Config.get_hybrid_cache_capacity	method	ported	src/regex/automata/meta.cr:Config#get_hybrid_cache_capacity;spec/meta_hybrid_capacity_spec.cr	Rust usize-width default, explicit value, overwrite, and lazy-DFA forwarding verified.
 src/meta/regex.rs::method::Config.get_line_terminator	method	ported	src/regex/automata/meta.cr:Config#get_line_terminator;spec/meta_regex_spec.cr	Feeds the configured terminator into Meta's syntax and NFA construction.
 src/meta/regex.rs::method::Config.get_match_kind	method	missing	-	auto-generated
 src/meta/regex.rs::method::Config.get_nfa_size_limit	method	ported	src/regex/automata/meta.cr:Config#get_nfa_size_limit;spec/meta_regex_spec.cr	Defaults to Rust's 10 MiB NFA budget.
@@ -804,7 +804,7 @@ src/meta/regex.rs::method::Config.get_prefilter	method	missing	-	auto-generated
 src/meta/regex.rs::method::Config.get_utf8_empty	method	missing	-	auto-generated
 src/meta/regex.rs::method::Config.get_which_captures	method	missing	-	auto-generated
 src/meta/regex.rs::method::Config.hybrid	method	missing	-	auto-generated
-src/meta/regex.rs::method::Config.hybrid_cache_capacity	method	missing	-	auto-generated
+src/meta/regex.rs::method::Config.hybrid_cache_capacity	method	ported	src/regex/automata/meta.cr:Config#hybrid_cache_capacity;spec/meta_hybrid_capacity_spec.cr	Accepts UInt64 capacity on the 64-bit target without narrowing to Int32.
 src/meta/regex.rs::method::Config.line_terminator	method	ported	src/regex/automata/meta.cr:Config#line_terminator;spec/meta_regex_spec.cr	Custom terminators govern multiline start and end anchors.
 src/meta/regex.rs::method::Config.match_kind	method	missing	-	auto-generated
 src/meta/regex.rs::method::Config.new	method	missing	-	auto-generated

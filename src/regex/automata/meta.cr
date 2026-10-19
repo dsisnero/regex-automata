@@ -119,7 +119,7 @@ module Regex::Automata::Meta
     @nfa_size_limit_set : Bool
     @onepass_size_limit : Int64?
     @onepass_size_limit_set : Bool
-    @hybrid_cache_capacity : Int32?
+    @hybrid_cache_capacity : UInt64?
     @hybrid : Bool?
     @dfa : Bool?
     @dfa_size_limit : Int64?
@@ -144,7 +144,7 @@ module Regex::Automata::Meta
       @nfa_size_limit_set : Bool = false,
       @onepass_size_limit : Int64? = nil,
       @onepass_size_limit_set : Bool = false,
-      @hybrid_cache_capacity : Int32? = nil,
+      @hybrid_cache_capacity : UInt64? = nil,
       @hybrid : Bool? = nil,
       @dfa : Bool? = nil,
       @dfa_size_limit : Int64? = nil,
@@ -187,8 +187,8 @@ module Regex::Automata::Meta
       copy(onepass_size_limit: limit, onepass_size_limit_set: true)
     end
 
-    def hybrid_cache_capacity(capacity : Int32) : Config
-      copy(hybrid_cache_capacity: capacity)
+    def hybrid_cache_capacity(capacity : Int) : Config
+      copy(hybrid_cache_capacity: capacity.to_u64)
     end
 
     def hybrid(yes : Bool) : Config
@@ -258,8 +258,8 @@ module Regex::Automata::Meta
       @onepass_size_limit_set ? @onepass_size_limit : 1_i64 * (1_i64 << 20)
     end
 
-    def get_hybrid_cache_capacity : Int32
-      @hybrid_cache_capacity || 2_097_152
+    def get_hybrid_cache_capacity : UInt64
+      @hybrid_cache_capacity || 2_097_152_u64
     end
 
     def get_hybrid : Bool
@@ -337,7 +337,7 @@ module Regex::Automata::Meta
       nfa_size_limit_set : Bool = @nfa_size_limit_set,
       onepass_size_limit : Int64? = @onepass_size_limit,
       onepass_size_limit_set : Bool = @onepass_size_limit_set,
-      hybrid_cache_capacity : Int32? = @hybrid_cache_capacity,
+      hybrid_cache_capacity : UInt64? = @hybrid_cache_capacity,
       hybrid : Bool? = @hybrid,
       dfa : Bool? = @dfa,
       dfa_size_limit : Int64? = @dfa_size_limit,
