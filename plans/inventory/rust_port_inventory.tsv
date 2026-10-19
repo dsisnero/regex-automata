@@ -773,7 +773,7 @@ src/meta/regex.rs::method::Builder.build_many_from_hir	method	missing	-	auto-gen
 src/meta/regex.rs::method::Builder.configure	method	missing	-	auto-generated
 src/meta/regex.rs::method::Builder.new	method	missing	-	auto-generated
 src/meta/regex.rs::method::Builder.syntax	method	missing	-	auto-generated
-src/meta/regex.rs::method::Cache.memory_usage	method	partial	src/regex/automata/meta.cr:Cache#memory_usage;spec/meta_regex_spec.cr	Now sums PikeVM scratch and retained reverse hybrid caches as UInt64; full Rust wrapper-cache ownership/accounting remains for the Meta feature.
+src/meta/regex.rs::method::Cache.memory_usage	method	ported	src/regex/automata/meta.cr:Cache#memory_usage;spec/meta_memory_ownership_spec.cr	Sums each retained wrapper cache once as UInt64; ReverseAnchored aliases Core reverse, ReverseInner owns one extra reverse cache.
 src/meta/regex.rs::method::Cache.new	method	ported	src/regex/automata/meta.cr:Cache#initialize;spec/meta_regex_spec.cr	Creates reusable PikeVM scratch for the owning meta regex.
 src/meta/regex.rs::method::Cache.reset	method	ported	src/regex/automata/meta.cr:Cache#reset;spec/meta_regex_spec.cr	Resets reusable scratch and permits subsequent searches.
 src/meta/regex.rs::method::CapturesMatches<'r, 'h>.count	method	ported	src/regex/automata/meta.cr:CapturesMatches#count;spec/meta_regex_spec.cr	Consumes the iterator and returns its match count.
@@ -835,7 +835,7 @@ src/meta/regex.rs::method::Regex.get_config	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.group_info	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.is_accelerated	method	partial	src/regex/automata/meta.cr:Regex#is_accelerated;spec/meta_regex_spec.cr;spec/meta_strategy_selection_spec.cr	Direct literal and core-prefilter acceleration signals match pinned Rust probes; reverse strategy and complete Core wrapper selection remain to audit.
 src/meta/regex.rs::method::Regex.is_match	method	missing	-	auto-generated
-src/meta/regex.rs::method::Regex.memory_usage	method	ported	src/regex/automata/meta.cr:Regex#memory_usage;spec/meta_regex_spec.cr	Accounts for the active PikeVM, prefilter, and compiled reverse-DFA strategy components.
+src/meta/regex.rs::method::Regex.memory_usage	method	ported	src/regex/automata/meta.cr:Regex#memory_usage;spec/meta_memory_ownership_spec.cr	Reports the selected strategy's Rust ownership formula as UInt64: Pre, Core, ReverseAnchored, ReverseSuffix, or ReverseInner.
 src/meta/regex.rs::method::Regex.new	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.new_many	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.pattern_len	method	missing	-	auto-generated
@@ -875,7 +875,7 @@ src/meta/strategy.rs::method::Core.is_accelerated	method	ported	src/regex/automa
 src/meta/strategy.rs::method::Core.is_capture_search_needed	method	ported	src/regex/automata/meta.cr:Regex#core_search_slots;spec/meta_strategy_selection_spec.cr	Explicit capture rerun is skipped when only implicit slots are supplied.
 src/meta/strategy.rs::method::Core.is_match	method	ported	src/regex/automata/meta.cr:Regex#core_is_match;spec/meta_strategy_selection_spec.cr	Full then lazy forward DFA precede nofail engines with fallible retry.
 src/meta/strategy.rs::method::Core.is_match_nofail	method	ported	src/regex/automata/meta.cr:Regex#core_is_match;spec/meta_strategy_selection_spec.cr	OnePass then bounded backtracker then PikeVM follow Rust admission order.
-src/meta/strategy.rs::method::Core.memory_usage	method	partial	src/regex/automata/meta.cr:Regex#memory_usage;spec/meta_regex_spec.cr	Includes NFA, reverse NFA, OnePass and dense DFA; RegexInfo property footprint and eager PikeVM ownership remain different.
+src/meta/strategy.rs::method::Core.memory_usage	method	ported	src/regex/automata/meta.cr:Regex#memory_usage;spec/meta_memory_ownership_spec.cr	Counts RegexInfo, prefilter, NFA, reverse NFA, OnePass and dense DFA once; no hybrid-cache heap is attributed to the regex.
 src/meta/strategy.rs::method::Core.name	method	intentional_divergence	src/regex/automata/meta.cr:Regex#core_strategy?	Crystal fuses the private Core strategy into the Meta facade; the private name is checked through selector specs rather than exposed.
 src/meta/strategy.rs::method::Core.new	method	ported	src/regex/automata/meta.cr:Builder#build_core_dfas;spec/meta_strategy_selection_spec.cr	Rust full-before-lazy DFA admission and optional OnePass/backtracker construction are ported with the configured limits.
 src/meta/strategy.rs::method::Core.reset_cache	method	partial	src/regex/automata/meta.cr:Cache#reset;spec/meta_regex_spec.cr	All optional Core caches retarget; eager PikeVM scratch differs from Rust's lazy allocation.
@@ -893,7 +893,7 @@ src/meta/strategy.rs::method::Pre<P>.create_cache	method	partial	src/regex/autom
 src/meta/strategy.rs::method::Pre<P>.group_info	method	partial	src/regex/automata/meta.cr:Regex#create_captures;spec/meta_regex_spec.cr	Implicit one-pattern capture result works; current group info comes from an unnecessarily compiled NFA.
 src/meta/strategy.rs::method::Pre<P>.is_accelerated	method	partial	src/regex/automata/meta.cr:Regex#is_accelerated;spec/meta_strategy_selection_spec.cr	Pinned Rust probe confirms fast short-literal choices and non-fast large Aho-Corasick choice. Crystal uses failure-link Aho-Corasick instead of packed-SIMD Teddy where stdlib offers no Teddy primitive; full choice diagnostics and Pre ownership remain.
 src/meta/strategy.rs::method::Pre<P>.is_match	method	partial	src/regex/automata/meta.cr:Regex#is_match;spec/meta_regex_spec.cr	Direct literal result follows the Pre search path; complete Pre-only ownership is pending.
-src/meta/strategy.rs::method::Pre<P>.memory_usage	method	missing	-	auto-generated
+src/meta/strategy.rs::method::Pre<P>.memory_usage	method	ported	src/regex/automata/meta.cr:Regex#memory_usage;spec/meta_pre_ownership_spec.cr	Direct Pre reports only its prefilter memory, with no Core NFA or cache allocation.
 src/meta/strategy.rs::method::Pre<P>.name	method	missing	-	auto-generated
 src/meta/strategy.rs::method::Pre<P>.new	method	partial	src/regex/automata/meta.cr:Builder#exact_literal_strategy;spec/meta_strategy_selection_spec.cr	Selector builds direct prefilter but currently also builds unused NFA/PikeVM; Pre-only construction remains.
 src/meta/strategy.rs::method::Pre<P>.reset_cache	method	missing	-	auto-generated
@@ -905,7 +905,7 @@ src/meta/strategy.rs::method::ReverseAnchored.create_cache	method	missing	-	auto
 src/meta/strategy.rs::method::ReverseAnchored.group_info	method	missing	-	auto-generated
 src/meta/strategy.rs::method::ReverseAnchored.is_accelerated	method	missing	-	auto-generated
 src/meta/strategy.rs::method::ReverseAnchored.is_match	method	missing	-	auto-generated
-src/meta/strategy.rs::method::ReverseAnchored.memory_usage	method	missing	-	auto-generated
+src/meta/strategy.rs::method::ReverseAnchored.memory_usage	method	ported	src/regex/automata/meta.cr:Regex#memory_usage;spec/meta_memory_ownership_spec.cr	Aliases Core's reverse DFA or hybrid DFA and reports exactly Core memory.
 src/meta/strategy.rs::method::ReverseAnchored.name	method	missing	-	auto-generated
 src/meta/strategy.rs::method::ReverseAnchored.new	method	missing	-	auto-generated
 src/meta/strategy.rs::method::ReverseAnchored.reset_cache	method	missing	-	auto-generated
@@ -918,7 +918,7 @@ src/meta/strategy.rs::method::ReverseInner.create_cache	method	ported	src/regex/
 src/meta/strategy.rs::method::ReverseInner.group_info	method	ported	src/regex/automata/meta.cr:Regex#pattern_len;spec/meta_reverse_inner_dispatch_spec.cr	Pinned ReverseInner strategy semantics and dispatch covered.
 src/meta/strategy.rs::method::ReverseInner.is_accelerated	method	ported	src/regex/automata/meta.cr:Regex#is_accelerated;spec/meta_reverse_inner_dispatch_spec.cr	Pinned ReverseInner strategy semantics and dispatch covered.
 src/meta/strategy.rs::method::ReverseInner.is_match	method	ported	src/regex/automata/meta.cr:Regex#is_match_with;spec/meta_reverse_inner_dispatch_spec.cr	Pinned ReverseInner strategy semantics and dispatch covered.
-src/meta/strategy.rs::method::ReverseInner.memory_usage	method	partial	src/regex/automata/meta.cr:Regex#memory_usage;spec/meta_reverse_inner_dispatch_spec.cr	Reverse-prefix NFA accounting remains with broader Meta memory audit.
+src/meta/strategy.rs::method::ReverseInner.memory_usage	method	ported	src/regex/automata/meta.cr:Regex#memory_usage;spec/meta_memory_ownership_spec.cr	Adds only the selected inner prefilter, dedicated reverse-prefix NFA, and reverse dense DFA to Core memory.
 src/meta/strategy.rs::method::ReverseInner.name	method	missing	-	auto-generated
 src/meta/strategy.rs::method::ReverseInner.new	method	ported	src/regex/automata/meta.cr:Builder#build_reverse_inner_strategy;spec/meta_reverse_inner_dispatch_spec.cr	Pinned ReverseInner strategy semantics and dispatch covered.
 src/meta/strategy.rs::method::ReverseInner.reset_cache	method	ported	src/regex/automata/meta.cr:Regex#reset;spec/meta_reverse_inner_dispatch_spec.cr	Pinned ReverseInner strategy semantics and dispatch covered.
@@ -933,7 +933,7 @@ src/meta/strategy.rs::method::ReverseSuffix.create_cache	method	ported	src/regex
 src/meta/strategy.rs::method::ReverseSuffix.group_info	method	ported	src/regex/automata/meta.cr:Regex#pattern_len	Uses Core capture metadata.
 src/meta/strategy.rs::method::ReverseSuffix.is_accelerated	method	ported	src/regex/automata/meta.cr:Regex#is_accelerated	Selected suffix prefilter reports acceleration.
 src/meta/strategy.rs::method::ReverseSuffix.is_match	method	ported	src/regex/automata/meta.cr:Regex#is_match_with	Reverse-start fast path and no-fail fallback.
-src/meta/strategy.rs::method::ReverseSuffix.memory_usage	method	partial	src/regex/automata/meta.cr:Regex#memory_usage	Broader Meta hybrid-cache accounting remains open.
+src/meta/strategy.rs::method::ReverseSuffix.memory_usage	method	ported	src/regex/automata/meta.cr:Regex#memory_usage;spec/meta_memory_ownership_spec.cr	Adds only its selected suffix prefilter to Core memory and reuses Core's reverse engine/cache.
 src/meta/strategy.rs::method::ReverseSuffix.name	method	missing	-	auto-generated
 src/meta/strategy.rs::method::ReverseSuffix.new	method	ported	src/regex/automata/meta.cr:Regex::Builder#build_reverse_suffix_strategy	Pinned Rust admission matrix.
 src/meta/strategy.rs::method::ReverseSuffix.reset_cache	method	ported	src/regex/automata/meta.cr:Regex#reset	Delegates to Core cache reset.
@@ -948,7 +948,7 @@ src/meta/wrappers.rs::method::BoundedBacktracker.create_cache	method	missing	-	a
 src/meta/wrappers.rs::method::BoundedBacktracker.get	method	missing	-	auto-generated
 src/meta/wrappers.rs::method::BoundedBacktracker.new	method	missing	-	auto-generated
 src/meta/wrappers.rs::method::BoundedBacktrackerCache.get	method	missing	-	auto-generated
-src/meta/wrappers.rs::method::BoundedBacktrackerCache.memory_usage	method	missing	-	auto-generated
+src/meta/wrappers.rs::method::BoundedBacktrackerCache.memory_usage	method	ported	src/regex/automata/meta.cr:Cache#memory_usage;spec/meta_memory_ownership_spec.cr	Meta keeps backtracker scratch lazy until search/reset and includes retained allocation in the aggregate.
 src/meta/wrappers.rs::method::BoundedBacktrackerCache.none	method	missing	-	auto-generated
 src/meta/wrappers.rs::method::BoundedBacktrackerCache.reset	method	missing	-	auto-generated
 src/meta/wrappers.rs::method::BoundedBacktrackerEngine.is_match	method	missing	-	auto-generated
@@ -973,7 +973,7 @@ src/meta/wrappers.rs::method::Hybrid.get	method	missing	-	auto-generated
 src/meta/wrappers.rs::method::Hybrid.is_some	method	missing	-	auto-generated
 src/meta/wrappers.rs::method::Hybrid.new	method	missing	-	auto-generated
 src/meta/wrappers.rs::method::Hybrid.none	method	missing	-	auto-generated
-src/meta/wrappers.rs::method::HybridCache.memory_usage	method	missing	-	auto-generated
+src/meta/wrappers.rs::method::HybridCache.memory_usage	method	ported	src/regex/automata/meta.cr:Cache#memory_usage;spec/meta_memory_ownership_spec.cr	Core forward/reverse hybrid caches are one wrapper and are retained across optional-engine reset.
 src/meta/wrappers.rs::method::HybridCache.new	method	missing	-	auto-generated
 src/meta/wrappers.rs::method::HybridCache.none	method	missing	-	auto-generated
 src/meta/wrappers.rs::method::HybridCache.reset	method	missing	-	auto-generated
@@ -988,7 +988,7 @@ src/meta/wrappers.rs::method::OnePass.create_cache	method	missing	-	auto-generat
 src/meta/wrappers.rs::method::OnePass.get	method	missing	-	auto-generated
 src/meta/wrappers.rs::method::OnePass.memory_usage	method	missing	-	auto-generated
 src/meta/wrappers.rs::method::OnePass.new	method	missing	-	auto-generated
-src/meta/wrappers.rs::method::OnePassCache.memory_usage	method	missing	-	auto-generated
+src/meta/wrappers.rs::method::OnePassCache.memory_usage	method	ported	src/regex/automata/meta.cr:Cache#memory_usage;spec/meta_memory_ownership_spec.cr	Counts the optional OnePass cache once and retains scratch across resets without that engine.
 src/meta/wrappers.rs::method::OnePassCache.new	method	missing	-	auto-generated
 src/meta/wrappers.rs::method::OnePassCache.none	method	missing	-	auto-generated
 src/meta/wrappers.rs::method::OnePassCache.reset	method	missing	-	auto-generated
@@ -1000,7 +1000,7 @@ src/meta/wrappers.rs::method::PikeVM.create_cache	method	missing	-	auto-generate
 src/meta/wrappers.rs::method::PikeVM.get	method	missing	-	auto-generated
 src/meta/wrappers.rs::method::PikeVM.new	method	missing	-	auto-generated
 src/meta/wrappers.rs::method::PikeVMCache.get	method	missing	-	auto-generated
-src/meta/wrappers.rs::method::PikeVMCache.memory_usage	method	missing	-	auto-generated
+src/meta/wrappers.rs::method::PikeVMCache.memory_usage	method	ported	src/regex/automata/meta.cr:Cache#memory_usage;spec/meta_memory_ownership_spec.cr	Lazy PikeVM scratch reports zero until created; reset allocates it as Rust's wrapper does.
 src/meta/wrappers.rs::method::PikeVMCache.none	method	missing	-	auto-generated
 src/meta/wrappers.rs::method::PikeVMCache.reset	method	missing	-	auto-generated
 src/meta/wrappers.rs::method::PikeVMEngine.is_match	method	missing	-	auto-generated
@@ -1019,7 +1019,7 @@ src/meta/wrappers.rs::method::ReverseHybrid.create_cache	method	missing	-	auto-g
 src/meta/wrappers.rs::method::ReverseHybrid.get	method	missing	-	auto-generated
 src/meta/wrappers.rs::method::ReverseHybrid.new	method	missing	-	auto-generated
 src/meta/wrappers.rs::method::ReverseHybrid.none	method	missing	-	auto-generated
-src/meta/wrappers.rs::method::ReverseHybridCache.memory_usage	method	missing	-	auto-generated
+src/meta/wrappers.rs::method::ReverseHybridCache.memory_usage	method	ported	src/regex/automata/meta.cr:Cache#memory_usage;spec/meta_memory_ownership_spec.cr	Counts ReverseInner's separate reverse-prefix hybrid cache and retains it on optional-engine reset.
 src/meta/wrappers.rs::method::ReverseHybridCache.new	method	missing	-	auto-generated
 src/meta/wrappers.rs::method::ReverseHybridCache.none	method	missing	-	auto-generated
 src/meta/wrappers.rs::method::ReverseHybridCache.reset	method	missing	-	auto-generated
