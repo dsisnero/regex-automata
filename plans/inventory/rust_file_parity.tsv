@@ -1,0 +1,73 @@
+rust_file	api_rows	file_review	crystal_refs	notes
+src/dfa/accel.rs	31	pending	-	API-item ledger exists; file-level private-function review remains.
+src/dfa/automaton.rs	31	pending	-	API-item ledger exists; file-level private-function review remains.
+src/dfa/dense.rs	196	pending	-	API-item ledger exists; file-level private-function review remains.
+src/dfa/determinize.rs	16	pending	-	API-item ledger exists; file-level private-function review remains.
+src/dfa/minimize.rs	18	pending	-	API-item ledger exists; file-level private-function review remains.
+src/dfa/mod.rs	1	pending	-	API-item ledger exists; file-level private-function review remains.
+src/dfa/onepass.rs	123	pending	-	API-item ledger exists; file-level private-function review remains.
+src/dfa/regex.rs	24	pending	-	API-item ledger exists; file-level private-function review remains.
+src/dfa/remapper.rs	13	pending	-	API-item ledger exists; file-level private-function review remains.
+src/dfa/search.rs	0	pending	src/regex/automata/dfa.cr	No API-item row; file-level algorithm/namespace review is required.
+src/dfa/sparse.rs	93	pending	-	API-item ledger exists; file-level private-function review remains.
+src/dfa/special.rs	20	pending	-	API-item ledger exists; file-level private-function review remains.
+src/dfa/start.rs	5	pending	-	API-item ledger exists; file-level private-function review remains.
+src/hybrid/dfa.rs	111	pending	-	API-item ledger exists; file-level private-function review remains.
+src/hybrid/error.rs	14	pending	-	API-item ledger exists; file-level private-function review remains.
+src/hybrid/id.rs	24	pending	-	API-item ledger exists; file-level private-function review remains.
+src/hybrid/mod.rs	0	pending	src/regex-automata.cr	No API-item row; file-level algorithm/namespace review is required.
+src/hybrid/regex.rs	31	pending	-	API-item ledger exists; file-level private-function review remains.
+src/hybrid/search.rs	0	reviewed	src/regex/automata/hybrid.cr;spec/hybrid_search_audit_spec.cr	No API-item row; Rust algorithm and Crystal behavior were reviewed in prior feature specs.
+src/lib.rs	0	pending	src/regex-automata.cr	No API-item row; file-level algorithm/namespace review is required.
+src/macros.rs	0	pending	-	Rust macro expansion has no Crystal runtime equivalent; confirm namespace-level use in final review.
+src/meta/error.rs	15	pending	-	API-item ledger exists; file-level private-function review remains.
+src/meta/limited.rs	0	pending	src/regex/automata/meta_limited.cr	No API-item row; file-level algorithm/namespace review is required.
+src/meta/literal.rs	0	pending	src/regex/automata/meta.cr	No API-item row; file-level algorithm/namespace review is required.
+src/meta/mod.rs	0	pending	src/regex-automata.cr	No API-item row; file-level algorithm/namespace review is required.
+src/meta/prefix.rs	0	pending	src/regex/automata/meta.cr	No API-item row; file-level algorithm/namespace review is required.
+src/meta/regex.rs	103	pending	-	API-item ledger exists; file-level private-function review remains.
+src/meta/reverse_inner.rs	1	pending	-	API-item ledger exists; file-level private-function review remains.
+src/meta/reverse_suffix.rs	0	pending	src/regex/automata/meta.cr;spec/meta_reverse_inner_dispatch_spec.cr	No API-item row; file-level algorithm/namespace review is required.
+src/meta/stopat.rs	0	pending	src/regex/automata/meta_stopat.cr	No API-item row; file-level algorithm/namespace review is required.
+src/meta/strategy.rs	75	pending	-	API-item ledger exists; file-level private-function review remains.
+src/meta/wrappers.rs	81	pending	-	API-item ledger exists; file-level private-function review remains.
+src/nfa/mod.rs	0	pending	src/regex-automata.cr	No API-item row; file-level algorithm/namespace review is required.
+src/nfa/thompson/backtrack.rs	51	pending	-	API-item ledger exists; file-level private-function review remains.
+src/nfa/thompson/builder.rs	31	pending	-	API-item ledger exists; file-level private-function review remains.
+src/nfa/thompson/compiler.rs	74	pending	-	API-item ledger exists; file-level private-function review remains.
+src/nfa/thompson/error.rs	12	pending	-	API-item ledger exists; file-level private-function review remains.
+src/nfa/thompson/literal_trie.rs	17	pending	-	API-item ledger exists; file-level private-function review remains.
+src/nfa/thompson/map.rs	12	pending	-	API-item ledger exists; file-level private-function review remains.
+src/nfa/thompson/mod.rs	0	pending	src/regex-automata.cr	No API-item row; file-level algorithm/namespace review is required.
+src/nfa/thompson/nfa.rs	52	pending	-	API-item ledger exists; file-level private-function review remains.
+src/nfa/thompson/pikevm.rs	68	pending	-	API-item ledger exists; file-level private-function review remains.
+src/nfa/thompson/range_trie.rs	28	pending	-	API-item ledger exists; file-level private-function review remains.
+src/util/alphabet.rs	50	pending	-	API-item ledger exists; file-level private-function review remains.
+src/util/captures.rs	60	pending	-	API-item ledger exists; file-level private-function review remains.
+src/util/determinize/mod.rs	0	pending	src/regex/automata/determinize.cr	No API-item row; file-level algorithm/namespace review is required.
+src/util/determinize/state.rs	64	pending	-	API-item ledger exists; file-level private-function review remains.
+src/util/empty.rs	0	reviewed	src/regex/automata/empty.cr;spec/utf8_empty_parity_spec.cr	No API-item row; Rust algorithm and Crystal behavior were reviewed in prior feature specs.
+src/util/escape.rs	2	pending	-	API-item ledger exists; file-level private-function review remains.
+src/util/int.rs	21	pending	-	API-item ledger exists; file-level private-function review remains.
+src/util/interpolate.rs	2	pending	-	API-item ledger exists; file-level private-function review remains.
+src/util/iter.rs	27	pending	-	API-item ledger exists; file-level private-function review remains.
+src/util/lazy.rs	10	pending	-	API-item ledger exists; file-level private-function review remains.
+src/util/look.rs	64	pending	-	API-item ledger exists; file-level private-function review remains.
+src/util/memchr.rs	0	pending	src/regex/automata/prefilter.cr	No API-item row; file-level algorithm/namespace review is required.
+src/util/mod.rs	0	pending	src/regex-automata.cr	No API-item row; file-level algorithm/namespace review is required.
+src/util/pool.rs	25	pending	-	API-item ledger exists; file-level private-function review remains.
+src/util/prefilter/aho_corasick.rs	6	pending	-	API-item ledger exists; file-level private-function review remains.
+src/util/prefilter/byteset.rs	6	pending	-	API-item ledger exists; file-level private-function review remains.
+src/util/prefilter/memchr.rs	18	pending	-	API-item ledger exists; file-level private-function review remains.
+src/util/prefilter/memmem.rs	6	pending	-	API-item ledger exists; file-level private-function review remains.
+src/util/prefilter/mod.rs	15	pending	-	API-item ledger exists; file-level private-function review remains.
+src/util/prefilter/teddy.rs	6	pending	-	API-item ledger exists; file-level private-function review remains.
+src/util/primitives.rs	28	pending	-	API-item ledger exists; file-level private-function review remains.
+src/util/search.rs	73	pending	-	API-item ledger exists; file-level private-function review remains.
+src/util/sparse_set.rs	17	pending	-	API-item ledger exists; file-level private-function review remains.
+src/util/start.rs	17	pending	-	API-item ledger exists; file-level private-function review remains.
+src/util/syntax.rs	27	pending	-	API-item ledger exists; file-level private-function review remains.
+src/util/unicode_data/mod.rs	0	pending	src/regex/automata/look.cr	No API-item row; file-level algorithm/namespace review is required.
+src/util/unicode_data/perl_word.rs	1	pending	-	API-item ledger exists; file-level private-function review remains.
+src/util/utf8.rs	1	pending	-	API-item ledger exists; file-level private-function review remains.
+src/util/wire.rs	19	pending	-	API-item ledger exists; file-level private-function review remains.

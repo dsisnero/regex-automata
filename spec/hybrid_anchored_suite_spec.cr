@@ -1,10 +1,10 @@
 require "./spec_helper"
-require "json"
+require "./support/vendor_regex_suite"
 
 private record HybridSuiteCase,
   name : String,
   pattern : String,
-  haystack : String,
+  haystack : Bytes,
   matches : Array(Tuple(Int32, Int32)),
   bounds : Tuple(Int32, Int32),
   anchored : Bool,
@@ -14,74 +14,14 @@ private record HybridSuiteCase,
   match_limit : Int32?,
   match_kind : Regex::Automata::MatchKind
 
-private def anchored_suite_scalar(block : String, key : String) : String?
-  prefix = "#{key} ="
-  block.each_line do |line|
-    return line[prefix.size..].strip if line.starts_with?(prefix)
-  end
-  nil
-end
-
-private def anchored_suite_string(value : String) : String
-  return JSON.parse(value).as_s if value.starts_with?('"')
-  return value[1...-1] if value.starts_with?("'") && value.ends_with?("'")
-
-  raise "unsupported TOML string #{value.inspect}"
-end
-
-private def anchored_suite_matches(block : String) : Array(Tuple(Int32, Int32))
-  offset = block.index("matches =") || raise "missing matches"
-  start = block.index('[', offset) || raise "missing matches array"
-  depth = 0
-  index = start
-  finish = nil.as(Int32?)
-  while index < block.size
-    case block[index]
-    when '[' then depth += 1
-    when ']'
-      depth -= 1
-      if depth == 0
-        finish = index
-        break
-      end
-    end
-    index += 1
-  end
-  raise "unterminated matches array" unless finish
-
-  values = JSON.parse(block[start..finish].gsub(/,\s*\]/, "]")).as_a
-  values.map do |value|
-    entry = value.as_a
-    span = entry[0].as_a? || entry
-    {span[0].as_i, span[1].as_i}
-  end
-end
-
 private def hybrid_suite_cases(file : String) : Array(HybridSuiteCase)
-  path = File.join(__DIR__, "..", "vendor", "regex", "testdata", "#{file}.toml")
-  File.read(path).split("[[test]]").skip(1).map do |block|
-    name = anchored_suite_string(anchored_suite_scalar(block, "name") || raise "missing name")
-    pattern = anchored_suite_string(anchored_suite_scalar(block, "regex") || raise "missing regex")
-    haystack = anchored_suite_string(anchored_suite_scalar(block, "haystack") || raise "missing haystack")
-    bounds = if raw = anchored_suite_scalar(block, "bounds")
-               pair = raw.match(/\[\s*(\d+)\s*,\s*(\d+)\s*\]/) ||
-                      raw.match(/\{\s*start\s*=\s*(\d+)\s*,\s*end\s*=\s*(\d+)\s*\}/) || raise "invalid bounds"
-               {pair[1].to_i32, pair[2].to_i32}
-             else
-               {0, haystack.bytesize.to_i32}
-             end
+  VendorRegexSuite.load.cases(file).map do |fixture|
     HybridSuiteCase.new(
-      name,
-      pattern,
-      haystack,
-      anchored_suite_matches(block),
-      bounds,
-      anchored_suite_scalar(block, "anchored") == "true",
-      anchored_suite_scalar(block, "unicode") != "false",
-      anchored_suite_scalar(block, "utf8") != "false",
-      anchored_suite_scalar(block, "search-kind") == %q("earliest"),
-      anchored_suite_scalar(block, "match-limit").try(&.to_i32),
-      anchored_suite_scalar(block, "match-kind") == %q("all") ? Regex::Automata::MatchKind::All : Regex::Automata::MatchKind::LeftmostFirst
+      fixture.name, fixture.patterns[0], fixture.haystack,
+      fixture.matches.map(&.span), fixture.bounds, fixture.anchored,
+      fixture.unicode, fixture.utf8, fixture.search_kind == "earliest",
+      fixture.match_limit,
+      fixture.match_kind == "all" ? Regex::Automata::MatchKind::All : Regex::Automata::MatchKind::LeftmostFirst
     )
   end
 end

@@ -1,10 +1,10 @@
 require "./spec_helper"
-require "json"
+require "./support/vendor_regex_suite"
 
 private record HybridOverlapCase,
   name : String,
   patterns : Array(String),
-  haystack : String | Bytes,
+  haystack : Bytes,
   line_terminator : UInt8,
   compiles : Bool,
   match_limit : Int32?,
@@ -18,132 +18,16 @@ private record HybridOverlapCase,
   overlapping : Bool,
   matches : Array(Tuple(Int32, Int32, Int32))
 
-private def overlap_scalar(block : String, key : String) : String?
-  prefix = "#{key} ="
-  block.each_line do |line|
-    next unless line.starts_with?(prefix)
-    value = line[prefix.size..].strip
-    if value.starts_with?("'") || value.starts_with?("\"")
-      quote = value[0]
-      return value[0..value.rindex(quote).not_nil!]
-    end
-    return value if value.starts_with?('[')
-    return value.split('#', 2)[0].strip
-  end
-  nil
-end
-
-private def overlap_string(value : String) : String
-  return value[3...-3] if value.starts_with?("'''") && value.ends_with?("'''")
-  return value[1...-1] unless value.starts_with?('"')
-
-  normalized = value.gsub(/\\U([0-9A-Fa-f]{8})/) do |matched|
-    matched[2..].to_i(16).chr.to_s
-  end
-  JSON.parse(normalized).as_s
-end
-
-private def overlap_unescape_bytes(value : String) : Bytes
-  raw = value.to_slice
-  bytes = [] of UInt8
-  at = 0
-  while at < raw.size
-    if raw[at] == '\\'.ord && at + 1 < raw.size
-      if raw[at + 1] == 'x'.ord && at + 3 < raw.size
-        bytes << String.new(raw[at + 2, 2]).to_u8(16)
-        at += 4
-        next
-      elsif raw[at + 1] == '\\'.ord
-        bytes << '\\'.ord.to_u8
-        at += 2
-        next
-      elsif raw[at + 1] == 'n'.ord
-        bytes << '\n'.ord.to_u8
-        at += 2
-        next
-      elsif raw[at + 1] == 'r'.ord
-        bytes << '\r'.ord.to_u8
-        at += 2
-        next
-      elsif raw[at + 1] == 't'.ord
-        bytes << '\t'.ord.to_u8
-        at += 2
-        next
-      end
-    end
-    bytes << raw[at]
-    at += 1
-  end
-  Bytes.new(bytes.size) { |i| bytes[i] }
-end
-
 private def overlap_cases(file : String) : Array(HybridOverlapCase)
-  path = File.join(__DIR__, "..", "vendor", "regex", "testdata", "#{file}.toml")
-  File.read(path).split("[[test]]").skip(1).map do |block|
-    name = overlap_string(overlap_scalar(block, "name") || raise "name missing")
-    pattern_value = overlap_scalar(block, "regex") || raise "regex missing"
-    patterns = if pattern_value.starts_with?("[")
-                 single_quoted = pattern_value.scan(/'([^']*)'/).map { |match| match[1] }
-                 single_quoted.empty? ? JSON.parse(pattern_value).as_a.map(&.as_s) : single_quoted
-               else
-                 [overlap_string(pattern_value)]
-               end
-    haystack_string = overlap_string(overlap_scalar(block, "haystack") || raise "haystack missing")
-    haystack = if overlap_scalar(block, "unescape") == "true"
-                 overlap_unescape_bytes(haystack_string)
-               else
-                 haystack_string
-               end
-    line_terminator = if raw = overlap_scalar(block, "line-terminator")
-                        bytes = overlap_unescape_bytes(overlap_string(raw))
-                        raise "line terminator must be one byte" unless bytes.size == 1
-                        bytes[0]
-                      else
-                        '\n'.ord.to_u8
-                      end
-    bounds = if raw = overlap_scalar(block, "bounds")
-               pair = JSON.parse(raw).as_a
-               {pair[0].as_i, pair[1].as_i}
-             else
-               {0, haystack.bytesize.to_i32}
-             end
-    offset = block.index("matches =") || raise "matches missing"
-    start = block.index('[', offset) || raise "matches array missing"
-    depth = 0
-    finish = start
-    while finish < block.size
-      depth += 1 if block[finish] == '['
-      depth -= 1 if block[finish] == ']'
-      break if depth == 0
-      finish += 1
-    end
-    raw = block[start..finish]
-    raw = raw.gsub(/\b(id|span|spans)\s*=/) do |matched|
-      %("#{matched.split('=')[0].strip}":)
-    end
-    values = JSON.parse(raw.gsub(/,\s*\]/, "]")).as_a
-    matches = values.map do |value|
-      if table = value.as_h?
-        span = (table["span"]? || table["spans"].as_a[0]).as_a
-        {table["id"].as_i, span[0].as_i, span[1].as_i}
-      else
-        entry = value.as_a
-        span = entry[0].as_a? || entry
-        {0, span[0].as_i, span[1].as_i}
-      end
-    end
-    match_limit = overlap_scalar(block, "match-limit").try(&.to_i32)
-    search_kind = overlap_scalar(block, "search-kind").try { |value| overlap_string(value) }
-    HybridOverlapCase.new(name, patterns, haystack, line_terminator,
-      overlap_scalar(block, "compiles") != "false", match_limit, bounds,
-      overlap_scalar(block, "anchored") == "true",
-      overlap_scalar(block, "utf8") != "false",
-      overlap_scalar(block, "unicode") != "false",
-      overlap_scalar(block, "case-insensitive") == "true",
-      overlap_scalar(block, "match-kind").try { |value| overlap_string(value) } == "all" ? Regex::Automata::MatchKind::All : Regex::Automata::MatchKind::LeftmostFirst,
-      search_kind == "earliest",
-      search_kind == "overlapping",
-      matches)
+  VendorRegexSuite.load.cases(file).map do |fixture|
+    HybridOverlapCase.new(
+      fixture.name, fixture.patterns, fixture.haystack, fixture.line_terminator,
+      fixture.compiles, fixture.match_limit, fixture.bounds, fixture.anchored,
+      fixture.utf8, fixture.unicode, fixture.case_insensitive,
+      fixture.match_kind == "all" ? Regex::Automata::MatchKind::All : Regex::Automata::MatchKind::LeftmostFirst,
+      fixture.search_kind == "earliest", fixture.search_kind == "overlapping",
+      fixture.matches.map { |mat| {mat.id, mat.span[0], mat.span[1]} }
+    )
   end
 end
 
