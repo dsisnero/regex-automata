@@ -6,7 +6,7 @@
   `72d650cb0a880a01ab6dc2137c0888e8f89740f7` (regex-automata 0.4.18).
   Do not substitute remembered Rust behavior or a newer upstream revision.
 - Working source ledger: [rust_port_inventory.tsv](inventory/rust_port_inventory.tsv)
-  (1,936 Rust API items: 1,248 `ported`, 369 `missing`, 126 `partial`, 188
+  (1,936 Rust API items: 1,259 `ported`, 369 `missing`, 120 `partial`, 183
   `intentional_divergence`, 5 `skipped`). Test ledger:
   [rust_test_parity.tsv](inventory/rust_test_parity.tsv) (220 rows: 151
   `ported`, 57 `partial`, 12 `intentional_divergence`). These are **review
@@ -31,6 +31,28 @@
   mutex as an `intentional_divergence` are now `partial`. Native vendor wire
   tests and the pool hot-path cost have not been proven unnecessary; phases 2
   and 5 own those decisions.
+
+## Where we are
+
+- **Current focus:** phase 2b, multi-literal prefilter algorithms. Phase 2a's
+  Rust-derived specs went red on absent strategy diagnostics and green after
+  adding explicit memchr{,2,3}, memmem, and >64-byte ByteSet choices. The
+  >64 multi-byte Aho fallback is observable; eligible Teddy and exact Aho
+  representation remain open.
+- **Next up:** 2b multi-literal prefilter algorithms; 2c shared utilities;
+  3 Thompson NFA construction/search.
+- **Status by area:** vendor fixture harness and scalar prefilter
+  selection/candidate semantics complete; packed search and shared utilities
+  open; engine matrices beyond hybrid remain open in phases 3-8.
+- **Scoping notes:** `Prefilter#memory_usage` reports Rust strategy allocation,
+  but Crystal retains original needles for Meta; heap ownership is still
+  partial. A generic Aho matcher is not a performance-equivalent Teddy/DFA
+  port. Do not infer throughput from this busy host's gate durations.
+- **Last completed feature commit:** `port: scalar prefilter selection and
+  candidate contract` (phase 2a; this commit).
+- **Gates:** focused Crystal 211/211; full Crystal 10,298/10,298; pinned Rust
+  prefilter integration 7/7; install, format, lint, parity, format-check,
+  no-codegen, diff-check pass. No throughput claim on the loaded host.
 
 ## Feature-loop rules
 
@@ -61,7 +83,7 @@ use controlled, repeated measurements and retain the previous baseline.
 
 ## Active feature phases (complete in order)
 
-Current: **phase 2**. Phase 1 closed with the shared vendor fixture reader
+Phase 1 closed with the shared vendor fixture reader
 driving the existing hybrid and one-pass anchored runners. Tests went red on
 the absent reader and on explicit `false` being replaced by a default; the
 green parser preserves byte haystacks, capture spans, bounds, and case IDs.
@@ -90,18 +112,32 @@ confirmation; no authorship was inferred or changed.
   reproduce vendor selection/results for the already-ported hybrid eight-mode
   suite, inventory checks pass, and no reviewed row is mislabeled `ported`.
 
-- [ ] **2. Shared search support and prefilter selection.** Finish
+- [x] **2a. Scalar prefilter selection and candidate contract.** Port Rust's
+  memchr{,2,3}, memmem, and large ByteSet choices with their fast/strategy-memory
+  reporting, bounded find/prefix, and leftmost-first overlap behavior. Make
+  the current Aho fallback observable, and drive the work with Rust prefilter
+  examples and cross-engine pending-match tests; verify the selected path
+  rather than inferring it from output alone. **Gate:** scalar/ByteSet choices
+  have tested selection and candidate dispositions, with all multi-substring
+  fallback differences explicitly queued for phase 2b.
+
+- [ ] **2b. Multi-literal prefilter algorithms.** Port the pinned Rust Teddy
+  admission and packed search algorithm (including its short-haystack path)
+  and the DFA/contiguous-NFA Aho-Corasick choice, or document demonstrated
+  necessary Crystal divergences with controlled performance evidence. Recheck
+  strategy ordering, memory reports, and false-positive behavior through
+  dense, hybrid, PikeVM, backtracker, and Meta. **Gate:** no eligible hot path
+  silently substitutes the generic failure-link matcher for Rust's choice.
+
+- [ ] **2c. Shared search support utilities.** Finish
   `src/util/{alphabet,determinize,escape,int,lazy,memchr,pool,primitives,
-  sparse_set,syntax,unicode_data,utf8,wire}.rs` behavior and
-  `src/util/prefilter/{mod,aho_corasick,byteset,memchr,memmem,teddy}.rs` as
-  one cross-engine contract. Port vendor boundary/overflow, Unicode, storage
-  reuse, candidate, false-positive, memory, and strategy-selection tests;
-  verify bounded and overlapping candidate flow through dense, hybrid,
-  PikeVM, backtracker, and Meta. Diagnose/replace generic Aho fallback where
-  Rust's algorithm differs, including Teddy, or document a proven necessary
-  divergence with performance evidence. **Gate:** shared utility and
-  prefilter ledger rows have tested dispositions, and no remaining
-  candidate/choice difference silently changes results or hot-path cost.
+  sparse_set,syntax,unicode_data,utf8,wire}.rs` behavior. Port vendor
+  boundary/overflow, Unicode, storage-reuse, and memory tests across their
+  consumers. Audit the scalar memchr{,2,3}/memmem finder hot paths and retained
+  needle ownership left partial by phase 2a against Rust's implementation;
+  benchmark only under controlled load. **Gate:** every named utility file
+  and its ledger rows have tested dispositions; no remaining structural
+  difference silently changes results or hot-path cost.
 
 - [ ] **3. Thompson construction and NFA search engines.** Finish
   `src/nfa/thompson/{nfa,builder,compiler,literal_trie,range_trie,map,error,

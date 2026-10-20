@@ -1,6 +1,64 @@
 require "./spec_helper"
 
 describe Regex::Automata::Prefilter do
+  # Rust's Choice::new probes these in order; >64 literals force Teddy to
+  # decline and exercise the ByteSet/Aho-Corasick fallback paths.
+  it "selects the pinned Rust scalar and fallback strategies" do
+    kind = Regex::Automata::MatchKind::LeftmostFirst
+    one = Regex::Automata::Prefilter.new(kind, ["x"]).not_nil!
+    one.strategy_name.should eq("memchr")
+    one.memory_usage.should eq(0)
+    one.is_fast.should be_true
+
+    two = Regex::Automata::Prefilter.new(kind, ["x", "y"]).not_nil!
+    two.strategy_name.should eq("memchr2")
+    two.memory_usage.should eq(0)
+    three = Regex::Automata::Prefilter.new(kind, ["x", "y", "z"]).not_nil!
+    three.strategy_name.should eq("memchr3")
+    three.memory_usage.should eq(0)
+
+    substring = Regex::Automata::Prefilter.new(kind, ["needle"]).not_nil!
+    substring.strategy_name.should eq("memmem")
+    substring.memory_usage.should eq(6)
+    substring.is_fast.should be_true
+
+    bytes = (0..64).map { |n| Bytes[128_u8 + n.to_u8] }
+    byte_set = Regex::Automata::Prefilter.new(kind, bytes).not_nil!
+    byte_set.strategy_name.should eq("byteset")
+    byte_set.memory_usage.should eq(0)
+    byte_set.is_fast.should be_false
+
+    many = (0..64).map { |n| "prefix-#{n}" }
+    aho = Regex::Automata::Prefilter.new(kind, many).not_nil!
+    aho.strategy_name.should eq("aho-corasick")
+    aho.is_fast.should be_false
+    aho.memory_usage.should be > 0
+  end
+
+  it "keeps byte-set and Aho candidates inside spans with leftmost priority" do
+    kind = Regex::Automata::MatchKind::All
+    byte_set = Regex::Automata::Prefilter.new(
+      kind, (0..64).map { |n| Bytes[128_u8 + n.to_u8] }
+    ).not_nil!
+    hay = Bytes[0_u8, 129_u8, 130_u8, 0_u8]
+    byte_set.find(hay, Regex::Automata::Span.new(2, 4)).should eq(
+      Regex::Automata::Span.new(2, 3)
+    )
+    byte_set.prefix(hay, Regex::Automata::Span.new(0, 4)).should be_nil
+    byte_set.prefix(hay, Regex::Automata::Span.new(1, 2)).should eq(
+      Regex::Automata::Span.new(1, 2)
+    )
+
+    needles = (0..62).map { |n| "unused-#{n}" } + ["abc", "b"]
+    aho = Regex::Automata::Prefilter.new(kind, needles).not_nil!
+    aho.find("abc".to_slice, Regex::Automata::Span.new(0, 3)).should eq(
+      Regex::Automata::Span.new(0, 3)
+    )
+    aho.find("abc".to_slice, Regex::Automata::Span.new(1, 3)).should eq(
+      Regex::Automata::Span.new(1, 2)
+    )
+  end
+
   it "finds the earliest candidate and preserves leftmost-first tie order" do
     haystack = "Hello samwise".to_slice
     span = Regex::Automata::Span.new(0, haystack.size)
@@ -118,6 +176,9 @@ describe Regex::Automata::Prefilter do
       Regex::Automata::MatchKind::All,
       ["alpha", "beta"]
     ).not_nil!
+    # Rust can select packed Teddy here. The Crystal Aho fallback is visible
+    # until phase 2b ports the packed matcher and its fast-path admission.
+    multi.strategy_name.should eq("aho-corasick")
     multi.is_fast.should be_true
   end
 

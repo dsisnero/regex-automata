@@ -90,11 +90,13 @@ module Regex::Automata
     getter kind : MatchKind
     getter max_needle_len : Int32
     getter needles : Array(Bytes)
+    getter strategy_name : String
 
     @needles : Array(Bytes)
     @is_fast : Bool
     @memory_usage : Int32
     @aho : AhoMatcher?
+    @byte_set : Bytes?
 
     def self.new(kind : MatchKind, needles : Enumerable) : self?
       bytes = needles.map { |needle| bytes_for(needle) }
@@ -147,6 +149,14 @@ module Regex::Automata
       if aho = @aho
         return aho.find(haystack, span).try(&.[1])
       end
+      if byte_set = @byte_set
+        at = span.start
+        while at < span.end
+          return Span.new(at, at + 1) if byte_set[haystack[at]] != 0
+          at += 1
+        end
+        return nil
+      end
 
       return find_byte_needles(haystack, span) if @needles.size <= 3 && @needles.all? { |needle| needle.size == 1 }
 
@@ -173,6 +183,11 @@ module Regex::Automata
       if aho = @aho
         return aho.prefix(haystack, span).try(&.[1])
       end
+      if byte_set = @byte_set
+        return nil if span.start >= span.end
+        return Span.new(span.start, span.start + 1) if byte_set[haystack[span.start]] != 0
+        return nil
+      end
 
       @needles.each do |needle|
         next if needle.size > span.length
@@ -184,7 +199,7 @@ module Regex::Automata
     end
 
     def memory_usage : Int32
-      @memory_usage + (@aho.try(&.memory_usage) || 0)
+      @memory_usage
     end
 
     def find_with_index(haystack : Bytes, span : Span) : Tuple(Int32, Span)?
@@ -206,9 +221,37 @@ module Regex::Automata
     end
 
     private def initialize(@kind : MatchKind, @needles : Array(Bytes), @max_needle_len : Int32, @memory_usage : Int32, @is_fast : Bool)
+      @byte_set = nil
+      @strategy_name = if @needles.size == 1
+                         if @needles[0].size == 1
+                           @memory_usage = 0
+                           "memchr"
+                         else
+                           "memmem"
+                         end
+                       elsif @needles.size == 2 && @needles.all? { |needle| needle.size == 1 }
+                         @memory_usage = 0
+                         "memchr2"
+                       elsif @needles.size == 3 && @needles.all? { |needle| needle.size == 1 }
+                         @memory_usage = 0
+                         "memchr3"
+                       elsif @needles.size > 64 && @needles.all? { |needle| needle.size == 1 }
+                         set = Bytes.new(256, 0_u8)
+                         @needles.each { |needle| set[needle[0]] = 1_u8 }
+                         @byte_set = set
+                         @memory_usage = 0
+                         @is_fast = false
+                         "byteset"
+                       else
+                         "aho-corasick"
+                       end
       @aho = if @needles.size > 1 && !(@needles.size <= 3 && @needles.all? { |needle| needle.size == 1 })
-               AhoMatcher.new(@needles, @max_needle_len)
+               @byte_set ? nil : AhoMatcher.new(@needles, @max_needle_len)
              end
+      if aho = @aho
+        @memory_usage = aho.memory_usage
+        @is_fast = false if @needles.size > 64
+      end
     end
 
     private def self.bytes_for(needle) : Bytes

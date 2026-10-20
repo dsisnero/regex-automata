@@ -1701,35 +1701,35 @@ src/util/prefilter/aho_corasick.rs::method::AhoCorasick.memory_usage	method	part
 src/util/prefilter/aho_corasick.rs::method::AhoCorasick.name	method	intentional_divergence	-	Concrete Rust strategy names are not exposed by the Crystal generic prefilter.
 src/util/prefilter/aho_corasick.rs::method::AhoCorasick.new	method	partial	src/regex/automata/prefilter.cr:Prefilter.new	Generic construction validates needles without automaton selection.
 src/util/prefilter/aho_corasick.rs::method::AhoCorasick.prefix	method	partial	src/regex/automata/prefilter.cr:Prefilter#prefix;spec/prefilter_spec.cr	Generic prefix semantics are covered.
-src/util/prefilter/byteset.rs::method::ByteSet.find	method	partial	src/regex/automata/prefilter.cr:Prefilter#find;spec/prefilter_spec.cr	Generic candidate search covers the contract; byte-set specialization is absent.
-src/util/prefilter/byteset.rs::method::ByteSet.is_fast	method	partial	src/regex/automata/prefilter.cr:Prefilter#is_fast	Generic heuristic differs from byte-set capability.
-src/util/prefilter/byteset.rs::method::ByteSet.memory_usage	method	partial	src/regex/automata/prefilter.cr:Prefilter#memory_usage	Needle-byte accounting differs from fixed byte-set storage.
-src/util/prefilter/byteset.rs::method::ByteSet.name	method	intentional_divergence	-	Concrete Rust strategy names are not exposed by the Crystal generic prefilter.
-src/util/prefilter/byteset.rs::method::ByteSet.new	method	partial	src/regex/automata/prefilter.cr:Prefilter.new	Generic construction validates needles without byte-set selection.
-src/util/prefilter/byteset.rs::method::ByteSet.prefix	method	partial	src/regex/automata/prefilter.cr:Prefilter#prefix;spec/prefilter_spec.cr	Generic prefix semantics are covered.
+src/util/prefilter/byteset.rs::method::ByteSet.find	method	ported	src/regex/automata/prefilter.cr:Prefilter#find;spec/prefilter_spec.cr	Large one-byte sets use a 256-entry membership table and bounded candidate scan.
+src/util/prefilter/byteset.rs::method::ByteSet.is_fast	method	ported	src/regex/automata/prefilter.cr:Prefilter#is_fast;spec/prefilter_spec.cr	ByteSet reports false as in Rust.
+src/util/prefilter/byteset.rs::method::ByteSet.memory_usage	method	partial	src/regex/automata/prefilter.cr:Prefilter#memory_usage;spec/prefilter_spec.cr	Reports Rust's zero strategy allocation, but Crystal retains original needle copies for Meta; actual heap ownership remains to reconcile.
+src/util/prefilter/byteset.rs::method::ByteSet.name	method	ported	src/regex/automata/prefilter.cr:Prefilter#strategy_name;spec/prefilter_spec.cr	Selected choice is observable as byteset.
+src/util/prefilter/byteset.rs::method::ByteSet.new	method	partial	src/regex/automata/prefilter.cr:Prefilter.new;spec/prefilter_spec.cr	Selects ByteSet after Teddy's 64-pattern limit; additional Teddy admission boundaries remain phase 2b.
+src/util/prefilter/byteset.rs::method::ByteSet.prefix	method	ported	src/regex/automata/prefilter.cr:Prefilter#prefix;spec/prefilter_spec.cr	Checks membership at bounded span start.
 src/util/prefilter/memchr.rs::method::Memchr.find	method	partial	src/regex/automata/prefilter.cr:Prefilter#find;spec/prefilter_spec.cr	Single-byte candidate search uses Crystal's indexed byte lookup while preserving bounded-span behavior; SIMD capability remains runtime-specific.
 src/util/prefilter/memchr.rs::method::Memchr.is_fast	method	partial	src/regex/automata/prefilter.cr:Prefilter#is_fast;spec/prefilter_spec.cr	Heuristic is represented generically, not by memchr SIMD capability.
-src/util/prefilter/memchr.rs::method::Memchr.memory_usage	method	partial	src/regex/automata/prefilter.cr:Prefilter#memory_usage	Generic needle-byte accounting differs from zero-allocation memchr.
-src/util/prefilter/memchr.rs::method::Memchr.name	method	intentional_divergence	-	Concrete Rust strategy names are not exposed by the Crystal generic prefilter.
-src/util/prefilter/memchr.rs::method::Memchr.new	method	partial	src/regex/automata/prefilter.cr:Prefilter.new	Single-byte validation is represented without concrete strategy selection.
+src/util/prefilter/memchr.rs::method::Memchr.memory_usage	method	partial	src/regex/automata/prefilter.cr:Prefilter#memory_usage;spec/prefilter_spec.cr	Reports Rust's zero strategy allocation but Crystal retains original needle copies for Meta.
+src/util/prefilter/memchr.rs::method::Memchr.name	method	ported	src/regex/automata/prefilter.cr:Prefilter#strategy_name;spec/prefilter_spec.cr	Selected choice is observable as memchr.
+src/util/prefilter/memchr.rs::method::Memchr.new	method	ported	src/regex/automata/prefilter.cr:Prefilter.new;spec/prefilter_spec.cr	Exactly one one-byte needle selects memchr first.
 src/util/prefilter/memchr.rs::method::Memchr.prefix	method	partial	src/regex/automata/prefilter.cr:Prefilter#prefix;spec/prefilter_spec.cr	Generic prefix semantics are covered.
 src/util/prefilter/memchr.rs::method::Memchr2.find	method	partial	src/regex/automata/prefilter.cr:Prefilter#find_byte_needles;spec/prefilter_spec.cr	Two one-byte needles use indexed byte lookups and preserve earliest/order selection; SIMD capability remains runtime-specific.
 src/util/prefilter/memchr.rs::method::Memchr2.is_fast	method	partial	src/regex/automata/prefilter.cr:Prefilter#is_fast;spec/prefilter_spec.cr	Heuristic is represented generically.
-src/util/prefilter/memchr.rs::method::Memchr2.memory_usage	method	partial	src/regex/automata/prefilter.cr:Prefilter#memory_usage	Generic needle-byte accounting differs from zero-allocation memchr2.
-src/util/prefilter/memchr.rs::method::Memchr2.name	method	intentional_divergence	-	Concrete Rust strategy names are not exposed by the Crystal generic prefilter.
-src/util/prefilter/memchr.rs::method::Memchr2.new	method	partial	src/regex/automata/prefilter.cr:Prefilter.new	Two-byte validation is represented without concrete strategy selection.
+src/util/prefilter/memchr.rs::method::Memchr2.memory_usage	method	partial	src/regex/automata/prefilter.cr:Prefilter#memory_usage;spec/prefilter_spec.cr	Reports Rust's zero strategy allocation but Crystal retains original needle copies for Meta.
+src/util/prefilter/memchr.rs::method::Memchr2.name	method	ported	src/regex/automata/prefilter.cr:Prefilter#strategy_name;spec/prefilter_spec.cr	Selected choice is observable as memchr2.
+src/util/prefilter/memchr.rs::method::Memchr2.new	method	ported	src/regex/automata/prefilter.cr:Prefilter.new;spec/prefilter_spec.cr	Exactly two one-byte needles select memchr2.
 src/util/prefilter/memchr.rs::method::Memchr2.prefix	method	partial	src/regex/automata/prefilter.cr:Prefilter#prefix;spec/prefilter_spec.cr	Generic prefix semantics are covered.
 src/util/prefilter/memchr.rs::method::Memchr3.find	method	partial	src/regex/automata/prefilter.cr:Prefilter#find_byte_needles;spec/prefilter_spec.cr	Three one-byte needles use indexed byte lookups and preserve earliest/order selection; SIMD capability remains runtime-specific.
 src/util/prefilter/memchr.rs::method::Memchr3.is_fast	method	partial	src/regex/automata/prefilter.cr:Prefilter#is_fast;spec/prefilter_spec.cr	Heuristic is represented generically.
-src/util/prefilter/memchr.rs::method::Memchr3.memory_usage	method	partial	src/regex/automata/prefilter.cr:Prefilter#memory_usage	Generic needle-byte accounting differs from zero-allocation memchr3.
-src/util/prefilter/memchr.rs::method::Memchr3.name	method	intentional_divergence	-	Concrete Rust strategy names are not exposed by the Crystal generic prefilter.
-src/util/prefilter/memchr.rs::method::Memchr3.new	method	partial	src/regex/automata/prefilter.cr:Prefilter.new	Three-byte validation is represented without concrete strategy selection.
+src/util/prefilter/memchr.rs::method::Memchr3.memory_usage	method	partial	src/regex/automata/prefilter.cr:Prefilter#memory_usage;spec/prefilter_spec.cr	Reports Rust's zero strategy allocation but Crystal retains original needle copies for Meta.
+src/util/prefilter/memchr.rs::method::Memchr3.name	method	ported	src/regex/automata/prefilter.cr:Prefilter#strategy_name;spec/prefilter_spec.cr	Selected choice is observable as memchr3.
+src/util/prefilter/memchr.rs::method::Memchr3.new	method	ported	src/regex/automata/prefilter.cr:Prefilter.new;spec/prefilter_spec.cr	Exactly three one-byte needles select memchr3.
 src/util/prefilter/memchr.rs::method::Memchr3.prefix	method	partial	src/regex/automata/prefilter.cr:Prefilter#prefix;spec/prefilter_spec.cr	Generic prefix semantics are covered.
 src/util/prefilter/memmem.rs::method::Memmem.find	method	partial	src/regex/automata/prefilter.cr:Prefilter#find_needle;spec/prefilter_spec.cr	Single multi-byte literals scan indexed first-byte candidates before confirming the full literal, preserving bounded memmem semantics without a separate compiled finder.
-src/util/prefilter/memmem.rs::method::Memmem.is_fast	method	partial	src/regex/automata/prefilter.cr:Prefilter#is_fast	Generic heuristic differs from memmem capability.
-src/util/prefilter/memmem.rs::method::Memmem.memory_usage	method	partial	src/regex/automata/prefilter.cr:Prefilter#memory_usage	Needle-byte accounting differs from compiled finder storage.
-src/util/prefilter/memmem.rs::method::Memmem.name	method	intentional_divergence	-	Concrete Rust strategy names are not exposed by the Crystal generic prefilter.
-src/util/prefilter/memmem.rs::method::Memmem.new	method	partial	src/regex/automata/prefilter.cr:Prefilter.new	Generic construction validates needles without memmem selection.
+src/util/prefilter/memmem.rs::method::Memmem.is_fast	method	ported	src/regex/automata/prefilter.cr:Prefilter#is_fast;spec/prefilter_spec.cr	Memmem reports true as in Rust; finder algorithm performance remains unverified.
+src/util/prefilter/memmem.rs::method::Memmem.memory_usage	method	ported	src/regex/automata/prefilter.cr:Prefilter#memory_usage;spec/prefilter_spec.cr	Reports owned finder needle bytes.
+src/util/prefilter/memmem.rs::method::Memmem.name	method	ported	src/regex/automata/prefilter.cr:Prefilter#strategy_name;spec/prefilter_spec.cr	Selected choice is observable as memmem.
+src/util/prefilter/memmem.rs::method::Memmem.new	method	partial	src/regex/automata/prefilter.cr:Prefilter.new;spec/prefilter_spec.cr	Exactly one multi-byte needle selects memmem; compiled Finder internals remain to audit.
 src/util/prefilter/memmem.rs::method::Memmem.prefix	method	partial	src/regex/automata/prefilter.cr:Prefilter#prefix;spec/prefilter_spec.cr	Generic prefix semantics are covered.
 src/util/prefilter/mod.rs::method::Arc<P>.find	method	intentional_divergence	src/regex/automata/prefilter.cr:Prefilter#find	Crystal GC references replace Rust Arc trait-object forwarding.
 src/util/prefilter/mod.rs::method::Arc<P>.is_fast	method	intentional_divergence	src/regex/automata/prefilter.cr:Prefilter#is_fast	Crystal GC references replace Rust Arc trait-object forwarding.
@@ -1741,10 +1741,10 @@ src/util/prefilter/mod.rs::method::Prefilter.find	method	ported	src/regex/automa
 src/util/prefilter/mod.rs::method::Prefilter.from_choice	method	intentional_divergence	src/regex/automata/prefilter.cr:Prefilter.new	Crystal has no internal trait-object choice conversion.
 src/util/prefilter/mod.rs::method::Prefilter.from_hir_prefix	method	ported	src/regex/automata/prefilter.cr:Prefilter.from_hir_prefix;spec/prefilter_spec.cr	Literal prefix extraction is covered.
 src/util/prefilter/mod.rs::method::Prefilter.from_hirs_prefix	method	ported	src/regex/automata/prefilter.cr:Prefilter.from_hirs_prefix;spec/prefilter_spec.cr	Multi-HIR prefix extraction is covered.
-src/util/prefilter/mod.rs::method::Prefilter.is_fast	method	ported	src/regex/automata/prefilter.cr:Prefilter#is_fast;spec/prefilter_spec.cr	Fast heuristic is covered.
+src/util/prefilter/mod.rs::method::Prefilter.is_fast	method	partial	src/regex/automata/prefilter.cr:Prefilter#is_fast;spec/prefilter_spec.cr	Scalar and ByteSet choices match Rust; eligible multi-substring cases retain Rust's heuristic while Crystal still runs generic Aho until phase 2b.
 src/util/prefilter/mod.rs::method::Prefilter.max_needle_len	method	ported	src/regex/automata/prefilter.cr:Prefilter#max_needle_len;spec/prefilter_spec.cr	Longest literal length is covered.
-src/util/prefilter/mod.rs::method::Prefilter.memory_usage	method	partial	src/regex/automata/prefilter.cr:Prefilter#memory_usage;spec/prefilter_spec.cr	Tracks owned needle bytes; Crystal object-layout accounting differs.
-src/util/prefilter/mod.rs::method::Prefilter.new	method	ported	src/regex/automata/prefilter.cr:Prefilter.new;spec/prefilter_spec.cr	Needle validation and candidate semantics are covered.
+src/util/prefilter/mod.rs::method::Prefilter.memory_usage	method	partial	src/regex/automata/prefilter.cr:Prefilter#memory_usage;spec/prefilter_spec.cr	Reports Rust's selected strategy-owned bytes; Crystal retains needle copies for Meta and multi-substring matcher allocation remains phase 2b.
+src/util/prefilter/mod.rs::method::Prefilter.new	method	partial	src/regex/automata/prefilter.cr:Prefilter.new;spec/prefilter_spec.cr	Empty/byte/memmem/large-ByteSet choices are covered; Teddy admission and Aho implementation selection remain phase 2b.
 src/util/prefilter/mod.rs::method::Prefilter.prefix	method	ported	src/regex/automata/prefilter.cr:Prefilter#prefix;spec/prefilter_spec.cr	Anchored prefix behavior is covered.
 src/util/prefilter/teddy.rs::method::Teddy.find	method	partial	src/regex/automata/prefilter.cr:Prefilter#find;spec/prefilter_spec.cr	Generic candidate search covers behavior; Teddy selection is absent.
 src/util/prefilter/teddy.rs::method::Teddy.is_fast	method	partial	src/regex/automata/prefilter.cr:Prefilter#is_fast	Generic heuristic differs from Teddy capability.
