@@ -2,19 +2,15 @@
 
 ## Overview
 
-This document outlines the workflow for contributing changes via pull requests (PRs). The process ensures code quality, behavior parity with upstream Rust, and maintainable contributions.
+This document outlines the workflow for pull requests (PRs), including code
+quality, pinned Rust parity evidence, and maintainable contributions.
 
 ## PR Creation
 
 ### Before Creating a PR
 
-1. **Ensure quality gates pass**:
-   ```bash
-   make format
-   make lint
-   make test
-   make parity
-   ```
+1. **Ensure quality gates pass**: use the current commands in
+   [AGENTS.md](../AGENTS.md) and record their results in the PR.
 
 2. **Verify upstream parity**:
    - Use `cross-language-crystal-parity` skill for inventory tracking
@@ -88,17 +84,18 @@ Any additional context, design decisions, or trade-offs.
 
 A PR can be merged when:
 
-1. ✅ At least one maintainer approves
-2. ✅ All CI checks pass
-3. ✅ Behavior parity verified with upstream
-4. ✅ Documentation updated
-5. ✅ No breaking changes without discussion
+1. Required review and available checks pass.
+2. Behavior parity is verified against the pinned upstream tests, with any
+   remaining divergence documented.
+3. Documentation and inventory evidence are updated.
+4. Breaking changes are discussed before merge.
 
 ## Post-Merge
 
 After PR merge:
 
-1. **Update inventory**: Run `cross-language-crystal-parity` to update parity tracking
+1. **Confirm inventory**: Verify the feature's inventory and roadmap changes
+   were included before merge; do not defer them until afterward.
 2. **Verify release readiness**: If applicable, prepare for release
 3. **Close related issues**: Reference PR in any related GitHub issues
 
