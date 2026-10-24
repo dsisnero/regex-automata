@@ -1,4 +1,5 @@
 require "./search"
+require "./teddy_matcher"
 require "regex-syntax"
 
 module Regex::Automata
@@ -96,6 +97,7 @@ module Regex::Automata
     @is_fast : Bool
     @memory_usage : Int32
     @aho : AhoMatcher?
+    @teddy : TeddyMatcher?
     @byte_set : Bytes?
 
     def self.new(kind : MatchKind, needles : Enumerable) : self?
@@ -146,6 +148,9 @@ module Regex::Automata
 
     def find(haystack : Bytes, span : Span) : Span?
       return nil unless valid_span?(haystack, span)
+      if teddy = @teddy
+        return teddy.find(haystack, span).try(&.[1])
+      end
       if aho = @aho
         return aho.find(haystack, span).try(&.[1])
       end
@@ -204,6 +209,7 @@ module Regex::Automata
 
     def find_with_index(haystack : Bytes, span : Span) : Tuple(Int32, Span)?
       return nil unless valid_span?(haystack, span)
+      return @teddy.not_nil!.find(haystack, span) if @teddy
       @aho.try(&.find(haystack, span))
     end
 
@@ -222,6 +228,7 @@ module Regex::Automata
 
     private def initialize(@kind : MatchKind, @needles : Array(Bytes), @max_needle_len : Int32, @memory_usage : Int32, @is_fast : Bool)
       @byte_set = nil
+      @teddy = nil
       @strategy_name = if @needles.size == 1
                          if @needles[0].size == 1
                            @memory_usage = 0
@@ -235,6 +242,10 @@ module Regex::Automata
                        elsif @needles.size == 3 && @needles.all? { |needle| needle.size == 1 }
                          @memory_usage = 0
                          "memchr3"
+                       elsif @needles.size <= 64 && TeddyMatcher.available?
+                         @teddy = TeddyMatcher.new(@needles)
+                         @is_fast = @needles.min_of(&.size) >= 3
+                         "teddy"
                        elsif @needles.size > 64 && @needles.all? { |needle| needle.size == 1 }
                          set = Bytes.new(256, 0_u8)
                          @needles.each { |needle| set[needle[0]] = 1_u8 }

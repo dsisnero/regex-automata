@@ -61,7 +61,7 @@ src/util/prefilter/byteset.rs	6	pending	-	API-item ledger exists; file-level pri
 src/util/prefilter/memchr.rs	18	pending	-	API-item ledger exists; file-level private-function review remains.
 src/util/prefilter/memmem.rs	6	pending	-	API-item ledger exists; file-level private-function review remains.
 src/util/prefilter/mod.rs	15	pending	-	API-item ledger exists; file-level private-function review remains.
-src/util/prefilter/teddy.rs	6	pending	-	API-item ledger exists; file-level private-function review remains.
+src/util/prefilter/teddy.rs	6	partial	src/regex/automata/teddy_matcher.cr;src/regex/automata/teddy_native.c;spec/prefilter_spec.cr	AArch64 unanchored SlimNeon and short Rabin-Karp paths checked against Rust wrapper and aho-corasick 1.1.4 packed code/tests; anchored DFA, x86 SIMD and memory usage remain phase 2c.
 src/util/primitives.rs	28	pending	-	API-item ledger exists; file-level private-function review remains.
 src/util/search.rs	73	pending	-	API-item ledger exists; file-level private-function review remains.
 src/util/sparse_set.rs	17	pending	-	API-item ledger exists; file-level private-function review remains.
