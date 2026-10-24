@@ -1,14 +1,15 @@
 require "./search"
 require "./teddy_matcher"
+require "./aho_dfa"
 require "regex-syntax"
 
 module Regex::Automata
   # A prefilter for accelerating regex searches by looking for candidate
   # literal prefixes before running the full automaton.
   class Prefilter
-    # Rust selects Aho-Corasick when a large literal set outgrows the small
-    # memchr/memmem/Teddy choices. Keep the same linear-in-haystack search
-    # shape instead of probing every literal at every search.
+    # Temporary >500-needle fallback until the pinned contiguous NFA is
+    # ported in phase 2d. Keep linear-in-haystack search rather than probing
+    # every literal at every search offset.
     private class AhoMatcher
       private class State
         getter edges = {} of UInt8 => Int32
@@ -96,7 +97,7 @@ module Regex::Automata
     @needles : Array(Bytes)
     @is_fast : Bool
     @memory_usage : Int32
-    @aho : AhoMatcher?
+    @aho : AhoMatcher | AhoDfa | Nil
     @teddy : TeddyMatcher?
     @byte_set : Bytes?
 
@@ -222,6 +223,15 @@ module Regex::Automata
       !@aho.nil?
     end
 
+    # Diagnostic for verifying the pinned dependency's backend selection.
+    def aho_backend_name : String?
+      case @aho
+      when AhoDfa     then "dfa"
+      when AhoMatcher then "generic"
+      else                 nil
+      end
+    end
+
     def is_fast : Bool
       @is_fast
     end
@@ -257,7 +267,13 @@ module Regex::Automata
                          "aho-corasick"
                        end
       @aho = if @needles.size > 1 && !(@needles.size <= 3 && @needles.all? { |needle| needle.size == 1 })
-               @byte_set ? nil : AhoMatcher.new(@needles, @max_needle_len)
+               if @byte_set
+                 nil
+               elsif @needles.size <= 500
+                 AhoDfa.new(@needles, @max_needle_len)
+               else
+                 AhoMatcher.new(@needles, @max_needle_len)
+               end
              end
       if aho = @aho
         @memory_usage = aho.memory_usage

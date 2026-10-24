@@ -6,7 +6,7 @@
   `72d650cb0a880a01ab6dc2137c0888e8f89740f7` (regex-automata 0.4.18).
   Do not substitute remembered Rust behavior or a newer upstream revision.
 - Working source ledger: [rust_port_inventory.tsv](inventory/rust_port_inventory.tsv)
-  (1,936 Rust API items: 1,261 `ported`, 369 `missing`, 119 `partial`, 182
+  (1,936 Rust API items: 1,264 `ported`, 369 `missing`, 117 `partial`, 181
   `intentional_divergence`, 5 `skipped`). Test ledger:
   [rust_test_parity.tsv](inventory/rust_test_parity.tsv) (220 rows: 151
   `ported`, 57 `partial`, 12 `intentional_divergence`). These are **review
@@ -34,29 +34,30 @@
 
 ## Where we are
 
-- **Current focus:** phase 2c, Aho automata and Teddy completion. Phase 2b's
-  upstream-derived tests went red on missing Teddy selection and green with
-  AArch64 SlimNeon masks/buckets, bounded search, and Rabin–Karp short spans.
-- **Next up:** 2c Aho automata and Teddy completion; 2d shared utilities;
-  3 Thompson NFA construction/search.
-- **Status by area:** vendor fixture harness and scalar prefilter
-  selection/candidate semantics and AArch64 unanchored packed Teddy complete;
-  anchored Teddy DFA, x86 packed variants, Aho DFA/contiguous NFA, memory
-  accounting, and shared utilities open. Engine matrices beyond hybrid remain
-  open in phases 3-8.
-- **Scoping notes:** `Prefilter#memory_usage` still reports the retained generic
-  Aho allocation for Teddy, not Rust's packed-plus-anchored-DFA sum; Crystal
-  also retains original needles for Meta. Teddy prefix and larger Aho sets
-  still use the generic failure-link matcher, and non-AArch64 targets do not
-  yet select packed Teddy. Phase 2c owns each difference. Do not infer
-  throughput from this busy host's gate durations.
-- **Last completed feature commit:** `port: AArch64 packed Teddy candidate
-  search` (phase 2b; this commit).
-- **Gates:** focused Crystal prefilter 17/17; full Crystal 10,304/10,304;
-  pinned Rust prefilter integration 7/7 and `aho-corasick` 1.1.4 packed
-  leftmost-first unit test 1/1; install, format, lint, parity, C warning-clean
-  compile, format-check, no-codegen, diff-check pass. No throughput claim on
-  the loaded host.
+- **Current focus:** phase 2d, the pinned >500-needle contiguous Aho NFA.
+  Phase 2c's named upstream DFA cases went red on the absent backend and
+  green with Rust-style pruning, byte classes, and a pre-multiplied table.
+- **Next up:** 2d contiguous Aho NFA; 2e Teddy completion; 2f shared
+  utilities; 3 Thompson NFA construction/search.
+- **Status by area:** vendor fixture harness, scalar prefilter
+  selection/candidate semantics, AArch64 unanchored packed Teddy, and 2-500
+  needle Aho/anchored Teddy DFA candidate paths complete. The >500 contiguous
+  NFA, x86 packed variants, memory accounting, and shared utilities remain
+  open. Engine matrices beyond hybrid remain open in phases 3-8.
+- **Scoping notes:** `Prefilter#memory_usage` reports the Aho DFA table only,
+  and for Teddy omits packed storage; Crystal also retains original needles
+  for Meta. Sets above 500 needles still use the generic failure-link matcher
+  until 2d. Non-AArch64 targets do not yet select packed Teddy. Phase 2e owns
+  x86 SIMD, exact memory and retained ownership. Do not infer throughput from
+  this busy host's gate durations.
+- **Last completed feature commit:** `port: Aho DFA prefilter and anchored
+  prefix` (phase 2c; this commit).
+- **Gates:** focused Crystal prefilter plus hybrid audit 54/54;
+  final-source full Crystal 10,308/10,308; pinned Rust
+  `search_leftmost_first::dfa_start_both_no_prefilter` and
+  `search_leftmost_first_anchored_dfa_start_both` 1/1 each; pinned Rust
+  prefilter integration 7/7; install, format, lint, parity, format-check,
+  no-codegen, and diff-check pass. No throughput claim on the loaded host.
 
 ## Feature-loop rules
 
@@ -135,8 +136,8 @@ confirmation; no authorship was inferred or changed.
   justified because Crystal has no equivalent intrinsic; all matcher
   construction and short-path logic stay Crystal. **Gate:** on AArch64,
   eligible unanchored prefilters select and execute packed Teddy, with no
-  false negatives or priority drift over bounded spans. Anchored DFA,
-  cross-target SIMD, and complete strategy memory accounting belong to 2c.
+  false negatives or priority drift over bounded spans. Anchored DFA belongs
+  to 2c; cross-target SIMD and complete strategy memory accounting to 2e.
 
   The necessary native boundary is explicit: Rust's
   `aho-corasick-1.1.4/src/packed/teddy/generic.rs` and `vector.rs` issue NEON
@@ -145,20 +146,48 @@ confirmation; no authorship was inferred or changed.
   vector shuffle/verify loop in one call per `find`. The 261-offset vendor
   matrix and bounded-span specs check observable equivalence. FFI overhead
   and throughput are not signed off on this loaded host and remain a
-  controlled-measurement item for 2c.
+  controlled-measurement item for 2e.
 
-- [ ] **2c. Aho automata and Teddy completion.** Port the pinned dependency's
-  DFA (up to 500 needles) and contiguous NFA (above 500), plus the anchored
-  DFA used by Teddy prefix searches. Complete x86 SSSE3/AVX2 Teddy admission
-  and packed search, runtime capability checks, and accurate Rust-style
-  strategy-memory reports/retained-needle accounting. Recheck strategy
-  ordering, false-positive behavior, and memory through dense, hybrid,
-  PikeVM, backtracker, and Meta. **Gate:** no eligible hot path silently
-  substitutes the generic failure-link matcher for Rust's choice on supported
-  targets; any unavoidable target divergence names both paths, necessity,
-  observable equivalence, and controlled hot-path cost evidence.
+- [x] **2c. Aho DFA selection and search.** Port the pinned `aho-corasick`
+  1.1.4 DFA for the regex-automata wrapper's 2-500-needle Aho choice and
+  Teddy's anchored prefix search, including byte classes, pre-multiplied
+  transition table, leftmost-first priority, bounded and binary search, and
+  anchored/unanchored starts. Port the named upstream cases before code and
+  verify selected backends through consumers. See
+  [feature-aho-dfa.md](feature-aho-dfa.md). **Gate:** eligible Aho and Teddy
+  prefix searches no longer execute the generic failure-link matcher; Rust
+  cases and candidate semantics pass with source and test rows reconciled.
 
-- [ ] **2d. Shared search support utilities.** Finish
+  The pinned builder's leftmost-first prefix pruning, dead failure states,
+  contiguous byte-class boundaries, and interleaved anchored/unanchored
+  pre-multiplied transitions are present in `aho_dfa.cr`. Its search uses the
+  first match in each state, as Rust's non-overlapping search does, and
+  shuffles match states before ordinary states so non-matches avoid metadata
+  loads. Crystal stores a `-1` dead sentinel instead of Rust's explicit DEAD
+  and FAIL state IDs. This simplifies Crystal construction; both paths do one
+  flat transition lookup and one match-state ID comparison per byte. Named upstream
+  cases, binary/bounded spans, the 500/501 choice, and Teddy prefix verify
+  observable candidate equivalence. Exact allocation reports and controlled
+  throughput comparison remain phase 2e, with no performance signoff claimed
+  on the loaded host.
+
+- [ ] **2d. Contiguous Aho NFA.** Port the pinned dependency's contiguous NFA
+  for >500 needles, including its transition representation, anchored and
+  unanchored starts, leftmost-first pruning, and memory report. Exercise the
+  500/501 selection boundary and large adversarial needle sets through all
+  prefilter consumers. **Gate:** no >500-needle hot path executes the generic
+  hash-edge trie and Rust candidate cases pass with ledger evidence.
+
+- [ ] **2e. Teddy cross-target completion and strategy accounting.** Complete
+  x86 SSSE3/AVX2 Teddy admission, packed search, runtime capability checks,
+  exact strategy memory and retained-needle accounting for all prefilter
+  choices. Recheck selection, false positives, and memory through dense,
+  hybrid, PikeVM, backtracker, and Meta. **Gate:** no eligible hot path
+  silently substitutes the generic failure-link matcher on supported targets;
+  unavoidable divergences name both paths, necessity, observable equivalence,
+  and controlled hot-path cost evidence.
+
+- [ ] **2f. Shared search support utilities.** Finish
   `src/util/{alphabet,determinize,escape,int,lazy,memchr,pool,primitives,
   sparse_set,syntax,unicode_data,utf8,wire}.rs` behavior. Port vendor
   boundary/overflow, Unicode, storage-reuse, and memory tests across their

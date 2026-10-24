@@ -499,6 +499,22 @@ describe "pinned Rust hybrid DFA API examples" do
     dfa.try_search_fwd(dfa.create_cache, input).should be_nil
   end
 
+  it "uses the pinned Aho DFA backend through hybrid pending-match search" do
+    needles = ["foo", "bar"] + (0..64).map { |n| "unused-#{n}-Q" }
+    prefilter = Regex::Automata::Prefilter.new(
+      Regex::Automata::MatchKind::LeftmostFirst, needles
+    ).not_nil!
+    prefilter.aho_backend_name.should eq("dfa")
+
+    dfa = Regex::Automata::Hybrid::Builder.new
+      .configure(Regex::Automata::Hybrid::DFA.config.prefilter(prefilter))
+      .build("(foo|bar)[a-z]+")
+    input = Regex::Automata::Input.new("foo1 barfox bar")
+    dfa.try_search_fwd(dfa.create_cache, input).should eq(
+      Regex::Automata::HalfMatch.must(0, 11)
+    )
+  end
+
   it "combines separately built forward and reverse DFAs" do
     forward = Regex::Automata::Hybrid::DFA.new("foo[0-9]+")
     reverse = Regex::Automata::Hybrid::Builder.new

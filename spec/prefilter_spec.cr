@@ -1,6 +1,81 @@
 require "./spec_helper"
 
 describe Regex::Automata::Prefilter do
+  # aho-corasick 1.1.4 src/tests.rs: leftmost300/310/340/350/360,
+  # leftfirst000/020/100/110/300/330/400 and aleftfirst020/400.
+  # Inert suffixes force regex-automata's >64-literal
+  # fallback so this tests its DFA instead of packed Teddy.
+  it "ports pinned leftmost-first DFA candidates and anchored starts" do
+    kind = Regex::Automata::MatchKind::LeftmostFirst
+    cases = [
+      {["ab", "abcd"], "abcd", {0, 0, 2}},
+      {["abcd", "ab"], "abcd", {0, 0, 4}},
+      {["abcdefg", "bcde", "bcdef"], "abcdef", {1, 1, 5}},
+      {["abcdefg", "bcdef", "bcde"], "abcdef", {1, 1, 6}},
+      {["abcd", "b", "bce"], "abce", {1, 1, 2}},
+      {["wise", "samwise", "sam"], "samwix", {2, 0, 3}},
+      {["abcd", "bce", "b"], "abce", {1, 1, 4}},
+      {["abcd", "ce", "bc"], "abce", {2, 1, 3}},
+      {["bce", "cz", "bc"], "bcz", {2, 0, 2}},
+      {["abc", "bd", "ab"], "abd", {2, 0, 2}},
+      {["abcdefghi", "hz", "abcdefgh"], "abcdefghz", {2, 0, 8}},
+      {["a", "abab"], "abab", {0, 0, 1}},
+      {["amwix", "samwise", "sam"], "Zsamwix", {2, 1, 4}},
+    ]
+    cases.each do |needles, haystack, expected|
+      padded = needles + (0..64).map { |n| "unused-#{n}-Q" }
+      pre = Regex::Automata::Prefilter.new(kind, padded).not_nil!
+      pre.strategy_name.should eq("aho-corasick")
+      pre.aho_backend_name.should eq("dfa")
+      bytes = haystack.to_slice
+      span = Regex::Automata::Span.new(0, bytes.size)
+      pre.find_with_index(bytes, span).should eq(
+        {expected[0], Regex::Automata::Span.new(expected[1], expected[2])}
+      )
+      anchored = pre.prefix_with_index(bytes, span)
+      anchored.should eq(expected[1] == 0 ? {expected[0], Regex::Automata::Span.new(expected[1], expected[2])} : nil)
+    end
+  end
+
+  it "uses the same pinned DFA for Teddy's anchored prefix search" do
+    pre = Regex::Automata::Prefilter.new(
+      Regex::Automata::MatchKind::LeftmostFirst,
+      ["abcd", "ab", "bc"]
+    ).not_nil!
+    pre.strategy_name.should eq("teddy")
+    pre.aho_backend_name.should eq("dfa")
+    bytes = "zabcd".to_slice
+    pre.prefix_with_index(bytes, Regex::Automata::Span.new(0, 5)).should be_nil
+    pre.prefix_with_index(bytes, Regex::Automata::Span.new(1, 5)).should eq(
+      {0, Regex::Automata::Span.new(1, 5)}
+    )
+  end
+
+  it "keeps the pinned 500/501 DFA boundary and binary bounded candidates" do
+    kind = Regex::Automata::MatchKind::All
+    base = (0...498).map { |n| "unused-#{n}-Q".to_slice }
+    five_hundred = Regex::Automata::Prefilter.new(
+      kind, base + [Bytes[0_u8, 255_u8], Bytes[255_u8]]
+    ).not_nil!
+    five_hundred.aho_backend_name.should eq("dfa")
+    bytes = Bytes[44_u8, 0_u8, 255_u8, 44_u8, 255_u8]
+    five_hundred.find_with_index(bytes, Regex::Automata::Span.new(0, 3)).should eq(
+      {498, Regex::Automata::Span.new(1, 3)}
+    )
+    five_hundred.find_with_index(bytes, Regex::Automata::Span.new(2, 5)).should eq(
+      {499, Regex::Automata::Span.new(2, 3)}
+    )
+    five_hundred.prefix_with_index(bytes, Regex::Automata::Span.new(1, 3)).should eq(
+      {498, Regex::Automata::Span.new(1, 3)}
+    )
+    five_hundred.prefix_with_index(bytes, Regex::Automata::Span.new(0, 3)).should be_nil
+
+    five_hundred_one = Regex::Automata::Prefilter.new(
+      kind, base + [Bytes[0_u8, 255_u8], Bytes[255_u8], "last".to_slice]
+    ).not_nil!
+    five_hundred_one.aho_backend_name.should eq("generic")
+  end
+
   # Rust's Choice::new probes these in order; >64 literals force Teddy to
   # decline and exercise the ByteSet/Aho-Corasick fallback paths.
   it "selects the pinned Rust scalar and fallback strategies" do
