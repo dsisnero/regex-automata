@@ -73,7 +73,95 @@ describe Regex::Automata::Prefilter do
     five_hundred_one = Regex::Automata::Prefilter.new(
       kind, base + [Bytes[0_u8, 255_u8], Bytes[255_u8], "last".to_slice]
     ).not_nil!
-    five_hundred_one.aho_backend_name.should eq("generic")
+    five_hundred_one.aho_backend_name.should eq("contiguous-nfa")
+    # Pinned regex-automata 0.4.18 oracle for bounded binary searches.
+    five_hundred_one.find_with_index(bytes, Regex::Automata::Span.new(0, 3)).should eq(
+      {498, Regex::Automata::Span.new(1, 3)}
+    )
+    five_hundred_one.find_with_index(bytes, Regex::Automata::Span.new(2, 5)).should eq(
+      {499, Regex::Automata::Span.new(2, 3)}
+    )
+    five_hundred_one.prefix_with_index(bytes, Regex::Automata::Span.new(1, 3)).should eq(
+      {498, Regex::Automata::Span.new(1, 3)}
+    )
+    five_hundred_one.prefix_with_index(bytes, Regex::Automata::Span.new(0, 3)).should be_nil
+  end
+
+  # aho-corasick 1.1.4 src/tests.rs: leftfirst000/020/100/110/300 and
+  # aleftfirst020/400, under the contiguous-NFA LeftmostFirst configurations.
+  # Inert suffixes force the regex-automata wrapper's >500-needle choice.
+  it "ports pinned contiguous NFA leftmost and anchored candidates" do
+    cases = [
+      {["ab", "abcd"], "abcd", {0, 0, 2}},
+      {["abcd", "ab"], "abcd", {0, 0, 4}},
+      {["abcdefg", "bcde", "bcdef"], "abcdef", {1, 1, 5}},
+      {["abcdefg", "bcdef", "bcde"], "abcdef", {1, 1, 6}},
+      {["abcd", "b", "bce"], "abce", {1, 1, 2}},
+      {["wise", "samwise", "sam"], "samwix", {2, 0, 3}},
+    ]
+    padding = (0..500).map { |n| "unused-#{n}-Q" }
+    cases.each do |needles, haystack, expected|
+      pre = Regex::Automata::Prefilter.new(
+        Regex::Automata::MatchKind::LeftmostFirst, needles + padding
+      ).not_nil!
+      pre.aho_backend_name.should eq("contiguous-nfa")
+      bytes = haystack.to_slice
+      span = Regex::Automata::Span.new(0, bytes.size)
+      pre.find_with_index(bytes, span).should eq(
+        {expected[0], Regex::Automata::Span.new(expected[1], expected[2])}
+      )
+      pre.prefix_with_index(bytes, span).should eq(expected[1] == 0 ? {expected[0], Regex::Automata::Span.new(expected[1], expected[2])} : nil)
+    end
+  end
+
+  it "reports the pinned contiguous NFA memory for a 501-needle prefix family" do
+    needles = (0..500).map { |n| "prefix-#{n}" }
+    pre = Regex::Automata::Prefilter.new(
+      Regex::Automata::MatchKind::LeftmostFirst, needles
+    ).not_nil!
+    pre.aho_backend_name.should eq("contiguous-nfa")
+    # Rust regex-automata 0.4.18 + aho-corasick 1.1.4, no nested prefilter.
+    pre.memory_usage.should eq(2772)
+    haystack = "xxx-prefix-64-alpha".to_slice
+    pre.find(haystack, Regex::Automata::Span.new(0, haystack.size)).should eq(
+      Regex::Automata::Span.new(4, 12)
+    )
+  end
+
+  it "feeds contiguous-NFA candidates to the dense, hybrid, NFA, and Meta consumers" do
+    needles = ["foo", "bar"] + (0..500).map { |n| "unused-#{n}-Q" }
+    pre = Regex::Automata::Prefilter.new(
+      Regex::Automata::MatchKind::LeftmostFirst, needles
+    ).not_nil!
+    pre.aho_backend_name.should eq("contiguous-nfa")
+    pattern = "(foo|bar)[a-z]+"
+    haystack = "foo1 barfox bar"
+    expected = Regex::Automata::Match.must(0, 5...11)
+
+    dense = Regex::Automata::DFA::Regex.builder
+      .dense(Regex::Automata::DFA::DFA.config.prefilter(pre))
+      .build(pattern)
+    dense.find(haystack).should eq(expected)
+
+    hybrid = Regex::Automata::Hybrid::Regex.builder
+      .dfa(Regex::Automata::Hybrid::DFA.config.prefilter(pre))
+      .build(pattern)
+    hybrid.find(hybrid.create_cache, haystack).should eq(expected)
+
+    pike = Regex::Automata::NFA::PikeVM.builder
+      .configure(Regex::Automata::NFA::PikeVM.config.prefilter(pre))
+      .build(pattern)
+    pike.find(pike.create_cache, haystack).should eq(expected)
+
+    backtrack = Regex::Automata::NFA::Backtrack::BoundedBacktracker.builder
+      .configure(Regex::Automata::NFA::Backtrack::BoundedBacktracker.config.prefilter(pre))
+      .build(pattern)
+    backtrack.try_find(backtrack.create_cache, haystack).should eq(expected)
+
+    meta = Regex::Automata::Meta::Regex.builder
+      .configure(Regex::Automata::Meta::Regex.config.prefilter(pre))
+      .build(pattern)
+    meta.find(haystack).should eq(expected)
   end
 
   # Rust's Choice::new probes these in order; >64 literals force Teddy to

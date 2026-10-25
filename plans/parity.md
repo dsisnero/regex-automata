@@ -34,30 +34,34 @@
 
 ## Where we are
 
-- **Current focus:** phase 2d, the pinned >500-needle contiguous Aho NFA.
-  Phase 2c's named upstream DFA cases went red on the absent backend and
-  green with Rust-style pruning, byte classes, and a pre-multiplied table.
-- **Next up:** 2d contiguous Aho NFA; 2e Teddy completion; 2f shared
-  utilities; 3 Thompson NFA construction/search.
+- **Current focus:** phase 2e, Teddy cross-target completion and exact
+  strategy accounting. Phase 2d's backend-selection test went red on the
+  generic matcher and green with Rust's packed contiguous NFA; the 501-needle
+  memory oracle then caught and fixed the dense-depth boundary.
+- **Next up:** 2e Teddy cross-target completion and strategy accounting; 2f
+  shared utilities; 3 Thompson NFA construction/search.
 - **Status by area:** vendor fixture harness, scalar prefilter
   selection/candidate semantics, AArch64 unanchored packed Teddy, and 2-500
-  needle Aho/anchored Teddy DFA candidate paths complete. The >500 contiguous
-  NFA, x86 packed variants, memory accounting, and shared utilities remain
-  open. Engine matrices beyond hybrid remain open in phases 3-8.
-- **Scoping notes:** `Prefilter#memory_usage` reports the Aho DFA table only,
-  and for Teddy omits packed storage; Crystal also retains original needles
-  for Meta. Sets above 500 needles still use the generic failure-link matcher
-  until 2d. Non-AArch64 targets do not yet select packed Teddy. Phase 2e owns
-  x86 SIMD, exact memory and retained ownership. Do not infer throughput from
-  this busy host's gate durations.
-- **Last completed feature commit:** `port: Aho DFA prefilter and anchored
-  prefix` (phase 2c; this commit).
-- **Gates:** focused Crystal prefilter plus hybrid audit 54/54;
-  final-source full Crystal 10,308/10,308; pinned Rust
-  `search_leftmost_first::dfa_start_both_no_prefilter` and
-  `search_leftmost_first_anchored_dfa_start_both` 1/1 each; pinned Rust
-  prefilter integration 7/7; install, format, lint, parity, format-check,
-  no-codegen, and diff-check pass. No throughput claim on the loaded host.
+  needle Aho/anchored Teddy DFA and >500-needle contiguous-NFA candidate paths
+  complete. The x86 packed variants, exact strategy accounting, and shared
+  utilities remain open. Engine matrices beyond hybrid remain open in phases
+  3-8.
+- **Scoping notes:** The contiguous NFA reports packed-table plus pattern
+  lengths exactly for the pinned 501-pattern oracle. `Prefilter#memory_usage`
+  still reports the Aho DFA table only and omits Teddy packed storage; Crystal
+  also retains original needles for Meta. Non-AArch64 targets do not yet
+  select packed Teddy. Phase 2e owns x86 SIMD, exact remaining memory and
+  retained ownership. Do not infer throughput from this busy host's gate
+  durations.
+- **Last completed feature commit:** `port: contiguous Aho NFA prefilter`
+  (phase 2d; this commit).
+- **Gates:** focused Crystal prefilter 23/23; final-source full Crystal
+  10,311/10,311; pinned `aho-corasick` 1.1.4
+  `search_leftmost_first::nfa_contig_no_prefilter` and
+  `search_leftmost_first_anchored_nfa_contig_default` 1/1 each; pinned
+  regex-automata prefilter unit 5/5 and integration 7/7; install, format,
+  lint, parity, format-check, no-codegen, and diff-check pass. No throughput
+  claim on the loaded host.
 
 ## Feature-loop rules
 
@@ -171,12 +175,23 @@ confirmation; no authorship was inferred or changed.
   throughput comparison remain phase 2e, with no performance signoff claimed
   on the loaded host.
 
-- [ ] **2d. Contiguous Aho NFA.** Port the pinned dependency's contiguous NFA
+- [x] **2d. Contiguous Aho NFA.** Port the pinned dependency's contiguous NFA
   for >500 needles, including its transition representation, anchored and
   unanchored starts, leftmost-first pruning, and memory report. Exercise the
   500/501 selection boundary and large adversarial needle sets through all
   prefilter consumers. **Gate:** no >500-needle hot path executes the generic
   hash-edge trie and Rust candidate cases pass with ledger evidence.
+
+  `aho_contiguous_nfa.cr` follows `aho-corasick` 1.1.4's u32-packed dense,
+  one-transition, and sparse states, byte classes, DEAD/FAIL sentinels,
+  match-state ordering, both starts, failure traversal, and leftmost-first
+  prefix pruning. The generic hash-edge matcher was removed. Named upstream
+  leftmost/anchored cases, bounded binary 500/501 cases, and the pinned
+  501-needle 2,772-byte memory oracle pass; dense, hybrid, PikeVM,
+  backtracker, and Meta consume its candidates. The Crystal representation
+  keeps mutable builder nodes separate from the final packed array, as Rust's
+  builder does; the search hot path reads only the packed array and byte-class
+  table. Exact Aho DFA allocation accounting remains in 2e.
 
 - [ ] **2e. Teddy cross-target completion and strategy accounting.** Complete
   x86 SSSE3/AVX2 Teddy admission, packed search, runtime capability checks,

@@ -1,94 +1,13 @@
 require "./search"
 require "./teddy_matcher"
 require "./aho_dfa"
+require "./aho_contiguous_nfa"
 require "regex-syntax"
 
 module Regex::Automata
   # A prefilter for accelerating regex searches by looking for candidate
   # literal prefixes before running the full automaton.
   class Prefilter
-    # Temporary >500-needle fallback until the pinned contiguous NFA is
-    # ported in phase 2d. Keep linear-in-haystack search rather than probing
-    # every literal at every search offset.
-    private class AhoMatcher
-      private class State
-        getter edges = {} of UInt8 => Int32
-        getter outputs = [] of Int32
-        property failure = 0
-      end
-
-      @states = [State.new]
-      @needles : Array(Bytes)
-      @max_needle_len : Int32
-
-      def initialize(@needles : Array(Bytes), @max_needle_len : Int32)
-        @needles.each_with_index do |needle, index|
-          state = 0
-          needle.each do |byte|
-            unless next_state = @states[state].edges[byte]?
-              next_state = @states.size.to_i32
-              @states[state].edges[byte] = next_state
-              @states << State.new
-            end
-            state = next_state
-          end
-          @states[state].outputs << index.to_i32
-        end
-
-        queue = [] of Int32
-        @states[0].edges.each_value { |child| queue << child }
-        head = 0
-        while head < queue.size
-          state = queue[head]
-          head += 1
-          @states[state].edges.each do |byte, child|
-            failure = @states[state].failure
-            while failure != 0 && !@states[failure].edges.has_key?(byte)
-              failure = @states[failure].failure
-            end
-            @states[child].failure = @states[failure].edges[byte]? || 0
-            @states[child].outputs.concat(@states[@states[child].failure].outputs)
-            queue << child
-          end
-        end
-      end
-
-      def find(haystack : Bytes, span : Span) : Tuple(Int32, Span)?
-        state = 0
-        best_index = Int32::MAX
-        best_span = nil.as(Span?)
-        at = span.start
-        while at < span.end
-          byte = haystack[at]
-          while state != 0 && !@states[state].edges.has_key?(byte)
-            state = @states[state].failure
-          end
-          state = @states[state].edges[byte]? || 0
-          @states[state].outputs.each do |index|
-            start = at + 1 - @needles[index].size
-            next if start < span.start
-            if best_span.nil? || start < best_span.start || (start == best_span.start && index < best_index)
-              best_index = index
-              best_span = Span.new(start, at + 1)
-            end
-          end
-          break if best_span && at - best_span.start + 1 >= @max_needle_len
-          at += 1
-        end
-        best_span.try { |found| {best_index, found} }
-      end
-
-      def prefix(haystack : Bytes, span : Span) : Tuple(Int32, Span)?
-        limit = Math.min(span.end, span.start + @max_needle_len)
-        found = find(haystack, Span.new(span.start, limit))
-        found if found && found[1].start == span.start
-      end
-
-      def memory_usage : Int32
-        @states.size * (sizeof(Int32) + sizeof(Pointer(Void)))
-      end
-    end
-
     getter kind : MatchKind
     getter max_needle_len : Int32
     getter needles : Array(Bytes)
@@ -97,7 +16,7 @@ module Regex::Automata
     @needles : Array(Bytes)
     @is_fast : Bool
     @memory_usage : Int32
-    @aho : AhoMatcher | AhoDfa | Nil
+    @aho : AhoDfa | AhoContiguousNfa | Nil
     @teddy : TeddyMatcher?
     @byte_set : Bytes?
 
@@ -226,9 +145,9 @@ module Regex::Automata
     # Diagnostic for verifying the pinned dependency's backend selection.
     def aho_backend_name : String?
       case @aho
-      when AhoDfa     then "dfa"
-      when AhoMatcher then "generic"
-      else                 nil
+      when AhoDfa           then "dfa"
+      when AhoContiguousNfa then "contiguous-nfa"
+      else                       nil
       end
     end
 
@@ -272,7 +191,7 @@ module Regex::Automata
                elsif @needles.size <= 500
                  AhoDfa.new(@needles, @max_needle_len)
                else
-                 AhoMatcher.new(@needles, @max_needle_len)
+                 AhoContiguousNfa.new(@needles, @max_needle_len)
                end
              end
       if aho = @aho

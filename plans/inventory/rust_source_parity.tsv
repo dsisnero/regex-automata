@@ -1695,12 +1695,12 @@ src/util/pool.rs::method::PoolGuard<'a, T, F>.put	missing	-	baseline
 src/util/pool.rs::method::PoolGuard<'a, T, F>.put_imp	missing	-	baseline
 src/util/pool.rs::method::PoolGuard<'a, T, F>.value	missing	-	baseline
 src/util/pool.rs::method::PoolGuard<'a, T, F>.value_mut	missing	-	baseline
-src/util/prefilter/aho_corasick.rs::method::AhoCorasick.find	missing	-	baseline
-src/util/prefilter/aho_corasick.rs::method::AhoCorasick.is_fast	missing	-	baseline
-src/util/prefilter/aho_corasick.rs::method::AhoCorasick.memory_usage	missing	-	baseline
-src/util/prefilter/aho_corasick.rs::method::AhoCorasick.name	missing	-	baseline
-src/util/prefilter/aho_corasick.rs::method::AhoCorasick.new	missing	-	baseline
-src/util/prefilter/aho_corasick.rs::method::AhoCorasick.prefix	missing	-	baseline
+src/util/prefilter/aho_corasick.rs::method::AhoCorasick.find	ported	src/regex/automata/aho_dfa.cr;src/regex/automata/aho_contiguous_nfa.cr;spec/prefilter_spec.cr	Pinned DFA/contiguous-NFA candidate cases and all major consumers covered.
+src/util/prefilter/aho_corasick.rs::method::AhoCorasick.is_fast	ported	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	Aho choice reports false.
+src/util/prefilter/aho_corasick.rs::method::AhoCorasick.memory_usage	partial	src/regex/automata/aho_contiguous_nfa.cr;spec/prefilter_spec.cr	Contiguous-NFA 501-pattern report matches Rust; exact DFA allocation remains phase 2e.
+src/util/prefilter/aho_corasick.rs::method::AhoCorasick.name	ported	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	Aho strategy name and backend diagnostic covered.
+src/util/prefilter/aho_corasick.rs::method::AhoCorasick.new	ported	src/regex/automata/prefilter.cr;src/regex/automata/aho_contiguous_nfa.cr;spec/prefilter_spec.cr	500/501 selection and both starts covered.
+src/util/prefilter/aho_corasick.rs::method::AhoCorasick.prefix	ported	src/regex/automata/aho_dfa.cr;src/regex/automata/aho_contiguous_nfa.cr;spec/prefilter_spec.cr	Anchored cases and bounded binary spans covered.
 src/util/prefilter/byteset.rs::method::ByteSet.find	missing	-	baseline
 src/util/prefilter/byteset.rs::method::ByteSet.is_fast	missing	-	baseline
 src/util/prefilter/byteset.rs::method::ByteSet.memory_usage	missing	-	baseline
@@ -1744,7 +1744,7 @@ src/util/prefilter/mod.rs::method::Prefilter.from_hirs_prefix	missing	-	baseline
 src/util/prefilter/mod.rs::method::Prefilter.is_fast	missing	-	baseline
 src/util/prefilter/mod.rs::method::Prefilter.max_needle_len	missing	-	baseline
 src/util/prefilter/mod.rs::method::Prefilter.memory_usage	missing	-	baseline
-src/util/prefilter/mod.rs::method::Prefilter.new	missing	-	baseline
+src/util/prefilter/mod.rs::method::Prefilter.new	partial	src/regex/automata/prefilter.cr;src/regex/automata/aho_contiguous_nfa.cr;spec/prefilter_spec.cr	Aho 500/501 choice covered; x86 packed Teddy remains phase 2e.
 src/util/prefilter/mod.rs::method::Prefilter.prefix	missing	-	baseline
 src/util/prefilter/teddy.rs::method::Teddy.find	missing	-	baseline
 src/util/prefilter/teddy.rs::method::Teddy.is_fast	missing	-	baseline
