@@ -1697,16 +1697,16 @@ src/util/pool.rs::method::PoolGuard<'a, T, F>.value	missing	-	baseline
 src/util/pool.rs::method::PoolGuard<'a, T, F>.value_mut	missing	-	baseline
 src/util/prefilter/aho_corasick.rs::method::AhoCorasick.find	ported	src/regex/automata/aho_dfa.cr;src/regex/automata/aho_contiguous_nfa.cr;spec/prefilter_spec.cr	Pinned DFA/contiguous-NFA candidate cases and all major consumers covered.
 src/util/prefilter/aho_corasick.rs::method::AhoCorasick.is_fast	ported	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	Aho choice reports false.
-src/util/prefilter/aho_corasick.rs::method::AhoCorasick.memory_usage	partial	src/regex/automata/aho_contiguous_nfa.cr;spec/prefilter_spec.cr	Contiguous-NFA 501-pattern report matches Rust; exact DFA allocation remains phase 2e.
+src/util/prefilter/aho_corasick.rs::method::AhoCorasick.memory_usage	ported	src/regex/automata/aho_dfa.cr;src/regex/automata/aho_contiguous_nfa.cr;spec/prefilter_spec.cr	Pinned 65-pattern DFA 5,684-byte and 501-pattern contiguous-NFA 2,772-byte Rust oracles pass.
 src/util/prefilter/aho_corasick.rs::method::AhoCorasick.name	ported	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	Aho strategy name and backend diagnostic covered.
 src/util/prefilter/aho_corasick.rs::method::AhoCorasick.new	ported	src/regex/automata/prefilter.cr;src/regex/automata/aho_contiguous_nfa.cr;spec/prefilter_spec.cr	500/501 selection and both starts covered.
 src/util/prefilter/aho_corasick.rs::method::AhoCorasick.prefix	ported	src/regex/automata/aho_dfa.cr;src/regex/automata/aho_contiguous_nfa.cr;spec/prefilter_spec.cr	Anchored cases and bounded binary spans covered.
-src/util/prefilter/byteset.rs::method::ByteSet.find	missing	-	baseline
-src/util/prefilter/byteset.rs::method::ByteSet.is_fast	missing	-	baseline
-src/util/prefilter/byteset.rs::method::ByteSet.memory_usage	missing	-	baseline
-src/util/prefilter/byteset.rs::method::ByteSet.name	missing	-	baseline
-src/util/prefilter/byteset.rs::method::ByteSet.new	missing	-	baseline
-src/util/prefilter/byteset.rs::method::ByteSet.prefix	missing	-	baseline
+src/util/prefilter/byteset.rs::method::ByteSet.find	ported	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	Embedded 256-byte membership table provides bounded candidate spans.
+src/util/prefilter/byteset.rs::method::ByteSet.is_fast	ported	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	ByteSet reports false as in Rust.
+src/util/prefilter/byteset.rs::method::ByteSet.memory_usage	ported	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	Table is embedded in the strategy; zero allocated memory and no retained original needle copies.
+src/util/prefilter/byteset.rs::method::ByteSet.name	ported	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	Selected choice is observable as byteset.
+src/util/prefilter/byteset.rs::method::ByteSet.new	ported	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	Selects after pinned >64 hard limit or x86 17-one-byte rejection.
+src/util/prefilter/byteset.rs::method::ByteSet.prefix	ported	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	Anchored membership check at bounded span start.
 src/util/prefilter/memchr.rs::method::Memchr.find	missing	-	baseline
 src/util/prefilter/memchr.rs::method::Memchr.is_fast	missing	-	baseline
 src/util/prefilter/memchr.rs::method::Memchr.memory_usage	missing	-	baseline
@@ -1741,17 +1741,17 @@ src/util/prefilter/mod.rs::method::Prefilter.find	missing	-	baseline
 src/util/prefilter/mod.rs::method::Prefilter.from_choice	missing	-	baseline
 src/util/prefilter/mod.rs::method::Prefilter.from_hir_prefix	missing	-	baseline
 src/util/prefilter/mod.rs::method::Prefilter.from_hirs_prefix	missing	-	baseline
-src/util/prefilter/mod.rs::method::Prefilter.is_fast	missing	-	baseline
+src/util/prefilter/mod.rs::method::Prefilter.is_fast	ported	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	Scalar, ByteSet, Aho, and NEON/SSSE3/AVX2 Teddy acceleration decisions match pinned Rust selection; x86 Actions 40272614788.
 src/util/prefilter/mod.rs::method::Prefilter.max_needle_len	missing	-	baseline
-src/util/prefilter/mod.rs::method::Prefilter.memory_usage	missing	-	baseline
-src/util/prefilter/mod.rs::method::Prefilter.new	partial	src/regex/automata/prefilter.cr;src/regex/automata/aho_contiguous_nfa.cr;spec/prefilter_spec.cr	Aho 500/501 choice covered; x86 packed Teddy remains phase 2e.
+src/util/prefilter/mod.rs::method::Prefilter.memory_usage	ported	src/regex/automata/prefilter.cr;src/regex/automata/aho_dfa.cr;src/regex/automata/teddy_matcher.cr;spec/prefilter_spec.cr	Pinned AArch64 2-pattern and 65-pattern DFA memory oracles and x86 variant formulas pass.
+src/util/prefilter/mod.rs::method::Prefilter.new	ported	src/regex/automata/prefilter.cr;src/regex/automata/aho_contiguous_nfa.cr;src/regex/automata/teddy_matcher.cr;spec/prefilter_spec.cr	Scalar/ByteSet, 2-500 DFA, >500 contiguous NFA, and NEON/SSSE3/AVX2 Teddy admission pass local and x86 CI.
 src/util/prefilter/mod.rs::method::Prefilter.prefix	missing	-	baseline
-src/util/prefilter/teddy.rs::method::Teddy.find	missing	-	baseline
-src/util/prefilter/teddy.rs::method::Teddy.is_fast	missing	-	baseline
-src/util/prefilter/teddy.rs::method::Teddy.memory_usage	missing	-	baseline
-src/util/prefilter/teddy.rs::method::Teddy.name	missing	-	baseline
-src/util/prefilter/teddy.rs::method::Teddy.new	missing	-	baseline
-src/util/prefilter/teddy.rs::method::Teddy.prefix	missing	-	baseline
+src/util/prefilter/teddy.rs::method::Teddy.find	ported	src/regex/automata/teddy_matcher.cr;src/regex/automata/teddy_native.c;spec/prefilter_spec.cr	NEON/SSSE3/slim AVX2/fat AVX2 bounded variation and candidate search pass x86 Actions 40272614788 and local AArch64.
+src/util/prefilter/teddy.rs::method::Teddy.is_fast	ported	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	Minimum-needle-length >=3 heuristic follows pinned Rust.
+src/util/prefilter/teddy.rs::method::Teddy.memory_usage	ported	src/regex/automata/teddy_matcher.cr;spec/prefilter_spec.cr	Packed patterns, Rabin-Karp, and variant verifier bucket accounting matches pinned source and AArch64 oracle.
+src/util/prefilter/teddy.rs::method::Teddy.name	ported	src/regex/automata/prefilter.cr;spec/prefilter_spec.cr	Eligible architecture-specific strategy reports teddy.
+src/util/prefilter/teddy.rs::method::Teddy.new	ported	src/regex/automata/teddy_matcher.cr;src/regex/automata/teddy_native.c;spec/prefilter_spec.cr	Pinned AArch64/x86 capability and width selection, masks, buckets, and anchored DFA pass.
+src/util/prefilter/teddy.rs::method::Teddy.prefix	ported	src/regex/automata/aho_dfa.cr;spec/prefilter_spec.cr	Anchored prefix uses the pinned Aho DFA path.
 src/util/primitives.rs::const::LIMIT	missing	-	baseline
 src/util/primitives.rs::const::MAX	missing	-	baseline
 src/util/primitives.rs::const::SIZE	missing	-	baseline

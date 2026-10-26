@@ -18,7 +18,7 @@ module Regex::Automata
     @memory_usage : Int32
     @aho : AhoDfa | AhoContiguousNfa | Nil
     @teddy : TeddyMatcher?
-    @byte_set : Bytes?
+    @byte_set : StaticArray(UInt8, 256)?
 
     def self.new(kind : MatchKind, needles : Enumerable) : self?
       bytes = needles.map { |needle| bytes_for(needle) }
@@ -127,6 +127,12 @@ module Regex::Automata
       @memory_usage
     end
 
+    # Diagnostic for checking that Aho/ByteSet do not keep Rust-unneeded
+    # literal copies after their compiled matcher has been built.
+    def retained_needle_bytes : Int32
+      @needles.sum(&.size).to_i32
+    end
+
     def find_with_index(haystack : Bytes, span : Span) : Tuple(Int32, Span)?
       return nil unless valid_span?(haystack, span)
       return @teddy.not_nil!.find(haystack, span) if @teddy
@@ -171,12 +177,12 @@ module Regex::Automata
                        elsif @needles.size == 3 && @needles.all? { |needle| needle.size == 1 }
                          @memory_usage = 0
                          "memchr3"
-                       elsif @needles.size <= 64 && TeddyMatcher.available?
+                       elsif TeddyMatcher.backend_for(@needles.size.to_i32, @needles.min_of(&.size).to_i32)
                          @teddy = TeddyMatcher.new(@needles)
                          @is_fast = @needles.min_of(&.size) >= 3
                          "teddy"
                        elsif @needles.size > 64 && @needles.all? { |needle| needle.size == 1 }
-                         set = Bytes.new(256, 0_u8)
+                         set = StaticArray(UInt8, 256).new(0_u8)
                          @needles.each { |needle| set[needle[0]] = 1_u8 }
                          @byte_set = set
                          @memory_usage = 0
@@ -189,15 +195,16 @@ module Regex::Automata
                if @byte_set
                  nil
                elsif @needles.size <= 500
-                 AhoDfa.new(@needles, @max_needle_len)
+                 AhoDfa.new(@needles, @max_needle_len, anchored_only: !@teddy.nil?)
                else
                  AhoContiguousNfa.new(@needles, @max_needle_len)
                end
              end
       if aho = @aho
-        @memory_usage = aho.memory_usage
+        @memory_usage = aho.memory_usage + (@teddy.try(&.memory_usage) || 0)
         @is_fast = false if @needles.size > 64
       end
+      @needles = [] of Bytes if @aho && !@teddy || @byte_set
     end
 
     private def self.bytes_for(needle) : Bytes

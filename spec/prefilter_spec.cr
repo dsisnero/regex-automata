@@ -128,12 +128,133 @@ describe Regex::Automata::Prefilter do
     )
   end
 
+  # Rust regex-automata 0.4.18 + aho-corasick 1.1.4 on AArch64 NEON;
+  # x86 slim AVX2 stores one additional verifier bucket-ID copy (+8 bytes).
+  # These include packed pattern/Rabin-Karp/Teddy storage and the anchored
+  # DFA for Teddy, not merely the Crystal transition table.
+  it "reports pinned Teddy and DFA strategy memory" do
+    kind = Regex::Automata::MatchKind::LeftmostFirst
+    teddy = Regex::Automata::Prefilter.new(kind, ["alpha", "beta"]).not_nil!
+    teddy.strategy_name.should eq("teddy")
+    avx2_extra = Regex::Automata::TeddyMatcher.backend_for(2, 4) == :slim_avx2 ? 8 : 0
+    teddy.memory_usage.should eq(2537 + avx2_extra)
+
+    short = Regex::Automata::Prefilter.new(kind, ["ab", "bc"]).not_nil!
+    short.strategy_name.should eq("teddy")
+    short.memory_usage.should eq(1956 + avx2_extra)
+
+    aho = Regex::Automata::Prefilter.new(
+      kind, (0..64).map { |n| "prefix-#{n}" }
+    ).not_nil!
+    aho.aho_backend_name.should eq("dfa")
+    aho.memory_usage.should eq(5684)
+  end
+
+  # aho-corasick 1.1.4 packed/teddy/builder.rs::Builder::build_imp.
+  it "selects the pinned x86 and AArch64 Teddy variants" do
+    teddy = Regex::Automata::TeddyMatcher
+    teddy.backend_for(32, 4, neon: false, ssse3: true, avx2: true).should eq(:slim_avx2)
+    teddy.backend_for(33, 4, neon: false, ssse3: true, avx2: true).should eq(:fat_avx2)
+    teddy.backend_for(33, 4, neon: false, ssse3: true, avx2: false).should eq(:slim_ssse3)
+    teddy.backend_for(2, 4, neon: false, ssse3: true, avx2: true, only_256bit: false).should eq(:slim_ssse3)
+    teddy.backend_for(2, 4, neon: false, ssse3: true, avx2: false, only_256bit: true).should be_nil
+    teddy.backend_for(17, 1, neon: false, ssse3: true, avx2: true).should be_nil
+    teddy.backend_for(2, 4, neon: false, ssse3: false, avx2: false).should be_nil
+    teddy.backend_for(17, 1, neon: true, ssse3: false, avx2: false).should eq(:slim_neon)
+    teddy.backend_for(65, 4, neon: true, ssse3: false, avx2: false).should be_nil
+    teddy.memory_usage_for(2, 9, :slim_neon).should eq(1641)
+    teddy.memory_usage_for(2, 9, :slim_ssse3).should eq(1641)
+    teddy.memory_usage_for(2, 9, :slim_avx2).should eq(1649)
+    teddy.memory_usage_for(2, 9, :fat_avx2).should eq(1641)
+  end
+
+  # aho-corasick 1.1.4 packed/tests.rs::teddy010/020 variation matrix
+  # exercises slim vectors; this case also crosses the 32-pattern AVX2 fat
+  # boundary and checks a late verifier bucket after an unmatched prefix.
+  it "finds bounded fat AVX2 candidates after an unmatched prefix" do
+    if Regex::Automata::TeddyMatcher.backend_for(33, 3) == :fat_avx2
+      needles = (0..32).map { |n| "q#{n.to_s.rjust(2, '0')}" }
+      pre = Regex::Automata::Prefilter.new(Regex::Automata::MatchKind::LeftmostFirst, needles).not_nil!
+      haystack = ("z" * 80 + "q99" + "z" * 17 + "q32").to_slice
+      pre.find_with_index(haystack, Regex::Automata::Span.new(0, haystack.size)).should eq(
+        {32, Regex::Automata::Span.new(100, 103)}
+      )
+      pre.find_with_index(haystack, Regex::Automata::Span.new(0, 100)).should be_nil
+      pre.prefix_with_index(haystack, Regex::Automata::Span.new(100, 103)).should eq(
+        {32, Regex::Automata::Span.new(100, 103)}
+      )
+    end
+  end
+
+  # aho-corasick 1.1.4 packed/tests.rs::search_teddy_ssse3_leftmost_first
+  # forces the 128-bit path even on an AVX2 host.
+  it "runs the pinned Teddy SSSE3 search path on x86" do
+    if LibTeddyNative.capabilities & 2 != 0
+      needles = %w(ab bc cd de ef fg gh hi ij jk kl).map(&.to_slice)
+      matcher = Regex::Automata::TeddyMatcher.new(needles, only_256bit: false)
+      haystack = ("Z" * 31 + "abcdefghijk" + "Z" * 17).to_slice
+      matcher.find(haystack, Regex::Automata::Span.new(0, haystack.size)).should eq(
+        {0, Regex::Automata::Span.new(31, 33)}
+      )
+      matcher.find(haystack, Regex::Automata::Span.new(33, haystack.size)).should eq(
+        {2, Regex::Automata::Span.new(33, 35)}
+      )
+    end
+  end
+
+  # Rust's Aho automata retain lengths, ByteSet retains membership bits,
+  # while Teddy keeps its packed patterns for verification and Rabin-Karp.
+  it "releases original needle bytes when the selected Rust strategy does" do
+    kind = Regex::Automata::MatchKind::LeftmostFirst
+    aho = Regex::Automata::Prefilter.new(kind, (0..64).map { |n| "prefix-#{n}" }).not_nil!
+    aho.retained_needle_bytes.should eq(0)
+    byte_set = Regex::Automata::Prefilter.new(kind, (0..64).map { |n| Bytes[n.to_u8] }).not_nil!
+    byte_set.retained_needle_bytes.should eq(0)
+    teddy = Regex::Automata::Prefilter.new(kind, ["alpha", "beta"]).not_nil!
+    teddy.retained_needle_bytes.should eq(9)
+  end
+
   it "feeds contiguous-NFA candidates to the dense, hybrid, NFA, and Meta consumers" do
     needles = ["foo", "bar"] + (0..500).map { |n| "unused-#{n}-Q" }
     pre = Regex::Automata::Prefilter.new(
       Regex::Automata::MatchKind::LeftmostFirst, needles
     ).not_nil!
     pre.aho_backend_name.should eq("contiguous-nfa")
+    pattern = "(foo|bar)[a-z]+"
+    haystack = "foo1 barfox bar"
+    expected = Regex::Automata::Match.must(0, 5...11)
+
+    dense = Regex::Automata::DFA::Regex.builder
+      .dense(Regex::Automata::DFA::DFA.config.prefilter(pre))
+      .build(pattern)
+    dense.find(haystack).should eq(expected)
+
+    hybrid = Regex::Automata::Hybrid::Regex.builder
+      .dfa(Regex::Automata::Hybrid::DFA.config.prefilter(pre))
+      .build(pattern)
+    hybrid.find(hybrid.create_cache, haystack).should eq(expected)
+
+    pike = Regex::Automata::NFA::PikeVM.builder
+      .configure(Regex::Automata::NFA::PikeVM.config.prefilter(pre))
+      .build(pattern)
+    pike.find(pike.create_cache, haystack).should eq(expected)
+
+    backtrack = Regex::Automata::NFA::Backtrack::BoundedBacktracker.builder
+      .configure(Regex::Automata::NFA::Backtrack::BoundedBacktracker.config.prefilter(pre))
+      .build(pattern)
+    backtrack.try_find(backtrack.create_cache, haystack).should eq(expected)
+
+    meta = Regex::Automata::Meta::Regex.builder
+      .configure(Regex::Automata::Meta::Regex.config.prefilter(pre))
+      .build(pattern)
+    meta.find(haystack).should eq(expected)
+  end
+
+  it "feeds packed Teddy candidates through every prefilter consumer" do
+    pre = Regex::Automata::Prefilter.new(
+      Regex::Automata::MatchKind::LeftmostFirst, ["foo", "bar"]
+    ).not_nil!
+    pre.strategy_name.should eq("teddy")
     pattern = "(foo|bar)[a-z]+"
     haystack = "foo1 barfox bar"
     expected = Regex::Automata::Match.must(0, 5...11)
@@ -376,12 +497,13 @@ describe Regex::Automata::Prefilter do
     )
   end
 
-  it "uses the pinned AArch64 Teddy admission boundary" do
+  it "uses the pinned architecture-specific Teddy admission boundary" do
     kind = Regex::Automata::MatchKind::LeftmostFirst
     # aho-corasick 1.1.4's AArch64 builder logs a >16 one-byte warning but
     # still returns SlimNeon; the actual hard limit is >64 patterns.
     seventeen = (0..16).map { |n| Bytes[64_u8 + n.to_u8] }
-    Regex::Automata::Prefilter.new(kind, seventeen).not_nil!.strategy_name.should eq("teddy")
+    expected = Regex::Automata::TeddyMatcher.backend_for(17, 1) ? "teddy" : "aho-corasick"
+    Regex::Automata::Prefilter.new(kind, seventeen).not_nil!.strategy_name.should eq(expected)
     sixty_five = (0..64).map { |n| Bytes[64_u8 + n.to_u8] }
     Regex::Automata::Prefilter.new(kind, sixty_five).not_nil!.strategy_name.should eq("byteset")
   end

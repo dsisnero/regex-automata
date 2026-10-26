@@ -1734,7 +1734,6 @@ module Regex::Automata::Meta
       pattern_ids = @literal_pattern_ids
       return nil unless prefilter && pattern_ids
 
-      needles = prefilter.needles
       span = ::Regex::Automata::Span.new(input.start, input.end)
       if prefilter.indexed_matcher?
         return case input.anchored
@@ -1750,6 +1749,7 @@ module Regex::Automata::Meta
           nil
         end
       end
+      needles = prefilter.needles
       case input.anchored
       when ::Regex::Automata::Anchored::No
         literal_find_candidate(input.haystack, span, needles, pattern_ids, nil)

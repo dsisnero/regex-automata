@@ -1,0 +1,24 @@
+name: x86 Teddy parity
+
+on:
+  push:
+    branches:
+      - codex/**
+  workflow_dispatch:
+
+jobs:
+  x86-teddy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: crystal-lang/install-crystal@v1
+        with:
+          crystal: 1.22.1
+      - run: grep -qm1 'avx2' /proc/cpuinfo
+      - run: make install
+      - run: crystal spec spec/prefilter_spec.cr
+      - run: make test
+      - run: crystal tool format --check src spec
+      - run: crystal build --no-codegen src/regex-automata.cr

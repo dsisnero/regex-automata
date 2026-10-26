@@ -6,7 +6,7 @@
   `72d650cb0a880a01ab6dc2137c0888e8f89740f7` (regex-automata 0.4.18).
   Do not substitute remembered Rust behavior or a newer upstream revision.
 - Working source ledger: [rust_port_inventory.tsv](inventory/rust_port_inventory.tsv)
-  (1,936 Rust API items: 1,264 `ported`, 369 `missing`, 117 `partial`, 181
+  (1,936 Rust API items: 1,276 `ported`, 369 `missing`, 105 `partial`, 181
   `intentional_divergence`, 5 `skipped`). Test ledger:
   [rust_test_parity.tsv](inventory/rust_test_parity.tsv) (220 rows: 151
   `ported`, 57 `partial`, 12 `intentional_divergence`). These are **review
@@ -34,34 +34,41 @@
 
 ## Where we are
 
-- **Current focus:** phase 2e, Teddy cross-target completion and exact
-  strategy accounting. Phase 2d's backend-selection test went red on the
-  generic matcher and green with Rust's packed contiguous NFA; the 501-needle
-  memory oracle then caught and fixed the dense-depth boundary.
-- **Next up:** 2e Teddy cross-target completion and strategy accounting; 2f
-  shared utilities; 3 Thompson NFA construction/search.
+- **Current focus:** phase 2f, shared search support utilities. Phase 2e
+  ported the pinned Teddy selector/memory cases first, observed red tests,
+  implemented the matching Rust algorithms, and passed local AArch64 and x86
+  AVX2/SSSE3 CI runtime gates. The completed feature commit is
+  `port: cross-target Teddy and strategy accounting`.
+- **Next up:** 2f shared utilities; 3 Thompson NFA construction/search.
 - **Status by area:** vendor fixture harness, scalar prefilter
-  selection/candidate semantics, AArch64 unanchored packed Teddy, and 2-500
-  needle Aho/anchored Teddy DFA and >500-needle contiguous-NFA candidate paths
-  complete. The x86 packed variants, exact strategy accounting, and shared
-  utilities remain open. Engine matrices beyond hybrid remain open in phases
-  3-8.
-- **Scoping notes:** The contiguous NFA reports packed-table plus pattern
-  lengths exactly for the pinned 501-pattern oracle. `Prefilter#memory_usage`
-  still reports the Aho DFA table only and omits Teddy packed storage; Crystal
-  also retains original needles for Meta. Non-AArch64 targets do not yet
-  select packed Teddy. Phase 2e owns x86 SIMD, exact remaining memory and
-  retained ownership. Do not infer throughput from this busy host's gate
-  durations.
-- **Last completed feature commit:** `port: contiguous Aho NFA prefilter`
-  (phase 2d; this commit).
-- **Gates:** focused Crystal prefilter 23/23; final-source full Crystal
-  10,311/10,311; pinned `aho-corasick` 1.1.4
-  `search_leftmost_first::nfa_contig_no_prefilter` and
-  `search_leftmost_first_anchored_nfa_contig_default` 1/1 each; pinned
-  regex-automata prefilter unit 5/5 and integration 7/7; install, format,
-  lint, parity, format-check, no-codegen, and diff-check pass. No throughput
-  claim on the loaded host.
+  selection/candidate semantics, AArch64 unanchored packed Teddy, 2-500 needle
+  Aho/anchored Teddy DFA, and >500-needle contiguous-NFA paths are complete.
+  Phase 2e implements and verifies x86 SSSE3/slim AVX2/fat AVX2 dispatch,
+  Rust's packed-plus-anchored-DFA allocation accounting, and dense/hybrid/
+  PikeVM/backtracker/Meta consumption. Shared utilities and engine matrices
+  beyond hybrid remain open in phases 2f and 3-8.
+- **Scoping notes:** The pinned two-pattern AArch64 memory oracles are 2,537
+  and 1,956 bytes, and the 65-pattern DFA oracle is 5,684 bytes. Rust's
+  x86 slim AVX2 adds one verifier-ID copy. Aho/ByteSet now release original
+  needle copies; ByteSet embeds its 256-byte table in the strategy object,
+  while Teddy retains its packed verifier patterns. The added x86
+  Actions gate requires AVX2 and exercises the >32-pattern fat and forced
+  SSSE3 paths. Crystal cannot directly express the pinned SIMD intrinsics:
+  Rust `aho-corasick` 1.1.4 `packed/teddy/{generic,vector}.rs` maps to
+  Crystal `teddy_matcher.cr` plus `teddy_native.c`. The search performs one C
+  FFI call, Rust-style vector nibble shuffles and set-bit candidate scanning,
+  with no per-candidate heap allocation; the FFI boundary's measured cost is
+  not established by this loaded host. Phase 2f owns a controlled x86 A/B
+  throughput comparison against pinned Rust before any speed claim.
+- **Last completed feature commit:** `port: cross-target Teddy and strategy
+  accounting` (phase 2e; this commit).
+- **Gates:** phase 2e focused Crystal prefilter 29/29 and full Crystal
+  10,317/10,317 on AArch64. The [x86 AVX2/SSSE3 Actions workflow](https://github.com/dsisnero/regex-automata/actions/workflows/x86-teddy.yml)
+  runs the same focused/full suites, format check, and no-codegen build;
+  verify its run for the feature commit before advancing. Pinned aho-corasick
+  1.1.4 Teddy tests 8/8 and regex-automata prefilter unit 5/5 and
+  integration 7/7 (offline); ARM64/x86 C cross-compiles with `-Werror`,
+  install, format, lint, parity, format-check, no-codegen, and diff-check pass.
 
 ## Feature-loop rules
 
@@ -191,16 +198,28 @@ confirmation; no authorship was inferred or changed.
   backtracker, and Meta consume its candidates. The Crystal representation
   keeps mutable builder nodes separate from the final packed array, as Rust's
   builder does; the search hot path reads only the packed array and byte-class
-  table. Exact Aho DFA allocation accounting remains in 2e.
+  table. Phase 2e completed exact Aho DFA allocation accounting.
 
-- [ ] **2e. Teddy cross-target completion and strategy accounting.** Complete
+- [x] **2e. Teddy cross-target completion and strategy accounting.** Complete
   x86 SSSE3/AVX2 Teddy admission, packed search, runtime capability checks,
   exact strategy memory and retained-needle accounting for all prefilter
   choices. Recheck selection, false positives, and memory through dense,
   hybrid, PikeVM, backtracker, and Meta. **Gate:** no eligible hot path
   silently substitutes the generic failure-link matcher on supported targets;
   unavoidable divergences name both paths, necessity, observable equivalence,
-  and controlled hot-path cost evidence.
+  and static hot-path cost evidence, with noisy-host throughput claims deferred
+  to the controlled comparison in 2f.
+
+  Pinned `aho-corasick` 1.1.4 `packed/tests.rs` Teddy variation cases and
+  forced SSSE3 selection run alongside the x86 fat-AVX2 boundary, bounded
+  binary/duplicate cases, and an all-consumer regression. Exact AArch64
+  Rust memory oracles (2,537/1,956/5,684 bytes) and Rust's packed storage
+  formula are checked. The portable Crystal implementation uses a C SIMD
+  bridge solely for unavailable intrinsics; the packed search itself follows
+  Rust's vector masks, short-span Rabin-Karp, and set-bit verification. The
+  bridge's one call per search is the only extra hot-path boundary, with no
+  candidate allocation. Its measured throughput cost is deferred to 2f
+  because the local machine is loaded; no no-slowdown claim is made here.
 
 - [ ] **2f. Shared search support utilities.** Finish
   `src/util/{alphabet,determinize,escape,int,lazy,memchr,pool,primitives,
@@ -208,7 +227,9 @@ confirmation; no authorship was inferred or changed.
   boundary/overflow, Unicode, storage-reuse, and memory tests across their
   consumers. Audit the scalar memchr{,2,3}/memmem finder hot paths and retained
   needle ownership left partial by phase 2a against Rust's implementation;
-  benchmark only under controlled load. **Gate:** every named utility file
+  perform a controlled x86 A/B comparison of the Teddy C bridge against the
+  pinned Rust implementation, and benchmark only under controlled load.
+  **Gate:** every named utility file
   and its ledger rows have tested dispositions; no remaining structural
   difference silently changes results or hot-path cost.
 

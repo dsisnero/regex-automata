@@ -19,8 +19,9 @@ module Regex::Automata
     @start_unanchored : Int32
     @start_anchored : Int32
     @max_match_sid : Int32
+    @memory_usage : Int32
 
-    def initialize(needles : Array(Bytes), @max_needle_len : Int32)
+    def initialize(needles : Array(Bytes), @max_needle_len : Int32, *, anchored_only = false)
       nodes = [Node.new]
       @needle_lens = needles.map(&.size.to_i32)
       needles.each_with_index do |needle, index|
@@ -112,36 +113,60 @@ module Regex::Automata
       ordered = match_ids + other_ids
       old_to_new = Array(Int32).new(nodes.size, 0)
       ordered.each_with_index { |old, new_id| old_to_new[old] = new_id.to_i32 }
-      @max_match_sid = match_ids.empty? ? -1 : (match_ids.size * 2 - 1) * @stride
-      @start_unanchored = old_to_new[0] * 2 * @stride
-      @start_anchored = @start_unanchored + @stride
-      # Interleave unanchored and anchored states in one dense table, as
-      # dfa.rs does for StartKind::Both. Each transition is pre-multiplied.
-      @trans = Array(Int32).new(nodes.size * 2 * @stride, -1)
-      nodes.each_with_index do |node, state|
-        representatives.each_with_index do |byte, byte_class|
-          direct = node.edges[byte]?
-          anchored_at = (old_to_new[state] * 2 + 1) * @stride + byte_class
-          @trans[anchored_at] = direct ? (old_to_new[direct] * 2 + 1) * @stride : -1
-          next_state = direct
-          unless next_state
-            failure = node.failure
-            while failure > 0 && !nodes[failure].edges.has_key?(byte)
-              failure = nodes[failure].failure
-            end
-            next_state = failure < 0 ? -1 : (nodes[failure].edges[byte]? || 0)
+      if anchored_only
+        @max_match_sid = match_ids.empty? ? -1 : (match_ids.size - 1) * @stride
+        @start_unanchored = -1
+        @start_anchored = old_to_new[0] * @stride
+        @trans = Array(Int32).new(nodes.size * @stride, -1)
+        nodes.each_with_index do |node, state|
+          representatives.each_with_index do |byte, byte_class|
+            direct = node.edges[byte]?
+            @trans[old_to_new[state] * @stride + byte_class] = direct ? old_to_new[direct] * @stride : -1
           end
-          @trans[old_to_new[state] * 2 * @stride + byte_class] = next_state < 0 ? -1 : old_to_new[next_state] * 2 * @stride
+        end
+        @first_match = ordered.map { |old| nodes[old].outputs.first? || -1 }
+      else
+        @max_match_sid = match_ids.empty? ? -1 : (match_ids.size * 2 - 1) * @stride
+        @start_unanchored = old_to_new[0] * 2 * @stride
+        @start_anchored = @start_unanchored + @stride
+        # Interleave unanchored and anchored states in one dense table, as
+        # dfa.rs does for StartKind::Both. Each transition is pre-multiplied.
+        @trans = Array(Int32).new(nodes.size * 2 * @stride, -1)
+        nodes.each_with_index do |node, state|
+          representatives.each_with_index do |byte, byte_class|
+            direct = node.edges[byte]?
+            anchored_at = (old_to_new[state] * 2 + 1) * @stride + byte_class
+            @trans[anchored_at] = direct ? (old_to_new[direct] * 2 + 1) * @stride : -1
+            next_state = direct
+            unless next_state
+              failure = node.failure
+              while failure > 0 && !nodes[failure].edges.has_key?(byte)
+                failure = nodes[failure].failure
+              end
+              next_state = failure < 0 ? -1 : (nodes[failure].edges[byte]? || 0)
+            end
+            @trans[old_to_new[state] * 2 * @stride + byte_class] = next_state < 0 ? -1 : old_to_new[next_state] * 2 * @stride
+          end
+        end
+        @first_match = ordered.flat_map do |old|
+          node = nodes[old]
+          first = node.outputs.first? || -1
+          [first, first]
         end
       end
-      @first_match = ordered.flat_map do |old|
-        node = nodes[old]
-        first = node.outputs.first? || -1
-        [first, first]
-      end
+      # Rust counts the DEAD/FAIL/start states omitted from Crystal's table,
+      # plus per-match Vec headers, pattern IDs and pattern lengths.
+      starts = anchored_only ? 1 : 2
+      state_len = anchored_only ? nodes.size + 3 : nodes.size * 2 + 2
+      match_outputs = match_ids.sum { |id| nodes[id].outputs.size }
+      @memory_usage = (state_len * @stride * sizeof(UInt32) +
+                       match_ids.size * starts * sizeof(Pointer(Void)) * 3 +
+                       match_outputs * starts * sizeof(UInt32) +
+                       needles.size * sizeof(UInt32)).to_i32
     end
 
     def find(haystack : Bytes, span : Span) : Tuple(Int32, Span)?
+      return nil if @start_unanchored < 0
       state = @start_unanchored
       best_index = Int32::MAX
       best_span = nil.as(Span?)
@@ -186,7 +211,7 @@ module Regex::Automata
     end
 
     def memory_usage : Int32
-      (@trans.size * sizeof(Int32)).to_i32
+      @memory_usage
     end
   end
 end
