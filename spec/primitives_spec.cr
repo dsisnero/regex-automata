@@ -1,6 +1,23 @@
 require "./spec_helper"
 
 describe "primitive identifier helpers" do
+  it "ports Rust checked small-index and identifier construction at MAX" do
+    max = Regex::Automata::SmallIndex::MAX_VALUE
+    Regex::Automata::SmallIndex.try_new(max).should eq(Regex::Automata::SmallIndex::MAX)
+    Regex::Automata::PatternID.try_new(max).should eq(Regex::Automata::PatternID::MAX)
+    Regex::Automata::StateID.try_new(max).should eq(Regex::Automata::StateID::MAX)
+
+    too_large = (max.to_i64 + 1_i64).to_u64
+    Regex::Automata::SmallIndex.try_new(too_large).as(Regex::Automata::SmallIndexError).attempted.should eq(too_large)
+    Regex::Automata::PatternID.try_new(too_large).as(Regex::Automata::PatternIDError).attempted.should eq(too_large)
+    Regex::Automata::StateID.try_new(too_large).as(Regex::Automata::StateIDError).attempted.should eq(too_large)
+    Regex::Automata::SmallIndex.try_new(UInt64::MAX).as(Regex::Automata::SmallIndexError).attempted.should eq(UInt64::MAX)
+    expect_raises(ArgumentError, /invalid small index/) { Regex::Automata::SmallIndex.must(UInt64::MAX) }
+    expect_raises(ArgumentError, /invalid small index/) { Regex::Automata::SmallIndex.new(-1) }
+    expect_raises(ArgumentError, /invalid PatternID/) { Regex::Automata::PatternID.new(-1) }
+    expect_raises(ArgumentError, /invalid StateID/) { Regex::Automata::StateID.new(-1) }
+  end
+
   it "builds and round-trips small indices" do
     small = Regex::Automata::SmallIndex.new(7)
     small.should be_a(Regex::Automata::SmallIndex)
@@ -30,6 +47,8 @@ describe "primitive identifier helpers" do
 
   it "preserves non-max usize semantics" do
     Regex::Automata::NonMaxUsize.new(4).not_nil!.get.should eq(4)
+    Regex::Automata::NonMaxUsize.new(Int32::MAX).not_nil!.get.should eq(Int32::MAX)
+    expect_raises(ArgumentError, /non-negative/) { Regex::Automata::NonMaxUsize.new(-1) }
   end
 
   it "provides pattern and state identifier compatibility helpers" do

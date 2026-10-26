@@ -42,12 +42,12 @@ src/nfa/thompson/mod.rs	0	pending	src/regex-automata.cr	No API-item row; file-le
 src/nfa/thompson/nfa.rs	52	pending	-	API-item ledger exists; file-level private-function review remains.
 src/nfa/thompson/pikevm.rs	68	pending	-	API-item ledger exists; file-level private-function review remains.
 src/nfa/thompson/range_trie.rs	28	pending	-	API-item ledger exists; file-level private-function review remains.
-src/util/alphabet.rs	50	pending	-	API-item ledger exists; file-level private-function review remains.
+src/util/alphabet.rs	50	reviewed	src/regex/automata/byte_classes.cr;src/regex/automata/byte_set.cr;spec/byte_classes_spec.cr	Reviewed Unit, ByteClasses, ByteClassSet, ByteSet, iterators, wire lengths, and Debug ranges against pinned source and six vendor tests. Rust byte-255 alphabet bound now rejects malformed wire maps; Crystal-only signature/quitset builders relabel final class at construction, with no search-path cost.
 src/util/captures.rs	60	pending	-	API-item ledger exists; file-level private-function review remains.
 src/util/determinize/mod.rs	0	pending	src/regex/automata/determinize.cr	No API-item row; file-level algorithm/namespace review is required.
 src/util/determinize/state.rs	64	pending	-	API-item ledger exists; file-level private-function review remains.
 src/util/empty.rs	0	reviewed	src/regex/automata/empty.cr;spec/utf8_empty_parity_spec.cr	No API-item row; Rust algorithm and Crystal behavior were reviewed in prior feature specs.
-src/util/escape.rs	2	pending	-	API-item ledger exists; file-level private-function review remains.
+src/util/escape.rs	2	reviewed	src/regex/automata/escape.cr;spec/escape_spec.cr;spec/byte_classes_spec.cr	Reviewed DebugByte and DebugHaystack source, invalid UTF-8/control escapes, and alphabet Unit delegation.
 src/util/int.rs	21	pending	-	API-item ledger exists; file-level private-function review remains.
 src/util/interpolate.rs	2	pending	-	API-item ledger exists; file-level private-function review remains.
 src/util/iter.rs	27	pending	-	API-item ledger exists; file-level private-function review remains.
@@ -62,12 +62,12 @@ src/util/prefilter/memchr.rs	18	pending	-	API-item ledger exists; file-level pri
 src/util/prefilter/memmem.rs	6	pending	-	API-item ledger exists; file-level private-function review remains.
 src/util/prefilter/mod.rs	15	pending	-	API-item ledger exists; file-level private-function review remains.
 src/util/prefilter/teddy.rs	6	partial	src/regex/automata/teddy_matcher.cr;src/regex/automata/teddy_native.c;src/regex/automata/aho_dfa.cr;spec/prefilter_spec.cr	AArch64 unanchored SlimNeon and short Rabin-Karp plus anchored DFA candidate path checked; x86 SIMD and memory usage remain phase 2e.
-src/util/primitives.rs	28	pending	-	API-item ledger exists; file-level private-function review remains.
+src/util/primitives.rs	28	reviewed	src/regex/automata/types.cr;spec/primitives_spec.cr	Reviewed ID checked/unchecked construction, native-endian bytes, max/error paths, NonMaxUsize offset domain, and Rust-only trait/index iter adapters. Crystal direct constructors reject invalid values; try_new carries Rust Result semantics.
 src/util/search.rs	73	pending	-	API-item ledger exists; file-level private-function review remains.
 src/util/sparse_set.rs	17	pending	-	API-item ledger exists; file-level private-function review remains.
 src/util/start.rs	17	pending	-	API-item ledger exists; file-level private-function review remains.
 src/util/syntax.rs	27	pending	-	API-item ledger exists; file-level private-function review remains.
-src/util/unicode_data/mod.rs	0	pending	src/regex/automata/look.cr	No API-item row; file-level algorithm/namespace review is required.
-src/util/unicode_data/perl_word.rs	1	pending	-	API-item ledger exists; file-level private-function review remains.
-src/util/utf8.rs	1	pending	-	API-item ledger exists; file-level private-function review remains.
+src/util/unicode_data/mod.rs	0	reviewed	src/regex/automata/look.cr;spec/unicode_data_spec.cr	Pinned feature condition selects regex-syntax's Perl-word predicate when syntax plus unicode-perl are enabled; Crystal uses that exact dependency table.
+src/util/unicode_data/perl_word.rs	1	reviewed	lib/regex-syntax/src/regex/syntax/unicode_tables/perl_word.cr;spec/unicode_data_spec.cr	796 Unicode 16.0 ranges match the byte-identical pinned Rust regex-syntax table and the Crystal dependency table exactly.
+src/util/utf8.rs	1	reviewed	src/regex/automata/utf8_sequences.cr;spec/byte_classes_spec.cr	Reviewed full 256-byte word table, decode/decode_last invalid and multibyte behavior, boundary test, and private lead-byte scan; commented-out next is not compiled upstream.
 src/util/wire.rs	19	pending	-	API-item ledger exists; file-level private-function review remains.

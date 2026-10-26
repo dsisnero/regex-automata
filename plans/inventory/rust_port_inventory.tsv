@@ -1386,7 +1386,7 @@ src/util/alphabet.rs::method::ByteClasses.element_ranges	method	ported	src/regex
 src/util/alphabet.rs::method::ByteClasses.elements	method	ported	src/regex/automata/byte_classes.cr:ByteClasses#elements;spec/byte_classes_spec.cr	Elements and EOI behavior are covered.
 src/util/alphabet.rs::method::ByteClasses.empty	method	ported	src/regex/automata/byte_classes.cr:ByteClasses.empty;spec/byte_classes_spec.cr	All-zero map is covered.
 src/util/alphabet.rs::method::ByteClasses.eoi	method	ported	src/regex/automata/byte_classes.cr:ByteClasses#eoi;spec/byte_classes_spec.cr	EOI sentinel is covered through iterators.
-src/util/alphabet.rs::method::ByteClasses.fmt	method	partial	src/regex/automata/byte_classes.cr:ByteClasses#inspect	Equivalent partition display; Crystal inspect wrapper differs.
+src/util/alphabet.rs::method::ByteClasses.fmt	method	ported	src/regex/automata/byte_classes.cr:ByteClasses#inspect;spec/byte_classes_spec.cr	Rust Debug byte ranges, adjacent noncontiguous ranges, singleton case, and EOI class match.
 src/util/alphabet.rs::method::ByteClasses.from_bytes	method	ported	src/regex/automata/byte_classes.cr:ByteClasses.from_bytes;spec/byte_classes_spec.cr	Fixed map wire round trip is covered.
 src/util/alphabet.rs::method::ByteClasses.get	method	ported	src/regex/automata/byte_classes.cr:ByteClasses#get;spec/byte_classes_spec.cr	Class lookup is covered.
 src/util/alphabet.rs::method::ByteClasses.get_by_unit	method	ported	src/regex/automata/byte_classes.cr:ByteClasses#get_by_unit	Unit lookup is implemented.
@@ -1415,7 +1415,7 @@ src/util/alphabet.rs::method::Unit.as_eoi	method	ported	src/regex/automata/byte_
 src/util/alphabet.rs::method::Unit.as_u8	method	ported	src/regex/automata/byte_classes.cr:Unit#as_u8;spec/byte_classes_spec.cr	Byte conversion is covered.
 src/util/alphabet.rs::method::Unit.as_usize	method	ported	src/regex/automata/byte_classes.cr:Unit#as_usize;spec/byte_classes_spec.cr	Ordinal conversion is covered.
 src/util/alphabet.rs::method::Unit.eoi	method	ported	src/regex/automata/byte_classes.cr:Unit.eoi;spec/byte_classes_spec.cr	EOI construction is covered.
-src/util/alphabet.rs::method::Unit.fmt	method	partial	src/regex/automata/byte_classes.cr:Unit#inspect	Equivalent debug bytes with Crystal formatting differences.
+src/util/alphabet.rs::method::Unit.fmt	method	ported	src/regex/automata/byte_classes.cr:Unit#inspect;spec/byte_classes_spec.cr	Delegates to the ported DebugByte escape rules, including controls and non-ASCII bytes.
 src/util/alphabet.rs::method::Unit.is_byte	method	ported	src/regex/automata/byte_classes.cr:Unit#is_byte;spec/byte_classes_spec.cr	Byte test is covered.
 src/util/alphabet.rs::method::Unit.is_eoi	method	ported	src/regex/automata/byte_classes.cr:Unit#is_eoi;spec/byte_classes_spec.cr	EOI test is covered.
 src/util/alphabet.rs::method::Unit.is_word_byte	method	ported	src/regex/automata/byte_classes.cr:Unit#is_word_byte;spec/byte_classes_spec.cr	ASCII word-byte behavior is covered.
@@ -1758,7 +1758,7 @@ src/util/primitives.rs::const::SIZE	const	ported	src/regex/automata/types.cr:Sma
 src/util/primitives.rs::const::ZERO	const	ported	src/regex/automata/types.cr:SmallIndex::ZERO;spec/primitives_spec.cr	The zero identifier is exposed by all identifier wrappers.
 src/util/primitives.rs::method::NonMaxUsize.fmt	method	intentional_divergence	src/regex/automata/types.cr:NonMaxUsize#to_s	Crystal does not expose Rust Debug formatting; observable value semantics are preserved.
 src/util/primitives.rs::method::NonMaxUsize.get	method	ported	src/regex/automata/types.cr:NonMaxUsize#get;spec/primitives_spec.cr	Accessor is covered.
-src/util/primitives.rs::method::NonMaxUsize.new	method	ported	src/regex/automata/types.cr:NonMaxUsize.new;spec/primitives_spec.cr	Returns nil for the sentinel maximum; negative Crystal signed values are additionally rejected.
+src/util/primitives.rs::method::NonMaxUsize.new	method	intentional_divergence	src/regex/automata/types.cr:NonMaxUsize#initialize;spec/primitives_spec.cr	Crystal Slice offsets are Int32, so all representable nonnegative offsets are below Rust usize::MAX; direct construction accepts Int32::MAX and rejects negatives. Capture-slot construction performs one signed check versus Rust's one usize::MAX sentinel check, with no allocation; Crystal cannot express Rust's Option niche layout.
 src/util/primitives.rs::method::SmallIndex.arbitrary	method	skipped	-	Rust quickcheck-only test generator has no runtime API counterpart.
 src/util/primitives.rs::method::SmallIndex.as_i32	method	ported	src/regex/automata/types.cr:SmallIndex#as_i32;spec/primitives_spec.cr	Accessor is covered.
 src/util/primitives.rs::method::SmallIndex.as_u32	method	ported	src/regex/automata/types.cr:SmallIndex#as_u32;spec/primitives_spec.cr	Accessor is covered.
@@ -1768,11 +1768,11 @@ src/util/primitives.rs::method::SmallIndex.from	method	intentional_divergence	sr
 src/util/primitives.rs::method::SmallIndex.from_ne_bytes	method	ported	src/regex/automata/types.cr:SmallIndex.from_ne_bytes;spec/primitives_spec.cr	Native-endian checked decoding is covered.
 src/util/primitives.rs::method::SmallIndex.from_ne_bytes_unchecked	method	ported	src/regex/automata/types.cr:SmallIndex.from_ne_bytes_unchecked;spec/primitives_spec.cr	Unchecked native-endian decoding is implemented.
 src/util/primitives.rs::method::SmallIndex.must	method	ported	src/regex/automata/types.cr:SmallIndex.must;spec/primitives_spec.cr	Checked panic-style constructor is implemented.
-src/util/primitives.rs::method::SmallIndex.new	method	partial	src/regex/automata/types.cr:SmallIndex#initialize;SmallIndex.must	Crystal constructors cannot return a Rust-style Result; must provides the checked equivalent while initialize remains compatibility-oriented.
+src/util/primitives.rs::method::SmallIndex.new	method	ported	src/regex/automata/types.cr:SmallIndex.try_new;spec/primitives_spec.cr	Checked value-or-error construction is try_new in Crystal; direct new raises on invalid values and only new_unchecked bypasses validation. MAX and overflow are tested.
 src/util/primitives.rs::method::SmallIndex.new_unchecked	method	ported	src/regex/automata/types.cr:SmallIndex.new_unchecked	Unchecked constructor is implemented.
 src/util/primitives.rs::method::SmallIndex.one_more	method	ported	src/regex/automata/types.cr:SmallIndex#one_more;spec/primitives_spec.cr	Accessor is covered.
 src/util/primitives.rs::method::SmallIndex.to_ne_bytes	method	ported	src/regex/automata/types.cr:SmallIndex#to_ne_bytes;spec/primitives_spec.cr	Native-endian encoding is covered.
-src/util/primitives.rs::method::SmallIndex.try_from	method	partial	src/regex/automata/types.cr:SmallIndex.must	Checked conversion is exposed through must rather than Rust TryFrom traits.
+src/util/primitives.rs::method::SmallIndex.try_from	method	ported	src/regex/automata/types.cr:SmallIndex.try_new;spec/primitives_spec.cr	Crystal has no TryFrom trait; try_new retains Rust's checked value-or-error behavior including UInt64::MAX.
 src/util/primitives.rs::method::SmallIndexError.attempted	method	ported	src/regex/automata/types.cr:SmallIndexError#attempted;spec/primitives_spec.cr	Accessor is covered.
 src/util/primitives.rs::method::SmallIndexError.fmt	method	ported	src/regex/automata/types.cr:SmallIndexError#to_s;spec/primitives_spec.cr	Error display text is implemented.
 src/util/primitives.rs::method::SmallIndexIter.next	method	intentional_divergence	-	Internal Rust iterator is not exposed by the Crystal port.
@@ -1914,7 +1914,7 @@ src/util/syntax.rs::method::Config.octal	method	ported	src/regex/automata/syntax
 src/util/syntax.rs::method::Config.swap_greed	method	ported	src/regex/automata/syntax.cr:Config#swap_greed;spec/syntax_spec.cr	Immutable builder is covered.
 src/util/syntax.rs::method::Config.unicode	method	ported	src/regex/automata/syntax.cr:Config#unicode;spec/syntax_spec.cr	Immutable builder is covered.
 src/util/syntax.rs::method::Config.utf8	method	ported	src/regex/automata/syntax.cr:Config#utf8;spec/syntax_spec.cr	Immutable builder is covered.
-src/util/unicode_data/perl_word.rs::const::PERL_WORD	const	partial	src/regex/automata/look.cr:LookMatcher#is_word_unicode;spec/look_spec.cr	Crystal delegates generated Perl-word data to regex-syntax's Unicode predicate; behavior is covered, but Unicode-data revision is dependency-owned.
+src/util/unicode_data/perl_word.rs::const::PERL_WORD	const	ported	lib/regex-syntax/src/regex/syntax/unicode_tables/perl_word.cr;src/regex/automata/look.cr:LookMatcher#is_word_unicode;spec/unicode_data_spec.cr	Pinned regex-automata and regex-syntax Rust files are byte-identical; all 796 generated Unicode 16.0 ranges exactly match the Crystal dependency table. No extra lookup/allocation on the look path.
 src/util/utf8.rs::const::WORD	const	ported	src/regex/automata/utf8_sequences.cr:Utf8.is_word_byte;spec/byte_classes_spec.cr	The private ASCII word-byte table is represented by the tested helper predicate.
 src/util/wire.rs::method::BE.write_u128	method	intentional_divergence	-	Crystal uses IO::ByteFormat rather than Rust endian traits.
 src/util/wire.rs::method::BE.write_u16	method	intentional_divergence	-	Crystal uses IO::ByteFormat rather than Rust endian traits.

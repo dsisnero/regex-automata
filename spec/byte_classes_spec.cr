@@ -178,6 +178,23 @@ describe Regex::Automata::ByteClasses do
       classes.write_to(Bytes.new(255, 0_u8))
     end
   end
+
+  it "rejects the pinned Rust impossible byte-class mapping during deserialization" do
+    malformed = Bytes.new(256, 0_u8)
+    malformed[0] = 2_u8
+    expect_raises(Regex::Automata::DeserializeError, /equivalence class greater than alphabet len/) do
+      Regex::Automata::ByteClasses.from_bytes(malformed)
+    end
+  end
+
+  it "keeps the final-byte class highest in a Crystal quitset partition" do
+    quitset = Regex::Automata::ByteSet.empty
+    quitset.add(255_u8)
+    classes = Regex::Automata::ByteClasses.with_quitset(quitset)
+    classes.alphabet_len.should eq(257)
+    classes.get(255_u8).should eq(255_u8)
+    classes.get(254_u8).should eq(0_u8)
+  end
 end
 
 describe Regex::Automata::Unit do
@@ -198,9 +215,46 @@ describe Regex::Automata::Unit do
     eoi.is_eoi.should be_true
     eoi.is_word_byte.should be_false
   end
+
+  it "ports Rust util::alphabet Unit Debug via util::escape DebugByte" do
+    Regex::Automata::Unit.u8('\n'.ord.to_u8).inspect.should eq("\\n")
+    Regex::Automata::Unit.u8('\t'.ord.to_u8).inspect.should eq("\\t")
+    Regex::Automata::Unit.u8(0xFF_u8).inspect.should eq("\\xFF")
+    Regex::Automata::Unit.eoi(1).inspect.should eq("EOI")
+  end
+end
+
+describe "Rust util::alphabet ByteClasses Debug" do
+  it "includes the end-of-input class after byte ranges" do
+    Regex::Automata::ByteClasses.empty.inspect.should eq("ByteClasses(0 => [\\x00-\\xFF], 1 => [EOI])")
+  end
+
+  it "uses Rust's adjacent range formatting for noncontiguous classes" do
+    mapping = Array(Int32).new(256) { |byte| byte == 0 || byte == 2 ? 0 : 1 }
+    classes = Regex::Automata::ByteClasses.from_mapping(mapping, 2)
+    classes.inspect.should eq("ByteClasses(0 => [\\x00\\x02], 1 => [\\x01\\x03-\\xFF], 2 => [EOI])")
+  end
 end
 
 describe Regex::Automata::Utf8 do
+  it "ports the complete Rust util::utf8 ASCII word-byte table" do
+    (0_u8..255_u8).each do |byte|
+      expected = byte == '_'.ord.to_u8 ||
+                 ('0'.ord.to_u8..'9'.ord.to_u8).includes?(byte) ||
+                 ('A'.ord.to_u8..'Z'.ord.to_u8).includes?(byte) ||
+                 ('a'.ord.to_u8..'z'.ord.to_u8).includes?(byte)
+      Regex::Automata::Utf8.is_word_byte(byte).should eq(expected)
+    end
+  end
+
+  it "returns the offending byte for incomplete, overlong, and surrogate UTF-8" do
+    Regex::Automata::Utf8.decode(Bytes[0xC0_u8, 0x80_u8]).should eq(0xC0_u8)
+    Regex::Automata::Utf8.decode(Bytes[0xE0_u8, 0x80_u8, 0x80_u8]).should eq(0xE0_u8)
+    Regex::Automata::Utf8.decode(Bytes[0xED_u8, 0xA0_u8, 0x80_u8]).should eq(0xED_u8)
+    Regex::Automata::Utf8.decode(Bytes[0xF4_u8, 0x90_u8, 0x80_u8, 0x80_u8]).should eq(0xF4_u8)
+    Regex::Automata::Utf8.decode_last(Bytes[0x61_u8, 0xED_u8, 0xA0_u8, 0x80_u8]).should eq(0x80_u8)
+  end
+
   it "matches upstream word-byte classification" do
     Regex::Automata::Utf8.is_word_byte('a'.ord.to_u8).should be_true
     Regex::Automata::Utf8.is_word_byte('Z'.ord.to_u8).should be_true

@@ -6,7 +6,7 @@
   `72d650cb0a880a01ab6dc2137c0888e8f89740f7` (regex-automata 0.4.18).
   Do not substitute remembered Rust behavior or a newer upstream revision.
 - Working source ledger: [rust_port_inventory.tsv](inventory/rust_port_inventory.tsv)
-  (1,936 Rust API items: 1,276 `ported`, 369 `missing`, 105 `partial`, 181
+  (1,936 Rust API items: 1,280 `ported`, 369 `missing`, 100 `partial`, 182
   `intentional_divergence`, 5 `skipped`). Test ledger:
   [rust_test_parity.tsv](inventory/rust_test_parity.tsv) (220 rows: 151
   `ported`, 57 `partial`, 12 `intentional_divergence`). These are **review
@@ -34,19 +34,22 @@
 
 ## Where we are
 
-- **Current focus:** phase 2f, shared search support utilities. Phase 2e
-  ported the pinned Teddy selector/memory cases first, observed red tests,
-  implemented the matching Rust algorithms, and passed local AArch64 and x86
-  AVX2/SSSE3 CI runtime gates. The completed feature commit is
-  `port: cross-target Teddy and strategy accounting`.
-- **Next up:** 2f shared utilities; 3 Thompson NFA construction/search.
+- **Current focus:** phase 2f2, numeric casts, syntax, determinization, and
+  sparse-set support. Phase 2f1's vendor-defined byte/EOI and identifier
+  boundary specs went red then green; the five-file byte/value slice is
+  complete in `port: shared byte and identifier utilities`.
+- **Next up:** 2f2 numeric/syntax/determinization/sparse sets; 2f3 lazy/pool
+  lifecycle; 2f4 wire/scalar search and controlled x86 comparison; 3 Thompson
+  NFA construction/search.
 - **Status by area:** vendor fixture harness, scalar prefilter
   selection/candidate semantics, AArch64 unanchored packed Teddy, 2-500 needle
   Aho/anchored Teddy DFA, and >500-needle contiguous-NFA paths are complete.
   Phase 2e implements and verifies x86 SSSE3/slim AVX2/fat AVX2 dispatch,
   Rust's packed-plus-anchored-DFA allocation accounting, and dense/hybrid/
-  PikeVM/backtracker/Meta consumption. Shared utilities and engine matrices
-  beyond hybrid remain open in phases 2f and 3-8.
+  PikeVM/backtracker/Meta consumption. Phase 2f1 closes alphabet/escape/UTF-8,
+  Unicode table, and primitive-ID source-file reviews. Remaining shared
+  utilities and engine matrices beyond hybrid remain open in phases 2f2-2f4
+  and 3-8.
 - **Scoping notes:** The pinned two-pattern AArch64 memory oracles are 2,537
   and 1,956 bytes, and the 65-pattern DFA oracle is 5,684 bytes. Rust's
   x86 slim AVX2 adds one verifier-ID copy. Aho/ByteSet now release original
@@ -58,17 +61,17 @@
   Crystal `teddy_matcher.cr` plus `teddy_native.c`. The search performs one C
   FFI call, Rust-style vector nibble shuffles and set-bit candidate scanning,
   with no per-candidate heap allocation; the FFI boundary's measured cost is
-  not established by this loaded host. Phase 2f owns a controlled x86 A/B
-  throughput comparison against pinned Rust before any speed claim.
-- **Last completed feature commit:** `port: cross-target Teddy and strategy
-  accounting` (phase 2e; this commit).
-- **Gates:** phase 2e focused Crystal prefilter 29/29 and full Crystal
-  10,317/10,317 on AArch64. The [x86 AVX2/SSSE3 Actions workflow](https://github.com/dsisnero/regex-automata/actions/workflows/x86-teddy.yml)
-  runs the same focused/full suites, format check, and no-codegen build;
-  verify its run for the feature commit before advancing. Pinned aho-corasick
-  1.1.4 Teddy tests 8/8 and regex-automata prefilter unit 5/5 and
-  integration 7/7 (offline); ARM64/x86 C cross-compiles with `-Werror`,
-  install, format, lint, parity, format-check, no-codegen, and diff-check pass.
+  not established by this loaded host. Phase 2f4 owns a controlled x86 A/B
+  throughput comparison against pinned Rust before any speed claim. The
+  Crystal-only signature/quitset byte-class reducers now relabel byte 255's
+  group last at construction; the search lookup remains one table access.
+- **Last completed feature commit:** `port: shared byte and identifier
+  utilities` (phase 2f1; this commit).
+- **Gates:** phase 2f1 focused byte/ID/escape and DFA/look specs passed, full
+  Crystal 10,326/10,326 on AArch64; pinned Rust alphabet unit tests 6/6
+  offline. The two Rust Perl-word tables are byte-identical, and all 796
+  generated ranges match Crystal regex-syntax. `make install`, format, lint,
+  parity, `git diff --check`, Crystal format-check, and no-codegen build pass.
 
 ## Feature-loop rules
 
@@ -221,17 +224,53 @@ confirmation; no authorship was inferred or changed.
   candidate allocation. Its measured throughput cost is deferred to 2f
   because the local machine is loaded; no no-slowdown claim is made here.
 
-- [ ] **2f. Shared search support utilities.** Finish
-  `src/util/{alphabet,determinize,escape,int,lazy,memchr,pool,primitives,
-  sparse_set,syntax,unicode_data,utf8,wire}.rs` behavior. Port vendor
-  boundary/overflow, Unicode, storage-reuse, and memory tests across their
-  consumers. Audit the scalar memchr{,2,3}/memmem finder hot paths and retained
-  needle ownership left partial by phase 2a against Rust's implementation;
-  perform a controlled x86 A/B comparison of the Teddy C bridge against the
-  pinned Rust implementation, and benchmark only under controlled load.
-  **Gate:** every named utility file
-  and its ledger rows have tested dispositions; no remaining structural
-  difference silently changes results or hot-path cost.
+- [x] **2f1. Shared byte alphabet, Unicode data, and identifier values.**
+  Review `src/util/{alphabet,escape,primitives,unicode_data,utf8}.rs` against
+  the Crystal value layer and its DFA/look consumers. Port source-defined
+  byte/EOI debug output, complete ASCII word-byte and invalid UTF-8 boundaries,
+  checked identifier limits and errors, and the generated Unicode table
+  contract. **Gate:** all five files have file-level dispositions, relevant
+  rows/specs are reconciled, and direct constructors cannot silently create
+  invalid IDs. The pinned `ByteClasses::alphabet_len` uses byte 255's class;
+  malformed maps are rejected against that bound. Crystal's signature/quitset
+  builders can discover byte 255's equivalence group early, so they relabel
+  that group last at construction without changing any search-path lookup.
+  Rust's `SmallIndex::new` Result is exposed as Crystal
+  `try_new`; Crystal `.new` raises on invalid input, and `new_unchecked`
+  remains explicit. Rust `NonMaxUsize`'s `usize::MAX` sentinel is unreachable
+  for Crystal's Int32 slice offsets; the Crystal value is Int32, rejects
+  negative offsets, and accepts `Int32::MAX`. Capture-slot construction has
+  one signed check instead of Rust's one sentinel check and no allocation.
+  The pinned `regex-automata` and `regex-syntax` Rust `perl_word.rs` files are
+  byte-identical; all 796 Unicode 16.0 ranges equal the Crystal regex-syntax
+  table, so reusing its binary-search predicate avoids duplicated data and
+  does not add a lookup to the look-around hot path.
+
+- [ ] **2f2. Numeric casts, syntax, determinization, and sparse-set
+  support.** Finish `src/util/{int,syntax,determinize/{mod,state},sparse_set}.rs`
+  as one construction-time state/limit layer. Port vendor overflow, parser
+  configuration, state encoding, and storage-reuse cases before fixes; audit
+  direct Crystal casts and builder behavior across dense, hybrid, and NFA
+  consumers. **Gate:** each file has a tested disposition, including private
+  algorithms and the necessity/cost of any structural difference.
+
+- [ ] **2f3. Lazy initialization and pooled cache ownership.** Complete
+  `src/util/{lazy,pool}.rs` as the shared cache-lifecycle feature. Port the
+  vendor owner/distinct-guard/cross-thread cases first, check automatic
+  release and panic/exception behavior, and preserve Rust's low-contention
+  fast path wherever Crystal permits it. **Gate:** reuse and concurrency
+  behavior are proven through consumers; any mutex/ownership divergence has
+  observable-equivalence and hot-path evidence.
+
+- [ ] **2f4. Native wire helpers and scalar-search performance.** Finish
+  `src/util/{wire,memchr}.rs`, including checked arithmetic, alignment,
+  endian/ID wire helpers and vendor malformed-buffer cases. Audit phase 2a's
+  scalar memchr{,2,3}/memmem finders and retained needles against pinned Rust.
+  Run the controlled x86 Teddy-C-bridge A/B comparison against pinned Rust
+  only under controlled load; if unavailable, retain an explicit unmeasured
+  performance gate rather than claiming parity. **Gate:** wire/source/test
+  rows and cross-engine behavior are reconciled, and structural hot-path
+  differences have measured or clearly deferred cost evidence.
 
 - [ ] **3. Thompson construction and NFA search engines.** Finish
   `src/nfa/thompson/{nfa,builder,compiler,literal_trie,range_trie,map,error,

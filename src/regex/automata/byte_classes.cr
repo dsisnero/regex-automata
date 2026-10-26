@@ -45,15 +45,7 @@ module Regex::Automata
 
     def inspect(io : IO) : Nil
       if byte = as_u8
-        if byte == ' '.ord.to_u8
-          io << "' '"
-        elsif byte >= 0x20_u8 && byte <= 0x7E_u8
-          io << byte.chr
-        else
-          io << "\\x"
-          io << '0' if byte < 16
-          byte.to_s(io, 16, upcase: true)
-        end
+        DebugByte.new(byte).inspect(io)
       else
         io << "EOI"
       end
@@ -95,8 +87,8 @@ module Regex::Automata
         classes.set(byte.to_u8, slice[byte])
       end
       256.times do |byte|
-        if classes.get(byte.to_u8) >= classes.alphabet_len - 1
-          raise DeserializeError.new("found equivalence class greater than alphabet len")
+        if classes.get(byte.to_u8).to_i >= classes.alphabet_len
+          raise DeserializeError.generic("found equivalence class greater than alphabet len")
         end
       end
       {classes, 256}
@@ -119,6 +111,10 @@ module Regex::Automata
         classes[byte] = class_id
       end
 
+      # Rust derives alphabet_len from byte 255's class. The signature-based
+      # reducer can discover that signature earlier, so relabel its group as
+      # the final class without changing any byte equivalences.
+      classes = with_last_class_highest(classes, (next_class - 1).to_u8)
       new(classes)
     end
 
@@ -150,7 +146,21 @@ module Regex::Automata
           next_class += 1
         end
       end
+      classes = with_last_class_highest(classes, (next_class - 1).to_u8)
       new(classes)
+    end
+
+    private def self.with_last_class_highest(classes : StaticArray(UInt8, 256), max_class : UInt8) : StaticArray(UInt8, 256)
+      last_class = classes[255]
+      return classes if last_class == max_class
+
+      256.times do |byte|
+        case classes[byte]
+        when last_class then classes[byte] = max_class
+        when max_class  then classes[byte] = last_class
+        end
+      end
+      classes
     end
 
     def to_bytes(_endian : Symbol = :little) : Bytes
@@ -199,12 +209,7 @@ module Regex::Automata
     end
 
     def alphabet_len : Int32
-      max_class = 0_u8
-      256.times do |byte|
-        value = @classes[byte]
-        max_class = value if value > max_class
-      end
-      max_class.to_i + 2
+      @classes[255].to_i + 2
     end
 
     def stride2 : Int32
@@ -257,15 +262,12 @@ module Regex::Automata
       io << "ByteClasses("
       first = true
       iter.each do |klass|
-        next if klass.is_eoi
-
         io << ", " unless first
         first = false
         io << klass.as_usize
         io << " => ["
         ranges = element_ranges(klass)
-        ranges.each_with_index do |range, i|
-          io << ", " if i > 0
+        ranges.each do |range|
           start, finish = range
           if start == finish
             start.inspect(io)
