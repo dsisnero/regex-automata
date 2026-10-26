@@ -12,7 +12,7 @@ module Regex::Automata
       getter ignore_whitespace : Bool
       getter unicode : Bool
       getter utf8 : Bool
-      getter nest_limit : Int32
+      getter nest_limit : UInt32
       getter octal : Bool
 
       def initialize(
@@ -25,7 +25,7 @@ module Regex::Automata
         @ignore_whitespace : Bool = false,
         @unicode : Bool = true,
         @utf8 : Bool = true,
-        @nest_limit : Int32 = 250,
+        @nest_limit : UInt32 = 250_u32,
         @octal : Bool = false,
       )
       end
@@ -174,7 +174,7 @@ module Regex::Automata
         )
       end
 
-      def nest_limit(limit : Int32) : Config
+      def nest_limit(limit : UInt32) : Config
         Config.new(
           case_insensitive: @case_insensitive,
           multi_line: @multi_line,
@@ -242,7 +242,7 @@ module Regex::Automata
         @utf8
       end
 
-      def get_nest_limit : Int32
+      def get_nest_limit : UInt32
         @nest_limit
       end
 
@@ -261,7 +261,7 @@ module Regex::Automata
           .ignore_whitespace(@ignore_whitespace)
           .unicode(@unicode)
           .utf8(@utf8)
-          .nest_limit(@nest_limit)
+          .nest_limit(Math.min(@nest_limit.to_u64, Int32::MAX.to_u64).to_i32)
           .octal(@octal)
       end
     end

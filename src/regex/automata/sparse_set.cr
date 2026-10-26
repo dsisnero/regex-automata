@@ -41,8 +41,6 @@ module Regex::Automata
 
     def contains(id : StateID) : Bool
       index = id.to_i
-      return false if index < 0 || index >= @sparse.size
-
       dense_index = @sparse[index]
       dense_index.to_i < @len && @dense[dense_index.to_i] == id
     end
@@ -53,7 +51,6 @@ module Regex::Automata
 
     def insert(id : StateID) : Bool
       index = id.to_i
-      return false if index < 0 || index >= @sparse.size
       return false if contains(id)
       raise IndexError.new("sparse set capacity exceeded") if @len >= @dense.size
 
@@ -71,17 +68,47 @@ module Regex::Automata
       is_empty
     end
 
-    def iter
-      @dense[0, @len].each
+    def iter : SparseSetIter
+      SparseSetIter.new(@dense, @len)
     end
 
     def each(& : StateID ->) : Nil
-      @dense[0, @len].each { |sid| yield sid }
+      index = 0
+      while index < @len
+        yield @dense[index]
+        index += 1
+      end
     end
 
     def memory_usage : UInt64
       (@dense.size.to_u64 * sizeof(StateID).to_u64) +
         (@sparse.size.to_u64 * sizeof(StateID).to_u64)
+    end
+
+    def inspect(io : IO) : Nil
+      io << "SparseSet(["
+      index = 0
+      while index < @len
+        io << ", " if index > 0
+        io << "StateID(" << @dense[index].as_i32 << ')'
+        index += 1
+      end
+      io << "])"
+    end
+  end
+
+  struct SparseSetIter
+    include Iterator(StateID)
+
+    def initialize(@dense : Array(StateID), @len : Int32, @index : Int32 = 0)
+    end
+
+    def next
+      return stop if @index >= @len
+
+      id = @dense[@index]
+      @index += 1
+      id
     end
   end
 

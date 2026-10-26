@@ -1,6 +1,27 @@
 require "./spec_helper"
 
 describe Regex::Automata::Determinize do
+  it "retains union states for repeated conditional epsilon priority (vendor example)" do
+    re = Regex::Automata::Hybrid::RegexBuilder.new
+      .dfa(Regex::Automata::Hybrid::DFA.config.unicode_word_boundary(true))
+      .build("(?:\\b|%)+")
+    cache = re.create_cache
+
+    re.find_iter(cache, "z%").to_a.should eq([
+      Regex::Automata::Match.must(0, 0...0),
+      Regex::Automata::Match.must(0, 1...1),
+    ])
+  end
+
+  it "preserves the same conditional-union preference in the dense builder" do
+    re = Regex::Automata::DFA::Regex.new("(?-u:(?:\\b|%)+)")
+
+    re.find_iter("z%").to_a.should eq([
+      Regex::Automata::Match.must(0, 0...0),
+      Regex::Automata::Match.must(0, 1...1),
+    ])
+  end
+
   it "sets vendored look-behind assertions for a text start" do
     nfa = Regex::Automata::HirCompiler.new.build("(?m)\\A\\b^a")
     builder = Regex::Automata::Determinize::StateBuilderEmpty.new.into_matches

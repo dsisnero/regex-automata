@@ -1521,7 +1521,7 @@ src/util/determinize/state.rs::method::State.match_pattern	method	ported	src/reg
 src/util/determinize/state.rs::method::State.match_pattern_ids	method	ported	src/regex/automata/determinize_state.cr:State#match_pattern_ids;spec/determinize_state_spec.cr	Pattern IDs are covered.
 src/util/determinize/state.rs::method::State.memory_usage	method	ported	src/regex/automata/determinize_state.cr:State#memory_usage;spec/determinize_state_spec.cr	Byte representation size is covered.
 src/util/determinize/state.rs::method::State.repr	method	ported	src/regex/automata/determinize_state.cr:State#repr	Private read-only representation view is implemented.
-src/util/determinize/state.rs::method::StateBuilderEmpty.capacity	method	ported	src/regex/automata/determinize_state.cr:StateBuilderEmpty#capacity;spec/determinize_state_spec.cr	Retained scratch capacity is covered.
+src/util/determinize/state.rs::method::StateBuilderEmpty.capacity	method	ported	src/regex/automata/determinize_state.cr:StateBuilderEmpty#capacity;spec/determinize_state_spec.cr	Reports retained backing-array capacity after clear, not only prior logical length.
 src/util/determinize/state.rs::method::StateBuilderEmpty.clear	method	ported	src/regex/automata/determinize_state.cr:StateBuilderEmpty#clear	Builder reuse clears the representation.
 src/util/determinize/state.rs::method::StateBuilderEmpty.into_matches	method	ported	src/regex/automata/determinize_state.cr:StateBuilderEmpty#into_matches;spec/determinize_state_spec.cr	Builder phase transition is covered.
 src/util/determinize/state.rs::method::StateBuilderEmpty.new	method	ported	src/regex/automata/determinize_state.cr:StateBuilderEmpty#initialize;spec/determinize_state_spec.cr	Empty construction is covered.
@@ -1536,7 +1536,7 @@ src/util/determinize/state.rs::method::StateBuilderMatches.set_is_half_crlf	meth
 src/util/determinize/state.rs::method::StateBuilderMatches.set_look_have	method	ported	src/regex/automata/determinize_state.cr:StateBuilderMatches#set_look_have;spec/determinize_state_spec.cr	Look-set mutation is covered.
 src/util/determinize/state.rs::method::StateBuilderNFA.add_nfa_state_id	method	ported	src/regex/automata/determinize_state.cr:StateBuilderNFA#add_nfa_state_id;spec/determinize_state_spec.cr	Signed-delta encoding is covered.
 src/util/determinize/state.rs::method::StateBuilderNFA.as_bytes	method	ported	src/regex/automata/determinize_state.cr:StateBuilderNFA#as_bytes	Representation access is implemented.
-src/util/determinize/state.rs::method::StateBuilderNFA.clear	method	ported	src/regex/automata/determinize_state.cr:StateBuilderNFA#clear;spec/determinize_state_spec.cr	Reuse and retained capacity are covered.
+src/util/determinize/state.rs::method::StateBuilderNFA.clear	method	ported	src/regex/automata/determinize_state.cr:StateBuilderNFA#clear;spec/determinize_state_spec.cr	Reuse reports actual backing-buffer capacity for Hybrid cache accounting.
 src/util/determinize/state.rs::method::StateBuilderNFA.fmt	method	ported	src/regex/automata/determinize_state.cr:StateBuilderNFA#inspect	Equivalent inspection is implemented.
 src/util/determinize/state.rs::method::StateBuilderNFA.look_need	method	ported	src/regex/automata/determinize_state.cr:StateBuilderNFA#look_need;spec/determinize_state_spec.cr	Look set access is covered.
 src/util/determinize/state.rs::method::StateBuilderNFA.repr	method	ported	src/regex/automata/determinize_state.cr:StateBuilderNFA#repr	Private representation view is implemented.
@@ -1855,16 +1855,16 @@ src/util/search.rs::method::[u8].index_mut	method	intentional_divergence	src/reg
 src/util/search.rs::method::str.index	method	intentional_divergence	src/regex/automata/search.cr:Span#range	Crystal String uses native ranges and cannot expose Rust Index traits.
 src/util/sparse_set.rs::method::SparseSet.capacity	method	ported	src/regex/automata/sparse_set.cr:SparseSet#capacity;spec/sparse_set_spec.cr	Capacity is covered.
 src/util/sparse_set.rs::method::SparseSet.clear	method	ported	src/regex/automata/sparse_set.cr:SparseSet#clear;spec/sparse_set_spec.cr	Logical-length clear is O(1), preserves backing storage, and invalidates prior sparse indices like Rust.
-src/util/sparse_set.rs::method::SparseSet.contains	method	ported	src/regex/automata/sparse_set.cr:SparseSet#contains;spec/sparse_set_spec.cr	Membership is covered.
-src/util/sparse_set.rs::method::SparseSet.fmt	method	intentional_divergence	src/regex/automata/sparse_set.cr	Rust Debug-only tuple formatting has no Crystal equivalent.
+src/util/sparse_set.rs::method::SparseSet.contains	method	ported	src/regex/automata/sparse_set.cr:SparseSet#contains;spec/sparse_set_spec.cr	Membership and out-of-range index panic match Rust.
+src/util/sparse_set.rs::method::SparseSet.fmt	method	ported	src/regex/automata/sparse_set.cr:SparseSet#inspect;spec/sparse_set_spec.cr	Rust Debug tuple formatting is preserved.
 src/util/sparse_set.rs::method::SparseSet.insert	method	ported	src/regex/automata/sparse_set.cr:SparseSet#insert;spec/sparse_set_spec.cr	Order and idempotence are covered.
 src/util/sparse_set.rs::method::SparseSet.is_empty	method	ported	src/regex/automata/sparse_set.cr:SparseSet#is_empty;spec/sparse_set_spec.cr	Empty state is covered.
-src/util/sparse_set.rs::method::SparseSet.iter	method	ported	src/regex/automata/sparse_set.cr:SparseSet#iter;spec/sparse_set_spec.cr	Insertion-order iteration is covered.
+src/util/sparse_set.rs::method::SparseSet.iter	method	ported	src/regex/automata/sparse_set.cr:SparseSet#iter;spec/sparse_set_spec.cr	Insertion-order iteration now traverses dense storage without a sliced-array allocation.
 src/util/sparse_set.rs::method::SparseSet.len	method	ported	src/regex/automata/sparse_set.cr:SparseSet#len;spec/sparse_set_spec.cr	Length is covered.
 src/util/sparse_set.rs::method::SparseSet.memory_usage	method	ported	src/regex/automata/sparse_set.cr:SparseSet#memory_usage;spec/hybrid_spec.cr	Counts fixed dense/sparse StateID arrays with UInt64 arithmetic, matching Rust usize accounting.
 src/util/sparse_set.rs::method::SparseSet.new	method	ported	src/regex/automata/sparse_set.cr:SparseSet#initialize;spec/sparse_set_spec.cr	Construction is covered.
 src/util/sparse_set.rs::method::SparseSet.resize	method	ported	src/regex/automata/sparse_set.cr:SparseSet#resize;spec/sparse_set_spec.cr;spec/hybrid_spec.cr	Resize clears entries and retains same-size buffers for lazy-cache reset, as Rust Vec::resize does.
-src/util/sparse_set.rs::method::SparseSetIter<'a>.next	method	ported	src/regex/automata/sparse_set.cr:SparseSetIter#next	Crystal Array iterator provides equivalent iteration.
+src/util/sparse_set.rs::method::SparseSetIter<'a>.next	method	ported	src/regex/automata/sparse_set.cr:SparseSetIter#next;spec/sparse_set_spec.cr	Value iterator advances through dense storage without copying the array.
 src/util/sparse_set.rs::method::SparseSets.clear	method	ported	src/regex/automata/sparse_set.cr:SparseSets#clear;spec/sparse_set_spec.cr	Pair clearing is covered.
 src/util/sparse_set.rs::method::SparseSets.memory_usage	method	ported	src/regex/automata/sparse_set.cr:SparseSets#memory_usage;spec/hybrid_spec.cr	Sums two fixed-capacity sparse-set allocations as UInt64.
 src/util/sparse_set.rs::method::SparseSets.new	method	ported	src/regex/automata/sparse_set.cr:SparseSets#initialize;spec/sparse_set_spec.cr	Pair construction is covered.
@@ -1900,7 +1900,7 @@ src/util/syntax.rs::method::Config.get_dot_matches_new_line	method	ported	src/re
 src/util/syntax.rs::method::Config.get_ignore_whitespace	method	ported	src/regex/automata/syntax.cr:Config#get_ignore_whitespace;spec/syntax_spec.cr	Accessor is covered.
 src/util/syntax.rs::method::Config.get_line_terminator	method	ported	src/regex/automata/syntax.cr:Config#get_line_terminator;spec/syntax_spec.cr	Accessor is covered.
 src/util/syntax.rs::method::Config.get_multi_line	method	ported	src/regex/automata/syntax.cr:Config#get_multi_line;spec/syntax_spec.cr	Accessor is covered.
-src/util/syntax.rs::method::Config.get_nest_limit	method	ported	src/regex/automata/syntax.cr:Config#get_nest_limit;spec/syntax_spec.cr	Accessor is covered.
+src/util/syntax.rs::method::Config.get_nest_limit	method	ported	src/regex/automata/syntax.cr:Config#get_nest_limit;spec/syntax_spec.cr	Full Rust u32 setting is preserved above Int32::MAX.
 src/util/syntax.rs::method::Config.get_octal	method	ported	src/regex/automata/syntax.cr:Config#get_octal;spec/syntax_spec.cr	Accessor is covered.
 src/util/syntax.rs::method::Config.get_swap_greed	method	ported	src/regex/automata/syntax.cr:Config#get_swap_greed;spec/syntax_spec.cr	Accessor is covered.
 src/util/syntax.rs::method::Config.get_unicode	method	ported	src/regex/automata/syntax.cr:Config#get_unicode;spec/syntax_spec.cr	Accessor is covered.
@@ -1908,7 +1908,7 @@ src/util/syntax.rs::method::Config.get_utf8	method	ported	src/regex/automata/syn
 src/util/syntax.rs::method::Config.ignore_whitespace	method	ported	src/regex/automata/syntax.cr:Config#ignore_whitespace;spec/syntax_spec.cr	Immutable builder is covered.
 src/util/syntax.rs::method::Config.line_terminator	method	ported	src/regex/automata/syntax.cr:Config#line_terminator;spec/syntax_spec.cr	Immutable builder is covered.
 src/util/syntax.rs::method::Config.multi_line	method	ported	src/regex/automata/syntax.cr:Config#multi_line;spec/syntax_spec.cr	Immutable builder is covered.
-src/util/syntax.rs::method::Config.nest_limit	method	ported	src/regex/automata/syntax.cr:Config#nest_limit;spec/syntax_spec.cr	Immutable builder is covered.
+src/util/syntax.rs::method::Config.nest_limit	method	ported	src/regex/automata/syntax.cr:Config#nest_limit;spec/syntax_spec.cr	Immutable builder takes Rust's u32 range; Crystal parser's signed boundary is clamped when applied.
 src/util/syntax.rs::method::Config.new	method	ported	src/regex/automata/syntax.cr:Config#initialize;spec/syntax_spec.cr	Constructor defaults are covered.
 src/util/syntax.rs::method::Config.octal	method	ported	src/regex/automata/syntax.cr:Config#octal;spec/syntax_spec.cr	Immutable builder is covered.
 src/util/syntax.rs::method::Config.swap_greed	method	ported	src/regex/automata/syntax.cr:Config#swap_greed;spec/syntax_spec.cr	Immutable builder is covered.

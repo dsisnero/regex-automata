@@ -6,7 +6,7 @@
   `72d650cb0a880a01ab6dc2137c0888e8f89740f7` (regex-automata 0.4.18).
   Do not substitute remembered Rust behavior or a newer upstream revision.
 - Working source ledger: [rust_port_inventory.tsv](inventory/rust_port_inventory.tsv)
-  (1,936 Rust API items: 1,280 `ported`, 369 `missing`, 100 `partial`, 182
+  (1,936 Rust API items: 1,281 `ported`, 369 `missing`, 100 `partial`, 181
   `intentional_divergence`, 5 `skipped`). Test ledger:
   [rust_test_parity.tsv](inventory/rust_test_parity.tsv) (220 rows: 151
   `ported`, 57 `partial`, 12 `intentional_divergence`). These are **review
@@ -34,21 +34,22 @@
 
 ## Where we are
 
-- **Current focus:** phase 2f2, numeric casts, syntax, determinization, and
-  sparse-set support. Phase 2f1's vendor-defined byte/EOI and identifier
-  boundary specs went red then green; the five-file byte/value slice is
-  complete in `port: shared byte and identifier utilities`.
-- **Next up:** 2f2 numeric/syntax/determinization/sparse sets; 2f3 lazy/pool
-  lifecycle; 2f4 wire/scalar search and controlled x86 comparison; 3 Thompson
-  NFA construction/search.
+- **Current focus:** phase 2f3, lazy initialization and pooled cache ownership.
+  Phase 2f2's sparse-index, Debug representation, iterator, and unsigned
+  syntax-limit specs went red then green; determinization's pinned repeated
+  conditional-union case in Hybrid and the dense builder, plus state encoding
+  boundaries, pass.
+- **Next up:** 2f3 lazy/pool lifecycle; 2f4 wire/scalar search and controlled
+  x86 comparison; 3 Thompson NFA construction/search.
 - **Status by area:** vendor fixture harness, scalar prefilter
   selection/candidate semantics, AArch64 unanchored packed Teddy, 2-500 needle
   Aho/anchored Teddy DFA, and >500-needle contiguous-NFA paths are complete.
   Phase 2e implements and verifies x86 SSSE3/slim AVX2/fat AVX2 dispatch,
   Rust's packed-plus-anchored-DFA allocation accounting, and dense/hybrid/
   PikeVM/backtracker/Meta consumption. Phase 2f1 closes alphabet/escape/UTF-8,
-  Unicode table, and primitive-ID source-file reviews. Remaining shared
-  utilities and engine matrices beyond hybrid remain open in phases 2f2-2f4
+  Unicode table, and primitive-ID source-file reviews. Phase 2f2 closes the
+  five numeric/syntax/determinization/sparse-set files. Remaining shared
+  utilities and engine matrices beyond hybrid remain open in phases 2f3-2f4
   and 3-8.
 - **Scoping notes:** The pinned two-pattern AArch64 memory oracles are 2,537
   and 1,956 bytes, and the 65-pattern DFA oracle is 5,684 bytes. Rust's
@@ -65,13 +66,13 @@
   throughput comparison against pinned Rust before any speed claim. The
   Crystal-only signature/quitset byte-class reducers now relabel byte 255's
   group last at construction; the search lookup remains one table access.
-- **Last completed feature commit:** `port: shared byte and identifier
-  utilities` (phase 2f1; this commit).
-- **Gates:** phase 2f1 focused byte/ID/escape and DFA/look specs passed, full
-  Crystal 10,326/10,326 on AArch64; pinned Rust alphabet unit tests 6/6
-  offline. The two Rust Perl-word tables are byte-identical, and all 796
-  generated ranges match Crystal regex-syntax. `make install`, format, lint,
-  parity, `git diff --check`, Crystal format-check, and no-codegen build pass.
+- **Last completed feature commit:** `port: numeric, syntax, determinization,
+  and sparse-set support` (phase 2f2; this commit).
+- **Gates:** phase 2f2 focused syntax/sparse/determinization specs passed;
+  pinned Rust determinization-state properties 5/5 and syntax doctests 4/4
+  offline. Full Crystal 10,335/10,335 on AArch64; `make install`, format,
+  lint, parity, `git diff --check`, Crystal format-check, and no-codegen build
+  pass. No throughput conclusion was drawn on this loaded host.
 
 ## Feature-loop rules
 
@@ -246,13 +247,40 @@ confirmation; no authorship was inferred or changed.
   table, so reusing its binary-search predicate avoids duplicated data and
   does not add a lookup to the look-around hot path.
 
-- [ ] **2f2. Numeric casts, syntax, determinization, and sparse-set
+- [x] **2f2. Numeric casts, syntax, determinization, and sparse-set
   support.** Finish `src/util/{int,syntax,determinize/{mod,state},sparse_set}.rs`
   as one construction-time state/limit layer. Port vendor overflow, parser
   configuration, state encoding, and storage-reuse cases before fixes; audit
   direct Crystal casts and builder behavior across dense, hybrid, and NFA
   consumers. **Gate:** each file has a tested disposition, including private
   algorithms and the necessity/cost of any structural difference.
+
+  Rust's `SparseSet::contains` indexes `sparse[id]` and panics for an
+  out-of-capacity ID; Crystal now does likewise. Both `iter` and block `each`
+  traverse the dense prefix without allocating a sliced array on the
+  determinization/PikeVM path. The Debug tuple and StateID order are tested.
+  The pinned `(?:\b|%)+` on `z%` counterexample still yields `[0,0]` then
+  `[1,1]` through Hybrid and the separate dense builder, preserving union
+  priority during conditional closure.
+  Five offline Rust state property tests, deterministic Crystal state-ID/varint
+  boundaries and byte oracles, and builder reuse cover state encoding. A
+  red-green backing-buffer capacity check corrected Hybrid's scratch-memory
+  report and removed per-ID capacity bookkeeping from the construction path.
+
+  Rust `util/int.rs` centralizes private checked/truncating casts; Crystal
+  uses checked native conversions and masks/shifts at the corresponding call
+  sites rather than a wrapper trait, with no additional search-path step.
+  Rust `Config::apply_ast`/`apply_hir` in `util/syntax.rs` map to Crystal
+  `Config#apply` in `syntax.cr` because the Crystal regex-syntax dependency
+  exposes one parser builder; all options reach its AST parser and HIR
+  translator, without search-path cost. Rust's `u32` nest limit is now stored
+  as `UInt32`; applying values above `Int32::MAX` clamps only the dependency's
+  signed parser argument, which cannot represent a realizable greater AST
+  depth, at construction time. Rust `State::borrow` maps to Crystal's
+  byte-view lookup in `determinize_state.cr`; the candidate view is not copied
+  before hashing and frozen states still copy the bytes. Rust's dense NFA
+  state transition variant is not yet present in the Crystal NFA; phase 3 owns
+  that engine-level addition, while this shared transition path is reviewed.
 
 - [ ] **2f3. Lazy initialization and pooled cache ownership.** Complete
   `src/util/{lazy,pool}.rs` as the shared cache-lifecycle feature. Port the

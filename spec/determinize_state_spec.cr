@@ -1,6 +1,22 @@
 require "./spec_helper"
 
+class Regex::Automata::Determinize::StateBuilderNFA
+  def storage_capacity_for_spec : Int32
+    @repr.remaining_capacity
+  end
+end
+
 describe Regex::Automata::Determinize::State do
+  it "round trips vendor property cases near state-ID limits and varint widths" do
+    ids = [0, 127, 128, 16_383, 16_384, Regex::Automata::StateID::MAX.as_i32, 1, 255]
+    builder = Regex::Automata::Determinize::StateBuilderEmpty.new.into_matches.into_nfa
+    ids.each { |id| builder.add_nfa_state_id(Regex::Automata::StateID.new_unchecked(id)) }
+
+    got = [] of Int32
+    builder.to_state.iter_nfa_state_ids { |sid| got << sid.as_i32 }
+    got.should eq(ids)
+  end
+
   it "round trips representative NFA state IDs" do
     builder = Regex::Automata::Determinize::StateBuilderEmpty.new
       .into_matches
@@ -78,6 +94,14 @@ describe Regex::Automata::Determinize::State do
     cleared.capacity.should be >= 9
   end
 
+  it "reports the allocated builder buffer capacity after reuse" do
+    builder = Regex::Automata::Determinize::StateBuilderEmpty.new.into_matches.into_nfa
+    builder.add_nfa_state_id(Regex::Automata::StateID.new_unchecked(1))
+    allocated = builder.storage_capacity_for_spec
+
+    builder.clear.capacity.should eq(allocated)
+  end
+
   it "tracks flags and look sets" do
     builder = Regex::Automata::Determinize::StateBuilderEmpty.new.into_matches
     builder.set_is_from_word
@@ -101,6 +125,39 @@ describe Regex::Automata::Determinize::State do
 end
 
 describe Regex::Automata::Determinize do
+  it "writes the pinned zig-zag and varu32 byte representation" do
+    bytes = [] of UInt8
+    Regex::Automata::Determinize.write_varu32(bytes, 128_u32)
+    bytes.should eq([0x80_u8, 0x01_u8])
+
+    bytes.clear
+    Regex::Automata::Determinize.write_vari32(bytes, -1)
+    bytes.should eq([0x01_u8])
+
+    bytes.clear
+    Regex::Automata::Determinize.write_vari32(bytes, Int32::MIN)
+    bytes.should eq([0xFF_u8, 0xFF_u8, 0xFF_u8, 0xFF_u8, 0x0F_u8])
+  end
+
+  it "round trips deterministic samples across vendor unsigned and signed varints" do
+    values = [0_u32, 1_u32, 127_u32, 128_u32, 16_383_u32, 16_384_u32, UInt32::MAX]
+    seed = 0_u64
+    256.times do
+      seed = (seed * 1_664_525_u64 + 1_013_904_223_u64) & 0xFFFF_FFFF_u64
+      values << seed.to_u32
+    end
+    values.each do |value|
+      bytes = [] of UInt8
+      Regex::Automata::Determinize.write_varu32(bytes, value)
+      Regex::Automata::Determinize.read_varu32(Slice.new(bytes.to_unsafe, bytes.size)).should eq({value, bytes.size})
+
+      signed = value.unsafe_as(Int32)
+      bytes.clear
+      Regex::Automata::Determinize.write_vari32(bytes, signed)
+      Regex::Automata::Determinize.read_vari32(Slice.new(bytes.to_unsafe, bytes.size)).should eq({signed, bytes.size})
+    end
+  end
+
   it "round trips representative unsigned varints" do
     [0_u32, 1_u32, 127_u32, 128_u32, 255_u32, 16_384_u32, UInt32::MAX].each do |n|
       buffer = [] of UInt8

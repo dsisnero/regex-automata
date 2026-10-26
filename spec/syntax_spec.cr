@@ -56,6 +56,12 @@ describe Regex::Automata::Syntax::Config do
     updated.get_nest_limit.should eq(7)
     updated.get_octal.should be_true
   end
+
+  it "retains Rust's u32 nesting limit even above Crystal parser's signed range" do
+    config = Regex::Automata::Syntax::Config.new.nest_limit(UInt32::MAX)
+    config.get_nest_limit.should eq(UInt32::MAX)
+    Regex::Automata::Syntax.parse_with("a", config).minimum_len.should eq(1)
+  end
 end
 
 describe Regex::Automata::Syntax do

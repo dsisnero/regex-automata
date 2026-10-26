@@ -11,6 +11,7 @@ describe Regex::Automata::SparseSet do
     set.insert(b).should be_true
     set.insert(a).should be_true
     set.insert(b).should be_false
+    set.iter.should be_a(Regex::Automata::SparseSetIter)
     set.iter.to_a.should eq([b, a])
     set.contains(a).should be_true
     set.contains(Regex::Automata::StateID.new(1)).should be_false
@@ -37,6 +38,21 @@ describe Regex::Automata::SparseSet do
 
     set.contains(old).should be_false
     set.iter.to_a.should eq([fresh])
+  end
+
+  it "rejects an out-of-capacity state ID as Rust's sparse-index lookup does" do
+    set = Regex::Automata::SparseSet.new(2)
+    outside = Regex::Automata::StateID.new(2)
+
+    expect_raises(IndexError) { set.contains(outside) }
+    expect_raises(IndexError) { set.insert(outside) }
+  end
+
+  it "formats its members as Rust's Debug tuple" do
+    set = Regex::Automata::SparseSet.new(2)
+    set.insert(Regex::Automata::StateID.new(1))
+
+    set.inspect.should eq("SparseSet([StateID(1)])")
   end
 
   it "clears and swaps paired sets" do
