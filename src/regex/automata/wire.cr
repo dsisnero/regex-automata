@@ -17,13 +17,181 @@ module Regex::Automata
       nread
     end
 
+    def self.check_alignment(slice : Bytes, alignment : Int32) : Nil
+      raise ArgumentError.new("alignment must be positive") if alignment <= 0
+      address = slice.to_unsafe.address.to_u64
+      raise DeserializeError.alignment_mismatch(alignment, address) unless address % alignment == 0
+    end
+
+    def self.alloc_aligned_buffer(size : Int32, alignment : Int32) : Tuple(Bytes, Int32)
+      raise ArgumentError.new("alignment must be a power of two at most 8") if alignment < 1 || alignment > 8 || (alignment & (alignment - 1)) != 0
+      buffer = Bytes.new(size + alignment - 1, 0_u8)
+      address = buffer.to_unsafe.address.to_u64
+      padding = ((alignment - (address % alignment)) % alignment).to_i32
+      {buffer[0, size + padding], padding}
+    end
+
+    def self.check_slice_len(slice : Slice, at_least_len : Int, what : String) : Nil
+      raise DeserializeError.buffer_too_small(what) if slice.size < at_least_len
+    end
+
+    def self.read_u16(slice : Bytes) : UInt16
+      IO::ByteFormat::SystemEndian.decode(UInt16, slice[0, 2])
+    end
+
+    def self.read_u32(slice : Bytes) : UInt32
+      IO::ByteFormat::SystemEndian.decode(UInt32, slice[0, 4])
+    end
+
+    def self.read_u128(slice : Bytes) : UInt128
+      IO::ByteFormat::SystemEndian.decode(UInt128, slice[0, 16])
+    end
+
+    def self.try_read_u16(slice : Bytes, what : String) : Tuple(UInt16, Int32)
+      check_slice_len(slice, 2, what)
+      {read_u16(slice), 2}
+    end
+
+    def self.try_read_u32(slice : Bytes, what : String) : Tuple(UInt32, Int32)
+      check_slice_len(slice, 4, what)
+      {read_u32(slice), 4}
+    end
+
+    def self.try_read_u128(slice : Bytes, what : String) : Tuple(UInt128, Int32)
+      check_slice_len(slice, 16, what)
+      {read_u128(slice), 16}
+    end
+
+    def self.try_read_u16_as_usize(slice : Bytes, what : String) : Tuple(UInt64, Int32)
+      value, read = try_read_u16(slice, what)
+      {value.to_u64, read}
+    end
+
+    def self.try_read_u32_as_usize(slice : Bytes, what : String) : Tuple(UInt64, Int32)
+      value, read = try_read_u32(slice, what)
+      {value.to_u64, read}
+    end
+
+    def self.read_endianness_check(slice : Bytes) : Int32
+      value, read = try_read_u32(slice, "endianness check")
+      raise DeserializeError.endian_mismatch(0xFEFF_u32, value) unless value == 0xFEFF_u32
+      read
+    end
+
+    def self.read_version(slice : Bytes, expected_version : UInt32) : Int32
+      value, read = try_read_u32(slice, "version")
+      raise DeserializeError.version_mismatch(expected_version, value) unless value == expected_version
+      read
+    end
+
+    def self.write_endianness_check(dst : Bytes, endianness : Symbol = :native) : Int32
+      check_write_len(dst, 4, "endianness check")
+      write_u32(0xFEFF_u32, dst, endianness)
+    end
+
+    def self.write_endianness_check_len : Int32
+      4
+    end
+
+    def self.write_version(version : UInt32, dst : Bytes, endianness : Symbol = :native) : Int32
+      check_write_len(dst, 4, "version number")
+      write_u32(version, dst, endianness)
+    end
+
+    def self.write_version_len : Int32
+      4
+    end
+
+    def self.write_pattern_id(pid : PatternID, dst : Bytes, endianness : Symbol = :native) : Int32
+      write_u32(pid.as_u32, dst, endianness)
+    end
+
+    def self.write_state_id(sid : StateID, dst : Bytes, endianness : Symbol = :native) : Int32
+      write_u32(sid.as_u32, dst, endianness)
+    end
+
+    def self.write_u16(value : UInt16, dst : Bytes, endianness : Symbol = :native) : Int32
+      case endianness
+      when :little then IO::ByteFormat::LittleEndian.encode(value, dst)
+      when :big    then IO::ByteFormat::BigEndian.encode(value, dst)
+      when :native then IO::ByteFormat::SystemEndian.encode(value, dst)
+      else              raise ArgumentError.new("unknown endianness: #{endianness}")
+      end
+      2
+    end
+
+    def self.write_u32(value : UInt32, dst : Bytes, endianness : Symbol = :native) : Int32
+      case endianness
+      when :little then IO::ByteFormat::LittleEndian.encode(value, dst)
+      when :big    then IO::ByteFormat::BigEndian.encode(value, dst)
+      when :native then IO::ByteFormat::SystemEndian.encode(value, dst)
+      else              raise ArgumentError.new("unknown endianness: #{endianness}")
+      end
+      4
+    end
+
+    def self.write_u128(value : UInt128, dst : Bytes, endianness : Symbol = :native) : Int32
+      case endianness
+      when :little then IO::ByteFormat::LittleEndian.encode(value, dst)
+      when :big    then IO::ByteFormat::BigEndian.encode(value, dst)
+      when :native then IO::ByteFormat::SystemEndian.encode(value, dst)
+      else              raise ArgumentError.new("unknown endianness: #{endianness}")
+      end
+      16
+    end
+
+    private def self.check_write_len(dst : Bytes, length : Int32, what : String) : Nil
+      raise SerializeError.buffer_too_small(what) if dst.size < length
+    end
+
+    def self.try_read_state_id(slice : Bytes, what : String) : Tuple(StateID, Int32)
+      check_slice_len(slice, StateID::SIZE, what)
+      read_state_id(slice, what)
+    end
+
+    def self.read_state_id(slice : Bytes, what : String) : Tuple(StateID, Int32)
+      value = StateID.from_ne_bytes(slice[0, StateID::SIZE])
+      raise DeserializeError.state_id_error(value, what) if value.is_a?(StateIDError)
+      {value, StateID::SIZE}
+    end
+
+    def self.read_pattern_id(slice : Bytes, what : String) : Tuple(PatternID, Int32)
+      value = PatternID.from_ne_bytes(slice[0, PatternID::SIZE])
+      raise DeserializeError.pattern_id_error(value, what) if value.is_a?(PatternIDError)
+      {value, PatternID::SIZE}
+    end
+
+    def self.read_state_id_unchecked(slice : Bytes) : Tuple(StateID, Int32)
+      {StateID.from_ne_bytes_unchecked(slice[0, StateID::SIZE]), StateID::SIZE}
+    end
+
+    def self.read_pattern_id_unchecked(slice : Bytes) : Tuple(PatternID, Int32)
+      {PatternID.from_ne_bytes_unchecked(slice[0, PatternID::SIZE]), PatternID::SIZE}
+    end
+
+    def self.add(a : UInt64, b : UInt64, what : String) : UInt64
+      raise DeserializeError.arithmetic_overflow(what) if a > UInt64::MAX - b
+      a + b
+    end
+
+    def self.mul(a : UInt64, b : UInt64, what : String) : UInt64
+      raise DeserializeError.arithmetic_overflow(what) if b != 0 && a > UInt64::MAX // b
+      a * b
+    end
+
+    def self.shl(a : UInt64, b : UInt64, what : String) : UInt64
+      raise DeserializeError.arithmetic_overflow(what) if b >= 64
+      a << b.to_i
+    end
+
     def self.read_label(slice : Bytes, expected_label : String) : Int32
       search_len = Math.min(slice.size, 256)
       first_nul = slice[0, search_len].index(0_u8)
       raise DeserializeError.generic("could not find NUL terminated label at start of serialized object") if first_nul.nil?
 
       nul_index = first_nul.not_nil!
-      total_len = nul_index + 1 + padding_len(nul_index + 1)
+      # Preserve wire.rs::read_label, including its first_nul-based padding.
+      total_len = nul_index + padding_len(nul_index)
       if slice.size < total_len
         raise DeserializeError.generic("could not find properly sized label at start of serialized object")
       end

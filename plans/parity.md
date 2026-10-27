@@ -35,11 +35,10 @@
 
 ## Where we are
 
-- **Current focus:** phase 2f4, native wire helpers and scalar-search
-  performance. Phase 2f3's vendor owner, cross-thread, and distinct-guard
-  tests plus concurrent Lazy publication went red then green; Meta now uses
-  pooled caches for direct searches and iterators.
-- **Next up:** 2f4 wire/scalar search and controlled x86 comparison; 3
+- **Current focus:** phase 2f4b, scalar-search audit and controlled performance
+  comparison. Phase 2f4a ports the shared native wire helpers and malformed
+  buffer boundaries; native dense/sparse DFA layouts remain phase 5.
+- **Next up:** 2f4b scalar search and controlled x86 comparison; 3
   Thompson NFA construction/search.
 - **Status by area:** vendor fixture harness, scalar prefilter
   selection/candidate semantics, AArch64 unanchored packed Teddy, 2-500 needle
@@ -81,12 +80,12 @@
   unavailable for the pool's lifetime. This is a lifecycle divergence, not a
   search-result divergence. No throughput claim is made on this loaded host; phase 2f4's
   controlled comparison should include pooled Meta searches.
-- **Last completed feature commit:** `port: lazy initialization and pooled
-  cache ownership` (phase 2f3; this commit).
-- **Gates:** phase 2f3 focused Crystal 30/30; pinned Rust pool 5/5 and Lazy
-  trait test 1/1 offline. Full Crystal 10,354/10,354 on AArch64; `make install`,
-  format, lint, parity, `git diff --check`, Crystal format-check, and no-codegen
-  build pass. No throughput conclusion was drawn on this loaded host.
+- **Last completed feature commit:** `port: native wire helpers` (phase 2f4a;
+  current commit).
+- **Gates:** phase 2f4a focused wire specs 9/9; pinned Rust wire unit tests
+  5/5 offline; full Crystal 10,359/10,359 on AArch64. `make install`, format,
+  lint, parity, `git diff --check`, Crystal format-check, and no-codegen build
+  pass. No throughput conclusion is drawn on this loaded host.
 
 ## Feature-loop rules
 
@@ -316,15 +315,29 @@ confirmation; no authorship was inferred or changed.
   are recorded above. Meta's impossible-input checks now precede pool checkout
   as in Rust; complete Meta strategy and capture matrices remain phase 7.
 
-- [ ] **2f4. Native wire helpers and scalar-search performance.** Finish
-  `src/util/{wire,memchr}.rs`, including checked arithmetic, alignment,
-  endian/ID wire helpers and vendor malformed-buffer cases. Audit phase 2a's
-  scalar memchr{,2,3}/memmem finders and retained needles against pinned Rust.
-  Run the controlled x86 Teddy-C-bridge A/B comparison against pinned Rust
-  only under controlled load; if unavailable, retain an explicit unmeasured
-  performance gate rather than claiming parity. **Gate:** wire/source/test
-  rows and cross-engine behavior are reconciled, and structural hot-path
-  differences have measured or clearly deferred cost evidence.
+- [x] **2f4a. Native wire helpers.** Finish `src/util/wire.rs` separately from
+  the independent scalar-search performance feature. Port its five unit tests
+  and malformed-buffer boundaries for labels, checked arithmetic, alignment,
+  endian/version fields, integer and ID reads, and LE/BE writers. The Rust
+  reader's unusual `first_nul + padding_len(first_nul)` consumed length is
+  preserved, with a red-green regression at the four-byte label boundary.
+  Crystal stores typed IDs directly instead of Rust's zero-copy u32-to-ID
+  casts, so no extra search-path conversion is introduced. Crystal aligned
+  allocation reserves at most seven extra bytes and is off the search path.
+  Native dense/sparse DFA byte layouts and their malformed-input suites remain
+  phase 5. **Gate:** source-file review and nearest Rust tests are reconciled;
+  focused and full Crystal gates pass.
+
+- [ ] **2f4b. Scalar-search audit and controlled performance.** Finish
+  `src/util/memchr.rs` and audit phase 2a's scalar memchr{,2,3}/memmem finders
+  and retained needles against pinned Rust. Port adversarial bounded/binary
+  candidate tests before any finder changes, and exercise dense/hybrid/PikeVM/
+  backtracker/Meta consumers. Run the controlled x86 Teddy-C-bridge A/B
+  comparison against pinned Rust only under controlled load; if unavailable,
+  retain an explicit unmeasured performance gate rather than claiming parity.
+  **Gate:** scalar source/test rows and cross-engine behavior are reconciled,
+  and structural hot-path differences have measured or clearly deferred cost
+  evidence.
 
 - [ ] **3. Thompson construction and NFA search engines.** Finish
   `src/nfa/thompson/{nfa,builder,compiler,literal_trie,range_trie,map,error,
