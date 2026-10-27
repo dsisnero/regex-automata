@@ -109,8 +109,17 @@ module Regex::Automata
         return aho.prefix(haystack, span).try(&.[1])
       end
       if byte_set = @byte_set
-        return nil if span.start >= span.end
+        return nil if span.start >= haystack.size
         return Span.new(span.start, span.start + 1) if byte_set[haystack[span.start]] != 0
+        return nil
+      end
+
+      # The pinned Memchr{,2,3}::prefix methods inspect the byte at start,
+      # even when the span itself is empty. Their find methods still use the
+      # bounded slice and return no candidate for an empty span.
+      if @needles.size <= 3 && @needles.all? { |needle| needle.size == 1 }
+        return nil if span.start >= haystack.size
+        return Span.new(span.start, span.start + 1) if @needles.any? { |needle| needle[0] == haystack[span.start] }
         return nil
       end
 
@@ -220,16 +229,17 @@ module Regex::Automata
     end
 
     # This is the Crystal equivalent of Rust's memchr/memchr2/memchr3 choice.
-    # Searching each of at most three bytes with the runtime's indexed lookup
-    # avoids repeatedly comparing all needles at every haystack offset.
+    # Slice#index uses libc memchr for bytes. Bound the slice first, as Rust's
+    # memchr wrapper does, so a short span never scans the rest of the input.
     private def find_byte_needles(haystack : Bytes, span : Span) : Span?
       best_span = nil.as(Span?)
       best_index = Int32::MAX
+      window = haystack[span.start, span.length]
       @needles.each_with_index do |needle, index|
-        found = haystack.index(needle[0], span.start)
-        next unless found && found < span.end
+        found = window.index(needle[0])
+        next unless found
 
-        candidate = Span.new(found, found + 1)
+        candidate = Span.new(span.start + found, span.start + found + 1)
         if better_match?(candidate, index.to_i32, best_span, best_index)
           best_span = candidate
           best_index = index.to_i32
@@ -247,18 +257,18 @@ module Regex::Automata
     end
 
     private def find_needle(haystack : Bytes, needle : Bytes, span : Span) : Int32?
+      window = haystack[span.start, span.length]
+      return nil if needle.size > window.size
       if needle.size == 1
-        found = haystack.index(needle[0], span.start)
-        return found if found && found < span.end
-        return nil
+        return window.index(needle[0]).try { |found| span.start + found }
       end
 
-      limit = span.end - needle.size
-      at = span.start
+      limit = window.size - needle.size
+      at = 0
       while at <= limit
-        found = haystack.index(needle[0], at)
+        found = window.index(needle[0], at)
         return nil unless found && found <= limit
-        return found if starts_with?(haystack, found, needle)
+        return span.start + found if starts_with?(window, found, needle)
 
         at = found + 1
       end

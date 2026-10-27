@@ -1,6 +1,36 @@
 require "./spec_helper"
 
 describe "DFA accelerators" do
+  # Pinned dfa/accel.rs::{find_fwd,find_rev} delegates to util/memchr.rs.
+  # Rust's &haystack[at..] / &haystack[..at] panic for out-of-range offsets.
+  it "ports bounded forward/reverse byte searches and offset panics" do
+    haystack = Bytes[0_u8, 255_u8, 98_u8, 97_u8, 255_u8, 0_u8]
+    {Bytes[255_u8], Bytes[97_u8, 255_u8], Bytes[97_u8, 98_u8, 255_u8]}.each do |needles|
+      Regex::Automata.find_fwd(needles, haystack, 2).should eq({4, 3, 2}[needles.size - 1])
+      Regex::Automata.find_rev(needles, haystack, 4).should eq(needles.size == 1 ? 1 : 3)
+      Regex::Automata.find_fwd(needles, haystack, haystack.size).should be_nil
+      Regex::Automata.find_rev(needles, haystack, 0).should be_nil
+      expect_raises(IndexError) { Regex::Automata.find_fwd(needles, haystack, haystack.size + 1) }
+      expect_raises(IndexError) { Regex::Automata.find_rev(needles, haystack, haystack.size + 1) }
+    end
+  end
+
+  it "keeps Rust's invalid needle-count panic ahead of offset slicing" do
+    haystack = Bytes[97_u8]
+    expect_raises(Exception, /cannot find with empty needles/) do
+      Regex::Automata.find_fwd(Bytes.empty, haystack, 2)
+    end
+    expect_raises(Exception, /cannot find with empty needles/) do
+      Regex::Automata.find_rev(Bytes.empty, haystack, 2)
+    end
+    expect_raises(Exception, /invalid needles length: 4/) do
+      Regex::Automata.find_fwd(Bytes[1_u8, 2_u8, 3_u8, 4_u8], haystack, 2)
+    end
+    expect_raises(Exception, /invalid needles length: 4/) do
+      Regex::Automata.find_rev(Bytes[1_u8, 2_u8, 3_u8, 4_u8], haystack, 2)
+    end
+  end
+
   it "builds individual accelerators and searches for their bytes" do
     accel = Regex::Automata::Accel.empty
     accel.empty?.should be_true

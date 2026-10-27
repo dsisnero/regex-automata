@@ -19,6 +19,9 @@ module Regex::Automata
   # search at the given position. If `needles` has a length other than 1-3,
   # then this panics.
   def self.find_fwd(needles : Slice(UInt8), haystack : Slice(UInt8), at : Int32) : Int32?
+    raise "cannot find with empty needles" if needles.empty?
+    raise "invalid needles length: #{needles.size}" if needles.size > 3
+    raise IndexError.new if at < 0 || at > haystack.size
     bs = needles
     case needles.size
     when 1
@@ -40,10 +43,6 @@ module Regex::Automata
         return i if byte == bs[0] || byte == bs[1] || byte == bs[2]
       end
       nil
-    when 0
-      raise "cannot find with empty needles"
-    else
-      raise "invalid needles length: #{needles.size}"
     end
   end
 
@@ -51,6 +50,9 @@ module Regex::Automata
   # starting the search at the given position. If `needles` has a length other
   # than 1-3, then this panics.
   def self.find_rev(needles : Slice(UInt8), haystack : Slice(UInt8), at : Int32) : Int32?
+    raise "cannot find with empty needles" if needles.empty?
+    raise "invalid needles length: #{needles.size}" if needles.size > 3
+    raise IndexError.new if at < 0 || at > haystack.size
     bs = needles
     case needles.size
     when 1
@@ -71,10 +73,6 @@ module Regex::Automata
         return i if byte == bs[0] || byte == bs[1] || byte == bs[2]
       end
       nil
-    when 0
-      raise "cannot find with empty needles"
-    else
-      raise "invalid needles length: #{needles.size}"
     end
   end
 

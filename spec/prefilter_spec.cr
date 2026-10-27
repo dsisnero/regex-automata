@@ -1,6 +1,55 @@
 require "./spec_helper"
 
 describe Regex::Automata::Prefilter do
+  # regex-automata 0.4.18 util/prefilter/memchr.rs::{Memchr,Memchr2,Memchr3}
+  # and memmem.rs::Memmem source-characterization cases. Those modules have
+  # no direct upstream unit tests; the pinned find/prefix bodies are the oracle.
+  it "keeps scalar candidates inside binary spans and preserves needle order" do
+    kind = Regex::Automata::MatchKind::LeftmostFirst
+    haystack = Bytes[0_u8, 255_u8, 98_u8, 97_u8, 98_u8, 97_u8, 98_u8, 0_u8]
+    {
+      {[Bytes[255_u8]], "memchr", Regex::Automata::Span.new(1, 2)},
+      {[Bytes[97_u8], Bytes[255_u8]], "memchr2", Regex::Automata::Span.new(1, 2)},
+      {[Bytes[97_u8], Bytes[98_u8], Bytes[255_u8]], "memchr3", Regex::Automata::Span.new(1, 2)},
+      {[Bytes[97_u8, 98_u8, 97_u8, 98_u8]], "memmem", Regex::Automata::Span.new(3, 7)},
+    }.each do |needles, name, expected|
+      pre = Regex::Automata::Prefilter.new(kind, needles).not_nil!
+      pre.strategy_name.should eq(name)
+      pre.find(haystack, Regex::Automata::Span.new(1, 7)).should eq(expected)
+      pre.find(haystack, Regex::Automata::Span.new(2, 3)).should eq(
+        name == "memchr3" ? Regex::Automata::Span.new(2, 3) : nil
+      )
+    end
+  end
+
+  it "follows Rust byte-prefix behavior at an empty but in-bounds span" do
+    kind = Regex::Automata::MatchKind::All
+    haystack = Bytes[65_u8, 66_u8, 67_u8]
+    {[Bytes[65_u8]], [Bytes[65_u8], Bytes[66_u8]], [Bytes[65_u8], Bytes[66_u8], Bytes[67_u8]]}.each do |needles|
+      pre = Regex::Automata::Prefilter.new(kind, needles).not_nil!
+      pre.prefix(haystack, Regex::Automata::Span.new(0, 0)).should eq(Regex::Automata::Span.new(0, 1))
+      pre.find(haystack, Regex::Automata::Span.new(0, 0)).should be_nil
+    end
+    Regex::Automata::Prefilter.new(kind, [Bytes[65_u8, 66_u8]]).not_nil!
+      .prefix(haystack, Regex::Automata::Span.new(0, 0)).should be_nil
+    # util/prefilter/byteset.rs::ByteSet::prefix has the same get(start) rule.
+    byteset = Regex::Automata::Prefilter.new(kind, (0..64).map { |n| Bytes[n.to_u8 + 65_u8] }).not_nil!
+    byteset.strategy_name.should eq("byteset")
+    byteset.prefix(haystack, Regex::Automata::Span.new(0, 0)).should eq(Regex::Automata::Span.new(0, 1))
+  end
+
+  it "keeps memmem's overlapping first-byte probes inside the input span" do
+    pre = Regex::Automata::Prefilter.new(
+      Regex::Automata::MatchKind::LeftmostFirst,
+      [Bytes[97_u8, 98_u8, 97_u8, 98_u8, 97_u8, 99_u8]]
+    ).not_nil!
+    pre.strategy_name.should eq("memmem")
+    haystack = "ababababac".to_slice
+    pre.find(haystack, Regex::Automata::Span.new(0, 9)).should be_nil
+    pre.find(haystack, Regex::Automata::Span.new(0, 10)).should eq(Regex::Automata::Span.new(4, 10))
+    pre.find(haystack, Regex::Automata::Span.new(5, 10)).should be_nil
+  end
+
   # aho-corasick 1.1.4 src/tests.rs: leftmost300/310/340/350/360,
   # leftfirst000/020/100/110/300/330/400 and aleftfirst020/400.
   # Inert suffixes force regex-automata's >64-literal
