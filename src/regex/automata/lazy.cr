@@ -1,14 +1,18 @@
 module Regex::Automata
+  # A reference wrapper permits atomic publication of any T, including Nil.
+  class CacheValue(T)
+    property value : T
+
+    def initialize(@value : T)
+    end
+  end
+
   class Lazy(T)
     @create : Proc(T)
-    @mutex : Mutex
-    @value : T?
-    @initialized : Bool
+    @data : Atomic(CacheValue(T)?)
 
     def initialize(&@create : -> T)
-      @mutex = Mutex.new
-      @value = nil
-      @initialized = false
+      @data = Atomic(CacheValue(T)?).new(nil)
     end
 
     def self.get(this : Lazy(T)) : T forall T
@@ -16,16 +20,15 @@ module Regex::Automata
     end
 
     def get : T
-      return @value.not_nil! if @initialized
-
-      @mutex.synchronize do
-        unless @initialized
-          @value = @create.call
-          @initialized = true
-        end
+      if data = @data.get(:acquire)
+        return data.value
       end
 
-      @value.not_nil!
+      # Rust's alloc implementation allows concurrent factories. A losing
+      # value is discarded; only the winning reference is ever published.
+      created = CacheValue(T).new(@create.call)
+      old, won = @data.compare_and_set(nil, created, :acquire_release, :acquire)
+      (won ? created : old.not_nil!).value
     end
   end
 end

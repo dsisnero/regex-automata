@@ -122,7 +122,7 @@ src/util/alphabet.rs::test::full_byte_classes	ported	spec/byte_classes_spec.cr	P
 src/util/alphabet.rs::test::representatives	ported	spec/byte_classes_spec.cr	Ports representative iteration, including bounds and EOI.
 src/util/interpolate.rs::test::interpolate_string	ported	spec/interpolate_spec.cr	Ports named, numbered, malformed, escaped, and Unicode string interpolation.
 src/util/lazy.rs::test::oibits	intentional_divergence	src/regex/automata/lazy.cr	Rust-only Send/Sync/UnwindSafe compile-time trait assertion; Crystal has no equivalent trait system.
-src/util/lazy.rs::test::sync_not_send	intentional_divergence	src/regex/automata/lazy.cr	Rust-only Sync-not-Send trait assertion; Crystal concurrency ownership is not expressed through these traits.
+src/util/lazy.rs::test::sync_not_send	skipped	vendor/regex/regex-automata/src/util/lazy.rs	This Rust compile-fail example is inside a block comment and does not run in the pinned vendor suite.
 src/util/look.rs::test::look_matches_end_line	ported	spec/look_spec.cr	Ports end-line assertions.
 src/util/look.rs::test::look_matches_end_text	ported	spec/look_spec.cr	Ports end-text assertions.
 src/util/look.rs::test::look_matches_start_line	ported	spec/look_spec.cr	Ports start-line assertions.
@@ -144,9 +144,9 @@ src/util/look.rs::test::look_set_debug	ported	spec/look_spec.cr	Ports look-set d
 src/util/look.rs::test::look_set_iter	ported	spec/look_spec.cr	Ports look-set iteration order.
 src/util/pool.rs::test::oibits	intentional_divergence	src/regex/automata/pool.cr	Rust-only Send/Sync/UnwindSafe compile-time trait assertion; Crystal has no equivalent trait system.
 src/util/pool.rs::test::thread_owner_distinct	ported	spec/pool_spec.cr	Ports the observable distinct-guard invariant for simultaneous gets.
-src/util/pool.rs::test::thread_owner_optimization	partial	src/regex/automata/pool.cr	Vendor behavior is not yet proven equivalent; retain this case for the wire/pool phase. Crystal uses one mutex-protected bounded stack rather than Rust's thread-owner optimization; observable pooling semantics are covered.
-src/util/pool.rs::test::thread_owner_send_drop	intentional_divergence	src/regex/automata/pool.cr	Rust-only cross-thread owner/drop optimization; Crystal's guard has explicit put semantics and a mutex-backed pool.
-src/util/pool.rs::test::thread_owner_sync	intentional_divergence	src/regex/automata/pool.cr	Rust-only thread-owner synchronization implementation detail; Crystal's mutex provides the applicable synchronization contract.
+src/util/pool.rs::test::thread_owner_optimization	ported	spec/pool_spec.cr	Pinned owner cache remains untouched by other threads; Meta search consumers reuse the owner cache.
+src/util/pool.rs::test::thread_owner_send_drop	ported	spec/pool_spec.cr	Guard moved to another OS thread and explicitly put there restores its original owner identity; Rust Drop maps to Crystal scope/close.
+src/util/pool.rs::test::thread_owner_sync	ported	spec/pool_spec.cr	Two guards mutate distinct values on separate OS threads and return the original owner value.
 src/util/search.rs::test::incorrect_asref_guard	intentional_divergence	src/regex/automata/search.cr	Rust-only AsRef misuse guard; Crystal APIs use concrete String/Bytes/Input overloads.
 src/util/search.rs::test::match_error_kind_size	intentional_divergence	src/regex/automata/search.cr	Rust-only enum memory-layout assertion; Crystal object layout is not a behavioral contract.
 src/util/search.rs::test::match_error_size	intentional_divergence	src/regex/automata/search.cr	Rust-only error representation size assertion; Crystal object layout is not a behavioral contract.

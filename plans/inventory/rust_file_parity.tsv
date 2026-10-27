@@ -51,11 +51,11 @@ src/util/escape.rs	2	reviewed	src/regex/automata/escape.cr;spec/escape_spec.cr;s
 src/util/int.rs	21	reviewed	src/regex/automata/types.cr;src/regex/automata/determinize_state.cr;spec/determinize_state_spec.cr	Rust-private cast traits are call-site operations in Crystal: checked conversions are native, truncation is preceded by explicit masks/shifts, and zig-zag bit reinterpretation is tested at limits. No extra hot-path cast wrapper is needed.
 src/util/interpolate.rs	2	pending	-	API-item ledger exists; file-level private-function review remains.
 src/util/iter.rs	27	pending	-	API-item ledger exists; file-level private-function review remains.
-src/util/lazy.rs	10	pending	-	API-item ledger exists; file-level private-function review remains.
+src/util/lazy.rs	10	reviewed	src/regex/automata/lazy.cr;spec/lazy_spec.cr	Reviewed alloc AtomicPtr acquire/CAS publication, duplicate factories, nil result, and factory exception retry. Crystal uses Atomic(CacheValue(T)?) for GC-safe reference publication; no-alloc spin/poison branch is inapplicable.
 src/util/look.rs	64	pending	-	API-item ledger exists; file-level private-function review remains.
 src/util/memchr.rs	0	pending	src/regex/automata/prefilter.cr	No API-item row; file-level algorithm/namespace review is required.
 src/util/mod.rs	0	pending	src/regex-automata.cr	No API-item row; file-level algorithm/namespace review is required.
-src/util/pool.rs	25	pending	-	API-item ledger exists; file-level private-function review remains.
+src/util/pool.rs	25	reviewed	src/regex/automata/pool.cr;src/regex/automata/meta.cr;spec/pool_spec.cr	Reviewed std owner fast path, sharded one-try pop/ten-try push, transient discard, cross-thread owner restoration, Meta cache consumers, and alloc-only branch. Crystal atomic try-lock words sit in padded per-shard objects; exact repr(align(64)) is unavailable. Rust RAII Drop maps to scoped #with/iterator #close; raw abandoned guards cannot be returned deterministically.
 src/util/prefilter/aho_corasick.rs	6	partial	src/regex/automata/prefilter.cr;src/regex/automata/aho_dfa.cr;spec/prefilter_spec.cr;spec/hybrid_source_audit_spec.cr	Pinned 2-500-needle DFA selection and anchored/unanchored leftmost-first behavior ported through hybrid consumer; >500 contiguous NFA and exact memory remain phases 2d-2e.
 src/util/prefilter/byteset.rs	6	pending	-	API-item ledger exists; file-level private-function review remains.
 src/util/prefilter/memchr.rs	18	pending	-	API-item ledger exists; file-level private-function review remains.

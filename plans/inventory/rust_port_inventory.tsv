@@ -776,9 +776,9 @@ src/meta/regex.rs::method::Builder.syntax	method	missing	-	auto-generated
 src/meta/regex.rs::method::Cache.memory_usage	method	ported	src/regex/automata/meta.cr:Cache#memory_usage;spec/meta_memory_ownership_spec.cr	Sums each retained wrapper cache once as UInt64; ReverseAnchored aliases Core reverse, ReverseInner owns one extra reverse cache.
 src/meta/regex.rs::method::Cache.new	method	ported	src/regex/automata/meta.cr:Cache#initialize;spec/meta_regex_spec.cr	Creates reusable PikeVM scratch for the owning meta regex.
 src/meta/regex.rs::method::Cache.reset	method	ported	src/regex/automata/meta.cr:Cache#reset;spec/meta_regex_spec.cr	Resets reusable scratch and permits subsequent searches.
-src/meta/regex.rs::method::CapturesMatches<'r, 'h>.count	method	ported	src/regex/automata/meta.cr:CapturesMatches#count;spec/meta_regex_spec.cr	Consumes the iterator and returns its match count.
+src/meta/regex.rs::method::CapturesMatches<'r, 'h>.count	method	ported	src/regex/automata/meta.cr:CapturesMatches#count;spec/meta_regex_spec.cr;spec/pool_spec.cr	Consumes the iterator, returns its match count, and releases its pool guard.
 src/meta/regex.rs::method::CapturesMatches<'r, 'h>.input	method	ported	src/regex/automata/meta.cr:CapturesMatches#input;spec/meta_regex_spec.cr	Exposes the iterator's current owned Input state.
-src/meta/regex.rs::method::CapturesMatches<'r, 'h>.next	method	ported	src/regex/automata/meta.cr:CapturesMatches#next;spec/meta_regex_spec.cr	Yields independent capture snapshots while advancing the shared Input.
+src/meta/regex.rs::method::CapturesMatches<'r, 'h>.next	method	ported	src/regex/automata/meta.cr:CapturesMatches#next;spec/meta_regex_spec.cr;spec/pool_spec.cr	Yields independent capture snapshots while advancing the shared Input and closes on exhaustion.
 src/meta/regex.rs::method::CapturesMatches<'r, 'h>.regex	method	ported	src/regex/automata/meta.cr:CapturesMatches#regex;spec/meta_regex_spec.cr	Exposes the originating regex.
 src/meta/regex.rs::method::Config.auto_prefilter	method	ported	src/regex/automata/meta.cr:Config#auto_prefilter;spec/meta_regex_spec.cr	Explicit automatic-prefilter control is preserved.
 src/meta/regex.rs::method::Config.backtrack	method	ported	src/regex/automata/meta.cr:Config#backtrack;spec/meta_regex_spec.cr	Explicit engine availability control is preserved.
@@ -812,45 +812,45 @@ src/meta/regex.rs::method::Config.nfa_size_limit	method	ported	src/regex/automat
 src/meta/regex.rs::method::Config.onepass	method	missing	-	auto-generated
 src/meta/regex.rs::method::Config.onepass_size_limit	method	ported	src/regex/automata/meta.cr:Config#onepass_size_limit;spec/meta_regex_spec.cr	Tracks explicit nil separately from an unset default.
 src/meta/regex.rs::method::Config.overwrite	method	ported	src/regex/automata/meta.cr:Config#overwrite;spec/meta_regex_spec.cr	Explicit limit disabling wins during configuration overwrite.
-src/meta/regex.rs::method::Config.pool_capacity	method	missing	-	auto-generated
+src/meta/regex.rs::method::Config.pool_capacity	method	ported	src/regex/automata/meta.cr:Config#pool_capacity;spec/pool_spec.cr	Configures sharded pool count, not cache retention; zero is coerced to one as in Rust.
 src/meta/regex.rs::method::Config.prefilter	method	missing	-	auto-generated
 src/meta/regex.rs::method::Config.to_thompson_config	method	missing	-	auto-generated
 src/meta/regex.rs::method::Config.utf8_empty	method	missing	-	auto-generated
 src/meta/regex.rs::method::Config.which_captures	method	missing	-	auto-generated
-src/meta/regex.rs::method::FindMatches<'r, 'h>.count	method	ported	src/regex/automata/meta.cr:FindMatches#count;spec/meta_regex_spec.cr	Consumes the iterator and returns its match count.
+src/meta/regex.rs::method::FindMatches<'r, 'h>.count	method	ported	src/regex/automata/meta.cr:FindMatches#count;spec/meta_regex_spec.cr;spec/pool_spec.cr	Consumes the iterator, returns its match count, and releases its pool guard.
 src/meta/regex.rs::method::FindMatches<'r, 'h>.input	method	ported	src/regex/automata/meta.cr:FindMatches#input;spec/meta_regex_spec.cr	Exposes the iterator's current owned Input state.
-src/meta/regex.rs::method::FindMatches<'r, 'h>.next	method	ported	src/regex/automata/meta.cr:FindMatches#next;spec/meta_regex_spec.cr	Yields non-overlapping matches while advancing the shared Input.
+src/meta/regex.rs::method::FindMatches<'r, 'h>.next	method	ported	src/regex/automata/meta.cr:FindMatches#next;spec/meta_regex_spec.cr;spec/pool_spec.cr	Yields non-overlapping matches, closes on exhaustion, and supports explicit early close.
 src/meta/regex.rs::method::FindMatches<'r, 'h>.regex	method	ported	src/regex/automata/meta.cr:FindMatches#regex;spec/meta_regex_spec.cr	Exposes the originating regex.
 src/meta/regex.rs::method::Regex.builder	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.captures	method	missing	-	auto-generated
-src/meta/regex.rs::method::Regex.captures_iter	method	ported	src/regex/automata/meta.cr:Regex#captures_iter;spec/meta_regex_spec.cr	Creates capture iterators with mutable input state and zero-argument count.
+src/meta/regex.rs::method::Regex.captures_iter	method	ported	src/regex/automata/meta.cr:Regex#captures_iter;spec/meta_regex_spec.cr;spec/pool_spec.cr	Creates capture iterators that hold a pooled guard across steps and return it at exhaustion or close.
 src/meta/regex.rs::method::Regex.captures_len	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.clone	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.config	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.create_cache	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.create_captures	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.find	method	missing	-	auto-generated
-src/meta/regex.rs::method::Regex.find_iter	method	ported	src/regex/automata/meta.cr:Regex#find_iter;spec/meta_regex_spec.cr	Creates non-overlapping match iterators with mutable input state and zero-argument count.
+src/meta/regex.rs::method::Regex.find_iter	method	ported	src/regex/automata/meta.cr:Regex#find_iter;spec/meta_regex_spec.cr;spec/pool_spec.cr	Creates non-overlapping match iterators that hold a pooled guard across steps and return it at exhaustion or close.
 src/meta/regex.rs::method::Regex.get_config	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.group_info	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.is_accelerated	method	partial	src/regex/automata/meta.cr:Regex#is_accelerated;spec/meta_regex_spec.cr;spec/meta_strategy_selection_spec.cr	Direct literal and core-prefilter acceleration signals match pinned Rust probes; reverse strategy and complete Core wrapper selection remain to audit.
-src/meta/regex.rs::method::Regex.is_match	method	missing	-	auto-generated
+src/meta/regex.rs::method::Regex.is_match	method	partial	src/regex/automata/meta.cr:Regex#is_match;spec/pool_spec.cr	Phase 2f3 ports pool checkout/reuse and impossible-input bypass; full strategy and match-mode matrix remains phase 7.
 src/meta/regex.rs::method::Regex.memory_usage	method	ported	src/regex/automata/meta.cr:Regex#memory_usage;spec/meta_memory_ownership_spec.cr	Reports the selected strategy's Rust ownership formula as UInt64: Pre, Core, ReverseAnchored, ReverseSuffix, or ReverseInner.
 src/meta/regex.rs::method::Regex.new	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.new_many	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.pattern_len	method	missing	-	auto-generated
-src/meta/regex.rs::method::Regex.search	method	missing	-	auto-generated
-src/meta/regex.rs::method::Regex.search_captures	method	missing	-	auto-generated
+src/meta/regex.rs::method::Regex.search	method	partial	src/regex/automata/meta.cr:Regex#search;spec/pool_spec.cr	Phase 2f3 ports pooled checkout/release and impossible-input bypass; full strategy matrix remains phase 7.
+src/meta/regex.rs::method::Regex.search_captures	method	partial	src/regex/automata/meta.cr:Regex#search_captures;spec/pool_spec.cr	Phase 2f3 ports pooled checkout/release and impossible-input capture clear; full capture matrix remains phase 7.
 src/meta/regex.rs::method::Regex.search_captures_with	method	missing	-	auto-generated
-src/meta/regex.rs::method::Regex.search_half	method	missing	-	auto-generated
+src/meta/regex.rs::method::Regex.search_half	method	partial	src/regex/automata/meta.cr:Regex#search_half;spec/pool_spec.cr	Phase 2f3 ports pooled checkout/release and impossible-input bypass; full strategy matrix remains phase 7.
 src/meta/regex.rs::method::Regex.search_half_with	method	missing	-	auto-generated
-src/meta/regex.rs::method::Regex.search_slots	method	missing	-	auto-generated
+src/meta/regex.rs::method::Regex.search_slots	method	partial	src/regex/automata/meta.cr:Regex#search_slots;spec/pool_spec.cr	Phase 2f3 ports pooled checkout/release and impossible-input bypass for both slot types; full slot matrix remains phase 7.
 src/meta/regex.rs::method::Regex.search_slots_with	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.search_with	method	missing	-	auto-generated
 src/meta/regex.rs::method::Regex.split	method	ported	src/regex/automata/meta.cr:Regex#split;spec/meta_regex_spec.cr	Yields spans between non-overlapping matches.
 src/meta/regex.rs::method::Regex.splitn	method	ported	src/regex/automata/meta.cr:Regex#splitn;spec/meta_regex_spec.cr	Honors zero, one, and bounded split limits.
 src/meta/regex.rs::method::Regex.static_captures_len	method	missing	-	auto-generated
-src/meta/regex.rs::method::Regex.which_overlapping_matches	method	missing	-	auto-generated
+src/meta/regex.rs::method::Regex.which_overlapping_matches	method	partial	src/regex/automata/meta.cr:Regex#which_overlapping_matches;spec/pool_spec.cr	Phase 2f3 ports pooled checkout/release and impossible-input bypass; full overlapping matrix remains phase 7.
 src/meta/regex.rs::method::Regex.which_overlapping_matches_with	method	missing	-	auto-generated
 src/meta/regex.rs::method::RegexInfo.captures_disabled	method	missing	-	auto-generated
 src/meta/regex.rs::method::RegexInfo.config	method	missing	-	auto-generated
@@ -1596,16 +1596,16 @@ src/util/iter.rs::method::TryMatchesIter<'h, F>.fmt	method	intentional_divergenc
 src/util/iter.rs::method::TryMatchesIter<'h, F>.infallible	method	ported	src/regex/automata/search.cr:TryMatchesIter#infallible;spec/searcher_spec.cr	covered
 src/util/iter.rs::method::TryMatchesIter<'h, F>.input	method	ported	src/regex/automata/search.cr:TryMatchesIter#input;spec/searcher_spec.cr	covered
 src/util/iter.rs::method::TryMatchesIter<'h, F>.next	method	ported	src/regex/automata/search.cr:TryMatchesIter#next;spec/searcher_spec.cr	covered
-src/util/lazy.rs::const::LAZY_STATE_BUSY	const	intentional_divergence	src/regex/automata/lazy.cr	Crystal Mutex supplies synchronization without exposing Rust state constants.
-src/util/lazy.rs::const::LAZY_STATE_DONE	const	intentional_divergence	src/regex/automata/lazy.cr	Crystal Mutex supplies synchronization without exposing Rust state constants.
-src/util/lazy.rs::const::LAZY_STATE_INIT	const	intentional_divergence	src/regex/automata/lazy.cr	Crystal Mutex supplies synchronization without exposing Rust state constants.
-src/util/lazy.rs::method::Guard<'a>.drop	method	intentional_divergence	src/regex/automata/lazy.cr	Rust no-alloc panic guard is unnecessary for Crystal's mutex implementation.
+src/util/lazy.rs::const::LAZY_STATE_BUSY	const	intentional_divergence	src/regex/automata/lazy.cr	Rust no-alloc spin-lock state; Crystal always has allocation and ports the alloc AtomicPtr path.
+src/util/lazy.rs::const::LAZY_STATE_DONE	const	intentional_divergence	src/regex/automata/lazy.cr	Rust no-alloc spin-lock state; Crystal always has allocation and ports the alloc AtomicPtr path.
+src/util/lazy.rs::const::LAZY_STATE_INIT	const	intentional_divergence	src/regex/automata/lazy.cr	Rust no-alloc spin-lock state; Crystal always has allocation and ports the alloc AtomicPtr path.
+src/util/lazy.rs::method::Guard<'a>.drop	method	intentional_divergence	src/regex/automata/lazy.cr	Rust no-alloc spin-lock panic guard is inapplicable to Crystal's alloc-backed atomic publication; a raising factory leaves Lazy retryable.
 src/util/lazy.rs::method::Lazy<T, F>.deref	method	intentional_divergence	src/regex/automata/lazy.cr	Crystal has no Rust Deref trait; callers use #get.
 src/util/lazy.rs::method::Lazy<T, F>.drop	method	intentional_divergence	src/regex/automata/lazy.cr	Crystal GC owns initialized values.
 src/util/lazy.rs::method::Lazy<T, F>.fmt	method	intentional_divergence	src/regex/automata/lazy.cr	Rust Debug representation has no Crystal public equivalent.
-src/util/lazy.rs::method::Lazy<T, F>.get	method	ported	src/regex/automata/lazy.cr:Lazy#get;spec/lazy_spec.cr	Cached value and class getter are covered.
-src/util/lazy.rs::method::Lazy<T, F>.new	method	ported	src/regex/automata/lazy.cr:Lazy#initialize;spec/lazy_spec.cr	Deferred construction is covered.
-src/util/lazy.rs::method::Lazy<T, F>.poll	method	intentional_divergence	src/regex/automata/lazy.cr	Private atomic poll is replaced by synchronized initialization.
+src/util/lazy.rs::method::Lazy<T, F>.get	method	ported	src/regex/automata/lazy.cr:Lazy#get;spec/lazy_spec.cr	Alloc-path acquire load and compare-and-set publish one winner; concurrent losing factories, nil value, and exception retry covered.
+src/util/lazy.rs::method::Lazy<T, F>.new	method	ported	src/regex/automata/lazy.cr:Lazy#initialize;spec/lazy_spec.cr	Deferred atomic-reference construction is covered.
+src/util/lazy.rs::method::Lazy<T, F>.poll	method	ported	src/regex/automata/lazy.cr:Lazy#get;spec/lazy_spec.cr	Acquire load returns published value without factory or mutex.
 src/util/look.rs::method::Look.as_char	method	ported	src/regex/automata/look.cr:Look#as_char;spec/look_spec.cr	Debug glyph mapping is covered.
 src/util/look.rs::method::Look.as_repr	method	ported	src/regex/automata/look.cr:Look#as_repr;spec/look_spec.cr	Stable bit representation is covered.
 src/util/look.rs::method::Look.from_repr	method	ported	src/regex/automata/look.cr:Look.from_repr;spec/look_spec.cr	Wire representation decoding is covered.
@@ -1670,31 +1670,31 @@ src/util/look.rs::method::LookSetIter.next	method	ported	src/regex/automata/look
 src/util/look.rs::method::UnicodeWordBoundaryError.check	method	ported	src/regex/automata/look.cr:UnicodeWordBoundaryError.check;spec/look_spec.cr	Crystal ships Unicode word data.
 src/util/look.rs::method::UnicodeWordBoundaryError.fmt	method	ported	src/regex/automata/look.cr:UnicodeWordBoundaryError#initialize	Error text is preserved.
 src/util/look.rs::method::UnicodeWordBoundaryError.new	method	ported	src/regex/automata/look.cr:UnicodeWordBoundaryError#initialize	Constructor is represented.
-src/util/pool.rs::const::MAX_POOL_STACKS	const	intentional_divergence	src/regex/automata/pool.cr	Crystal uses one mutex-protected stack instead of Rust cache-line stacks.
-src/util/pool.rs::method::Mutex<T>.lock	method	ported	src/regex/automata/pool.cr:Pool#get	Crystal Mutex synchronization protects pool access.
-src/util/pool.rs::method::Mutex<T>.new	method	ported	src/regex/automata/pool.cr:Pool#initialize	Crystal Mutex initialization is used.
-src/util/pool.rs::method::MutexGuard<'a, T>.deref	method	intentional_divergence	src/regex/automata/pool.cr	Crystal Mutex blocks do not expose a guard type.
-src/util/pool.rs::method::MutexGuard<'a, T>.deref_mut	method	intentional_divergence	src/regex/automata/pool.cr	Crystal Mutex blocks do not expose a guard type.
-src/util/pool.rs::method::MutexGuard<'a, T>.drop	method	intentional_divergence	src/regex/automata/pool.cr	Crystal Mutex block scopes release locks.
+src/util/pool.rs::const::MAX_POOL_STACKS	const	ported	src/regex/automata/pool.cr:Pool::MAX_POOL_STACKS;spec/pool_spec.cr	Default eight sharded stacks match Rust std pool.
+src/util/pool.rs::method::Mutex<T>.lock	method	intentional_divergence	src/regex/automata/pool.cr	Rust alloc-only no-std spin mutex is inapplicable to Crystal's always-threaded runtime; std path uses nonblocking atomic try-lock.
+src/util/pool.rs::method::Mutex<T>.new	method	intentional_divergence	src/regex/automata/pool.cr	Rust alloc-only no-std spin mutex is inapplicable to Crystal's always-threaded runtime.
+src/util/pool.rs::method::MutexGuard<'a, T>.deref	method	intentional_divergence	src/regex/automata/pool.cr	Rust alloc-only no-std spin-mutex guard is inapplicable; Crystal ports the std sharded path with nonblocking atomic try-lock.
+src/util/pool.rs::method::MutexGuard<'a, T>.deref_mut	method	intentional_divergence	src/regex/automata/pool.cr	Rust alloc-only no-std spin-mutex guard is inapplicable; Crystal ports the std sharded path with nonblocking atomic try-lock.
+src/util/pool.rs::method::MutexGuard<'a, T>.drop	method	intentional_divergence	src/regex/automata/pool.cr	Rust alloc-only no-std spin-mutex guard is inapplicable; Crystal ensures unlock after every successful try-lock.
 src/util/pool.rs::method::Pool<T, F>.fmt	method	intentional_divergence	src/regex/automata/pool.cr	Rust Debug formatting has no Crystal public equivalent.
 src/util/pool.rs::method::Pool<T, F>.get	method	ported	src/regex/automata/pool.cr:Pool#get;spec/pool_spec.cr	Creation, exclusive checkout, and reuse are covered.
-src/util/pool.rs::method::Pool<T, F>.get_slow	method	intentional_divergence	src/regex/automata/pool.cr	Rust cache-line optimization is absent; behavior is preserved.
-src/util/pool.rs::method::Pool<T, F>.guard_owned	method	intentional_divergence	src/regex/automata/pool.cr	Rust internal ownership helper has no Crystal counterpart.
-src/util/pool.rs::method::Pool<T, F>.guard_stack	method	intentional_divergence	src/regex/automata/pool.cr	Rust cache-line stack selection has no Crystal counterpart.
-src/util/pool.rs::method::Pool<T, F>.guard_stack_transient	method	intentional_divergence	src/regex/automata/pool.cr	Rust transient-stack optimization has no Crystal counterpart.
+src/util/pool.rs::method::Pool<T, F>.get_slow	method	ported	src/regex/automata/pool.cr:Pool#get_slow;spec/pool_spec.cr	Unowned CAS, one try-lock pop, factory outside lock, and transient-on-contention paths follow Rust std pool.
+src/util/pool.rs::method::Pool<T, F>.guard_owned	method	ported	src/regex/automata/pool.cr:PoolGuard.owned;spec/pool_spec.cr	Owner guard holds original thread identity for cross-thread return.
+src/util/pool.rs::method::Pool<T, F>.guard_stack	method	ported	src/regex/automata/pool.cr:PoolGuard.stack;spec/pool_spec.cr	Reusable sharded-stack guard follows Rust std path.
+src/util/pool.rs::method::Pool<T, F>.guard_stack_transient	method	ported	src/regex/automata/pool.cr:PoolGuard.stack;spec/pool_spec.cr	Contended pop creates a transient guard that discards on return.
 src/util/pool.rs::method::Pool<T, F>.new	method	ported	src/regex/automata/pool.cr:Pool#initialize;spec/pool_spec.cr	Deferred value creation is covered.
 src/util/pool.rs::method::Pool<T, F>.put	method	ported	src/regex/automata/pool.cr:PoolGuard#put;spec/pool_spec.cr	Explicit pool return is covered.
-src/util/pool.rs::method::Pool<T, F>.put_value	method	ported	src/regex/automata/pool.cr:Pool#put_value;spec/pool_spec.cr	Configured retention capacity is covered.
-src/util/pool.rs::method::Pool<T, F>.with_available_parallelism_capacity	method	intentional_divergence	src/regex/automata/pool.cr	Crystal runtime parallelism heuristic is not used.
-src/util/pool.rs::method::Pool<T, F>.with_capacity	method	ported	src/regex/automata/pool.cr:Pool.with_capacity;spec/pool_spec.cr	Retention-capacity behavior is covered.
+src/util/pool.rs::method::Pool<T, F>.put_value	method	ported	src/regex/automata/pool.cr:Pool#put_value;spec/pool_spec.cr	Ten nonblocking try-lock pushes and unlimited stack retention follow Rust std path.
+src/util/pool.rs::method::Pool<T, F>.with_available_parallelism_capacity	method	ported	src/regex/automata/pool.cr:Pool.with_available_parallelism_capacity;spec/pool_spec.cr	Caches Crystal System.cpu_count in alloc-backed Lazy as Rust does for available parallelism, then coerces the shard count to at least one.
+src/util/pool.rs::method::Pool<T, F>.with_capacity	method	ported	src/regex/automata/pool.cr:Pool.with_capacity;spec/pool_spec.cr	Capacity selects shards rather than retained-value limit; zero coerces to one.
 src/util/pool.rs::method::PoolGuard<'a, T, F>.deref	method	intentional_divergence	src/regex/automata/pool.cr	Crystal callers use #value instead of Rust Deref.
 src/util/pool.rs::method::PoolGuard<'a, T, F>.deref_mut	method	intentional_divergence	src/regex/automata/pool.cr	Crystal mutable objects are accessed through #value.
-src/util/pool.rs::method::PoolGuard<'a, T, F>.drop	method	intentional_divergence	src/regex/automata/pool.cr	Crystal GC has no deterministic Rust RAII drop; callers explicitly #put.
+src/util/pool.rs::method::PoolGuard<'a, T, F>.drop	method	intentional_divergence	src/regex/automata/pool.cr:Pool#with;src/regex/automata/meta.cr;spec/pool_spec.cr	Crystal GC has no deterministic Rust RAII drop. Scoped #with uses ensure, Meta direct searches scope checkout, iterators close on exhaustion/each or explicit #close; abandoning a raw guard/iterator requires explicit close and may retain a cache. Owner get remains mutex-free.
 src/util/pool.rs::method::PoolGuard<'a, T, F>.fmt	method	intentional_divergence	src/regex/automata/pool.cr	Rust Debug formatting has no Crystal public equivalent.
 src/util/pool.rs::method::PoolGuard<'a, T, F>.put	method	ported	src/regex/automata/pool.cr:PoolGuard#put;spec/pool_spec.cr	Explicit and class helper return are covered.
-src/util/pool.rs::method::PoolGuard<'a, T, F>.put_imp	method	ported	src/regex/automata/pool.cr:PoolGuard#put	One-time return guard is implemented.
+src/util/pool.rs::method::PoolGuard<'a, T, F>.put_imp	method	ported	src/regex/automata/pool.cr:PoolGuard#put;spec/pool_spec.cr	Atomic one-time return prevents a Crystal-shared guard from being put twice, including cross-thread calls.
 src/util/pool.rs::method::PoolGuard<'a, T, F>.value	method	ported	src/regex/automata/pool.cr:PoolGuard#value;spec/pool_spec.cr	Checked-out values are covered.
-src/util/pool.rs::method::PoolGuard<'a, T, F>.value_mut	method	partial	src/regex/automata/pool.cr:PoolGuard#value	Mutable reference semantics map to Crystal mutable object references.
+src/util/pool.rs::method::PoolGuard<'a, T, F>.value_mut	method	ported	src/regex/automata/pool.cr:PoolGuard#value=;spec/pool_spec.cr	Crystal mutable references use #value; scalar replacement uses #value= on the same checked-out cache cell.
 src/util/prefilter/aho_corasick.rs::method::AhoCorasick.find	method	ported	src/regex/automata/aho_dfa.cr:AhoDfa#find;src/regex/automata/aho_contiguous_nfa.cr:AhoContiguousNfa#find;spec/prefilter_spec.cr	Pinned DFA and contiguous-NFA selections cover 2-500 and >500 needles; upstream leftmost cases, binary bounds, and dense/hybrid/NFA/Meta consumers pass.
 src/util/prefilter/aho_corasick.rs::method::AhoCorasick.is_fast	method	ported	src/regex/automata/prefilter.cr:Prefilter#is_fast;spec/prefilter_spec.cr	Aho choice reports false as Rust does.
 src/util/prefilter/aho_corasick.rs::method::AhoCorasick.memory_usage	method	ported	src/regex/automata/aho_dfa.cr:AhoDfa#memory_usage;src/regex/automata/aho_contiguous_nfa.cr:AhoContiguousNfa#memory_usage;spec/prefilter_spec.cr	Counts pinned DFA state table, match metadata, IDs and pattern lengths; 65-pattern DFA 5,684-byte and 501-pattern contiguous NFA 2,772-byte Rust oracles pass.

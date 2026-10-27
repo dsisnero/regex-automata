@@ -210,9 +210,8 @@ module Regex::Automata::Meta
       copy(line_terminator: byte)
     end
 
-    # Sets the number of reusable cache slots used by pool-aware consumers.
-    # This port's Meta API exposes explicit caches, so it is primarily for
-    # callers that construct `Pool(Cache)` themselves.
+    # Sets the number of cache-pool shards, as in Rust. This is not a cap on
+    # retained caches; each shard may hold multiple values.
     def pool_capacity(capacity : Int32) : Config
       copy(pool_capacity: capacity)
     end
@@ -1138,6 +1137,18 @@ module Regex::Automata::Meta
   end
 
   class Regex
+    private class CachePoolFactory
+      property regex : Regex?
+
+      def initialize
+        @regex = nil
+      end
+
+      def call : Cache
+        Cache.new(@regex.not_nil!)
+      end
+    end
+
     getter reverse_anchored_hybrid : ::Regex::Automata::Hybrid::DFA?
     getter reverse_inner_hybrid : ::Regex::Automata::Hybrid::DFA?
     getter reverse_inner_forward_hybrid : ::Regex::Automata::Hybrid::DFA?
@@ -1167,6 +1178,7 @@ module Regex::Automata::Meta
     @reverse_inner_forward_hybrid : ::Regex::Automata::Hybrid::DFA?
     @always_anchored_start : Bool
     @always_anchored_end : Bool
+    @pool : ::Regex::Automata::Pool(Cache)
 
     def initialize(
       @config : Config,
@@ -1199,6 +1211,9 @@ module Regex::Automata::Meta
       @static_captures_len = props_union.static_explicit_captures_len.try { |len| len + 1 }
       @always_anchored_start = props_union.look_set_prefix.contains(::Regex::Syntax::Hir::Look::Kind::StartText)
       @always_anchored_end = props_union.look_set_suffix.contains(::Regex::Syntax::Hir::Look::Kind::EndText)
+      factory = CachePoolFactory.new
+      @pool = ::Regex::Automata::Pool(Cache).with_capacity(@config.get_pool_capacity) { factory.call }
+      factory.regex = self
     end
 
     def self.new(pattern : String) : Regex
@@ -1297,33 +1312,36 @@ module Regex::Automata::Meta
     end
 
     def search(input : ::Regex::Automata::Input) : ::Regex::Automata::Match?
-      cache = create_cache
-      search_with(cache, input)
+      return nil if impossible_input?(input)
+      @pool.with { |cache| search_with(cache, input) }
     end
 
     def search_half(input : ::Regex::Automata::Input) : ::Regex::Automata::HalfMatch?
-      cache = create_cache
-      search_half_with(cache, input)
+      return nil if impossible_input?(input)
+      @pool.with { |cache| search_half_with(cache, input) }
     end
 
     def search_captures(input : ::Regex::Automata::Input, caps : ::Regex::Automata::Captures) : Nil
-      cache = create_cache
-      search_captures_with(cache, input, caps)
+      if impossible_input?(input)
+        caps.clear
+        return
+      end
+      @pool.with { |cache| search_captures_with(cache, input, caps) }
     end
 
     def search_slots(input : ::Regex::Automata::Input, slots : Array(::Regex::Automata::NonMaxUsize?)) : ::Regex::Automata::PatternID?
-      cache = create_cache
-      search_slots_with(cache, input, slots)
+      return nil if impossible_input?(input)
+      @pool.with { |cache| search_slots_with(cache, input, slots) }
     end
 
     def search_slots(input : ::Regex::Automata::Input, slots : Array(Int32?)) : ::Regex::Automata::PatternID?
-      cache = create_cache
-      search_slots_with(cache, input, slots)
+      return nil if impossible_input?(input)
+      @pool.with { |cache| search_slots_with(cache, input, slots) }
     end
 
     def which_overlapping_matches(input : ::Regex::Automata::Input, patset : ::Regex::Automata::PatternSet) : Nil
-      cache = create_cache
-      which_overlapping_matches_with(cache, input, patset)
+      return if impossible_input?(input)
+      @pool.with { |cache| which_overlapping_matches_with(cache, input, patset) }
     end
 
     def search_with(cache : Cache, input : ::Regex::Automata::Input) : ::Regex::Automata::Match?
@@ -1658,7 +1676,8 @@ module Regex::Automata::Meta
     def is_match(haystack : String | Bytes | ::Regex::Automata::Input) : Bool
       input = normalize_input(haystack)
       input.earliest(true)
-      is_match_with(create_cache, input)
+      return false if impossible_input?(input)
+      @pool.with { |cache| is_match_with(cache, input) }
     end
 
     def is_match_with(cache : Cache, input : ::Regex::Automata::Input) : Bool
@@ -1688,11 +1707,11 @@ module Regex::Automata::Meta
     end
 
     def find_iter(haystack : String | Bytes | ::Regex::Automata::Input) : FindMatches
-      FindMatches.new(self, create_cache, ::Regex::Automata::Searcher.new(normalize_input(haystack)))
+      FindMatches.new(self, @pool.get, ::Regex::Automata::Searcher.new(normalize_input(haystack)))
     end
 
     def captures_iter(haystack : String | Bytes | ::Regex::Automata::Input) : CapturesMatches
-      CapturesMatches.new(self, create_cache, create_captures, ::Regex::Automata::Searcher.new(normalize_input(haystack)))
+      CapturesMatches.new(self, @pool.get, create_captures, ::Regex::Automata::Searcher.new(normalize_input(haystack)))
     end
 
     def split(haystack : String | Bytes | ::Regex::Automata::Input) : Split
@@ -2217,7 +2236,8 @@ module Regex::Automata::Meta
 
     getter regex : Regex
 
-    def initialize(@regex : Regex, @cache : Cache, @it : ::Regex::Automata::Searcher)
+    def initialize(@regex : Regex, @guard : ::Regex::Automata::PoolGuard(Cache), @it : ::Regex::Automata::Searcher)
+      @closed = false
     end
 
     def input : ::Regex::Automata::Input
@@ -2225,7 +2245,19 @@ module Regex::Automata::Meta
     end
 
     def next : ::Regex::Automata::Match?
-      @it.advance { |input| @regex.search_with(@cache, input) }
+      return nil if @closed
+      result = @it.advance { |input| @regex.search_with(@guard.value, input) }
+      close unless result
+      result
+    rescue ex
+      close
+      raise ex
+    end
+
+    def close : Nil
+      return if @closed
+      @closed = true
+      @guard.put
     end
 
     def count : Int32
@@ -2234,12 +2266,16 @@ module Regex::Automata::Meta
         total += 1
       end
       total
+    ensure
+      close
     end
 
     def each(&block : ::Regex::Automata::Match ->) : Nil
       while match = self.next
         yield match
       end
+    ensure
+      close
     end
   end
 
@@ -2248,7 +2284,8 @@ module Regex::Automata::Meta
 
     getter regex : Regex
 
-    def initialize(@regex : Regex, @cache : Cache, @caps : ::Regex::Automata::Captures, @it : ::Regex::Automata::Searcher)
+    def initialize(@regex : Regex, @guard : ::Regex::Automata::PoolGuard(Cache), @caps : ::Regex::Automata::Captures, @it : ::Regex::Automata::Searcher)
+      @closed = false
     end
 
     def input : ::Regex::Automata::Input
@@ -2256,13 +2293,26 @@ module Regex::Automata::Meta
     end
 
     def next : ::Regex::Automata::Captures?
-      @it.advance do |input|
-        @regex.search_captures_with(@cache, input, @caps)
+      return nil if @closed
+      match = @it.advance do |input|
+        @regex.search_captures_with(@guard.value, input, @caps)
         @caps.get_match
       end
-      return nil unless @caps.is_match
+      unless match
+        close
+        return nil
+      end
 
       @caps.clone
+    rescue ex
+      close
+      raise ex
+    end
+
+    def close : Nil
+      return if @closed
+      @closed = true
+      @guard.put
     end
 
     def count : Int32
@@ -2271,12 +2321,16 @@ module Regex::Automata::Meta
         total += 1
       end
       total
+    ensure
+      close
     end
 
     def each(&block : ::Regex::Automata::Captures ->) : Nil
       while caps = self.next
         yield caps
       end
+    ensure
+      close
     end
   end
 
@@ -2304,6 +2358,10 @@ module Regex::Automata::Meta
       @done = true
       ::Regex::Automata::Span.new(@last_end, @input.end)
     end
+
+    def close : Nil
+      @matches.close
+    end
   end
 
   class SplitN
@@ -2314,6 +2372,7 @@ module Regex::Automata::Meta
       @split = Split.new(@regex, @input)
       @done = limit <= 0
       @last_end = @input.start
+      @split.close if @done
     end
 
     def input : ::Regex::Automata::Input
@@ -2324,6 +2383,7 @@ module Regex::Automata::Meta
       return stop if @done
       if @remaining == 1
         @done = true
+        @split.close
         return ::Regex::Automata::Span.new(@last_end, @input.end)
       end
 
@@ -2334,6 +2394,10 @@ module Regex::Automata::Meta
       @last_end = @split.last_end
       @remaining -= 1 if @remaining > 0
       typed
+    end
+
+    def close : Nil
+      @split.close
     end
   end
 end

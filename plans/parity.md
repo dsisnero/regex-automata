@@ -6,10 +6,10 @@
   `72d650cb0a880a01ab6dc2137c0888e8f89740f7` (regex-automata 0.4.18).
   Do not substitute remembered Rust behavior or a newer upstream revision.
 - Working source ledger: [rust_port_inventory.tsv](inventory/rust_port_inventory.tsv)
-  (1,936 Rust API items: 1,281 `ported`, 369 `missing`, 100 `partial`, 181
+  (1,936 Rust API items: 1,288 `ported`, 362 `missing`, 105 `partial`, 176
   `intentional_divergence`, 5 `skipped`). Test ledger:
-  [rust_test_parity.tsv](inventory/rust_test_parity.tsv) (220 rows: 151
-  `ported`, 57 `partial`, 12 `intentional_divergence`). These are **review
+  [rust_test_parity.tsv](inventory/rust_test_parity.tsv) (220 rows: 154
+  `ported`, 56 `partial`, 9 `intentional_divergence`, 1 `skipped`). These are **review
   queues**, not a count of absent behaviors or a completion percentage. The
   generated manifests are item inventories, so a file-level pass is also
   required for private algorithms without discovered rows.
@@ -28,19 +28,19 @@
   history's 1,203 figure was incorrect; suite expansions and engine-specific
   exclusions must be counted separately.
 - Ten test rows that had labeled Crystal's dense/sparse wire layout or pooled
-  mutex as an `intentional_divergence` are now `partial`. Native vendor wire
-  tests and the pool hot-path cost have not been proven unnecessary; phases 2
-  and 5 own those decisions.
+  mutex as an `intentional_divergence` were returned to `partial` in phase 1.
+  Phase 2f3 now ports the pool owner/sharding path; its measured throughput
+  remains unproven on this loaded host. Native vendor wire cases and the
+  controlled comparison remain phase 2f4 work.
 
 ## Where we are
 
-- **Current focus:** phase 2f3, lazy initialization and pooled cache ownership.
-  Phase 2f2's sparse-index, Debug representation, iterator, and unsigned
-  syntax-limit specs went red then green; determinization's pinned repeated
-  conditional-union case in Hybrid and the dense builder, plus state encoding
-  boundaries, pass.
-- **Next up:** 2f3 lazy/pool lifecycle; 2f4 wire/scalar search and controlled
-  x86 comparison; 3 Thompson NFA construction/search.
+- **Current focus:** phase 2f4, native wire helpers and scalar-search
+  performance. Phase 2f3's vendor owner, cross-thread, and distinct-guard
+  tests plus concurrent Lazy publication went red then green; Meta now uses
+  pooled caches for direct searches and iterators.
+- **Next up:** 2f4 wire/scalar search and controlled x86 comparison; 3
+  Thompson NFA construction/search.
 - **Status by area:** vendor fixture harness, scalar prefilter
   selection/candidate semantics, AArch64 unanchored packed Teddy, 2-500 needle
   Aho/anchored Teddy DFA, and >500-needle contiguous-NFA paths are complete.
@@ -49,7 +49,7 @@
   PikeVM/backtracker/Meta consumption. Phase 2f1 closes alphabet/escape/UTF-8,
   Unicode table, and primitive-ID source-file reviews. Phase 2f2 closes the
   five numeric/syntax/determinization/sparse-set files. Remaining shared
-  utilities and engine matrices beyond hybrid remain open in phases 2f3-2f4
+  utilities and engine matrices beyond hybrid remain open in phase 2f4
   and 3-8.
 - **Scoping notes:** The pinned two-pattern AArch64 memory oracles are 2,537
   and 1,956 bytes, and the 65-pattern DFA oracle is 5,684 bytes. Rust's
@@ -66,13 +66,27 @@
   throughput comparison against pinned Rust before any speed claim. The
   Crystal-only signature/quitset byte-class reducers now relabel byte 255's
   group last at construction; the search lookup remains one table access.
-- **Last completed feature commit:** `port: numeric, syntax, determinization,
-  and sparse-set support` (phase 2f2; this commit).
-- **Gates:** phase 2f2 focused syntax/sparse/determinization specs passed;
-  pinned Rust determinization-state properties 5/5 and syntax doctests 4/4
-  offline. Full Crystal 10,335/10,335 on AArch64; `make install`, format,
-  lint, parity, `git diff --check`, Crystal format-check, and no-codegen build
-  pass. No throughput conclusion was drawn on this loaded host.
+- **Pool/lazy divergence and cost:** Rust `src/util/lazy.rs` alloc path maps
+  to Crystal `src/regex/automata/lazy.cr` with one acquire load and CAS
+  publication; Crystal's GC-safe wrapper allocates only on a factory run.
+  Rust `src/util/pool.rs` owner/sharded path maps to Crystal
+  `src/regex/automata/pool.cr`: Meta's owner `Pool#with` path performs thread
+  identity lookup plus atomic load/store, without a mutex or guard allocation;
+  misses use one atomic try-lock for pop and at most ten for return. Padded
+  shard objects isolate lock words because Crystal cannot express Rust's
+  `repr(align(64))` exactly. Crystal GC cannot deterministically invoke
+  `PoolGuard::drop`: direct Meta searches use `ensure`, iterators return caches
+  on exhaustion/`each` or explicit `#close`, and raw guards require `#put`.
+  Abandoning a raw guard/iterator without closing can leave its owner cache
+  unavailable for the pool's lifetime. This is a lifecycle divergence, not a
+  search-result divergence. No throughput claim is made on this loaded host; phase 2f4's
+  controlled comparison should include pooled Meta searches.
+- **Last completed feature commit:** `port: lazy initialization and pooled
+  cache ownership` (phase 2f3; this commit).
+- **Gates:** phase 2f3 focused Crystal 30/30; pinned Rust pool 5/5 and Lazy
+  trait test 1/1 offline. Full Crystal 10,354/10,354 on AArch64; `make install`,
+  format, lint, parity, `git diff --check`, Crystal format-check, and no-codegen
+  build pass. No throughput conclusion was drawn on this loaded host.
 
 ## Feature-loop rules
 
@@ -282,13 +296,25 @@ confirmation; no authorship was inferred or changed.
   state transition variant is not yet present in the Crystal NFA; phase 3 owns
   that engine-level addition, while this shared transition path is reviewed.
 
-- [ ] **2f3. Lazy initialization and pooled cache ownership.** Complete
+- [x] **2f3. Lazy initialization and pooled cache ownership.** Complete
   `src/util/{lazy,pool}.rs` as the shared cache-lifecycle feature. Port the
   vendor owner/distinct-guard/cross-thread cases first, check automatic
   release and panic/exception behavior, and preserve Rust's low-contention
   fast path wherever Crystal permits it. **Gate:** reuse and concurrency
   behavior are proven through consumers; any mutex/ownership divergence has
   observable-equivalence and hot-path evidence.
+
+  The alloc-backed Lazy uses atomic publication and permits competing
+  factories; nil results and a raising factory are covered. Pool capacity is
+  a shard count, not a cache-retention cap. Vendor `thread_owner_optimization`,
+  `thread_owner_distinct`, `thread_owner_sync`, and `thread_owner_send_drop`
+  cases are ported; deterministic contention specs cover transient discards
+  and failed returns. Meta direct searches reuse owner cache without a guard
+  allocation; iterators hold a guard across steps and release at exhaustion,
+  scoped enumeration, or explicit close. Rust's deterministic `Drop` for
+  abandoned objects has no Crystal equivalent; the scoped API and limitation
+  are recorded above. Meta's impossible-input checks now precede pool checkout
+  as in Rust; complete Meta strategy and capture matrices remain phase 7.
 
 - [ ] **2f4. Native wire helpers and scalar-search performance.** Finish
   `src/util/{wire,memchr}.rs`, including checked arithmetic, alignment,
