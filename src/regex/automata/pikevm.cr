@@ -8,7 +8,6 @@ module Regex::Automata::NFA
     class Config
       @match_kind : Regex::Automata::MatchKind?
       @prefilter : Regex::Automata::Prefilter?
-      @utf8_empty : Bool?
 
       def initialize
       end
@@ -27,11 +26,6 @@ module Regex::Automata::NFA
         self
       end
 
-      def utf8_empty(yes : Bool) : Config
-        @utf8_empty = yes
-        self
-      end
-
       def get_match_kind : Regex::Automata::MatchKind
         @match_kind || Regex::Automata::MatchKind::LeftmostFirst
       end
@@ -40,15 +34,10 @@ module Regex::Automata::NFA
         @prefilter
       end
 
-      def get_utf8_empty : Bool
-        @utf8_empty.nil? ? true : @utf8_empty.not_nil!
-      end
-
       def overwrite(other : Config) : Config
         merged = Config.new
         merged.match_kind(other.@match_kind || @match_kind || Regex::Automata::MatchKind::LeftmostFirst)
         merged.prefilter(other.@prefilter.nil? ? @prefilter : other.@prefilter)
-        merged.utf8_empty(other.@utf8_empty.nil? ? get_utf8_empty : other.@utf8_empty.not_nil!)
         merged
       end
     end
@@ -365,7 +354,7 @@ module Regex::Automata::NFA
     def is_match(cache : Cache, haystack : String | Bytes | Regex::Automata::Input) : Bool
       input = normalize_input(haystack)
       input.earliest(true)
-      !find(cache, input).nil?
+      !search_slots(cache, input, [] of Int32?).nil?
     end
 
     def find(cache : Cache, haystack : String | Bytes | Regex::Automata::Input) : Regex::Automata::Match?
@@ -447,7 +436,8 @@ module Regex::Automata::NFA
 
     private def search_slots_internal(cache : Cache, original_input : Regex::Automata::Input, requested_slot_len : Int32) : Tuple(Regex::Automata::PatternID?, Array(Int32?)?)
       input = original_input.clone
-      slot_len = Math.max(requested_slot_len, @nfa.group_info.implicit_slot_len)
+      min_slot_len = @nfa.has_empty && @nfa.is_utf8 ? @nfa.group_info.implicit_slot_len : 0
+      slot_len = Math.max(requested_slot_len, min_slot_len)
 
       loop do
         hm, matched_slots = search_imp(cache, input, slot_len)
@@ -579,6 +569,10 @@ module Regex::Automata::NFA
           if next_id = state.matches(input.haystack, at)
             add_epsilon_closure(stack, nxt, input, at + 1, next_id, curr.slot_table.for_state(id))
           end
+        when Dense
+          if next_id = state.matches(input.haystack, at)
+            add_epsilon_closure(stack, nxt, input, at + 1, next_id, curr.slot_table.for_state(id))
+          end
         end
       end
 
@@ -603,6 +597,10 @@ module Regex::Automata::NFA
           if next_id = state.matches(input.haystack, at)
             add_epsilon_closure(stack, nxt, input, at + 1, next_id, curr.slot_table.for_state(id))
           end
+        when Dense
+          if next_id = state.matches(input.haystack, at)
+            add_epsilon_closure(stack, nxt, input, at + 1, next_id, curr.slot_table.for_state(id))
+          end
         end
       end
     end
@@ -622,7 +620,7 @@ module Regex::Automata::NFA
         loop do
           break unless active.mark_seen(current_sid)
           case state = @nfa.state(current_sid)
-          when Fail, Match, ByteRange, Sparse
+          when Fail, Match, ByteRange, Sparse, Dense
             active.add(current_sid, slots)
             break
           when Empty
@@ -701,7 +699,7 @@ module Regex::Automata::NFA
     end
 
     private def should_skip_empty_utf8_match?(input : Regex::Automata::Input, hm : Regex::Automata::HalfMatch, slots : Array(Int32?)) : Bool
-      return false unless @config.get_utf8_empty && @nfa.has_empty && @nfa.is_utf8
+      return false unless @nfa.has_empty && @nfa.is_utf8
 
       slot_index = hm.pattern.to_i * 2
       start = slots[slot_index]?

@@ -126,7 +126,7 @@ module Regex::Automata::NFA
   end
 
   # Different types of NFA states
-  alias State = ByteRange | Sparse | Look | Union | BinaryUnion | Capture | Match | Fail | Empty
+  alias State = ByteRange | Sparse | Dense | Look | Union | BinaryUnion | Capture | Match | Fail | Empty
 
   # Single byte range transition
   struct ByteRange
@@ -159,6 +159,44 @@ module Regex::Automata::NFA
       return nil if at < 0 || at >= haystack.size
 
       matches_byte(haystack[at])
+    end
+
+    def is_epsilon : Bool
+      false
+    end
+  end
+
+  # Pinned Rust retains this representation and its search branches, but does
+  # not currently convert compiler-generated sparse states to dense states.
+  struct Dense
+    getter transitions : Array(StateID)
+
+    def initialize(@transitions : Array(StateID))
+    end
+
+    def matches_byte(byte : UInt8) : StateID?
+      target = @transitions[byte.to_i]
+      target == StateID::ZERO ? nil : target
+    end
+
+    def matches_unit(unit : Regex::Automata::Unit) : StateID?
+      unit.as_u8.try { |byte| matches_byte(byte) }
+    end
+
+    def matches(haystack : Bytes, at : Int32) : StateID?
+      return nil if at < 0 || at >= haystack.size
+
+      matches_byte(haystack[at])
+    end
+
+    def iter : Array(Transition)
+      result = [] of Transition
+      @transitions.each_with_index do |target, byte|
+        next if target == StateID::ZERO
+
+        result << Transition.new(byte.to_u8, byte.to_u8, target)
+      end
+      result
     end
 
     def is_epsilon : Bool
@@ -2189,7 +2227,7 @@ module Regex::Automata::NFA
         when Match
           # Vendor determinization treats match states as terminal in epsilon
           # closure. Delayed match metadata is handled by the DFA builder.
-        when Fail, ByteRange, Sparse
+        when Fail, ByteRange, Sparse, Dense
           # No epsilon transitions
         end
       end
@@ -2295,7 +2333,7 @@ module Regex::Automata::NFA
         when Match
           # Vendor determinization treats match states as terminal in epsilon
           # closure. Delayed match metadata is handled by the DFA builder.
-        when Fail, ByteRange, Sparse
+        when Fail, ByteRange, Sparse, Dense
           # No epsilon transitions
         end
       end
@@ -2377,7 +2415,7 @@ module Regex::Automata::NFA
           stack << state.next if look_kind_satisfied
         when Capture
           stack << state.next
-        when Match, Fail, ByteRange, Sparse
+        when Match, Fail, ByteRange, Sparse, Dense
         end
       end
 
@@ -2396,6 +2434,10 @@ module Regex::Automata::NFA
         state.transitions.each do |trans|
           result.add(trans.next) if trans.matches?(byte)
         end
+      when Dense
+        if next_id = state.matches_byte(byte)
+          result.add(next_id)
+        end
       end
 
       result
@@ -2411,6 +2453,8 @@ module Regex::Automata::NFA
         0
       when Sparse
         (state.transitions.size * sizeof(Transition)).to_i32
+      when Dense
+        (256 * sizeof(StateID)).to_i32
       when Union
         (state.alternates.size * sizeof(StateID)).to_i32
       else
@@ -2428,6 +2472,8 @@ module Regex::Automata::NFA
           state.transitions.each do |trans|
             set.set_range(trans.start, trans.end)
           end
+        when Dense
+          state.iter.each { |trans| set.set_range(trans.start, trans.end) }
         when Look
           look_from_kind(state.kind).iter.each do |look|
             @look_matcher.add_to_byteset(look, set)
@@ -2491,7 +2537,7 @@ module Regex::Automata::NFA
           stack << state.next
         when Match
           stack << state.next.not_nil! if state.next
-        when ByteRange, Sparse, Fail
+        when ByteRange, Sparse, Dense, Fail
         end
       end
 

@@ -425,7 +425,6 @@ module Regex::Automata::Meta
       pike_config = ::Regex::Automata::NFA::PikeVM::Config.new
         .match_kind(@config.get_match_kind)
         .prefilter(core_prefilter)
-        .utf8_empty(@config.get_utf8_empty)
       pikevm = ::Regex::Automata::NFA::PikeVM::Builder.new
         .configure(pike_config)
         .build_from_nfa(nfa)

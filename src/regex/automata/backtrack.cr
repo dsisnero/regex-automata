@@ -497,6 +497,12 @@ module Regex::Automata::NFA
             return nil unless next_id
             sid = next_id
             at += 1
+          when Dense
+            return nil if at >= input.end
+            next_id = state.matches(input.haystack, at)
+            return nil unless next_id
+            sid = next_id
+            at += 1
           when Look
             return nil unless look_matches?(state.kind, input.haystack, at)
             sid = state.next

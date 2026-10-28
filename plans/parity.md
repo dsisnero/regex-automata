@@ -6,7 +6,7 @@
   `72d650cb0a880a01ab6dc2137c0888e8f89740f7` (regex-automata 0.4.18).
   Do not substitute remembered Rust behavior or a newer upstream revision.
 - Working source ledger: [rust_port_inventory.tsv](inventory/rust_port_inventory.tsv)
-  (1,936 Rust API items: 1,290 `ported`, 362 `missing`, 103 `partial`, 176
+  (1,936 Rust API items: 1,300 `ported`, 358 `missing`, 97 `partial`, 176
   `intentional_divergence`, 5 `skipped`). Test ledger:
   [rust_test_parity.tsv](inventory/rust_test_parity.tsv) (220 rows: 159
   `ported`, 51 `partial`, 9 `intentional_divergence`, 1 `skipped`). These are **review
@@ -35,14 +35,14 @@
 
 ## Where we are
 
-- **Current focus:** phase 3c, Thompson NFA construction and representation.
-  The original phase 3 is separated into engine-sized 3a/3b and
-  Thompson construction 3c so each closes with its own upstream evidence.
+- **Current focus:** phase 3c2, Thompson NFA/builder/error contracts. Vendor
+  review split the former 3c into representation/engine consumption (3c1),
+  NFA/builder/error contracts (3c2), and compiler/trie/map algorithms (3c3).
+  This keeps all seven source files and their private paths in explicit gates.
   Phase 2f4b closes scalar finder result/error boundaries and source-file review;
   its algorithmic throughput gaps remain explicit phase 8 work.
-- **Next up:** 3c Thompson construction and the Dense-state branches in
-  PikeVM/backtracker; 4 dense DFA construction,
-  execution, and transforms.
+- **Next up:** 3c2 NFA/builder/error contracts; 3c3 compiler/trie/map
+  algorithms; 4 dense DFA construction, execution, and transforms.
 - **Status by area:** vendor fixture harness, scalar prefilter
   selection/candidate semantics, AArch64 unanchored packed Teddy, 2-500 needle
   Aho/anchored Teddy DFA, and >500-needle contiguous-NFA paths are complete.
@@ -83,17 +83,15 @@
   unavailable for the pool's lifetime. This is a lifecycle divergence, not a
   search-result divergence. No throughput claim is made on this loaded host; phase 8's
   controlled comparison should include pooled Meta searches.
-- **Last completed feature commit:** phase 3b `port: bounded-backtracker vendor suite`
+- **Last completed feature commit:** phase 3c1 `port: Thompson Dense state consumption`
   (this feature commit).
-- **Gates:** phase 3b's pinned bounded-backtracker default/prefilter/minimum-
-  visited-capacity TOML matrix passes 3,307/3,307 applicable fixture-mode
-  examples (1,102/1,102/1,103). Rust's expensive-capacity blacklist applies
-  only to default/prefilter; earliest, overlapping, all, and leftmost-longest
-  modes are excluded by its builder. The full Crystal suite passes
-  16,060/16,060; `make install`, format, lint, parity, `git diff --check`,
-  Crystal format-check, and no-codegen build pass. These are correctness
-  gates, not performance evidence: host load remained high, so benchmarks
-  were skipped.
+- **Gates:** phase 3c1's pinned-source Dense representation and direct
+  PikeVM/backtracker branch specs pass 3/3. The prior 2,388-case PikeVM and
+  3,307-case backtracker matrices remain in the full suite. The full Crystal
+  suite passes 16,063/16,063; `make install`, format, lint, parity,
+  `git diff --check`, Crystal format-check, and no-codegen build pass. These
+  are correctness gates, not performance evidence; host load remained high,
+  so benchmarks were skipped.
 
 ## Feature-loop rules
 
@@ -387,14 +385,40 @@ confirmation; no authorship was inferred or changed.
   gap, Rust `State::Dense`, is recorded `partial` and belongs to 3c because
   the Crystal Thompson representation does not yet produce it.
 
-- [ ] **3c. Thompson NFA construction and representation.** Finish
-  `src/nfa/thompson/{nfa,builder,compiler,literal_trie,range_trie,map,error}.rs`.
-  Port pinned builder doctests and source-level private helpers, exact
-  graph/state/limit/error queries, reverse construction, HIR/range cases,
-  capture and memory contracts. Add the pinned `State::Dense` variant and its
-  PikeVM/backtracker transition branches left partial by 3a/3b. **Gate:**
-  construction/representation source and test rows are individually reconciled
-  against pinned Rust evidence.
+- [x] **3c1. Thompson Dense representation and engine consumption.** Port
+  `src/nfa/thompson/nfa.rs`'s `DenseTransitions` byte/unit/haystack/iteration
+  contract and `State::Dense` accounting, plus its PikeVM/backtracker closure,
+  stepping, and overlapping paths. Port Rust's zero-capture `PikeVM::is_match`
+  search and conditional capture-scratch sizing. **Gate:** source-derived
+  direct-state specs exercise absent/EOI transitions, memory and byte-class
+  accounting, and both engines; prior vendor matrices remain green. The
+  pinned compiler's sparse-to-dense conversion in `Inner::into_nfa` is
+  commented out after unhelpful ad-hoc benchmarking, so this phase does not
+  invent Dense generation or claim a performance gain. No upstream Rust test
+  directly constructs a Dense state; direct-state Crystal specs are branch
+  characterizations from the pinned source, not fixture parity claims. Rust's
+  `Box<[StateID]>` in `nfa.rs` maps to Crystal's `Array(StateID)` in `nfa.cr`
+  because Crystal has no equivalent boxed-slice value type; both keep 256
+  constant-time indexed targets and the same `StateID::ZERO` sentinel.
+  `Dense#iter` materializes transitions in Crystal rather than returning a
+  borrowing iterator; only construction/inspection paths use it, and the
+  pinned compiler never emits Dense states, so normal search hot paths incur
+  no added work.
+
+- [ ] **3c2. Thompson NFA, builder, and error contracts.** Finish the
+  remaining `src/nfa/thompson/{nfa,builder,error}.rs` APIs and private paths:
+  exact graph/state/limit/error queries, starts and pattern IDs, reverse
+  construction, captures, byte classes, memory, remapping, malformed-builder
+  behavior, and relevant pinned doctests. **Gate:** source/test/file rows for
+  these three files are individually reconciled, including source-only
+  contracts that existing compiler snapshot specs do not establish.
+
+- [ ] **3c3. Thompson compiler, tries, and map.** Finish
+  `src/nfa/thompson/{compiler,literal_trie,range_trie,map}.rs`: HIR and UTF-8
+  class lowering, reverse construction, literal/range trie splitting and
+  state order, map semantics, private helpers, and pinned native tests and
+  doctests. **Gate:** compiler/tries/map source/test/file rows are individually
+  reconciled against exact pinned Rust evidence.
 
 - [ ] **4. Dense DFA construction, execution, and transforms.** Finish
   `src/dfa/{automaton,accel,dense,determinize,minimize,remapper,search,
