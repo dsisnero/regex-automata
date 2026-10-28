@@ -1043,7 +1043,7 @@ src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.new_many	method	ported
 src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.pattern_len	method	ported	src/regex/automata/backtrack.cr:289;spec/backtrack_spec.cr	Returns pattern count.
 src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.reset_cache	method	ported	src/regex/automata/backtrack.cr:285;spec/backtrack_spec.cr	Reuses cache allocations for another backtracker.
 src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.search_imp	method	ported	src/regex/automata/backtrack.cr:425;spec/backtrack_spec.cr	Runs anchored or unanchored direct backtracking search.
-src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.step	method	ported	src/regex/automata/backtrack.cr:478;spec/backtrack_spec.cr	Consumes transitions and follows epsilon branches in priority order.
+src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.step	method	partial	src/regex/automata/backtrack.cr:478;spec/backtrack_vendor_suite_spec.cr	Vendor matrix covers generated states and special word looks; Rust State::Dense branch is absent until Thompson representation phase 3c.
 src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.try_captures	method	ported	src/regex/automata/backtrack.cr:360;spec/backtrack_spec.cr	Runs fallible capture search.
 src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.try_captures_iter	method	ported	src/regex/automata/backtrack.cr:369;spec/backtrack_spec.cr	Creates fallible capture iterator.
 src/nfa/thompson/backtrack.rs::method::BoundedBacktracker.try_find	method	ported	src/regex/automata/backtrack.cr:331;spec/backtrack_spec.cr	Runs fallible leftmost search.

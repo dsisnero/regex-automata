@@ -6,10 +6,10 @@
   `72d650cb0a880a01ab6dc2137c0888e8f89740f7` (regex-automata 0.4.18).
   Do not substitute remembered Rust behavior or a newer upstream revision.
 - Working source ledger: [rust_port_inventory.tsv](inventory/rust_port_inventory.tsv)
-  (1,936 Rust API items: 1,291 `ported`, 362 `missing`, 102 `partial`, 176
+  (1,936 Rust API items: 1,290 `ported`, 362 `missing`, 103 `partial`, 176
   `intentional_divergence`, 5 `skipped`). Test ledger:
-  [rust_test_parity.tsv](inventory/rust_test_parity.tsv) (220 rows: 156
-  `ported`, 54 `partial`, 9 `intentional_divergence`, 1 `skipped`). These are **review
+  [rust_test_parity.tsv](inventory/rust_test_parity.tsv) (220 rows: 159
+  `ported`, 51 `partial`, 9 `intentional_divergence`, 1 `skipped`). These are **review
   queues**, not a count of absent behaviors or a completion percentage. The
   generated manifests are item inventories, so a file-level pass is also
   required for private algorithms without discovered rows.
@@ -35,13 +35,13 @@
 
 ## Where we are
 
-- **Current focus:** phase 3b, bounded-backtracker vendor matrix and source
-  review. The original phase 3 is separated into engine-sized 3a/3b and
+- **Current focus:** phase 3c, Thompson NFA construction and representation.
+  The original phase 3 is separated into engine-sized 3a/3b and
   Thompson construction 3c so each closes with its own upstream evidence.
   Phase 2f4b closes scalar finder result/error boundaries and source-file review;
   its algorithmic throughput gaps remain explicit phase 8 work.
-- **Next up:** 3b bounded backtracker; 3c Thompson construction and the
-  Dense-state branches in PikeVM; 4 dense DFA construction,
+- **Next up:** 3c Thompson construction and the Dense-state branches in
+  PikeVM/backtracker; 4 dense DFA construction,
   execution, and transforms.
 - **Status by area:** vendor fixture harness, scalar prefilter
   selection/candidate semantics, AArch64 unanchored packed Teddy, 2-500 needle
@@ -83,15 +83,17 @@
   unavailable for the pool's lifetime. This is a lifecycle divergence, not a
   search-result divergence. No throughput claim is made on this loaded host; phase 8's
   controlled comparison should include pooled Meta searches.
-- **Last completed feature commit:** phase 3a `port: PikeVM vendor suite`
+- **Last completed feature commit:** phase 3b `port: bounded-backtracker vendor suite`
   (this feature commit).
-- **Gates:** phase 3a's pinned PikeVM default/prefilter TOML matrix passes
-  2,388/2,388 fixture-mode examples (1,194 cases in each mode, including six
-  expected compile errors). Focused PikeVM specs pass 2,398/2,398. The full
-  Crystal suite passes 12,753/12,753; `make install`, format, lint, parity,
-  `git diff --check`, Crystal format-check, and no-codegen build pass. These
-  are correctness gates, not performance evidence: another repository's
-  Crystal spec process is using several cores, so benchmarks were skipped.
+- **Gates:** phase 3b's pinned bounded-backtracker default/prefilter/minimum-
+  visited-capacity TOML matrix passes 3,307/3,307 applicable fixture-mode
+  examples (1,102/1,102/1,103). Rust's expensive-capacity blacklist applies
+  only to default/prefilter; earliest, overlapping, all, and leftmost-longest
+  modes are excluded by its builder. The full Crystal suite passes
+  16,060/16,060; `make install`, format, lint, parity, `git diff --check`,
+  Crystal format-check, and no-codegen build pass. These are correctness
+  gates, not performance evidence: host load remained high, so benchmarks
+  were skipped.
 
 ## Feature-loop rules
 
@@ -372,21 +374,27 @@ confirmation; no authorship was inferred or changed.
   branches are explicitly `partial` in the source ledger and belong to 3c;
   current compiler-generated states and the full PikeVM TOML matrix pass.
 
-- [ ] **3b. Bounded-backtracker vendor matrix and source review.** Run the
+- [x] **3b. Bounded-backtracker vendor matrix and source review.** Run the
   pinned `tests/nfa/thompson/backtrack/suite.rs` default, prefilter and minimum
   visited-capacity modes over every Rust-admissible TOML case, preserving its
   exact blacklist and search/match-kind exclusions. Port outstanding
   `src/nfa/thompson/backtrack.rs` contracts for visited reuse, captures,
   capacity and error precedence. **Gate:** full applicable vendor matrix
-  passes and backtracker source/test rows are individually reconciled.
+  passes and backtracker source/test rows are individually reconciled. The
+  vendor matrix found missing special word-look dispatch, now ported. Source
+  review also removed full capture-scratch sizing on non-empty-match paths,
+  matching Rust's allocation condition. The only identified state-transition
+  gap, Rust `State::Dense`, is recorded `partial` and belongs to 3c because
+  the Crystal Thompson representation does not yet produce it.
 
 - [ ] **3c. Thompson NFA construction and representation.** Finish
   `src/nfa/thompson/{nfa,builder,compiler,literal_trie,range_trie,map,error}.rs`.
   Port pinned builder doctests and source-level private helpers, exact
   graph/state/limit/error queries, reverse construction, HIR/range cases,
   capture and memory contracts. Add the pinned `State::Dense` variant and its
-  PikeVM closure/step branches left partial by 3a. **Gate:** construction/representation source
-  and test rows are individually reconciled against pinned Rust evidence.
+  PikeVM/backtracker transition branches left partial by 3a/3b. **Gate:**
+  construction/representation source and test rows are individually reconciled
+  against pinned Rust evidence.
 
 - [ ] **4. Dense DFA construction, execution, and transforms.** Finish
   `src/dfa/{automaton,accel,dense,determinize,minimize,remapper,search,

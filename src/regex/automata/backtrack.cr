@@ -395,7 +395,9 @@ module Regex::Automata::NFA
 
       private def try_search_slots_int(cache : Cache, input : Regex::Automata::Input, slots : Array(Int32?)) : Regex::Automata::PatternID? | Regex::Automata::MatchError
         slots.fill(nil)
-        required_slots = @nfa.group_info.implicit_slot_len
+        # Rust only needs implicit match slots when an empty UTF-8 match may
+        # need to be retried past a split codepoint boundary.
+        required_slots = @nfa.has_empty && @nfa.is_utf8 ? @nfa.group_info.implicit_slot_len : 0
         plain_slots = Array(Int32?).new(Math.max(required_slots, slots.size), nil)
         result = try_search_slots_imp(cache, input.clone, plain_slots)
         return result if result.is_a?(Regex::Automata::MatchError)
@@ -532,6 +534,14 @@ module Regex::Automata::NFA
                when Look::Kind::WordBoundaryUnicode  then Regex::Automata::Look::WordUnicode
                when Look::Kind::NonWordBoundaryUnicode
                  Regex::Automata::Look::WordUnicodeNegate
+               when Look::Kind::WordStartAscii       then Regex::Automata::Look::WordStartAscii
+               when Look::Kind::WordEndAscii         then Regex::Automata::Look::WordEndAscii
+               when Look::Kind::WordStartUnicode     then Regex::Automata::Look::WordStartUnicode
+               when Look::Kind::WordEndUnicode       then Regex::Automata::Look::WordEndUnicode
+               when Look::Kind::WordStartHalfAscii   then Regex::Automata::Look::WordStartHalfAscii
+               when Look::Kind::WordEndHalfAscii     then Regex::Automata::Look::WordEndHalfAscii
+               when Look::Kind::WordStartHalfUnicode then Regex::Automata::Look::WordStartHalfUnicode
+               when Look::Kind::WordEndHalfUnicode   then Regex::Automata::Look::WordEndHalfUnicode
                when Look::Kind::StartText
                  Regex::Automata::Look::Start
                when Look::Kind::EndText

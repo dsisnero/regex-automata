@@ -32,7 +32,7 @@ src/meta/stopat.rs	0	pending	src/regex/automata/meta_stopat.cr	No API-item row; 
 src/meta/strategy.rs	75	pending	-	API-item ledger exists; file-level private-function review remains.
 src/meta/wrappers.rs	81	pending	-	API-item ledger exists; file-level private-function review remains.
 src/nfa/mod.rs	0	pending	src/regex-automata.cr	No API-item row; file-level algorithm/namespace review is required.
-src/nfa/thompson/backtrack.rs	51	pending	-	API-item ledger exists; file-level private-function review remains.
+src/nfa/thompson/backtrack.rs	51	reviewed	src/regex/automata/backtrack.cr;spec/backtrack_vendor_suite_spec.cr	Pinned default/prefilter/minimum-capacity TOML matrix and private DFS, capture restoration, visited-bitset reuse, capacity, prefilter, UTF-8 retry, and error order reviewed. Dense-state branch remains phase 3c with Thompson representation.
 src/nfa/thompson/builder.rs	31	pending	-	API-item ledger exists; file-level private-function review remains.
 src/nfa/thompson/compiler.rs	74	pending	-	API-item ledger exists; file-level private-function review remains.
 src/nfa/thompson/error.rs	12	pending	-	API-item ledger exists; file-level private-function review remains.
