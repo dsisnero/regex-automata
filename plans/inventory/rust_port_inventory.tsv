@@ -1286,7 +1286,7 @@ src/nfa/thompson/pikevm.rs::method::Builder.configure	method	ported	src/regex/au
 src/nfa/thompson/pikevm.rs::method::Builder.new	method	ported	src/regex/automata/pikevm.cr:67;spec/pikevm_spec.cr	Default builder constructor.
 src/nfa/thompson/pikevm.rs::method::Builder.syntax	method	ported	src/regex/automata/pikevm.cr:95;spec/pikevm_spec.cr	Applies syntax configuration.
 src/nfa/thompson/pikevm.rs::method::Builder.thompson	method	ported	src/regex/automata/pikevm.cr:100;spec/pikevm_spec.cr	Applies Thompson configuration.
-src/nfa/thompson/pikevm.rs::method::Cache.memory_usage	method	ported	src/regex/automata/pikevm.cr:141;spec/pikevm_spec.cr	Reports active-state and slot storage with UInt64 aggregate arithmetic.
+src/nfa/thompson/pikevm.rs::method::Cache.memory_usage	method	ported	src/regex/automata/pikevm.cr:141;spec/pikevm_spec.cr	Reports active-state and slot storage with UInt64 aggregate arithmetic; reusable closure stacks are empty between searches, matching Rust's len-based stack accounting.
 src/nfa/thompson/pikevm.rs::method::Cache.new	method	ported	src/regex/automata/pikevm.cr:118;spec/pikevm_spec.cr	Creates cache coupled to PikeVM.
 src/nfa/thompson/pikevm.rs::method::Cache.reset	method	ported	src/regex/automata/pikevm.cr:122;spec/pikevm_spec.cr	Resets reusable VM state.
 src/nfa/thompson/pikevm.rs::method::Cache.setup_search	method	ported	src/regex/automata/pikevm.cr:127;spec/pikevm_spec.cr	Initializes per-search cache state.
@@ -1313,8 +1313,8 @@ src/nfa/thompson/pikevm.rs::method::PikeVM.captures_iter	method	ported	src/regex
 src/nfa/thompson/pikevm.rs::method::PikeVM.config	method	ported	src/regex/automata/pikevm.cr:255;spec/pikevm_spec.cr	Creates default configuration.
 src/nfa/thompson/pikevm.rs::method::PikeVM.create_cache	method	ported	src/regex/automata/pikevm.cr:267;spec/pikevm_spec.cr	Creates VM cache.
 src/nfa/thompson/pikevm.rs::method::PikeVM.create_captures	method	ported	src/regex/automata/pikevm.cr:263;spec/pikevm_spec.cr	Creates capture storage.
-src/nfa/thompson/pikevm.rs::method::PikeVM.epsilon_closure	method	ported	src/regex/automata/pikevm.cr:612;spec/pikevm_spec.cr	Iterative depth-first closure uses reusable per-state slots and explicit capture restoration frames.
-src/nfa/thompson/pikevm.rs::method::PikeVM.epsilon_closure_explore	method	ported	src/regex/automata/pikevm.cr:612;spec/pikevm_spec.cr	Integrated into the iterative closure traversal while preserving branch priority and capture restoration.
+src/nfa/thompson/pikevm.rs::method::PikeVM.epsilon_closure	method	partial	src/regex/automata/pikevm.cr;spec/pikevm_vendor_suite_spec.cr	Depth-first closure matches reachable NFA states with one cache stack and active set; Rust State::Dense terminal handling awaits the Dense NFA state in phase 3c.
+src/nfa/thompson/pikevm.rs::method::PikeVM.epsilon_closure_explore	method	partial	src/regex/automata/pikevm.cr;spec/pikevm_vendor_suite_spec.cr	Straight-line transitions, ordered alternatives, and capture restore match Rust; State::Dense terminal handling awaits phase 3c.
 src/nfa/thompson/pikevm.rs::method::PikeVM.find	method	ported	src/regex/automata/pikevm.cr:305;spec/pikevm_spec.cr	Finds leftmost match.
 src/nfa/thompson/pikevm.rs::method::PikeVM.find_iter	method	ported	src/regex/automata/pikevm.cr:322;spec/pikevm_spec.cr	Creates non-overlapping iterator.
 src/nfa/thompson/pikevm.rs::method::PikeVM.get_config	method	ported	src/regex/automata/pikevm.cr:279;spec/pikevm_spec.cr	Returns configuration.
@@ -1324,9 +1324,9 @@ src/nfa/thompson/pikevm.rs::method::PikeVM.never_match	method	ported	src/regex/a
 src/nfa/thompson/pikevm.rs::method::PikeVM.new	method	ported	src/regex/automata/pikevm.cr:235;spec/pikevm_spec.cr	Builds one-pattern VM.
 src/nfa/thompson/pikevm.rs::method::PikeVM.new_from_nfa	method	ported	src/regex/automata/pikevm.cr:243;spec/pikevm_spec.cr	Builds from NFA.
 src/nfa/thompson/pikevm.rs::method::PikeVM.new_many	method	ported	src/regex/automata/pikevm.cr:239;spec/pikevm_spec.cr	Builds multi-pattern VM.
-src/nfa/thompson/pikevm.rs::method::PikeVM.next	method	ported	src/regex/automata/pikevm.cr:558;spec/pikevm_spec.cr	Steps active states using the state-specific reusable slot row.
-src/nfa/thompson/pikevm.rs::method::PikeVM.nexts	method	ported	src/regex/automata/pikevm.cr:558;spec/pikevm_spec.cr	Ordered active-state stepping and leftmost/all termination preserve slot-table reuse.
-src/nfa/thompson/pikevm.rs::method::PikeVM.nexts_overlapping	method	ported	src/regex/automata/pikevm.cr:581;spec/pikevm_spec.cr	Overlapping stepping and UTF-8 empty filtering use reusable slot rows.
+src/nfa/thompson/pikevm.rs::method::PikeVM.next	method	partial	src/regex/automata/pikevm.cr;spec/pikevm_vendor_suite_spec.cr	Steps byte-range and sparse states with reusable slot rows; Rust State::Dense stepping awaits phase 3c.
+src/nfa/thompson/pikevm.rs::method::PikeVM.nexts	method	partial	src/regex/automata/pikevm.cr;spec/pikevm_vendor_suite_spec.cr	Ordered active-state stepping and leftmost/all termination match Rust for reachable states; Dense branch awaits phase 3c.
+src/nfa/thompson/pikevm.rs::method::PikeVM.nexts_overlapping	method	partial	src/regex/automata/pikevm.cr;spec/pikevm_vendor_suite_spec.cr	Rust UTF-8 empty boundary check is ported without capture slots; Dense-state stepping awaits phase 3c.
 src/nfa/thompson/pikevm.rs::method::PikeVM.pattern_len	method	ported	src/regex/automata/pikevm.cr:275;spec/pikevm_spec.cr	Returns pattern count.
 src/nfa/thompson/pikevm.rs::method::PikeVM.reset_cache	method	ported	src/regex/automata/pikevm.cr:271;spec/pikevm_spec.cr	Resets reusable cache.
 src/nfa/thompson/pikevm.rs::method::PikeVM.search	method	ported	src/regex/automata/pikevm.cr:332;spec/pikevm_spec.cr	Runs capture search.

@@ -106,11 +106,14 @@ module Regex::Automata::NFA
     class Cache
       @curr : ActiveStates
       @next : ActiveStates
+      @stack : Array(EpsilonFrame)
 
       getter curr : ActiveStates
       getter next : ActiveStates
+      getter stack : Array(EpsilonFrame)
 
       def initialize(re : PikeVM)
+        @stack = [] of EpsilonFrame
         @curr = ActiveStates.new(re)
         @next = ActiveStates.new(re)
       end
@@ -125,6 +128,7 @@ module Regex::Automata::NFA
       end
 
       def setup_search(captures_slot_len : Int32) : Nil
+        @stack.clear
         @curr.clear
         @next.clear
         @curr.slot_table.setup_search(captures_slot_len)
@@ -139,7 +143,7 @@ module Regex::Automata::NFA
       end
 
       def memory_usage : UInt64
-        @curr.memory_usage + @next.memory_usage
+        @curr.memory_usage + @next.memory_usage + (@stack.size * sizeof(EpsilonFrame)).to_u64
       end
     end
 
@@ -257,18 +261,15 @@ module Regex::Automata::NFA
     private class ActiveStates
       getter set : Regex::Automata::SparseSet
       getter slot_table : SlotTable
-      @closure_seen : Regex::Automata::SparseSet
 
       def initialize(re : PikeVM)
         @set = Regex::Automata::SparseSet.new(re.get_nfa.states.size.to_i32)
-        @closure_seen = Regex::Automata::SparseSet.new(re.get_nfa.states.size.to_i32)
         @slot_table = SlotTable.new
         @slot_table.reset(re)
       end
 
       def reset(re : PikeVM) : Nil
         @set.resize(re.get_nfa.states.size.to_i32)
-        @closure_seen.resize(re.get_nfa.states.size.to_i32)
         @slot_table.reset(re)
         clear
       end
@@ -281,27 +282,16 @@ module Regex::Automata::NFA
         @set.empty?
       end
 
-      def add(id : Regex::Automata::StateID, slots : Slice(Int32?)) : Bool
-        return false unless @set.insert(id)
-
+      def add(id : Regex::Automata::StateID, slots : Slice(Int32?)) : Nil
         @slot_table.copy_from(id, slots)
-        true
-      end
-
-      # Reuse a sparse set for each closure instead of allocating a hash set
-      # for every NFA step. Existing terminal threads count as visited so that
-      # depth-first priority remains identical to the old closure traversal.
-      def begin_closure : Nil
-        @closure_seen.clear
-        @set.each { |id| @closure_seen.insert(id) }
       end
 
       def mark_seen(id : Regex::Automata::StateID) : Bool
-        @closure_seen.insert(id)
+        @set.insert(id)
       end
 
       def memory_usage : UInt64
-        @set.memory_usage + @closure_seen.memory_usage + @slot_table.memory_usage
+        @set.memory_usage + @slot_table.memory_usage
       end
     end
 
@@ -504,6 +494,7 @@ module Regex::Automata::NFA
 
         if (hm.nil? || allmatches) && (!anchored || at == input.start)
           add_epsilon_closure(
+            cache.stack,
             cache.curr,
             input,
             at,
@@ -512,7 +503,7 @@ module Regex::Automata::NFA
           )
         end
 
-        pid, slots = advance_threads(cache.curr, cache.next, input, at, allmatches)
+        pid, slots = advance_threads(cache.stack, cache.curr, cache.next, input, at, allmatches)
         if pid && slots
           hm = Regex::Automata::HalfMatch.new(pid, at)
           matched_slots = slots
@@ -551,6 +542,7 @@ module Regex::Automata::NFA
 
         if patset.is_empty || allmatches
           add_epsilon_closure(
+            cache.stack,
             cache.curr,
             input,
             at,
@@ -559,7 +551,7 @@ module Regex::Automata::NFA
           )
         end
 
-        advance_threads_overlapping(cache.curr, cache.next, input, at, allmatches, patset)
+        advance_threads_overlapping(cache.stack, cache.curr, cache.next, input, at, allmatches, patset)
         break if patset.is_full || input.get_earliest
 
         cache.swap_states!
@@ -567,7 +559,7 @@ module Regex::Automata::NFA
       end
     end
 
-    private def advance_threads(curr : ActiveStates, nxt : ActiveStates, input : Regex::Automata::Input, at : Int32, allmatches : Bool) : Tuple(Regex::Automata::PatternID?, Array(Int32?)?)
+    private def advance_threads(stack : Array(EpsilonFrame), curr : ActiveStates, nxt : ActiveStates, input : Regex::Automata::Input, at : Int32, allmatches : Bool) : Tuple(Regex::Automata::PatternID?, Array(Int32?)?)
       pid = nil.as(Regex::Automata::PatternID?)
       matched_slots = nil.as(Array(Int32?)?)
 
@@ -581,11 +573,11 @@ module Regex::Automata::NFA
           break unless allmatches
         when ByteRange
           if state.trans.matches(input.haystack, at)
-            add_epsilon_closure(nxt, input, at + 1, state.trans.next, curr.slot_table.for_state(id))
+            add_epsilon_closure(stack, nxt, input, at + 1, state.trans.next, curr.slot_table.for_state(id))
           end
         when Sparse
           if next_id = state.matches(input.haystack, at)
-            add_epsilon_closure(nxt, input, at + 1, next_id, curr.slot_table.for_state(id))
+            add_epsilon_closure(stack, nxt, input, at + 1, next_id, curr.slot_table.for_state(id))
           end
         end
       end
@@ -593,30 +585,30 @@ module Regex::Automata::NFA
       {pid, matched_slots}
     end
 
-    private def advance_threads_overlapping(curr : ActiveStates, nxt : ActiveStates, input : Regex::Automata::Input, at : Int32, allmatches : Bool, patset : Regex::Automata::PatternSet) : Nil
+    private def advance_threads_overlapping(stack : Array(EpsilonFrame), curr : ActiveStates, nxt : ActiveStates, input : Regex::Automata::Input, at : Int32, allmatches : Bool, patset : Regex::Automata::PatternSet) : Nil
       curr.set.each do |id|
         state = @nfa.state(id)
         case state
         when Match
-          next if should_skip_empty_utf8_thread?(input, at, curr.slot_table.for_state(id), state.pattern_id)
+          # Rust nexts_overlapping has no capture slots: an empty match inside
+          # a UTF-8 codepoint is identified by the NFA and current offset.
+          next if @nfa.has_empty && @nfa.is_utf8 && !input.is_char_boundary(at)
           patset.try_insert(state.pattern_id)
           break unless allmatches
         when ByteRange
           if state.trans.matches(input.haystack, at)
-            add_epsilon_closure(nxt, input, at + 1, state.trans.next, curr.slot_table.for_state(id))
+            add_epsilon_closure(stack, nxt, input, at + 1, state.trans.next, curr.slot_table.for_state(id))
           end
         when Sparse
           if next_id = state.matches(input.haystack, at)
-            add_epsilon_closure(nxt, input, at + 1, next_id, curr.slot_table.for_state(id))
+            add_epsilon_closure(stack, nxt, input, at + 1, next_id, curr.slot_table.for_state(id))
           end
         end
       end
     end
 
-    private def add_epsilon_closure(active : ActiveStates, input : Regex::Automata::Input, at : Int32, sid : Regex::Automata::StateID, slots : Slice(Int32?)) : Nil
-      stack = [] of EpsilonFrame
+    private def add_epsilon_closure(stack : Array(EpsilonFrame), active : ActiveStates, input : Regex::Automata::Input, at : Int32, sid : Regex::Automata::StateID, slots : Slice(Int32?)) : Nil
       stack << ExploreFrame.new(sid)
-      active.begin_closure
 
       until stack.empty?
         frame = stack.pop
@@ -625,30 +617,35 @@ module Regex::Automata::NFA
           next
         end
         current_sid = frame.as(ExploreFrame).id
-        next unless active.mark_seen(current_sid)
-
-        case state = @nfa.state(current_sid)
-        when Fail, Match, ByteRange, Sparse
-          active.add(current_sid, slots)
-        when Empty
-          stack << ExploreFrame.new(state.next)
-        when Look
-          next unless look_matches?(state.kind, input.haystack, at)
-          stack << ExploreFrame.new(state.next)
-        when BinaryUnion
-          stack << ExploreFrame.new(state.alt2)
-          stack << ExploreFrame.new(state.alt1)
-        when Union
-          last = state.alternates.size - 1
-          last.downto(0) do |index|
-            stack << ExploreFrame.new(state.alternates[index])
+        # Mirror Rust's epsilon_closure_explore: continue straight-line
+        # epsilon transitions without a push immediately followed by a pop.
+        loop do
+          break unless active.mark_seen(current_sid)
+          case state = @nfa.state(current_sid)
+          when Fail, Match, ByteRange, Sparse
+            active.add(current_sid, slots)
+            break
+          when Empty
+            current_sid = state.next
+          when Look
+            break unless look_matches?(state.kind, input.haystack, at)
+            current_sid = state.next
+          when BinaryUnion
+            stack << ExploreFrame.new(state.alt2)
+            current_sid = state.alt1
+          when Union
+            break if state.alternates.empty?
+            (state.alternates.size - 1).downto(1) do |index|
+              stack << ExploreFrame.new(state.alternates[index])
+            end
+            current_sid = state.alternates[0]
+          when Capture
+            if state.slot < slots.size
+              stack << RestoreCaptureFrame.new(state.slot, slots[state.slot])
+              slots[state.slot] = at
+            end
+            current_sid = state.next
           end
-        when Capture
-          if state.slot < slots.size
-            stack << RestoreCaptureFrame.new(state.slot, slots[state.slot])
-            slots[state.slot] = at
-          end
-          stack << ExploreFrame.new(state.next)
         end
       end
     end
@@ -664,6 +661,14 @@ module Regex::Automata::NFA
              when Look::Kind::WordBoundaryUnicode  then Regex::Automata::Look::WordUnicode
              when Look::Kind::NonWordBoundaryUnicode
                Regex::Automata::Look::WordUnicodeNegate
+             when Look::Kind::WordStartAscii       then Regex::Automata::Look::WordStartAscii
+             when Look::Kind::WordEndAscii         then Regex::Automata::Look::WordEndAscii
+             when Look::Kind::WordStartUnicode     then Regex::Automata::Look::WordStartUnicode
+             when Look::Kind::WordEndUnicode       then Regex::Automata::Look::WordEndUnicode
+             when Look::Kind::WordStartHalfAscii   then Regex::Automata::Look::WordStartHalfAscii
+             when Look::Kind::WordEndHalfAscii     then Regex::Automata::Look::WordEndHalfAscii
+             when Look::Kind::WordStartHalfUnicode then Regex::Automata::Look::WordStartHalfUnicode
+             when Look::Kind::WordEndHalfUnicode   then Regex::Automata::Look::WordEndHalfUnicode
              when Look::Kind::StartText
                Regex::Automata::Look::Start
              when Look::Kind::EndText
@@ -704,17 +709,6 @@ module Regex::Automata::NFA
       return false unless start && finish
 
       start == finish && !input.is_char_boundary(finish)
-    end
-
-    private def should_skip_empty_utf8_thread?(input : Regex::Automata::Input, at : Int32, slots : Slice(Int32?), pid : Regex::Automata::PatternID) : Bool
-      return false unless @config.get_utf8_empty && @nfa.has_empty && @nfa.is_utf8
-
-      slot_index = pid.to_i * 2
-      start = slots[slot_index]?
-      finish = slots[slot_index + 1]?
-      return false unless start && finish
-
-      start == finish && start == at && !input.is_char_boundary(at)
     end
   end
 end

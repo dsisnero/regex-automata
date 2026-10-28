@@ -217,5 +217,5 @@ tests/nfa/thompson/backtrack/suite.rs::test::default	partial	spec/backtrack_spec
 tests/nfa/thompson/backtrack/suite.rs::test::min_visited_capacity	partial	spec/backtrack_spec.cr	Selected capacity-guard behavior is covered; the shared vendor TOML cases are not run in this mode.
 tests/nfa/thompson/backtrack/suite.rs::test::prefilter	partial	spec/backtrack_spec.cr	Selected prefilter behavior is covered; the shared vendor TOML cases are not run in this mode.
 tests/nfa/thompson/pikevm/regression.rs::test::too_many_slots_normal_pattern	ported	spec/pikevm_spec.cr	Ports normal capture-slot search behavior.
-tests/nfa/thompson/pikevm/suite.rs::test::default	partial	spec/pikevm_spec.cr	Selected default PikeVM behavior is covered; the shared vendor TOML cases are not run.
-tests/nfa/thompson/pikevm/suite.rs::test::prefilter	partial	spec/pikevm_spec.cr	Selected prefilter behavior is covered; the shared vendor TOML cases are not run in this mode.
+tests/nfa/thompson/pikevm/suite.rs::test::default	ported	spec/pikevm_vendor_suite_spec.cr	Runs the pinned 25-group TOML matrix through default PikeVM is_match, find, captures, earliest, and overlapping pattern-set paths.
+tests/nfa/thompson/pikevm/suite.rs::test::prefilter	ported	spec/pikevm_vendor_suite_spec.cr	Runs the same pinned matrix with Rust-style HIR prefix prefilter construction; overlapping captures and unsupported match kinds follow Rust skips.
