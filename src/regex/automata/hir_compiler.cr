@@ -215,7 +215,7 @@ module Regex::Automata
     def build_many_from_hir(hirs : Enumerable(Regex::Syntax::Hir::Hir)) : NFA::NFA
       hirs_array = hirs.to_a
       raise NFA::BuildError.unsupported_captures if @config.reverse && @config.which_captures.is_any
-      return finalize_build(NFA::NFA.never_match) if hirs_array.empty?
+      return build_empty_pattern_list if hirs_array.empty?
       raise NFA::BuildError.too_many_patterns(hirs_array.size.to_i64) if hirs_array.size.to_i64 >= PatternID::LIMIT
 
       reset_builder
@@ -360,6 +360,17 @@ module Regex::Automata
       else
         @builder.add_state(NFA::Union.new(pattern_starts))
       end
+    end
+
+    # Rust Compiler::compile configures Builder before c_alt_iter compiles an
+    # empty input to Fail. Preserve those flags and the look matcher here.
+    private def build_empty_pattern_list : NFA::NFA
+      reset_builder
+      @group_info = GroupInfo.empty
+      fail_id = @builder.add_fail
+      @builder.set_start_anchored(fail_id)
+      @builder.set_start_unanchored(fail_id)
+      finalize_build(@builder.build(@group_info))
     end
 
     private def finalize_build(nfa : NFA::NFA) : NFA::NFA

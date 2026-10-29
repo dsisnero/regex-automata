@@ -6,10 +6,10 @@
   `72d650cb0a880a01ab6dc2137c0888e8f89740f7` (regex-automata 0.4.18).
   Do not substitute remembered Rust behavior or a newer upstream revision.
 - Working source ledger: [rust_port_inventory.tsv](inventory/rust_port_inventory.tsv)
-  (1,936 Rust API items: 1,352 `ported`, 310 `missing`, 91 `partial`, 178
-  `intentional_divergence`, 5 `skipped`). Test ledger:
-  [rust_test_parity.tsv](inventory/rust_test_parity.tsv) (220 rows: 159
-  `ported`, 51 `partial`, 9 `intentional_divergence`, 1 `skipped`). These are **review
+  (1,936 Rust API items: 1,383 `ported`, 282 `missing`, 91 `partial`, 173
+  `intentional_divergence`, 7 `skipped`). Test ledger:
+  [rust_test_parity.tsv](inventory/rust_test_parity.tsv) (220 rows: 163
+  `ported`, 47 `partial`, 9 `intentional_divergence`, 1 `skipped`). These are **review
   queues**, not a count of absent behaviors or a completion percentage. The
   generated manifests are item inventories, so a file-level pass is also
   required for private algorithms without discovered rows.
@@ -35,21 +35,21 @@
 
 ## Where we are
 
-- **Current focus:** phase 3c3, Thompson compiler/trie/map algorithms, is next.
-  Phase 3c2's pinned Rust builder/NFA/error APIs and private
-  paths now have individual source/test/file dispositions. New tests cover the
-  named-capture builder doctest, metadata and Debug examples, error sources,
-  strict capture rows, malformed starts, Dense remap, byte-class ownership,
-  and in-place union patch growth. Rust's disabled `look_set_prefix_all` was
-  removed; sparse early exit and one reusable `SparseSet` finalization traversal
-  follow the pinned logic. Fixed Rust enum/Inner allocation sizes cannot be
-  reproduced by Crystal's object layout; size accounting is a construction/
-  query divergence, not a measured speed claim. The Crystal compiler's
-  `Match.next` placeholder is an additional builder goto path; the Rust goto
-  cases are present, and phase 3c3 must remove the extension or document its
-  necessity while auditing compiler lowering. Phase 2f4b's scalar algorithmic
-  throughput gaps remain explicit phase 8 work.
-- **Next up:** 3c3 compiler/trie/map algorithms; 4 dense DFA construction,
+- **Current focus:** phase 3c3b, Thompson HIR compiler algorithms, is next.
+  Phase 3c3a's pinned literal-trie `zap`/`maker` fixtures,
+  all range split cases, direct-mapped cache behavior, Debug layouts, and
+  source-only reuse paths have direct Crystal specs. Rust's `NextInsert`
+  fixed four-range storage maps to a Crystal `StaticArray`, and the literal
+  compiler uses stack-allocated frame values rather than per-state objects.
+  Rust's test-only literal-trie HIR dump helpers are omitted: compiled NFA
+  priority is checked directly, and there is no runtime search cost. The
+  empty-pattern compiler path now retains UTF-8/reverse/look configuration.
+  The remaining `compiler.rs` source audit, its integration paths, and the
+  `Match.next` placeholder decision belong to 3c3b.
+  Phase 3c2's NFA/builder/error source/test/file review is complete. The
+  Crystal compiler's extra `Match.next` placeholder must be removed or
+  justified during 3c3b; phase 2f4b's scalar throughput gaps remain phase 8.
+- **Next up:** 3c3b HIR compiler algorithms; 4 dense DFA construction,
   execution, and transforms.
 - **Status by area:** vendor fixture harness, scalar prefilter
   selection/candidate semantics, AArch64 unanchored packed Teddy, 2-500 needle
@@ -107,9 +107,9 @@
   unavailable for the pool's lifetime. This is a lifecycle divergence, not a
   search-result divergence. No throughput claim is made on this loaded host; phase 8's
   controlled comparison should include pooled Meta searches.
-- **Last completed feature commit:** phase 3c2 `port: Thompson NFA builder and error contracts`
+- **Last completed feature commit:** phase 3c3a `port: Thompson UTF-8 tries and bounded maps`
   (this feature commit).
-- **Gates:** full Crystal suite passes 16,081/16,081; `make install`, format,
+- **Gates:** full Crystal suite passes 16,094/16,094; `make install`, format,
   lint, parity, `git diff --check`, Crystal format-check, and no-codegen build
   pass. These are correctness gates, not performance evidence; benchmarks were
   skipped on this loaded host.
@@ -434,14 +434,25 @@ confirmation; no authorship was inferred or changed.
   and the complete code gates pass. Source/test/file review and full gates pass. The
   compiler-only `Match.next` placeholder audit is explicitly assigned to 3c3.
 
-- [ ] **3c3. Thompson compiler, tries, and map.** Finish
-  `src/nfa/thompson/{compiler,literal_trie,range_trie,map}.rs`: HIR and UTF-8
-  class lowering, reverse construction, literal/range trie splitting and
-  state order, map semantics, private helpers, and pinned native tests and
-  doctests. Audit the Crystal compiler's `Match.next` patchable placeholder
-  against Rust lowering; remove its extra builder goto path if possible or
-  document necessity, observable equivalence, and construction cost.
-  **Gate:** compiler/tries/map source/test/file rows are individually
+- [x] **3c3a. Thompson UTF-8 tries and bounded maps**
+  ([feature plan](feature-thompson-compiler.md)). Finish
+  `src/nfa/thompson/{literal_trie,range_trie,map}.rs`: literal priority chunks,
+  forward/reverse trie compilation, range splitting, lexicographic iteration,
+  reusable state/scratch storage, direct-mapped UTF-8 cache collision and
+  version behavior, Debug contracts, and both pinned native trie tests.
+  Include the empty-pattern compiler configuration regression found during
+  integration review. **Gate:** these three source/test/file ledgers are
+  individually reconciled with direct pinned evidence and full code gates pass.
+
+- [ ] **3c3b. Thompson HIR compiler algorithms**
+  ([feature plan](feature-thompson-compiler.md)). Finish
+  `src/nfa/thompson/compiler.rs`: HIR and UTF-8 class lowering, reverse
+  construction, literal/range trie and bounded-map integration, private
+  helpers, and pinned compiler tests/doctests. Audit the Crystal compiler's
+  `Match.next` patchable placeholder against Rust lowering; remove its extra
+  builder goto path if possible or document necessity, observable equivalence,
+  and construction cost. Reuse compiler-owned trie/UTF-8 scratch storage as
+  Rust does. **Gate:** compiler source/test/file rows are individually
   reconciled against exact pinned Rust evidence.
 
 - [ ] **4. Dense DFA construction, execution, and transforms.** Finish

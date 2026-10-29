@@ -579,6 +579,14 @@ module Regex::Automata::NFA
 
     def initialize(@range : ::Regex::Automata::Utf8Range, @next_id : Int32)
     end
+
+    def inspect(io : IO) : Nil
+      io << @range.start.to_s(16).upcase.rjust(2, '0')
+      if @range.start != @range.end
+        io << '-' << @range.end.to_s(16).upcase.rjust(2, '0')
+      end
+      io << " => " << @next_id.to_s(16).upcase.rjust(2, '0')
+    end
   end
 
   private class RangeTrieState
@@ -590,6 +598,13 @@ module Regex::Automata::NFA
 
     def clear : Nil
       @transitions.clear
+    end
+
+    def inspect(io : IO) : Nil
+      @transitions.each_with_index do |transition, index|
+        io << ", " if index > 0
+        transition.inspect(io)
+      end
     end
 
     def find(range : ::Regex::Automata::Utf8Range) : Int32
@@ -608,9 +623,20 @@ module Regex::Automata::NFA
   end
 
   private struct RangeTrieSplit
-    getter partitions : Array(RangeTrieSplitRange)
+    include Enumerable(RangeTrieSplitRange)
 
-    def initialize(@partitions : Array(RangeTrieSplitRange))
+    @partitions : StaticArray(RangeTrieSplitRange, 3)
+    @length : Int32
+
+    def initialize(@partitions : StaticArray(RangeTrieSplitRange, 3), @length : Int32)
+    end
+
+    def size : Int32
+      @length
+    end
+
+    def each(&block : RangeTrieSplitRange ->) : Nil
+      @length.times { |index| yield @partitions[index] }
     end
 
     private def self.range(start_byte : UInt8, end_byte : UInt8) : ::Regex::Automata::Utf8Range
@@ -629,6 +655,20 @@ module Regex::Automata::NFA
       RangeTrieSplitRange.new(RangeTrieSplitKind::Both, range(start_byte, end_byte))
     end
 
+    private def self.parts1(first : RangeTrieSplitRange) : RangeTrieSplit
+      filler = old(0_u8, 0_u8)
+      new(StaticArray(RangeTrieSplitRange, 3).new { |index| index == 0 ? first : filler }, 1)
+    end
+
+    private def self.parts2(first : RangeTrieSplitRange, second : RangeTrieSplitRange) : RangeTrieSplit
+      filler = old(0_u8, 0_u8)
+      new(StaticArray(RangeTrieSplitRange, 3).new { |index| index == 0 ? first : index == 1 ? second : filler }, 2)
+    end
+
+    private def self.parts3(first : RangeTrieSplitRange, second : RangeTrieSplitRange, third : RangeTrieSplitRange) : RangeTrieSplit
+      new(StaticArray(RangeTrieSplitRange, 3).new { |index| index == 0 ? first : index == 1 ? second : third }, 3)
+    end
+
     def self.build(old_range : ::Regex::Automata::Utf8Range, new_range : ::Regex::Automata::Utf8Range) : RangeTrieSplit?
       a = old_range.start
       b = old_range.end
@@ -638,30 +678,68 @@ module Regex::Automata::NFA
       if b < x || y < a
         nil
       elsif a == x && b == y
-        new([both(a, b)])
+        parts1(both(a, b))
       elsif a == x && b < y
-        new([both(a, b), new_part((b + 1).to_u8, y)])
+        parts2(both(a, b), new_part((b + 1).to_u8, y))
       elsif b == y && a > x
-        new([new_part(x, (a - 1).to_u8), both(a, b)])
+        parts2(new_part(x, (a - 1).to_u8), both(a, b))
       elsif x == a && y < b
-        new([both(x, y), old((y + 1).to_u8, b)])
+        parts2(both(x, y), old((y + 1).to_u8, b))
       elsif y == b && x > a
-        new([old(a, (x - 1).to_u8), both(x, y)])
+        parts2(old(a, (x - 1).to_u8), both(x, y))
       elsif a > x && b < y
-        new([new_part(x, (a - 1).to_u8), both(a, b), new_part((b + 1).to_u8, y)])
+        parts3(new_part(x, (a - 1).to_u8), both(a, b), new_part((b + 1).to_u8, y))
       elsif x > a && y < b
-        new([old(a, (x - 1).to_u8), both(x, y), old((y + 1).to_u8, b)])
+        parts3(old(a, (x - 1).to_u8), both(x, y), old((y + 1).to_u8, b))
       elsif b == x && a < y
-        new([old(a, (b - 1).to_u8), both(b, b), new_part((b + 1).to_u8, y)])
+        parts3(old(a, (b - 1).to_u8), both(b, b), new_part((b + 1).to_u8, y))
       elsif y == a && x < b
-        new([new_part(x, (y - 1).to_u8), both(y, y), old((y + 1).to_u8, b)])
+        parts3(new_part(x, (y - 1).to_u8), both(y, y), old((y + 1).to_u8, b))
       elsif b > x && b < y
-        new([old(a, (x - 1).to_u8), both(x, b), new_part((b + 1).to_u8, y)])
+        parts3(old(a, (x - 1).to_u8), both(x, b), new_part((b + 1).to_u8, y))
       elsif y > a && y < b
-        new([new_part(x, (a - 1).to_u8), both(a, y), old((y + 1).to_u8, b)])
+        parts3(new_part(x, (a - 1).to_u8), both(a, y), old((y + 1).to_u8, b))
       else
         raise "unreachable range trie split"
       end
+    end
+  end
+
+  # Rust's NextInsert stores at most four UTF-8 ranges inline. Keeping the
+  # pending suffix in a StaticArray avoids allocating a slice at each branch.
+  private struct RangeTrieNextInsert
+    getter state_id : Int32
+
+    @ranges : StaticArray(::Regex::Automata::Utf8Range, 4)
+    @length : Int32
+
+    def initialize(@state_id : Int32, ranges : Array(::Regex::Automata::Utf8Range))
+      @length = ranges.size.to_i32
+      raise "expected 1-4 UTF-8 ranges" unless @length >= 1 && @length <= 4
+
+      zero = ::Regex::Automata::Utf8Range.new(0_u8, 0_u8)
+      @ranges = StaticArray(::Regex::Automata::Utf8Range, 4).new { |index| index < @length ? ranges[index] : zero }
+    end
+
+    def initialize(@state_id : Int32, @ranges : StaticArray(::Regex::Automata::Utf8Range, 4), @length : Int32)
+    end
+
+    def first : ::Regex::Automata::Utf8Range
+      @ranges[0]
+    end
+
+    def has_rest? : Bool
+      @length > 1
+    end
+
+    def next_for(state_id : Int32) : RangeTrieNextInsert
+      raise "expected remaining UTF-8 ranges" unless has_rest?
+
+      zero = ::Regex::Automata::Utf8Range.new(0_u8, 0_u8)
+      shifted = StaticArray(::Regex::Automata::Utf8Range, 4).new do |index|
+        index + 1 < @length ? @ranges[index + 1] : zero
+      end
+      RangeTrieNextInsert.new(state_id, shifted, @length - 1)
     end
   end
 
@@ -670,38 +748,63 @@ module Regex::Automata::NFA
     ROOT  = 1
 
     @states : Array(RangeTrieState)
+    @free : Array(RangeTrieState)
+    @insert_stack : Array(RangeTrieNextInsert)
+    @dupe_stack : Array(Tuple(Int32, Int32))
+    @iter_stack : Array(Tuple(Int32, Int32))
+    @iter_ranges : Array(::Regex::Automata::Utf8Range)
 
     def initialize
       @states = [] of RangeTrieState
+      @free = [] of RangeTrieState
+      @insert_stack = [] of RangeTrieNextInsert
+      @dupe_stack = [] of Tuple(Int32, Int32)
+      @iter_stack = [] of Tuple(Int32, Int32)
+      @iter_ranges = [] of ::Regex::Automata::Utf8Range
       clear
     end
 
     def clear : Nil
-      @states = [RangeTrieState.new, RangeTrieState.new]
+      @free.concat(@states)
+      @states.clear
+      add_empty # final
+      add_empty # root
+    end
+
+    def inspect(io : IO) : Nil
+      io << '\n'
+      @states.each_with_index do |state, index|
+        io << (index == FINAL ? '*' : ' ')
+        io << index.to_s.rjust(6, '0') << ": "
+        state.inspect(io)
+        io << '\n'
+      end
     end
 
     def insert(ranges : Array(::Regex::Automata::Utf8Range)) : Nil
       raise "expected non-empty UTF-8 ranges" if ranges.empty?
       raise "expected at most four UTF-8 ranges" if ranges.size > 4
 
-      stack = [{ROOT, ranges}] of Tuple(Int32, Array(::Regex::Automata::Utf8Range))
+      stack = @insert_stack
+      stack.clear
+      stack << RangeTrieNextInsert.new(ROOT, ranges)
       until stack.empty?
-        state_id, pending = stack.pop
+        pending = stack.pop
+        state_id = pending.state_id
         new_range = pending.first
-        rest = pending.size == 1 ? [] of ::Regex::Automata::Utf8Range : pending[1..]
         index = state(state_id).find(new_range)
 
         if index == state(state_id).transitions.size
-          add_transition(state_id, new_range, push_pending(stack, rest))
+          add_transition(state_id, new_range, push_pending(stack, pending))
           next
         end
 
         loop do
           old_transition = state(state_id).transitions[index]
           if split = RangeTrieSplit.build(old_transition.range, new_range)
-            parts = split.partitions
+            parts = split
             if parts.size == 1
-              stack << {old_transition.next_id, rest} unless rest.empty?
+              stack << pending.next_for(old_transition.next_id) if pending.has_rest?
               break
             end
 
@@ -723,9 +826,9 @@ module Regex::Automata::NFA
                   repeat_overlap = true
                   break
                 end
-                target_id = push_pending(stack, rest)
+                target_id = push_pending(stack, pending)
               when RangeTrieSplitKind::Both
-                stack << {old_transition.next_id, rest} unless rest.empty?
+                stack << pending.next_for(old_transition.next_id) if pending.has_rest?
                 target_id = old_transition.next_id
               end
               next unless target_id
@@ -746,7 +849,7 @@ module Regex::Automata::NFA
             end
             break
           else
-            add_transition_at(index, state_id, new_range, push_pending(stack, rest))
+            add_transition_at(index, state_id, new_range, push_pending(stack, pending))
             break
           end
         end
@@ -754,8 +857,11 @@ module Regex::Automata::NFA
     end
 
     def each(&block : Array(::Regex::Automata::Utf8Range) ->) : Nil
-      stack = [{ROOT, 0}] of Tuple(Int32, Int32)
-      ranges = [] of ::Regex::Automata::Utf8Range
+      stack = @iter_stack
+      ranges = @iter_ranges
+      stack.clear
+      ranges.clear
+      stack << {ROOT, 0}
 
       until stack.empty?
         state_id, transition_index = stack.pop
@@ -769,7 +875,7 @@ module Regex::Automata::NFA
           transition = transitions[transition_index]
           ranges << transition.range
           if transition.next_id == FINAL
-            yield ranges.dup
+            yield ranges
             ranges.pop
             transition_index += 1
           else
@@ -781,12 +887,12 @@ module Regex::Automata::NFA
       end
     end
 
-    private def push_pending(stack : Array(Tuple(Int32, Array(::Regex::Automata::Utf8Range))), ranges : Array(::Regex::Automata::Utf8Range)) : Int32
-      if ranges.empty?
+    private def push_pending(stack : Array(RangeTrieNextInsert), pending : RangeTrieNextInsert) : Int32
+      if !pending.has_rest?
         FINAL
       else
         next_id = add_empty
-        stack << {next_id, ranges}
+        stack << pending.next_for(next_id)
         next_id
       end
     end
@@ -795,7 +901,9 @@ module Regex::Automata::NFA
       return FINAL if old_id == FINAL
 
       new_id = add_empty
-      stack = [{old_id, new_id}] of Tuple(Int32, Int32)
+      stack = @dupe_stack
+      stack.clear
+      stack << {old_id, new_id}
       until stack.empty?
         current_old, current_new = stack.pop
         state(current_old).transitions.each do |transition|
@@ -812,7 +920,9 @@ module Regex::Automata::NFA
     end
 
     private def add_empty : Int32
-      @states << RangeTrieState.new
+      state = @free.pop? || RangeTrieState.new
+      state.clear
+      @states << state
       (@states.size - 1).to_i32
     end
 
@@ -933,6 +1043,11 @@ module Regex::Automata::NFA
 
     def initialize(@byte : UInt8, @next : Int32)
     end
+
+    def inspect(io : IO) : Nil
+      Regex::Automata::DebugByte.new(@byte).inspect(io)
+      io << " => " << @next
+    end
   end
 
   private class LiteralTrieState
@@ -968,26 +1083,48 @@ module Regex::Automata::NFA
       result << (start...@transitions.size)
       result
     end
+
+    def inspect(io : IO) : Nil
+      spacing = " "
+      chunk_ranges.each_with_index do |chunk, chunk_index|
+        io << spacing << "MATCH" if chunk_index > 0
+        spacing = ""
+        chunk.each_with_index do |transition_index, index|
+          spacing = " "
+          if index == 0 && chunk_index > 0
+            io << ' '
+          elsif index > 0
+            io << ", "
+          end
+          @transitions[transition_index].inspect(io)
+        end
+      end
+    end
   end
 
-  private class LiteralTrieFrame
+  private struct LiteralTrieFrame
     getter state_id : Int32
-    getter chunks : Array(Range(Int32, Int32))
+    @state : LiteralTrieState
     property chunk_index : Int32
     property transition_index : Int32
     getter union : Array(StateID)
-    getter sparse : Array(Transition)
+    property sparse : Array(Transition)
 
-    def initialize(@state_id : Int32, state : LiteralTrieState)
-      @chunks = state.chunk_ranges
+    def initialize(@state_id : Int32, @state : LiteralTrieState)
       @chunk_index = 0
-      @transition_index = @chunks.first.begin
+      @transition_index = 0
       @union = [] of StateID
       @sparse = [] of Transition
     end
 
     def current_chunk : Range(Int32, Int32)
-      @chunks[@chunk_index]
+      start = @chunk_index == 0 ? 0 : @state.chunks[@chunk_index - 1]
+      finish = @chunk_index < @state.chunks.size ? @state.chunks[@chunk_index] : @state.transitions.size
+      start...finish
+    end
+
+    def chunk_count : Int32
+      @state.chunks.size.to_i32 + 1
     end
   end
 
@@ -1008,6 +1145,16 @@ module Regex::Automata::NFA
 
     def self.reverse : LiteralTrie
       new(true)
+    end
+
+    def inspect(io : IO) : Nil
+      io << "LiteralTrie(\n"
+      @states.each_with_index do |state, index|
+        io << index.to_s.rjust(6, '0') << ": "
+        state.inspect(io)
+        io << '\n'
+      end
+      io << ")\n"
     end
 
     def add(bytes : Bytes) : Nil
@@ -1042,9 +1189,9 @@ module Regex::Automata::NFA
 
     def compile(builder : Builder) : ThompsonRef
       ending = builder.add_empty
-      stack = [LiteralTrieFrame.new(0, @states[0])]
+      stack = [] of LiteralTrieFrame
+      frame = LiteralTrieFrame.new(0, @states[0])
       loop do
-        frame = stack.last
         state = @states[frame.state_id]
         chunk = frame.current_chunk
         if frame.transition_index < chunk.end
@@ -1054,7 +1201,8 @@ module Regex::Automata::NFA
             frame.sparse << Transition.new(transition.byte, transition.byte, ending)
           else
             frame.sparse << Transition.new(transition.byte, transition.byte, StateID.new(0))
-            stack << LiteralTrieFrame.new(transition.next, @states[transition.next])
+            stack << frame
+            frame = LiteralTrieFrame.new(transition.next, @states[transition.next])
           end
           next
         end
@@ -1063,13 +1211,13 @@ module Regex::Automata::NFA
           chunk_id = if frame.sparse.size == 1
                        builder.add_state(ByteRange.new(frame.sparse.pop))
                      else
-                       transitions = frame.sparse.dup
-                       frame.sparse.clear
+                       transitions = frame.sparse
+                       frame.sparse = [] of Transition
                        builder.add_state(Sparse.new(transitions))
                      end
           frame.union << chunk_id
         end
-        if frame.chunk_index + 1 < frame.chunks.size
+        if frame.chunk_index + 1 < frame.chunk_count
           frame.union << ending
           frame.chunk_index += 1
           frame.transition_index = frame.current_chunk.begin
@@ -1077,13 +1225,12 @@ module Regex::Automata::NFA
         end
 
         start = builder.add_state(Union.new(frame.union))
-        stack.pop
         return ThompsonRef.new(start, ending) if stack.empty?
 
-        parent = stack.last
-        placeholder = parent.sparse.size - 1
-        old = parent.sparse[placeholder]
-        parent.sparse[placeholder] = Transition.new(old.start, old.end, start)
+        frame = stack.pop
+        placeholder = frame.sparse.size - 1
+        old = frame.sparse[placeholder]
+        frame.sparse[placeholder] = Transition.new(old.start, old.end, start)
       end
     end
   end

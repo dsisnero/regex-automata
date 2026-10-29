@@ -1193,35 +1193,35 @@ src/nfa/thompson/error.rs::method::BuildError.too_many_patterns	method	ported	sr
 src/nfa/thompson/error.rs::method::BuildError.too_many_states	method	ported	src/regex/automata/nfa.cr:NFA::BuildError.too_many_states;src/regex/automata/nfa.cr:Builder#add_state;spec/nfa_thompson_spec.cr	Checks the StateID limit before appending a Thompson state.
 src/nfa/thompson/error.rs::method::BuildError.unsupported_captures	method	ported	src/regex/automata/nfa.cr:NFA::BuildError.unsupported_captures;src/regex/automata/hir_compiler.cr:build_from_hir;spec/nfa_thompson_spec.cr	Reverse-NFA capture rejection matches Rust.
 src/nfa/thompson/error.rs::method::BuildError.word	method	ported	src/regex/automata/nfa.cr:NFA::BuildError.word;src/regex/automata/hir_compiler.cr:build_from_hir;spec/nfa_builder_vendor_contract_spec.cr	Exact display with nil Error::source, matching Rust's Word variant.
-src/nfa/thompson/literal_trie.rs::method::Frame<'a>.new	method	ported	src/regex/automata/nfa.cr:LiteralTrieFrame#initialize	Explicit stack frame for non-recursive trie compilation.
-src/nfa/thompson/literal_trie.rs::method::LiteralTrie.add	method	ported	src/regex/automata/nfa.cr:LiteralTrie#add;spec/nfa_thompson_spec.cr	Adds literal bytes with forward/reverse ordering.
-src/nfa/thompson/literal_trie.rs::method::LiteralTrie.compile	method	ported	src/regex/automata/nfa.cr:LiteralTrie#compile;spec/nfa_thompson_spec.cr	Compiles chunks with an explicit traversal stack and a patchable empty end, preserving Rust's final state order.
-src/nfa/thompson/literal_trie.rs::method::LiteralTrie.compile_state_to_hir	method	intentional_divergence	-	Rust test-only debug helper; production NFA compilation is covered directly.
-src/nfa/thompson/literal_trie.rs::method::LiteralTrie.compile_to_hir	method	intentional_divergence	-	Rust test-only debug helper; production NFA compilation is covered directly.
-src/nfa/thompson/literal_trie.rs::method::LiteralTrie.fmt	method	intentional_divergence	-	Rust Debug formatting has no Crystal public API equivalent.
-src/nfa/thompson/literal_trie.rs::method::LiteralTrie.forward	method	ported	src/regex/automata/nfa.cr:LiteralTrie.forward;spec/nfa_thompson_spec.cr	Forward trie constructor.
-src/nfa/thompson/literal_trie.rs::method::LiteralTrie.get_or_add_state	method	ported	src/regex/automata/nfa.cr:LiteralTrie#add	Binary-search insertion into the active match-priority chunk.
-src/nfa/thompson/literal_trie.rs::method::LiteralTrie.reverse	method	ported	src/regex/automata/nfa.cr:LiteralTrie.reverse;spec/nfa_thompson_spec.cr	Reverse trie constructor.
-src/nfa/thompson/literal_trie.rs::method::State.active_chunk	method	ported	src/regex/automata/nfa.cr:LiteralTrieState#active_start	Active chunk is addressed by its transition offset.
-src/nfa/thompson/literal_trie.rs::method::State.active_chunk_start	method	ported	src/regex/automata/nfa.cr:LiteralTrieState#active_start	Active chunk transition offset.
-src/nfa/thompson/literal_trie.rs::method::State.add_match	method	ported	src/regex/automata/nfa.cr:LiteralTrieState#add_match;spec/nfa_thompson_spec.cr	Freezes a priority chunk at a literal match.
-src/nfa/thompson/literal_trie.rs::method::State.chunks	method	ported	src/regex/automata/nfa.cr:LiteralTrieState#chunk_ranges	Enumerates frozen and active chunks.
-src/nfa/thompson/literal_trie.rs::method::State.fmt	method	intentional_divergence	-	Rust Debug formatting has no Crystal public API equivalent.
-src/nfa/thompson/literal_trie.rs::method::State.is_leaf	method	ported	src/regex/automata/nfa.cr:LiteralTrieState#leaf?	Leaf-state predicate.
-src/nfa/thompson/literal_trie.rs::method::StateChunksIter<'a>.next	method	ported	src/regex/automata/nfa.cr:LiteralTrieState#chunk_ranges	Crystal materializes the small chunk range list instead of exposing an iterator type.
-src/nfa/thompson/literal_trie.rs::method::Transition.fmt	method	intentional_divergence	-	Rust Debug formatting has no Crystal public API equivalent.
+src/nfa/thompson/literal_trie.rs::method::Frame<'a>.new	method	ported	src/regex/automata/nfa.cr:LiteralTrieFrame#initialize;spec/nfa_literal_trie_vendor_spec.cr	Pinned direct trie fixtures and Debug layout; non-recursive compilation keeps priority chunks and moves sparse transition vectors without copying.
+src/nfa/thompson/literal_trie.rs::method::LiteralTrie.add	method	ported	src/regex/automata/nfa.cr:LiteralTrie#add;spec/nfa_literal_trie_vendor_spec.cr	Pinned direct trie fixtures and Debug layout; non-recursive compilation keeps priority chunks and moves sparse transition vectors without copying.
+src/nfa/thompson/literal_trie.rs::method::LiteralTrie.compile	method	ported	src/regex/automata/nfa.cr:LiteralTrie#compile;spec/nfa_literal_trie_vendor_spec.cr	Pinned direct trie fixtures and Debug layout; non-recursive compilation keeps priority chunks and moves sparse transition vectors without copying.
+src/nfa/thompson/literal_trie.rs::method::LiteralTrie.compile_state_to_hir	method	skipped	spec/nfa_literal_trie_vendor_spec.cr	Rust #[cfg(test)] HIR diagnostic helper is not a runtime API; direct pinned trie fixtures verify compiled-NFA branch priority without recreating a test-only HIR dump.
+src/nfa/thompson/literal_trie.rs::method::LiteralTrie.compile_to_hir	method	skipped	spec/nfa_literal_trie_vendor_spec.cr	Rust #[cfg(test)] HIR diagnostic helper is not a runtime API; direct pinned trie fixtures verify compiled-NFA branch priority without recreating a test-only HIR dump.
+src/nfa/thompson/literal_trie.rs::method::LiteralTrie.fmt	method	ported	src/regex/automata/nfa.cr:LiteralTrie#inspect;spec/nfa_literal_trie_vendor_spec.cr	Pinned direct trie fixtures and Debug layout; non-recursive compilation keeps priority chunks and moves sparse transition vectors without copying.
+src/nfa/thompson/literal_trie.rs::method::LiteralTrie.forward	method	ported	src/regex/automata/nfa.cr:LiteralTrie.forward;spec/nfa_literal_trie_vendor_spec.cr	Pinned direct trie fixtures and Debug layout; non-recursive compilation keeps priority chunks and moves sparse transition vectors without copying.
+src/nfa/thompson/literal_trie.rs::method::LiteralTrie.get_or_add_state	method	ported	src/regex/automata/nfa.cr:LiteralTrie#add;spec/nfa_literal_trie_vendor_spec.cr	Pinned direct trie fixtures and Debug layout; non-recursive compilation keeps priority chunks and moves sparse transition vectors without copying.
+src/nfa/thompson/literal_trie.rs::method::LiteralTrie.reverse	method	ported	src/regex/automata/nfa.cr:LiteralTrie.reverse;spec/nfa_literal_trie_vendor_spec.cr	Pinned direct trie fixtures and Debug layout; non-recursive compilation keeps priority chunks and moves sparse transition vectors without copying.
+src/nfa/thompson/literal_trie.rs::method::State.active_chunk	method	ported	src/regex/automata/nfa.cr:LiteralTrieState#active_start;spec/nfa_literal_trie_vendor_spec.cr	Pinned direct trie fixtures and Debug layout; non-recursive compilation keeps priority chunks and moves sparse transition vectors without copying.
+src/nfa/thompson/literal_trie.rs::method::State.active_chunk_start	method	ported	src/regex/automata/nfa.cr:LiteralTrieState#active_start;spec/nfa_literal_trie_vendor_spec.cr	Pinned direct trie fixtures and Debug layout; non-recursive compilation keeps priority chunks and moves sparse transition vectors without copying.
+src/nfa/thompson/literal_trie.rs::method::State.add_match	method	ported	src/regex/automata/nfa.cr:LiteralTrieState#add_match;spec/nfa_literal_trie_vendor_spec.cr	Pinned direct trie fixtures and Debug layout; non-recursive compilation keeps priority chunks and moves sparse transition vectors without copying.
+src/nfa/thompson/literal_trie.rs::method::State.chunks	method	ported	src/regex/automata/nfa.cr:LiteralTrieState#chunk_ranges;spec/nfa_literal_trie_vendor_spec.cr	Pinned direct trie fixtures and Debug layout; non-recursive compilation keeps priority chunks and moves sparse transition vectors without copying.
+src/nfa/thompson/literal_trie.rs::method::State.fmt	method	ported	src/regex/automata/nfa.cr:LiteralTrieState#inspect;spec/nfa_literal_trie_vendor_spec.cr	Pinned direct trie fixtures and Debug layout; non-recursive compilation keeps priority chunks and moves sparse transition vectors without copying.
+src/nfa/thompson/literal_trie.rs::method::State.is_leaf	method	ported	src/regex/automata/nfa.cr:LiteralTrieState#leaf?;spec/nfa_literal_trie_vendor_spec.cr	Pinned direct trie fixtures and Debug layout; non-recursive compilation keeps priority chunks and moves sparse transition vectors without copying.
+src/nfa/thompson/literal_trie.rs::method::StateChunksIter<'a>.next	method	ported	src/regex/automata/nfa.cr:LiteralTrieFrame#current_chunk;spec/nfa_literal_trie_vendor_spec.cr	Pinned direct trie fixtures and Debug layout; non-recursive compilation keeps priority chunks and moves sparse transition vectors without copying.
+src/nfa/thompson/literal_trie.rs::method::Transition.fmt	method	ported	src/regex/automata/nfa.cr:LiteralTrieTransition#inspect;spec/nfa_literal_trie_vendor_spec.cr	Pinned direct trie fixtures and Debug layout; non-recursive compilation keeps priority chunks and moves sparse transition vectors without copying.
 src/nfa/thompson/map.rs::const::INIT	const	ported	src/regex/automata/nfa.cr:UTF8_MAP_INIT	FNV-1a initial value.
 src/nfa/thompson/map.rs::const::PRIME	const	ported	src/regex/automata/nfa.cr:UTF8_MAP_PRIME	FNV-1a prime.
-src/nfa/thompson/map.rs::method::Utf8BoundedMap.clear	method	ported	src/regex/automata/nfa.cr:Utf8BoundedMap#clear;spec/nfa_thompson_spec.cr	Versioned fixed-slot cache clear.
-src/nfa/thompson/map.rs::method::Utf8BoundedMap.get	method	ported	src/regex/automata/nfa.cr:Utf8BoundedMap#get;spec/nfa_thompson_spec.cr	Collision-safe cached transition lookup.
-src/nfa/thompson/map.rs::method::Utf8BoundedMap.hash	method	ported	src/regex/automata/nfa.cr:Utf8BoundedMap#hash;spec/nfa_thompson_spec.cr	FNV-1a transition hashing.
-src/nfa/thompson/map.rs::method::Utf8BoundedMap.new	method	ported	src/regex/automata/nfa.cr:Utf8BoundedMap#initialize;spec/nfa_thompson_spec.cr	Fixed-capacity UTF-8 compilation cache.
-src/nfa/thompson/map.rs::method::Utf8BoundedMap.set	method	ported	src/regex/automata/nfa.cr:Utf8BoundedMap#set;spec/nfa_thompson_spec.cr	Collision-tolerant cache insertion.
-src/nfa/thompson/map.rs::method::Utf8SuffixMap.clear	method	ported	src/regex/automata/nfa.cr:Utf8SuffixMap#clear;spec/nfa_thompson_spec.cr	Versioned fixed-slot suffix-cache clear.
-src/nfa/thompson/map.rs::method::Utf8SuffixMap.get	method	ported	src/regex/automata/nfa.cr:Utf8SuffixMap#get;spec/nfa_thompson_spec.cr	Collision-safe suffix lookup.
-src/nfa/thompson/map.rs::method::Utf8SuffixMap.hash	method	ported	src/regex/automata/nfa.cr:Utf8SuffixMap#hash;spec/nfa_thompson_spec.cr	FNV-1a suffix hashing.
-src/nfa/thompson/map.rs::method::Utf8SuffixMap.new	method	ported	src/regex/automata/nfa.cr:Utf8SuffixMap#initialize;spec/nfa_thompson_spec.cr	Fixed-capacity reverse UTF-8 cache.
-src/nfa/thompson/map.rs::method::Utf8SuffixMap.set	method	ported	src/regex/automata/nfa.cr:Utf8SuffixMap#set;spec/nfa_thompson_spec.cr	Collision-tolerant suffix insertion.
+src/nfa/thompson/map.rs::method::Utf8BoundedMap.clear	method	ported	src/regex/automata/nfa.cr:Utf8BoundedMap#clear;spec/nfa_utf8_map_vendor_spec.cr	Versioned fixed-slot cache clear.
+src/nfa/thompson/map.rs::method::Utf8BoundedMap.get	method	ported	src/regex/automata/nfa.cr:Utf8BoundedMap#get;spec/nfa_utf8_map_vendor_spec.cr	Collision-safe cached transition lookup.
+src/nfa/thompson/map.rs::method::Utf8BoundedMap.hash	method	ported	src/regex/automata/nfa.cr:Utf8BoundedMap#hash;spec/nfa_utf8_map_vendor_spec.cr	FNV-1a transition hashing.
+src/nfa/thompson/map.rs::method::Utf8BoundedMap.new	method	ported	src/regex/automata/nfa.cr:Utf8BoundedMap#initialize;spec/nfa_utf8_map_vendor_spec.cr	Fixed-capacity UTF-8 compilation cache.
+src/nfa/thompson/map.rs::method::Utf8BoundedMap.set	method	ported	src/regex/automata/nfa.cr:Utf8BoundedMap#set;spec/nfa_utf8_map_vendor_spec.cr	Collision-tolerant cache insertion.
+src/nfa/thompson/map.rs::method::Utf8SuffixMap.clear	method	ported	src/regex/automata/nfa.cr:Utf8SuffixMap#clear;spec/nfa_utf8_map_vendor_spec.cr	Versioned fixed-slot suffix-cache clear.
+src/nfa/thompson/map.rs::method::Utf8SuffixMap.get	method	ported	src/regex/automata/nfa.cr:Utf8SuffixMap#get;spec/nfa_utf8_map_vendor_spec.cr	Collision-safe suffix lookup.
+src/nfa/thompson/map.rs::method::Utf8SuffixMap.hash	method	ported	src/regex/automata/nfa.cr:Utf8SuffixMap#hash;spec/nfa_utf8_map_vendor_spec.cr	FNV-1a suffix hashing.
+src/nfa/thompson/map.rs::method::Utf8SuffixMap.new	method	ported	src/regex/automata/nfa.cr:Utf8SuffixMap#initialize;spec/nfa_utf8_map_vendor_spec.cr	Fixed-capacity reverse UTF-8 cache.
+src/nfa/thompson/map.rs::method::Utf8SuffixMap.set	method	ported	src/regex/automata/nfa.cr:Utf8SuffixMap#set;spec/nfa_utf8_map_vendor_spec.cr	Collision-tolerant suffix insertion.
 src/nfa/thompson/nfa.rs::method::DenseTransitions.iter	method	ported	src/regex/automata/nfa.cr:Dense#iter;spec/nfa_dense_transitions_spec.cr	Enumerates nonzero byte transitions in byte order; no compiler-generated Dense states at this pin.
 src/nfa/thompson/nfa.rs::method::DenseTransitions.matches	method	ported	src/regex/automata/nfa.cr:Dense#matches;spec/nfa_dense_transitions_spec.cr	Returns nonzero target for in-bounds haystack byte, otherwise nil.
 src/nfa/thompson/nfa.rs::method::DenseTransitions.matches_byte	method	ported	src/regex/automata/nfa.cr:Dense#matches_byte;spec/nfa_dense_transitions_spec.cr	StateID::ZERO is the absent-transition sentinel.
@@ -1342,34 +1342,34 @@ src/nfa/thompson/pikevm.rs::method::SlotTable.memory_usage	method	ported	src/reg
 src/nfa/thompson/pikevm.rs::method::SlotTable.new	method	ported	src/regex/automata/pikevm.cr:130;spec/pikevm_spec.cr	Initializes an empty reusable slot table.
 src/nfa/thompson/pikevm.rs::method::SlotTable.reset	method	ported	src/regex/automata/pikevm.cr:137;spec/pikevm_spec.cr	Sizes reusable per-state rows plus scratch storage for the PikeVM NFA.
 src/nfa/thompson/pikevm.rs::method::SlotTable.setup_search	method	ported	src/regex/automata/pikevm.cr:150;spec/pikevm_spec.cr	Sets the caller-visible slot width without reallocating the cache.
-src/nfa/thompson/range_trie.rs::const::FINAL	const	missing	-	auto-generated
-src/nfa/thompson/range_trie.rs::const::ROOT	const	missing	-	auto-generated
-src/nfa/thompson/range_trie.rs::method::NextInsert.new	method	missing	-	auto-generated
-src/nfa/thompson/range_trie.rs::method::NextInsert.push	method	missing	-	auto-generated
-src/nfa/thompson/range_trie.rs::method::NextInsert.ranges	method	missing	-	auto-generated
-src/nfa/thompson/range_trie.rs::method::NextInsert.state_id	method	missing	-	auto-generated
-src/nfa/thompson/range_trie.rs::method::RangeTrie.add_empty	method	missing	-	auto-generated
-src/nfa/thompson/range_trie.rs::method::RangeTrie.add_transition	method	missing	-	auto-generated
-src/nfa/thompson/range_trie.rs::method::RangeTrie.add_transition_at	method	missing	-	auto-generated
-src/nfa/thompson/range_trie.rs::method::RangeTrie.clear	method	missing	-	auto-generated
-src/nfa/thompson/range_trie.rs::method::RangeTrie.duplicate	method	missing	-	auto-generated
-src/nfa/thompson/range_trie.rs::method::RangeTrie.fmt	method	missing	-	auto-generated
-src/nfa/thompson/range_trie.rs::method::RangeTrie.insert	method	missing	-	auto-generated
-src/nfa/thompson/range_trie.rs::method::RangeTrie.iter	method	missing	-	auto-generated
-src/nfa/thompson/range_trie.rs::method::RangeTrie.new	method	missing	-	auto-generated
-src/nfa/thompson/range_trie.rs::method::RangeTrie.set_transition_at	method	missing	-	auto-generated
-src/nfa/thompson/range_trie.rs::method::RangeTrie.state	method	missing	-	auto-generated
-src/nfa/thompson/range_trie.rs::method::RangeTrie.state_mut	method	missing	-	auto-generated
-src/nfa/thompson/range_trie.rs::method::Split.as_slice	method	missing	-	auto-generated
-src/nfa/thompson/range_trie.rs::method::Split.new	method	missing	-	auto-generated
-src/nfa/thompson/range_trie.rs::method::Split.parts1	method	missing	-	auto-generated
-src/nfa/thompson/range_trie.rs::method::Split.parts2	method	missing	-	auto-generated
-src/nfa/thompson/range_trie.rs::method::Split.parts3	method	missing	-	auto-generated
-src/nfa/thompson/range_trie.rs::method::State.binary_search	method	missing	-	auto-generated
-src/nfa/thompson/range_trie.rs::method::State.clear	method	missing	-	auto-generated
-src/nfa/thompson/range_trie.rs::method::State.find	method	missing	-	auto-generated
-src/nfa/thompson/range_trie.rs::method::State.fmt	method	missing	-	auto-generated
-src/nfa/thompson/range_trie.rs::method::Transition.fmt	method	missing	-	auto-generated
+src/nfa/thompson/range_trie.rs::const::FINAL	const	ported	src/regex/automata/nfa.cr:RangeTrie::FINAL;spec/nfa_range_trie_vendor_spec.cr	Pinned split/insert/iteration and Rust Debug behavior; private helper follows the same range-trie path.
+src/nfa/thompson/range_trie.rs::const::ROOT	const	ported	src/regex/automata/nfa.cr:RangeTrie::ROOT;spec/nfa_range_trie_vendor_spec.cr	Pinned split/insert/iteration and Rust Debug behavior; private helper follows the same range-trie path.
+src/nfa/thompson/range_trie.rs::method::NextInsert.new	method	ported	src/regex/automata/nfa.cr:RangeTrieNextInsert#initialize;spec/nfa_range_trie_vendor_spec.cr	Pinned split/insert/iteration and Rust Debug behavior; private helper follows the same range-trie path.
+src/nfa/thompson/range_trie.rs::method::NextInsert.push	method	ported	src/regex/automata/nfa.cr:RangeTrie#push_pending;spec/nfa_range_trie_vendor_spec.cr	Pinned split/insert/iteration and Rust Debug behavior; private helper follows the same range-trie path.
+src/nfa/thompson/range_trie.rs::method::NextInsert.ranges	method	ported	src/regex/automata/nfa.cr:RangeTrieNextInsert#first;RangeTrieNextInsert#next_for;spec/nfa_range_trie_vendor_spec.cr	Pinned split/insert/iteration and Rust Debug behavior; private helper follows the same range-trie path.
+src/nfa/thompson/range_trie.rs::method::NextInsert.state_id	method	ported	src/regex/automata/nfa.cr:RangeTrieNextInsert#state_id;spec/nfa_range_trie_vendor_spec.cr	Pinned split/insert/iteration and Rust Debug behavior; private helper follows the same range-trie path.
+src/nfa/thompson/range_trie.rs::method::RangeTrie.add_empty	method	ported	src/regex/automata/nfa.cr:RangeTrie#add_empty;spec/nfa_range_trie_vendor_spec.cr	Pinned split/insert/iteration and Rust Debug behavior; private helper follows the same range-trie path.
+src/nfa/thompson/range_trie.rs::method::RangeTrie.add_transition	method	ported	src/regex/automata/nfa.cr:RangeTrie#add_transition;spec/nfa_range_trie_vendor_spec.cr	Pinned split/insert/iteration and Rust Debug behavior; private helper follows the same range-trie path.
+src/nfa/thompson/range_trie.rs::method::RangeTrie.add_transition_at	method	ported	src/regex/automata/nfa.cr:RangeTrie#add_transition_at;spec/nfa_range_trie_vendor_spec.cr	Pinned split/insert/iteration and Rust Debug behavior; private helper follows the same range-trie path.
+src/nfa/thompson/range_trie.rs::method::RangeTrie.clear	method	ported	src/regex/automata/nfa.cr:RangeTrie#clear;spec/nfa_range_trie_vendor_spec.cr	Pinned split/insert/iteration and Rust Debug behavior; private helper follows the same range-trie path.
+src/nfa/thompson/range_trie.rs::method::RangeTrie.duplicate	method	ported	src/regex/automata/nfa.cr:RangeTrie#duplicate;spec/nfa_range_trie_vendor_spec.cr	Pinned split/insert/iteration and Rust Debug behavior; private helper follows the same range-trie path.
+src/nfa/thompson/range_trie.rs::method::RangeTrie.fmt	method	ported	src/regex/automata/nfa.cr:RangeTrie#inspect;spec/nfa_range_trie_vendor_spec.cr	Pinned split/insert/iteration and Rust Debug behavior; private helper follows the same range-trie path.
+src/nfa/thompson/range_trie.rs::method::RangeTrie.insert	method	ported	src/regex/automata/nfa.cr:RangeTrie#insert;spec/nfa_range_trie_vendor_spec.cr	Pinned split/insert/iteration and Rust Debug behavior; private helper follows the same range-trie path.
+src/nfa/thompson/range_trie.rs::method::RangeTrie.iter	method	ported	src/regex/automata/nfa.cr:RangeTrie#each;spec/nfa_range_trie_vendor_spec.cr	Pinned split/insert/iteration and Rust Debug behavior; private helper follows the same range-trie path.
+src/nfa/thompson/range_trie.rs::method::RangeTrie.new	method	ported	src/regex/automata/nfa.cr:RangeTrie#initialize;spec/nfa_range_trie_vendor_spec.cr	Pinned split/insert/iteration and Rust Debug behavior; private helper follows the same range-trie path.
+src/nfa/thompson/range_trie.rs::method::RangeTrie.set_transition_at	method	ported	src/regex/automata/nfa.cr:RangeTrie#set_transition_at;spec/nfa_range_trie_vendor_spec.cr	Pinned split/insert/iteration and Rust Debug behavior; private helper follows the same range-trie path.
+src/nfa/thompson/range_trie.rs::method::RangeTrie.state	method	ported	src/regex/automata/nfa.cr:RangeTrie#state;spec/nfa_range_trie_vendor_spec.cr	Pinned split/insert/iteration and Rust Debug behavior; private helper follows the same range-trie path.
+src/nfa/thompson/range_trie.rs::method::RangeTrie.state_mut	method	ported	src/regex/automata/nfa.cr:RangeTrie#state;spec/nfa_range_trie_vendor_spec.cr	Pinned split/insert/iteration and Rust Debug behavior; private helper follows the same range-trie path.
+src/nfa/thompson/range_trie.rs::method::Split.as_slice	method	ported	src/regex/automata/nfa.cr:RangeTrieSplit#each;spec/nfa_range_trie_vendor_spec.cr	Pinned split/insert/iteration and Rust Debug behavior; private helper follows the same range-trie path.
+src/nfa/thompson/range_trie.rs::method::Split.new	method	ported	src/regex/automata/nfa.cr:RangeTrieSplit.build;spec/nfa_range_trie_vendor_spec.cr	Pinned split/insert/iteration and Rust Debug behavior; private helper follows the same range-trie path.
+src/nfa/thompson/range_trie.rs::method::Split.parts1	method	ported	src/regex/automata/nfa.cr:RangeTrieSplit.build;spec/nfa_range_trie_vendor_spec.cr	Pinned split/insert/iteration and Rust Debug behavior; private helper follows the same range-trie path.
+src/nfa/thompson/range_trie.rs::method::Split.parts2	method	ported	src/regex/automata/nfa.cr:RangeTrieSplit.build;spec/nfa_range_trie_vendor_spec.cr	Pinned split/insert/iteration and Rust Debug behavior; private helper follows the same range-trie path.
+src/nfa/thompson/range_trie.rs::method::Split.parts3	method	ported	src/regex/automata/nfa.cr:RangeTrieSplit.build;spec/nfa_range_trie_vendor_spec.cr	Pinned split/insert/iteration and Rust Debug behavior; private helper follows the same range-trie path.
+src/nfa/thompson/range_trie.rs::method::State.binary_search	method	ported	src/regex/automata/nfa.cr:RangeTrieState#find;spec/nfa_range_trie_vendor_spec.cr	Pinned split/insert/iteration and Rust Debug behavior; private helper follows the same range-trie path.
+src/nfa/thompson/range_trie.rs::method::State.clear	method	ported	src/regex/automata/nfa.cr:RangeTrieState#clear;spec/nfa_range_trie_vendor_spec.cr	Pinned split/insert/iteration and Rust Debug behavior; private helper follows the same range-trie path.
+src/nfa/thompson/range_trie.rs::method::State.find	method	ported	src/regex/automata/nfa.cr:RangeTrieState#find;spec/nfa_range_trie_vendor_spec.cr	Pinned split/insert/iteration and Rust Debug behavior; private helper follows the same range-trie path.
+src/nfa/thompson/range_trie.rs::method::State.fmt	method	ported	src/regex/automata/nfa.cr:RangeTrieState#inspect;spec/nfa_range_trie_vendor_spec.cr	Pinned split/insert/iteration and Rust Debug behavior; private helper follows the same range-trie path.
+src/nfa/thompson/range_trie.rs::method::Transition.fmt	method	ported	src/regex/automata/nfa.cr:RangeTrieTransition#inspect;spec/nfa_range_trie_vendor_spec.cr	Pinned split/insert/iteration and Rust Debug behavior; private helper follows the same range-trie path.
 src/util/alphabet.rs::method::BitSet.fmt	method	intentional_divergence	-	Rust-private debug formatter has no Crystal-visible BitSet type.
 src/util/alphabet.rs::method::ByteClassElementRanges<'a>.next	method	ported	src/regex/automata/byte_classes.cr:ByteClassElementRanges#next;spec/byte_classes_spec.cr	Contiguous element range iteration is implemented.
 src/util/alphabet.rs::method::ByteClassElements<'a>.next	method	ported	src/regex/automata/byte_classes.cr:ByteClassElements#next;spec/byte_classes_spec.cr	Class element enumeration is covered.
