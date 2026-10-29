@@ -2601,7 +2601,7 @@ module Regex::Automata::DFA
         puts "DFA state #{dfa_id.to_i}: NFA set size #{nfa_set.size}, look_need #{look_need}, look_have #{look_have}"
         nfa_set.each do |nfa_id|
           nfa_state = nfa.states[nfa_id.to_i]
-          puts "  NFA state #{nfa_id.to_i}: #{nfa_state.class} #{nfa_state.is_a?(NFA::Match) ? "(match pattern #{nfa_state.pattern_id.to_i}, next=#{nfa_state.next.inspect})" : ""}"
+          puts "  NFA state #{nfa_id.to_i}: #{nfa_state.class} #{nfa_state.is_a?(NFA::Match) ? "(match pattern #{nfa_state.pattern_id.to_i})" : ""}"
         end
         state_matches.each do |pattern_id|
           puts "DFA state #{dfa_id.to_i}: adding match for pattern #{pattern_id.to_i}"
@@ -2625,8 +2625,6 @@ module Regex::Automata::DFA
       closure.each do |nfa_id|
         nfa_state = nfa.states[nfa_id.to_i]
         if nfa_state.is_a?(NFA::Match)
-          next unless nfa_state.next.nil?
-
           idx = matches.bsearch_index { |pid| pid >= nfa_state.pattern_id } || matches.size
           if idx == matches.size || matches[idx] != nfa_state.pattern_id
             matches.insert(idx, nfa_state.pattern_id)

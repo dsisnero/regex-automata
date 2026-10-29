@@ -38,25 +38,32 @@ Crystal format check, and no-codegen build green (16,094 Crystal specs).
 Benchmarks are not used
 as evidence on this loaded host.
 
-## 3c3b — HIR compiler algorithms
+## 3c3b — HIR compiler algorithms (complete)
 
-Scope: `compiler.rs` public configuration/build contracts, HIR lowering,
-greedy and reverse state order, capture/error precedence, Unicode class
-strategies, literal/range trie and bounded-map integration, private UTF-8
-compiler helpers, and the 19 pinned native compiler tests. The existing
-assertion audit in `inventory/rust_thompson_compiler_assertion_audit.tsv`
-is a starting point, not a file-level signoff.
+All 74 `compiler.rs` method rows and the file-level review are reconciled
+against the pinned source. The 19 unchanged native Rust compiler tests pass
+offline; the 38 original assertion locations map to exact Crystal graph
+checks in `spec/thompson_syntax_adoption_spec.cr` and the assertion audit.
+New source-derived red-green specs in `spec/nfa_compiler_vendor_contract_spec.cr`
+cover retained builder/Unicode scratch identities, immutable earlier NFAs,
+empty-list configuration in the Crystal adapter, Rust's direct literal/look
+state allocation, terminal `Match`, and all six dot variants in both directions.
 
-Rust source paths to check individually: `Compiler::compile`,
-`c_unicode_class`, `c_unicode_class_reverse_with_suffix`, `Utf8Compiler`,
-and the `Config`/`WhichCaptures` contracts. Rust always streams forward
-Unicode sequences into `Utf8Compiler`; reverse compilation uses suffix
-caching when `shrink` is false and a lexicographically ordered `RangeTrie`
-when `shrink` is true. Reuse compiler-owned trie and UTF-8 scratch storage
-across class compilations. Audit the Crystal-only `Match.next` placeholder
-against Rust's builder/compiler graph; remove it if possible, or record
-necessity, observable equivalence, and construction cost.
+`HirCompiler` clears and reuses its `Builder`; the builder retains one
+`Utf8CompilerState`, `RangeTrie`, and 1,000-slot `Utf8SuffixMap`, each cleared
+at the same class boundary as Rust's `Compiler`. Forward Unicode uses the
+ordered UTF-8 compiler, reverse unshrunk compilation uses suffix caching,
+and reverse shrunk compilation traverses the range trie in lexical order.
+Literal and look lowering now emit Rust's directly patchable states. Crystal's
+raw `DotNode` compatibility path is normalized through `Hir.dot`, as Rust's
+HIR smart constructor does, rather than building a separate, oversized byte
+graph. The Crystal-only `Match.next` edge is removed from both construction
+and final NFA states; direct Builder convenience helpers convert an endpoint
+`Match` to `Empty` only when composing graphs. The extra conversion is
+construction-only, preserves final graph semantics, and adds no search-time
+branch or allocation. It exists solely for the Crystal convenience helpers,
+which Rust's low-level Builder does not expose.
 
-Gate: every `compiler.rs` source/test/file row has pinned evidence; full
-code gates green; update the top-level **Where we are** block and commit
-3c3b atomically before phase 4.
+The pinned source/test/file inventories and top-level roadmap carry the
+completion state. Benchmarks were skipped because this host is loaded; no
+throughput claim is made.

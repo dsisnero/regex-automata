@@ -215,9 +215,9 @@ describe "Thompson NFA representation parity" do
     nfa_fail.is_epsilon.should be_false
   end
 
-  it "does not follow match states through epsilon closure" do
+  it "keeps terminal match states out of epsilon closure traversal" do
     states = [
-      Regex::Automata::NFA::Match.new(nfa_pid(0), nfa_sid(1)),
+      Regex::Automata::NFA::Match.new(nfa_pid(0)),
       nfa_byte('a'.ord.to_u8, 2),
       nfa_match(1),
     ] of Regex::Automata::NFA::State

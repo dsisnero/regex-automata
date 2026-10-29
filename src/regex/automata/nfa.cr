@@ -349,9 +349,8 @@ module Regex::Automata::NFA
   # Match state (accepting state for a pattern)
   struct Match
     getter pattern_id : PatternID
-    getter next : StateID?
 
-    def initialize(@pattern_id : PatternID, @next : StateID? = nil)
+    def initialize(@pattern_id : PatternID)
     end
 
     def inspect(io : IO) : Nil
@@ -951,8 +950,7 @@ module Regex::Automata::NFA
     @state : Utf8CompilerState
     getter target : StateID
 
-    def initialize(@builder : Builder)
-      @state = Utf8CompilerState.new
+    def initialize(@builder : Builder, @state : Utf8CompilerState)
       @target = @builder.add_state(Empty.new(StateID.new(0)))
       @state.clear
       add_empty
@@ -1252,6 +1250,9 @@ module Regex::Automata::NFA
     @manual_capture_ids : Set(StateID)
     @capture_end_ids : Set(StateID)
     @reverse_unions : Set(StateID)
+    @utf8_state : Utf8CompilerState
+    @range_trie : RangeTrie
+    @utf8_suffix : Utf8SuffixMap
 
     def initialize(utf8 : Bool = false, reverse : Bool = false, shrink : Bool = false, @size_limit : Int64? = nil)
       @states = [] of State
@@ -1268,6 +1269,9 @@ module Regex::Automata::NFA
       @manual_capture_ids = Set(StateID).new
       @capture_end_ids = Set(StateID).new
       @reverse_unions = Set(StateID).new
+      @utf8_state = Utf8CompilerState.new
+      @range_trie = RangeTrie.new
+      @utf8_suffix = Utf8SuffixMap.new(1_000)
     end
 
     def clear : Nil
@@ -1467,6 +1471,10 @@ module Regex::Automata::NFA
     # Set reverse mode
     def set_reverse(reverse : Bool)
       @reverse = reverse
+    end
+
+    def set_shrink(shrink : Bool) : Nil
+      @shrink = shrink
     end
 
     # Get reverse mode
@@ -1775,7 +1783,7 @@ module Regex::Automata::NFA
     end
 
     private def build_unicode_ranges_with_utf8_compiler(ranges : Array(Range(UInt32, UInt32))) : ThompsonRef
-      compiler = Utf8Compiler.new(self)
+      compiler = Utf8Compiler.new(self, @utf8_state)
       ranges.each do |range|
         utf8_seq = ::Regex::Automata::Utf8Sequences.new(range.begin.chr, range.end.chr)
         while seq = utf8_seq.next
@@ -1786,7 +1794,7 @@ module Regex::Automata::NFA
     end
 
     private def build_reverse_unicode_ranges_with_suffix(ranges : Array(Range(UInt32, UInt32))) : ThompsonRef
-      cache = Utf8SuffixMap.new(1_000)
+      cache = @utf8_suffix
       cache.clear
       union_start = add_state(Union.new([] of StateID))
       target = add_state(Empty.new(StateID.new(0)))
@@ -1816,7 +1824,8 @@ module Regex::Automata::NFA
     end
 
     private def build_reverse_unicode_ranges_with_trie(ranges : Array(Range(UInt32, UInt32))) : ThompsonRef
-      trie = RangeTrie.new
+      trie = @range_trie
+      trie.clear
       ranges.each do |range|
         utf8_seq = ::Regex::Automata::Utf8Sequences.new(range.begin.chr, range.end.chr)
         while seq = utf8_seq.next
@@ -1824,7 +1833,7 @@ module Regex::Automata::NFA
         end
       end
 
-      compiler = Utf8Compiler.new(self)
+      compiler = Utf8Compiler.new(self, @utf8_state)
       trie.each do |ranges|
         compiler.add(ranges)
       end
@@ -1993,12 +2002,8 @@ module Regex::Automata::NFA
         when Empty
           next
         when Match
-          if state.next
-            next
-          else
-            remap[index] = StateID.new(final_states.size)
-            final_states << state
-          end
+          remap[index] = StateID.new(final_states.size)
+          final_states << state
         when Sparse
           replacement = case state.transitions.size
                         when 0
@@ -2096,9 +2101,7 @@ module Regex::Automata::NFA
       state = @states[state_id.to_i]
       case state
       when Match
-        # Create Empty state with same next target (if any)
-        next_id = state.next || StateID.new(0)
-        @states[state_id.to_i] = Empty.new(next_id)
+        @states[state_id.to_i] = Empty.new(StateID::ZERO)
       else
         # Not a Match, leave unchanged
       end
@@ -2122,7 +2125,9 @@ module Regex::Automata::NFA
       when Empty
         Empty.new(target_id)
       when Match
-        Match.new(state.pattern_id, target_id)
+        # Crystal's public Builder helpers return a terminal Match endpoint.
+        # Composition turns that endpoint into Rust's patchable Empty state.
+        Empty.new(target_id)
       when Union
         # Add target to alternates (creates new union with additional epsilon transition)
         Union.new(state.alternates + [target_id])
@@ -2141,8 +2146,6 @@ module Regex::Automata::NFA
     private def goto_target(state : State) : StateID?
       case state
       when Empty
-        state.next
-      when Match
         state.next
       when Union
         state.alternates.size == 1 ? state.alternates.first : nil
@@ -2173,7 +2176,7 @@ module Regex::Automata::NFA
       when Capture
         Capture.new(remap[state.next.to_i], state.pattern_id, state.group_index, state.slot)
       when Match
-        Match.new(state.pattern_id, state.next.try { |sid| remap[sid.to_i] })
+        state
       else
         state
       end
@@ -2189,7 +2192,7 @@ module Regex::Automata::NFA
       when Look, Capture, Empty
         [state.next]
       when Match
-        state.next.try { |n| [n] } || [] of StateID
+        [] of StateID
       when Union
         state.alternates
       when BinaryUnion
@@ -2253,9 +2256,7 @@ module Regex::Automata::NFA
         when Empty
           @states[copied_id.to_i] = Empty.new(new_targets.first)
         when Match
-          # Match state's next is optional
-          next_target = new_targets.first? || nil
-          @states[copied_id.to_i] = Match.new(state.pattern_id, next_target)
+          # Terminal Match states have no targets to remap.
         when Union
           @states[copied_id.to_i] = Union.new(new_targets)
         when BinaryUnion

@@ -24,8 +24,8 @@ private def s_look(kind : Regex::Automata::NFA::Look::Kind, next_id : Int32) : R
   Regex::Automata::NFA::Look.new(kind, sid(next_id))
 end
 
-private def s_match(pattern_id : Int32, next_id : Int32? = nil) : Regex::Automata::NFA::Match
-  Regex::Automata::NFA::Match.new(pid(pattern_id), next_id.try { |id| sid(id) })
+private def s_match(pattern_id : Int32) : Regex::Automata::NFA::Match
+  Regex::Automata::NFA::Match.new(pid(pattern_id))
 end
 
 private def s_cap(next_id : Int32, pattern_id : Int32, group_index : Int32, slot : Int32) : Regex::Automata::NFA::Capture

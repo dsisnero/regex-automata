@@ -265,8 +265,9 @@ module Regex::Automata
     end
 
     def compile_multi(hirs : Array(Regex::Syntax::Hir::Hir)) : NFA::NFA
+      return build_empty_pattern_list if hirs.empty?
+
       reset_builder
-      return finalize_build(NFA::NFA.never_match) if hirs.empty?
       raise NFA::BuildError.too_many_patterns(hirs.size.to_i64) if hirs.size.to_i64 >= PatternID::LIMIT
 
       pattern_hirs = hirs.map_with_index { |hir, i| {PatternID.new(i.to_i32), hir} }
@@ -410,22 +411,24 @@ module Regex::Automata
     end
 
     private def compile_empty : NFA::ThompsonRef
-      match_id = @builder.add_state(NFA::Match.new(@pattern_id))
-      NFA::ThompsonRef.new(match_id, match_id)
+      id = @builder.add_empty
+      NFA::ThompsonRef.new(id, id)
     end
 
     private def compile_literal(node : Regex::Syntax::Hir::Literal) : NFA::ThompsonRef
-      bytes = if @config.reverse
-                reversed = Bytes.new(node.bytes.size)
-                last = node.bytes.size - 1
-                node.bytes.each_with_index do |byte, index|
-                  reversed[last - index] = byte
-                end
-                reversed
-              else
-                node.bytes
-              end
-      @builder.build_literal(bytes, @pattern_id)
+      return compile_empty if node.bytes.empty?
+
+      first = nil.as(StateID?)
+      ending = nil.as(StateID?)
+      indices = @config.reverse ? (node.bytes.size - 1).downto(0) : 0.upto(node.bytes.size - 1)
+      indices.each do |index|
+        byte = node.bytes[index]
+        id = @builder.add_range(NFA::Transition.new(byte, byte, StateID::ZERO))
+        @builder.patch(ending, id) if ending
+        first ||= id
+        ending = id
+      end
+      NFA::ThompsonRef.new(first.not_nil!, ending.not_nil!)
     end
 
     private def compile_char_class(node : Regex::Syntax::Hir::CharClass) : NFA::ThompsonRef
@@ -441,7 +444,9 @@ module Regex::Automata
     end
 
     private def compile_dot(node : Regex::Syntax::Hir::DotNode) : NFA::ThompsonRef
-      @builder.build_dot(node.kind, @pattern_id)
+      # Rust Hir::dot lowers to a byte or Unicode class before compiler.rs
+      # sees the HIR. Crystal also exposes raw DotNode, so normalize it here.
+      compile_node(Regex::Syntax::Hir::Hir.dot(node.kind).node)
     end
 
     private def compile_look(node : Regex::Syntax::Hir::Look) : NFA::ThompsonRef
@@ -492,9 +497,7 @@ module Regex::Automata
 
       kind = reverse_look_kind(kind) if @config.reverse
       look_id = @builder.add_state(NFA::Look.new(kind, StateID.new(0)))
-      match_id = @builder.add_state(NFA::Match.new(@pattern_id))
-      @builder.update_transition_target(look_id, match_id)
-      NFA::ThompsonRef.new(look_id, match_id)
+      NFA::ThompsonRef.new(look_id, look_id)
     end
 
     private def reverse_look_kind(kind : NFA::Look::Kind) : NFA::Look::Kind
@@ -637,10 +640,9 @@ module Regex::Automata
 
     private def compiler_patch(from : StateID, to : StateID) : Nil
       if @builder.state(from).is_a?(NFA::Match)
-        @builder.update_transition_target(from, to)
-      else
-        @builder.patch(from, to)
+        @builder.replace_match_with_empty(from)
       end
+      @builder.patch(from, to)
     end
 
     private def compile_capture(node : Regex::Syntax::Hir::Capture) : NFA::ThompsonRef
@@ -669,7 +671,11 @@ module Regex::Automata
     end
 
     private def reset_builder : Nil
-      @builder = NFA::Builder.new(utf8: @config.utf8, reverse: @config.reverse, shrink: @config.shrink, size_limit: @config.nfa_size_limit)
+      @builder.clear
+      @builder.set_utf8(@config.utf8)
+      @builder.set_reverse(@config.reverse)
+      @builder.set_shrink(@config.shrink)
+      @builder.set_size_limit(@config.nfa_size_limit)
       @builder.set_look_matcher(@config.look_matcher)
     end
 
