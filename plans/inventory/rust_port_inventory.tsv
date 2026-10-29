@@ -1087,7 +1087,7 @@ src/nfa/thompson/builder.rs::method::Builder.add_range	method	ported	src/regex/a
 src/nfa/thompson/builder.rs::method::Builder.add_sparse	method	ported	src/regex/automata/nfa.cr:1067;spec/nfa_thompson_spec.cr	Requires ascending non-overlapping transitions before adding the state.
 src/nfa/thompson/builder.rs::method::Builder.add_union	method	ported	src/regex/automata/nfa.cr:1053;spec/nfa_thompson_spec.cr	Adds ordered priority alternatives, including empty unions for later patching.
 src/nfa/thompson/builder.rs::method::Builder.add_union_reverse	method	ported	src/regex/automata/nfa.cr:1057;spec/nfa_thompson_spec.cr	Records reverse priority during construction and reverses alternatives at final assembly.
-src/nfa/thompson/builder.rs::method::Builder.build	method	partial	src/regex/automata/nfa.cr:1219;spec/nfa_thompson_spec.cr	Hand-built starts, captures, and reverse unions are assembled; exhaustive malformed graph and capture error parity remains to verify.
+src/nfa/thompson/builder.rs::method::Builder.build	method	ported	src/regex/automata/nfa.cr:Builder#build;spec/nfa_thompson_spec.cr;spec/nfa_builder_vendor_contract_spec.cr;spec/nfa_dense_transitions_spec.cr	Hand-built starts, captures, reverse unions, Dense remap, untouched-builder panic, missing-capture-row rejection, and capture-error precedence follow pinned Rust.
 src/nfa/thompson/builder.rs::method::Builder.check_size_limit	method	ported	src/regex/automata/nfa.cr:1168;spec/nfa_thompson_spec.cr	Checks the configured limit immediately after each added builder state and when setting the limit.
 src/nfa/thompson/builder.rs::method::Builder.clear	method	ported	src/regex/automata/nfa.cr:1011;spec/nfa_thompson_spec.cr	Clears graph and pattern state while retaining configuration.
 src/nfa/thompson/builder.rs::method::Builder.current_pattern_id	method	ported	src/regex/automata/nfa.cr:1041;spec/nfa_thompson_spec.cr	Returns active pattern ID or raises for an invalid lifecycle.
@@ -1096,17 +1096,17 @@ src/nfa/thompson/builder.rs::method::Builder.get_look_matcher	method	ported	src/
 src/nfa/thompson/builder.rs::method::Builder.get_reverse	method	ported	src/regex/automata/nfa.cr:1211;spec/nfa_thompson_spec.cr	Returns reverse mode.
 src/nfa/thompson/builder.rs::method::Builder.get_size_limit	method	ported	src/regex/automata/nfa.cr:1160;spec/nfa_thompson_spec.cr	Returns the optional configured builder limit.
 src/nfa/thompson/builder.rs::method::Builder.get_utf8	method	ported	src/regex/automata/nfa.cr:1135;spec/nfa_thompson_spec.cr	Returns UTF-8 mode; hand builder defaults to false as in Rust.
-src/nfa/thompson/builder.rs::method::Builder.memory_usage	method	partial	src/regex/automata/nfa.cr:1164;spec/nfa_thompson_spec.cr	Tracks the Rust-equivalent per-state estimate plus variable transition storage; Crystal object allocation layout prevents byte-identical allocator accounting.
+src/nfa/thompson/builder.rs::method::Builder.memory_usage	method	intentional_divergence	src/regex/automata/nfa.cr:Builder#memory_usage;spec/nfa_thompson_spec.cr;spec/nfa_builder_vendor_contract_spec.cr	Crystal estimates 32 bytes per builder state plus variable transition storage; Rust size_of::<State>() is pointer-width/layout dependent. Growth and size-limit behavior pass, but byte-identical thresholds are not portable; query is off search hot path.
 src/nfa/thompson/builder.rs::method::Builder.new	method	ported	src/regex/automata/nfa.cr:994;spec/nfa_thompson_spec.cr	Initializes empty hand builder with Rust's default disabled UTF-8 mode.
-src/nfa/thompson/builder.rs::method::Builder.patch	method	partial	src/regex/automata/nfa.cr:1111;spec/nfa_thompson_spec.cr	Patches single-target and union states and checks union memory growth; malformed-state behavior still needs exhaustive parity tests.
+src/nfa/thompson/builder.rs::method::Builder.patch	method	ported	src/regex/automata/nfa.cr:Builder#patch;spec/nfa_thompson_spec.cr;spec/nfa_builder_vendor_contract_spec.cr	Single-target patching, in-place union append, sparse panic, terminal no-op, and post-mutation size-limit error match pinned Rust.
 src/nfa/thompson/builder.rs::method::Builder.pattern_len	method	ported	src/regex/automata/nfa.cr:1045;spec/nfa_thompson_spec.cr	Reports pattern count.
 src/nfa/thompson/builder.rs::method::Builder.set_look_matcher	method	ported	src/regex/automata/nfa.cr:1215;spec/nfa_thompson_spec.cr	Configures look matcher and survives clear.
 src/nfa/thompson/builder.rs::method::Builder.set_reverse	method	ported	src/regex/automata/nfa.cr:1206;spec/nfa_thompson_spec.cr	Configures reverse mode and survives clear.
 src/nfa/thompson/builder.rs::method::Builder.set_size_limit	method	ported	src/regex/automata/nfa.cr:1155;spec/nfa_thompson_spec.cr	Sets and immediately validates an optional builder size limit.
 src/nfa/thompson/builder.rs::method::Builder.set_utf8	method	ported	src/regex/automata/nfa.cr:1131;spec/nfa_thompson_spec.cr	Configures UTF-8 mode and survives clear.
 src/nfa/thompson/builder.rs::method::Builder.start_pattern	method	ported	src/regex/automata/nfa.cr:1024;spec/nfa_thompson_spec.cr	Allocates the next pattern ID and rejects nested starts.
-src/nfa/thompson/builder.rs::method::State.goto	method	partial	src/regex/automata/nfa.cr:1893	Follows empty and singleton-union states during final remapping; Crystal also supports a patchable Match placeholder internally.
-src/nfa/thompson/builder.rs::method::State.memory_usage	method	partial	src/regex/automata/nfa.cr:1174	Counts variable sparse/union transition storage; Crystal does not expose Rust enum allocation layout.
+src/nfa/thompson/builder.rs::method::State.goto	method	ported	src/regex/automata/nfa.cr:Builder#goto_target;spec/nfa_thompson_spec.cr	Rust Empty and singleton Union/UnionReverse remapping paths are covered. Crystal additionally follows compiler-only Match.next placeholders; phase 3c3 owns removal or proof of necessity for this extension.
+src/nfa/thompson/builder.rs::method::State.memory_usage	method	ported	src/regex/automata/nfa.cr:Builder#state_memory_usage;spec/nfa_builder_vendor_contract_spec.cr	Variable sparse/union transition storage counts match Rust; fixed enum/object layout is accounted in the builder estimate divergence.
 src/nfa/thompson/compiler.rs::method::Compiler.add_capture_end	method	missing	-	auto-generated
 src/nfa/thompson/compiler.rs::method::Compiler.add_capture_start	method	missing	-	auto-generated
 src/nfa/thompson/compiler.rs::method::Compiler.add_empty	method	missing	-	auto-generated
@@ -1184,15 +1184,15 @@ src/nfa/thompson/compiler.rs::method::WhichCaptures.is_none	method	missing	-	aut
 src/nfa/thompson/error.rs::method::BuildError.captures	method	ported	src/regex/automata/nfa.cr:NFA::BuildError.captures;src/regex/automata/hir_compiler.cr:build_from_hir;spec/nfa_thompson_spec.cr	Normalizes capture-group compiler failures.
 src/nfa/thompson/error.rs::method::BuildError.exceeded_size_limit	method	ported	src/regex/automata/nfa.cr:NFA::BuildError.exceeded_size_limit;src/regex/automata/hir_compiler.cr:finalize_build;spec/nfa_thompson_spec.cr	Preserves Rust size-limit kind and message.
 src/nfa/thompson/error.rs::method::BuildError.fmt	method	ported	src/regex/automata/nfa.cr:NFA::BuildError;spec/nfa_thompson_spec.cr	Variant constructors produce Rust-compatible display messages for implemented compiler paths.
-src/nfa/thompson/error.rs::method::BuildError.invalid_capture_index	method	partial	src/regex/automata/nfa.cr:NFA::BuildError.invalid_capture_index	Constructor is present; compiler-side index-limit enforcement remains tracked with the Thompson compiler.
+src/nfa/thompson/error.rs::method::BuildError.invalid_capture_index	method	ported	src/regex/automata/nfa.cr:NFA::BuildError.invalid_capture_index;spec/nfa_builder_vendor_contract_spec.cr	Variant constructor, exact display, and nil source pass; compiler-side enforcement remains phase 3c3.
 src/nfa/thompson/error.rs::method::BuildError.kind	method	ported	src/regex/automata/nfa.cr:NFA::BuildError#kind;spec/nfa_thompson_spec.cr	Public error-kind introspection.
 src/nfa/thompson/error.rs::method::BuildError.size_limit	method	ported	src/regex/automata/errors.cr:BuildError#size_limit;src/regex/automata/nfa.cr:NFA::BuildError;spec/nfa_thompson_spec.cr	Inherited size-limit introspection.
-src/nfa/thompson/error.rs::method::BuildError.source	method	ported	src/regex/automata/nfa.cr:NFA::BuildError#source;spec/nfa_thompson_spec.cr	Retains syntax/capture source exceptions.
+src/nfa/thompson/error.rs::method::BuildError.source	method	ported	src/regex/automata/nfa.cr:NFA::BuildError#source;spec/nfa_builder_vendor_contract_spec.cr	Pinned source match: only syntax/captures retain causes; Unicode-word-boundary errors expose none.
 src/nfa/thompson/error.rs::method::BuildError.syntax	method	ported	src/regex/automata/nfa.cr:NFA::BuildError.syntax;src/regex/automata/hir_compiler.cr:build;spec/nfa_thompson_spec.cr	Normalizes parser failures.
 src/nfa/thompson/error.rs::method::BuildError.too_many_patterns	method	ported	src/regex/automata/nfa.cr:NFA::BuildError.too_many_patterns;src/regex/automata/hir_compiler.cr:build_many_from_hir;spec/nfa_thompson_spec.cr	Checks the PatternID limit before assigning compiler pattern identifiers.
 src/nfa/thompson/error.rs::method::BuildError.too_many_states	method	ported	src/regex/automata/nfa.cr:NFA::BuildError.too_many_states;src/regex/automata/nfa.cr:Builder#add_state;spec/nfa_thompson_spec.cr	Checks the StateID limit before appending a Thompson state.
 src/nfa/thompson/error.rs::method::BuildError.unsupported_captures	method	ported	src/regex/automata/nfa.cr:NFA::BuildError.unsupported_captures;src/regex/automata/hir_compiler.cr:build_from_hir;spec/nfa_thompson_spec.cr	Reverse-NFA capture rejection matches Rust.
-src/nfa/thompson/error.rs::method::BuildError.word	method	ported	src/regex/automata/nfa.cr:NFA::BuildError.word;src/regex/automata/hir_compiler.cr:build_from_hir	Normalizes Unicode-word-boundary compiler failures.
+src/nfa/thompson/error.rs::method::BuildError.word	method	ported	src/regex/automata/nfa.cr:NFA::BuildError.word;src/regex/automata/hir_compiler.cr:build_from_hir;spec/nfa_builder_vendor_contract_spec.cr	Exact display with nil Error::source, matching Rust's Word variant.
 src/nfa/thompson/literal_trie.rs::method::Frame<'a>.new	method	ported	src/regex/automata/nfa.cr:LiteralTrieFrame#initialize	Explicit stack frame for non-recursive trie compilation.
 src/nfa/thompson/literal_trie.rs::method::LiteralTrie.add	method	ported	src/regex/automata/nfa.cr:LiteralTrie#add;spec/nfa_thompson_spec.cr	Adds literal bytes with forward/reverse ordering.
 src/nfa/thompson/literal_trie.rs::method::LiteralTrie.compile	method	ported	src/regex/automata/nfa.cr:LiteralTrie#compile;spec/nfa_thompson_spec.cr	Compiles chunks with an explicit traversal stack and a patchable empty end, preserving Rust's final state order.
@@ -1226,54 +1226,54 @@ src/nfa/thompson/nfa.rs::method::DenseTransitions.iter	method	ported	src/regex/a
 src/nfa/thompson/nfa.rs::method::DenseTransitions.matches	method	ported	src/regex/automata/nfa.cr:Dense#matches;spec/nfa_dense_transitions_spec.cr	Returns nonzero target for in-bounds haystack byte, otherwise nil.
 src/nfa/thompson/nfa.rs::method::DenseTransitions.matches_byte	method	ported	src/regex/automata/nfa.cr:Dense#matches_byte;spec/nfa_dense_transitions_spec.cr	StateID::ZERO is the absent-transition sentinel.
 src/nfa/thompson/nfa.rs::method::DenseTransitions.matches_unit	method	ported	src/regex/automata/nfa.cr:Dense#matches_unit;spec/nfa_dense_transitions_spec.cr	EOI never transitions; byte units use the dense table.
-src/nfa/thompson/nfa.rs::method::Inner.add	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::Inner.fmt	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::Inner.group_info	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::Inner.into_nfa	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::Inner.remap	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::Inner.set_captures	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::Inner.set_look_matcher	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::Inner.set_reverse	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::Inner.set_starts	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::Inner.set_utf8	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::NFA.always_match	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::NFA.byte_class_set	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::NFA.byte_classes	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::NFA.compiler	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::NFA.config	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::NFA.fmt	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::NFA.group_info	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::NFA.has_capture	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::NFA.has_empty	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::NFA.is_always_start_anchored	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::NFA.is_reverse	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::NFA.is_utf8	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::NFA.look_matcher	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::NFA.look_set_any	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::NFA.look_set_prefix_any	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::NFA.memory_usage	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::NFA.never_match	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::NFA.new	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::NFA.new_many	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::NFA.pattern_len	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::NFA.patterns	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::NFA.start_anchored	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::NFA.start_pattern	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::NFA.start_unanchored	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::NFA.state	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::NFA.states	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::PatternIter<'a>.next	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::SparseTransitions.matches	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::SparseTransitions.matches_byte	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::SparseTransitions.matches_unit	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::State.fmt	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::State.is_epsilon	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::State.memory_usage	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::State.remap	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::Transition.fmt	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::Transition.matches	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::Transition.matches_byte	method	missing	-	auto-generated
-src/nfa/thompson/nfa.rs::method::Transition.matches_unit	method	missing	-	auto-generated
+src/nfa/thompson/nfa.rs::method::Inner.add	method	ported	src/regex/automata/nfa.cr:NFA#compute_byte_class_set;src/regex/automata/nfa.cr:Builder#add_state;spec/nfa_builder_vendor_contract_spec.cr	Final states are scanned once for byte boundaries, look assertions, and capture presence; builder enforces StateID limit.
+src/nfa/thompson/nfa.rs::method::Inner.fmt	method	ported	src/regex/automata/nfa.cr:NFA#inspect;spec/nfa_debug_vendor_contract_spec.cr	Rust graph layout, start markers, per-pattern starts, and byte classes render through Crystal inspect.
+src/nfa/thompson/nfa.rs::method::Inner.group_info	method	ported	src/regex/automata/nfa.cr:NFA#group_info;spec/nfa_thompson_spec.cr	Capture metadata accessor used by builder and engines.
+src/nfa/thompson/nfa.rs::method::Inner.into_nfa	method	ported	src/regex/automata/nfa.cr:NFA#initialize;src/regex/automata/nfa.cr:NFA#compute_prefix_metadata;spec/nfa_builder_vendor_contract_spec.cr	Builds byte classes once and computes empty/prefix-look metadata with a reusable stack and SparseSet per pattern, as Rust does.
+src/nfa/thompson/nfa.rs::method::Inner.remap	method	ported	src/regex/automata/nfa.cr:Builder#build;spec/nfa_dense_transitions_spec.cr;spec/nfa_thompson_spec.cr	Remaps every final state and all anchored/unanchored/per-pattern starts after epsilon removal.
+src/nfa/thompson/nfa.rs::method::Inner.set_captures	method	ported	src/regex/automata/nfa.cr:Builder#build;spec/nfa_builder_vendor_contract_spec.cr	Finalization validates GroupInfo rows without allowing missing earlier groups; errors become BuildError::Captures.
+src/nfa/thompson/nfa.rs::method::Inner.set_look_matcher	method	ported	src/regex/automata/nfa.cr:NFA#initialize;spec/nfa_builder_vendor_contract_spec.cr	Configured matcher is preserved in final NFA and byte partitioning.
+src/nfa/thompson/nfa.rs::method::Inner.set_reverse	method	ported	src/regex/automata/nfa.cr:NFA#initialize;spec/nfa_builder_vendor_contract_spec.cr	Final NFA retains reverse flag.
+src/nfa/thompson/nfa.rs::method::Inner.set_starts	method	ported	src/regex/automata/nfa.cr:NFA#initialize;spec/nfa_thompson_spec.cr	Anchored, unanchored, and per-pattern starts survive final remap.
+src/nfa/thompson/nfa.rs::method::Inner.set_utf8	method	ported	src/regex/automata/nfa.cr:NFA#initialize;spec/nfa_builder_vendor_contract_spec.cr	Final NFA retains configured UTF-8 flag and Rust convenience defaults.
+src/nfa/thompson/nfa.rs::method::NFA.always_match	method	ported	src/regex/automata/nfa.cr:NFA.always_match;spec/nfa_builder_vendor_contract_spec.cr;spec/nfa_thompson_spec.cr	Pinned three-state capture graph and default false UTF-8 metadata; PikeVM behavior passes.
+src/nfa/thompson/nfa.rs::method::NFA.byte_class_set	method	ported	src/regex/automata/nfa.cr:NFA#byte_class_set;src/regex/automata/hybrid.cr:Config#byte_classes_from_nfa;spec/nfa_builder_vendor_contract_spec.cr	Retains immutable NFA boundaries; Crystal returns a deep copy in lieu of Rust's immutable reference, and hybrid extends that copy with quit bytes.
+src/nfa/thompson/nfa.rs::method::NFA.byte_classes	method	ported	src/regex/automata/nfa.cr:NFA#byte_classes;spec/nfa_builder_vendor_contract_spec.cr	Derived from the retained ByteClassSet once at NFA finalization.
+src/nfa/thompson/nfa.rs::method::NFA.compiler	method	ported	src/regex/automata/nfa.cr:NFA.compiler;spec/nfa_thompson_spec.cr	Returns a configurable Thompson HIR compiler, as pinned constructor docs require.
+src/nfa/thompson/nfa.rs::method::NFA.config	method	ported	src/regex/automata/nfa.cr:NFA.config;spec/nfa_thompson_spec.cr	Returns a fresh Thompson compiler configuration; size-limit and capture examples pass.
+src/nfa/thompson/nfa.rs::method::NFA.fmt	method	ported	src/regex/automata/nfa.cr:NFA#inspect;spec/nfa_debug_vendor_contract_spec.cr	Delegates to the pinned Inner graph/debug format.
+src/nfa/thompson/nfa.rs::method::NFA.group_info	method	ported	src/regex/automata/nfa.cr:NFA#group_info;spec/nfa_thompson_spec.cr	Capture policies and group slots are observable through GroupInfo as Rust documents.
+src/nfa/thompson/nfa.rs::method::NFA.has_capture	method	ported	src/regex/automata/nfa.cr:NFA#has_capture;spec/nfa_thompson_spec.cr	True only when final NFA contains capture states; all/implicit/none and always/never cases pass.
+src/nfa/thompson/nfa.rs::method::NFA.has_empty	method	ported	src/regex/automata/nfa.cr:NFA#has_empty;spec/nfa_builder_vendor_contract_spec.cr	Pinned Rust has_empty doctest matrix passes, including Unicode boundary and empty class cases.
+src/nfa/thompson/nfa.rs::method::NFA.is_always_start_anchored	method	ported	src/regex/automata/nfa.cr:NFA#is_always_start_anchored;spec/nfa_builder_vendor_contract_spec.cr	Pinned anchored-start doctest cases pass for single and multi-pattern NFAs.
+src/nfa/thompson/nfa.rs::method::NFA.is_reverse	method	ported	src/regex/automata/nfa.cr:NFA#is_reverse;spec/nfa_thompson_spec.cr	Returns configured reverse mode on compiled NFAs.
+src/nfa/thompson/nfa.rs::method::NFA.is_utf8	method	ported	src/regex/automata/nfa.cr:NFA#is_utf8;spec/nfa_builder_vendor_contract_spec.cr;spec/nfa_thompson_spec.cr	Reports compiled UTF-8 mode; convenience always/never constructors retain Rust's false default.
+src/nfa/thompson/nfa.rs::method::NFA.look_matcher	method	ported	src/regex/automata/nfa.cr:NFA#look_matcher;spec/nfa_thompson_spec.cr	Configured look matcher survives NFA construction.
+src/nfa/thompson/nfa.rs::method::NFA.look_set_any	method	ported	src/regex/automata/nfa.cr:NFA#look_set_any;spec/nfa_builder_vendor_contract_spec.cr	Pinned global look-set example includes both Start and End assertions.
+src/nfa/thompson/nfa.rs::method::NFA.look_set_prefix_any	method	ported	src/regex/automata/nfa.cr:NFA#look_set_prefix_any;spec/nfa_builder_vendor_contract_spec.cr	Pinned prefix example includes Start but excludes non-prefix End; removed Rust-disabled prefix-all computation.
+src/nfa/thompson/nfa.rs::method::NFA.memory_usage	method	intentional_divergence	src/regex/automata/nfa.cr:NFA#memory_usage;spec/nfa_thompson_representation_spec.cr	Rust counts size_of::<Inner>() and Rust enum/boxed allocations; Crystal estimates its own object-model state and variable storage. Relative growth is tested; query is off search hot path, but byte-identical thresholds are not portable.
+src/nfa/thompson/nfa.rs::method::NFA.never_match	method	ported	src/regex/automata/nfa.cr:NFA.never_match;spec/nfa_builder_vendor_contract_spec.cr;spec/nfa_thompson_spec.cr	Pinned one-state fail graph, zero patterns, default false UTF-8 metadata, and PikeVM behavior pass.
+src/nfa/thompson/nfa.rs::method::NFA.new	method	ported	src/regex/automata/nfa.cr:NFA.new;spec/nfa_thompson_spec.cr;spec/nfa_builder_vendor_contract_spec.cr	Default single-pattern compilation delegates to the Thompson compiler, including syntax errors.
+src/nfa/thompson/nfa.rs::method::NFA.new_many	method	ported	src/regex/automata/nfa.cr:NFA.new_many;spec/nfa_builder_vendor_contract_spec.cr	Default multi-pattern compilation preserves pattern IDs, starts, and look metadata.
+src/nfa/thompson/nfa.rs::method::NFA.pattern_len	method	ported	src/regex/automata/nfa.cr:NFA#pattern_len;spec/nfa_builder_vendor_contract_spec.cr	Pinned multi-pattern, always, and never examples pass.
+src/nfa/thompson/nfa.rs::method::NFA.patterns	method	ported	src/regex/automata/nfa.cr:NFA#patterns;spec/nfa_builder_vendor_contract_spec.cr	Iterator yields ascending PatternIDs up to pattern_len.
+src/nfa/thompson/nfa.rs::method::NFA.start_anchored	method	ported	src/regex/automata/nfa.cr:NFA#start_anchored;spec/nfa_thompson_spec.cr	Pinned byte-range start example and multi-pattern start selection pass.
+src/nfa/thompson/nfa.rs::method::NFA.start_pattern	method	ported	src/regex/automata/nfa.cr:NFA#start_pattern;spec/nfa_builder_vendor_contract_spec.cr	Distinct per-pattern starts and out-of-range nil follow the pinned examples.
+src/nfa/thompson/nfa.rs::method::NFA.start_unanchored	method	ported	src/regex/automata/nfa.cr:NFA#start_unanchored;spec/nfa_thompson_spec.cr	Unanchored prefix and anchored-equality start examples pass.
+src/nfa/thompson/nfa.rs::method::NFA.state	method	ported	src/regex/automata/nfa.cr:NFA#state;spec/nfa_thompson_spec.cr	Indexes final states by StateID; pinned start-state examples pass.
+src/nfa/thompson/nfa.rs::method::NFA.states	method	ported	src/regex/automata/nfa.cr:NFA#states;spec/nfa_thompson_representation_spec.cr	Exact pinned graph snapshots exercise state order and transitions.
+src/nfa/thompson/nfa.rs::method::PatternIter<'a>.next	method	ported	src/regex/automata/nfa.cr:PatternIter#next;spec/nfa_builder_vendor_contract_spec.cr	Ascending PatternID sequence stops at pattern_len.
+src/nfa/thompson/nfa.rs::method::SparseTransitions.matches	method	ported	src/regex/automata/nfa.cr:Sparse#matches;spec/nfa_thompson_representation_spec.cr	Returns nil out of bounds and otherwise delegates to byte lookup.
+src/nfa/thompson/nfa.rs::method::SparseTransitions.matches_byte	method	ported	src/regex/automata/nfa.cr:Sparse#matches_byte;spec/nfa_thompson_representation_spec.cr	Sorted linear scan exits when next range starts past byte, matching Rust's selected hot-path algorithm.
+src/nfa/thompson/nfa.rs::method::SparseTransitions.matches_unit	method	ported	src/regex/automata/nfa.cr:Sparse#matches_unit;spec/nfa_thompson_representation_spec.cr	EOI never transitions; byte units use sorted scan.
+src/nfa/thompson/nfa.rs::method::State.fmt	method	ported	src/regex/automata/nfa.cr:State#inspect;spec/nfa_debug_vendor_contract_spec.cr	Final-state variant labels and transition formatting follow pinned Rust Debug.
+src/nfa/thompson/nfa.rs::method::State.is_epsilon	method	ported	src/regex/automata/nfa.cr:State#is_epsilon;spec/nfa_thompson_representation_spec.cr	Look/union/capture are epsilon, byte/sparse/dense/match/fail are not.
+src/nfa/thompson/nfa.rs::method::State.memory_usage	method	ported	src/regex/automata/nfa.cr:NFA#state_memory_usage;spec/nfa_dense_transitions_spec.cr	Variable sparse/dense/union transition storage uses the same element counts; fixed object-layout accounting is separately divergent.
+src/nfa/thompson/nfa.rs::method::State.remap	method	ported	src/regex/automata/nfa.cr:Builder#remap_state;spec/nfa_dense_transitions_spec.cr;spec/nfa_thompson_spec.cr	All transition-bearing variants, including direct Dense, remap to final state IDs; Match/Fail remain terminal.
+src/nfa/thompson/nfa.rs::method::Transition.fmt	method	ported	src/regex/automata/nfa.cr:Transition#inspect;spec/nfa_debug_vendor_contract_spec.cr	Pinned DebugByte escaping and inclusive range/target rendering.
+src/nfa/thompson/nfa.rs::method::Transition.matches	method	ported	src/regex/automata/nfa.cr:Transition#matches;spec/nfa_thompson_representation_spec.cr	Inclusive byte range with out-of-bounds false.
+src/nfa/thompson/nfa.rs::method::Transition.matches_byte	method	ported	src/regex/automata/nfa.cr:Transition#matches_byte;spec/nfa_thompson_representation_spec.cr	Inclusive start/end comparison.
+src/nfa/thompson/nfa.rs::method::Transition.matches_unit	method	ported	src/regex/automata/nfa.cr:Transition#matches_unit;spec/nfa_thompson_representation_spec.cr	EOI false; byte unit uses inclusive range.
 src/nfa/thompson/pikevm.rs::const::LIMIT	const	intentional_divergence	-	Rust-only trace-output limit for the optional internal PikeVM instrumentation feature.
 src/nfa/thompson/pikevm.rs::method::ActiveStates.memory_usage	method	ported	src/regex/automata/pikevm.cr:303;spec/pikevm_spec.cr	Reports sparse-set and reusable per-state slot-table storage with UInt64 aggregate arithmetic.
 src/nfa/thompson/pikevm.rs::method::ActiveStates.new	method	ported	src/regex/automata/pikevm.cr:211;spec/pikevm_spec.cr	Creates reusable active states with a cache-owned slot table.

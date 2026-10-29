@@ -6,7 +6,7 @@
   `72d650cb0a880a01ab6dc2137c0888e8f89740f7` (regex-automata 0.4.18).
   Do not substitute remembered Rust behavior or a newer upstream revision.
 - Working source ledger: [rust_port_inventory.tsv](inventory/rust_port_inventory.tsv)
-  (1,936 Rust API items: 1,300 `ported`, 358 `missing`, 97 `partial`, 176
+  (1,936 Rust API items: 1,352 `ported`, 310 `missing`, 91 `partial`, 178
   `intentional_divergence`, 5 `skipped`). Test ledger:
   [rust_test_parity.tsv](inventory/rust_test_parity.tsv) (220 rows: 159
   `ported`, 51 `partial`, 9 `intentional_divergence`, 1 `skipped`). These are **review
@@ -35,14 +35,22 @@
 
 ## Where we are
 
-- **Current focus:** phase 3c2, Thompson NFA/builder/error contracts. Vendor
-  review split the former 3c into representation/engine consumption (3c1),
-  NFA/builder/error contracts (3c2), and compiler/trie/map algorithms (3c3).
-  This keeps all seven source files and their private paths in explicit gates.
-  Phase 2f4b closes scalar finder result/error boundaries and source-file review;
-  its algorithmic throughput gaps remain explicit phase 8 work.
-- **Next up:** 3c2 NFA/builder/error contracts; 3c3 compiler/trie/map
-  algorithms; 4 dense DFA construction, execution, and transforms.
+- **Current focus:** phase 3c3, Thompson compiler/trie/map algorithms, is next.
+  Phase 3c2's pinned Rust builder/NFA/error APIs and private
+  paths now have individual source/test/file dispositions. New tests cover the
+  named-capture builder doctest, metadata and Debug examples, error sources,
+  strict capture rows, malformed starts, Dense remap, byte-class ownership,
+  and in-place union patch growth. Rust's disabled `look_set_prefix_all` was
+  removed; sparse early exit and one reusable `SparseSet` finalization traversal
+  follow the pinned logic. Fixed Rust enum/Inner allocation sizes cannot be
+  reproduced by Crystal's object layout; size accounting is a construction/
+  query divergence, not a measured speed claim. The Crystal compiler's
+  `Match.next` placeholder is an additional builder goto path; the Rust goto
+  cases are present, and phase 3c3 must remove the extension or document its
+  necessity while auditing compiler lowering. Phase 2f4b's scalar algorithmic
+  throughput gaps remain explicit phase 8 work.
+- **Next up:** 3c3 compiler/trie/map algorithms; 4 dense DFA construction,
+  execution, and transforms.
 - **Status by area:** vendor fixture harness, scalar prefilter
   selection/candidate semantics, AArch64 unanchored packed Teddy, 2-500 needle
   Aho/anchored Teddy DFA, and >500-needle contiguous-NFA paths are complete.
@@ -68,6 +76,22 @@
   throughput comparison against pinned Rust before any speed claim. The
   Crystal-only signature/quitset byte-class reducers now relabel byte 255's
   group last at construction; the search lookup remains one table access.
+- **Thompson representation divergence and cost:** Rust
+  `src/nfa/thompson/{builder,nfa}.rs` memory usage includes fixed Rust enum/
+  `Inner` sizes and variable heap allocations; Crystal
+  `src/regex/automata/nfa.cr` reports a Crystal-layout estimate instead.
+  Byte-identical counts are impossible across the two object models; size
+  limits still reject graph growth and the Unicode-versus-ASCII memory
+  ordering is tested. Queries are off the search hot path. Rust
+  `nfa.rs::look_set_prefix_all` is deliberately commented out as incorrect;
+  the former Crystal method and intersection computation were removed, so
+  no unsupported hot-path work remains. Rust's retained `ByteClassSet` now
+  maps to Crystal's retained `ByteClassSet`, with the derived `ByteClasses`
+  computed once at NFA construction. Crystal returns a deep copy from the
+  `byte_class_set` getter because it has no immutable-reference return type;
+  hybrid DFA construction adds quit-byte boundaries to that copy, mirroring
+  Rust's clone-and-extend path. This is construction-only work, with no added
+  search lookup.
 - **Pool/lazy divergence and cost:** Rust `src/util/lazy.rs` alloc path maps
   to Crystal `src/regex/automata/lazy.cr` with one acquire load and CAS
   publication; Crystal's GC-safe wrapper allocates only on a factory run.
@@ -83,15 +107,12 @@
   unavailable for the pool's lifetime. This is a lifecycle divergence, not a
   search-result divergence. No throughput claim is made on this loaded host; phase 8's
   controlled comparison should include pooled Meta searches.
-- **Last completed feature commit:** phase 3c1 `port: Thompson Dense state consumption`
+- **Last completed feature commit:** phase 3c2 `port: Thompson NFA builder and error contracts`
   (this feature commit).
-- **Gates:** phase 3c1's pinned-source Dense representation and direct
-  PikeVM/backtracker branch specs pass 3/3. The prior 2,388-case PikeVM and
-  3,307-case backtracker matrices remain in the full suite. The full Crystal
-  suite passes 16,063/16,063; `make install`, format, lint, parity,
-  `git diff --check`, Crystal format-check, and no-codegen build pass. These
-  are correctness gates, not performance evidence; host load remained high,
-  so benchmarks were skipped.
+- **Gates:** full Crystal suite passes 16,081/16,081; `make install`, format,
+  lint, parity, `git diff --check`, Crystal format-check, and no-codegen build
+  pass. These are correctness gates, not performance evidence; benchmarks were
+  skipped on this loaded host.
 
 ## Feature-loop rules
 
@@ -405,19 +426,22 @@ confirmation; no authorship was inferred or changed.
   pinned compiler never emits Dense states, so normal search hot paths incur
   no added work.
 
-- [ ] **3c2. Thompson NFA, builder, and error contracts.** Finish the
-  remaining `src/nfa/thompson/{nfa,builder,error}.rs` APIs and private paths:
-  exact graph/state/limit/error queries, starts and pattern IDs, reverse
-  construction, captures, byte classes, memory, remapping, malformed-builder
-  behavior, and relevant pinned doctests. **Gate:** source/test/file rows for
-  these three files are individually reconciled, including source-only
-  contracts that existing compiler snapshot specs do not establish.
+- [x] **3c2. Thompson NFA, builder, and error contracts.** Reconcile
+  `src/nfa/thompson/{nfa,builder,error}.rs` graph/state/limit/error queries,
+  starts and pattern IDs, reverse unions, captures, byte classes, memory,
+  remapping, malformed-builder behavior, Debug formatting, and pinned doctests.
+  **Gate:** all three source/test/file ledgers have evidence-backed dispositions
+  and the complete code gates pass. Source/test/file review and full gates pass. The
+  compiler-only `Match.next` placeholder audit is explicitly assigned to 3c3.
 
 - [ ] **3c3. Thompson compiler, tries, and map.** Finish
   `src/nfa/thompson/{compiler,literal_trie,range_trie,map}.rs`: HIR and UTF-8
   class lowering, reverse construction, literal/range trie splitting and
   state order, map semantics, private helpers, and pinned native tests and
-  doctests. **Gate:** compiler/tries/map source/test/file rows are individually
+  doctests. Audit the Crystal compiler's `Match.next` patchable placeholder
+  against Rust lowering; remove its extra builder goto path if possible or
+  document necessity, observable equivalence, and construction cost.
+  **Gate:** compiler/tries/map source/test/file rows are individually
   reconciled against exact pinned Rust evidence.
 
 - [ ] **4. Dense DFA construction, execution, and transforms.** Finish
@@ -427,7 +451,10 @@ confirmation; no authorship was inferred or changed.
   forward/reverse/overlap, anchors, earliest and match-kind modes, limits and
   failure precedence. Run transformed-automaton adversarial cases through
   remap/minimize/truncate/swap/shuffle, checking transitions, starts, matches,
-  accelerators, and serialized results. Assess Rust scratch-builder pooling
+  accelerators, and serialized results. In dense `Builder::build_from_nfa`,
+  replace the Crystal byte-class reconstruction with Rust's clone of the
+  retained NFA `ByteClassSet` plus quit-byte boundaries; verify mixed quit/
+  non-quit classes against the pinned dense source regression. Assess Rust scratch-builder pooling
   against Crystal's direct-key construction without assuming either is faster.
   **Gate:** dense runtime and transform rows plus all applicable vendor dense
   suite modes pass with explicit exclusions and no unexplained state-map drift.

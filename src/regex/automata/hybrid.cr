@@ -451,25 +451,9 @@ module Regex::Automata::Hybrid
     ) : ::Regex::Automata::ByteClasses
       return ::Regex::Automata::ByteClasses.singletons unless get_byte_classes
 
-      base = nfa.byte_classes
-      return base if quit.empty?
-
-      # Rust's ByteClassSet adds boundaries for every contiguous quit range.
-      # Equal signatures on opposite sides of a boundary stay distinct.
-      mapping = Array.new(256, 0)
-      class_id = 0
-      previous_base = base[0]
-      previous_quit = quit.contains(0_u8)
-      (1...256).each do |byte|
-        current_base = base[byte]
-        current_quit = quit.contains(byte.to_u8)
-        class_id += 1 if current_base != previous_base || current_quit != previous_quit
-        mapping[byte] = class_id
-        previous_base = current_base
-        previous_quit = current_quit
-      end
-
-      ::Regex::Automata::ByteClasses.from_mapping(mapping, class_id + 1)
+      set = nfa.byte_class_set
+      set.add_set(quit) unless quit.empty?
+      set.byte_classes
     end
 
     def get_minimum_cache_capacity(nfa : ::Regex::Automata::NFA::NFA) : UInt64

@@ -19,6 +19,22 @@ describe "Thompson dense-state representation" do
     ])
   end
 
+  it "remaps Dense targets when finalizing an explicit builder graph" do
+    b = Regex::Automata::NFA::Builder.new
+    b.add_fail  # Keep the absent-transition sentinel at final state zero.
+    b.add_empty # Removed during finalization, shifting later state IDs.
+    targets = Array(Regex::Automata::StateID).new(256, Regex::Automata::StateID::ZERO)
+    targets['a'.ord] = Regex::Automata::StateID.new(3)
+    b.start_pattern
+    dense_id = b.add_state(Regex::Automata::NFA::Dense.new(targets))
+    b.add_match
+    b.finish_pattern(dense_id)
+    nfa = b.build(dense_id, dense_id)
+    dense = nfa.state(nfa.start_anchored).as(Regex::Automata::NFA::Dense)
+    dense.matches_byte('a'.ord.to_u8).should eq(Regex::Automata::StateID.new(2))
+    dense.matches_byte('b'.ord.to_u8).should be_nil
+  end
+
   it "lets PikeVM and bounded backtracker consume an explicit Dense state" do
     sid = Regex::Automata::StateID.new(1)
     targets = Array(Regex::Automata::StateID).new(256, Regex::Automata::StateID::ZERO)

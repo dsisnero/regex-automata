@@ -3,6 +3,8 @@ require "./look"
 require "./captures"
 require "./types"
 require "./byte_classes"
+require "./sparse_set"
+require "./escape"
 
 module Regex::Automata::NFA
   alias StateID = Regex::Automata::StateID
@@ -39,8 +41,8 @@ module Regex::Automata::NFA
       new(Kind::Captures, "error with capture groups", error)
     end
 
-    def self.word(error : Exception) : BuildError
-      new(Kind::Word, "NFA contains Unicode word boundary", error)
+    def self.word(_error : Exception) : BuildError
+      new(Kind::Word, "NFA contains Unicode word boundary")
     end
 
     def self.too_many_patterns(given : Int64) : BuildError
@@ -105,6 +107,15 @@ module Regex::Automata::NFA
     def initialize(@start : UInt8, @end : UInt8, @next : StateID)
     end
 
+    def inspect(io : IO) : Nil
+      Regex::Automata::DebugByte.new(@start).inspect(io)
+      if @start != @end
+        io << '-'
+        Regex::Automata::DebugByte.new(@end).inspect(io)
+      end
+      io << " => " << @next.to_i
+    end
+
     # Check if byte is in range
     def matches?(byte : UInt8) : Bool
       byte >= @start && byte <= @end
@@ -135,6 +146,10 @@ module Regex::Automata::NFA
     def initialize(@trans : Transition)
     end
 
+    def inspect(io : IO) : Nil
+      @trans.inspect(io)
+    end
+
     def is_epsilon : Bool
       false
     end
@@ -147,8 +162,21 @@ module Regex::Automata::NFA
     def initialize(@transitions : Array(Transition))
     end
 
+    def inspect(io : IO) : Nil
+      io << "sparse("
+      @transitions.each_with_index do |trans, index|
+        io << ", " if index > 0
+        trans.inspect(io)
+      end
+      io << ')'
+    end
+
     def matches_byte(byte : UInt8) : StateID?
-      @transitions.find(&.matches?(byte)).try(&.next)
+      @transitions.each do |trans|
+        break if trans.start > byte
+        return trans.next if trans.matches_byte(byte)
+      end
+      nil
     end
 
     def matches_unit(unit : Regex::Automata::Unit) : StateID?
@@ -172,6 +200,15 @@ module Regex::Automata::NFA
     getter transitions : Array(StateID)
 
     def initialize(@transitions : Array(StateID))
+    end
+
+    def inspect(io : IO) : Nil
+      io << "dense("
+      iter.each_with_index do |trans, index|
+        io << ", " if index > 0
+        trans.inspect(io)
+      end
+      io << ')'
     end
 
     def matches_byte(byte : UInt8) : StateID?
@@ -234,6 +271,19 @@ module Regex::Automata::NFA
     def initialize(@kind : Kind, @next : StateID)
     end
 
+    def inspect(io : IO) : Nil
+      name = case @kind
+             when Kind::WordBoundaryAscii                 then "WordAscii"
+             when Kind::NonWordBoundaryAscii              then "WordAsciiNegate"
+             when Kind::WordBoundaryUnicode               then "WordUnicode"
+             when Kind::NonWordBoundaryUnicode            then "WordUnicodeNegate"
+             when Kind::StartText                         then "Start"
+             when Kind::EndText, Kind::EndTextWithNewline then "End"
+             else                                              @kind.to_s
+             end
+      io << name << " => " << @next.to_i
+    end
+
     def is_epsilon : Bool
       true
     end
@@ -244,6 +294,15 @@ module Regex::Automata::NFA
     getter alternates : Array(StateID)
 
     def initialize(@alternates : Array(StateID))
+    end
+
+    def inspect(io : IO) : Nil
+      io << "union("
+      @alternates.each_with_index do |sid, index|
+        io << ", " if index > 0
+        io << sid.to_i
+      end
+      io << ')'
     end
 
     def is_epsilon : Bool
@@ -257,6 +316,10 @@ module Regex::Automata::NFA
     getter alt2 : StateID
 
     def initialize(@alt1 : StateID, @alt2 : StateID)
+    end
+
+    def inspect(io : IO) : Nil
+      io << "binary-union(" << @alt1.to_i << ", " << @alt2.to_i << ')'
     end
 
     def is_epsilon : Bool
@@ -274,6 +337,10 @@ module Regex::Automata::NFA
     def initialize(@next : StateID, @pattern_id : PatternID, @group_index : Int32, @slot : Int32)
     end
 
+    def inspect(io : IO) : Nil
+      io << "capture(pid=" << @pattern_id.to_i << ", group=" << @group_index << ", slot=" << @slot << ") => " << @next.to_i
+    end
+
     def is_epsilon : Bool
       true
     end
@@ -287,6 +354,10 @@ module Regex::Automata::NFA
     def initialize(@pattern_id : PatternID, @next : StateID? = nil)
     end
 
+    def inspect(io : IO) : Nil
+      io << "MATCH(" << @pattern_id.to_i << ')'
+    end
+
     def is_epsilon : Bool
       false
     end
@@ -295,6 +366,10 @@ module Regex::Automata::NFA
   # Fail state (no transitions)
   struct Fail
     def initialize
+    end
+
+    def inspect(io : IO) : Nil
+      io << "FAIL"
     end
 
     def is_epsilon : Bool
@@ -307,6 +382,10 @@ module Regex::Automata::NFA
     getter next : StateID
 
     def initialize(@next : StateID)
+    end
+
+    def inspect(io : IO) : Nil
+      io << "empty => " << @next.to_i
     end
 
     def is_epsilon : Bool
@@ -1150,7 +1229,7 @@ module Regex::Automata::NFA
       when Sparse
         raise "cannot patch from a sparse NFA state"
       when Union
-        @states[from.to_i] = Union.new(state.alternates + [to])
+        state.alternates << to
         @memory_states += sizeof(StateID).to_i64
         check_size_limit!
       when BinaryUnion
@@ -1756,22 +1835,8 @@ module Regex::Automata::NFA
     def build(group_info : Regex::Automata::GroupInfo = Regex::Automata::GroupInfo.empty) : NFA
       raise "must call 'finish_pattern' first" if @pattern_id
       if !@captures.empty?
-        group_info = Regex::Automata::GroupInfo.new(@captures.map(&.dup), allow_empty_patterns: true)
+        group_info = Regex::Automata::GroupInfo.new(@captures.map(&.dup))
       end
-      if @states.empty?
-        fail_id = StateID.new(0)
-        return NFA.new(
-          [Fail.new] of State,
-          fail_id,
-          fail_id,
-          [] of StateID,
-          @utf8,
-          @reverse,
-          group_info,
-          @look_matcher
-        )
-      end
-
       remap = Array.new(@states.size) { StateID.new(0) }
       final_states = [] of State
 
@@ -1950,6 +2015,8 @@ module Regex::Automata::NFA
             Transition.new(trans.start, trans.end, remap[trans.next.to_i])
           end
         )
+      when Dense
+        Dense.new(state.transitions.map { |sid| remap[sid.to_i] })
       when Look
         Look.new(state.kind, remap[state.next.to_i])
       when Union
@@ -2062,7 +2129,7 @@ module Regex::Automata::NFA
     @has_empty : Bool
     @look_set_any : Regex::Automata::LookSet
     @look_set_prefix_any : Regex::Automata::LookSet
-    @look_set_prefix_all : Regex::Automata::LookSet
+    @byte_class_set : Regex::Automata::ByteClassSet
     @byte_classes : Regex::Automata::ByteClasses
     @look_matcher : Regex::Automata::LookMatcher
 
@@ -2080,11 +2147,38 @@ module Regex::Automata::NFA
                    @utf8 : Bool, @reverse : Bool = false,
                    @group_info : Regex::Automata::GroupInfo = Regex::Automata::GroupInfo.empty,
                    @look_matcher : Regex::Automata::LookMatcher = Regex::Automata::LookMatcher.new)
-      @has_capture = compute_has_capture
-      @has_empty = compute_has_empty
-      @look_set_any = compute_look_set_any
-      @look_set_prefix_any, @look_set_prefix_all = compute_prefix_look_sets
-      @byte_classes = compute_byte_classes
+      @has_capture = false
+      @has_empty = false
+      @look_set_any = Regex::Automata::LookSet.empty
+      @look_set_prefix_any = Regex::Automata::LookSet.empty
+      @byte_class_set = compute_byte_class_set
+      @byte_classes = @byte_class_set.byte_classes
+      compute_prefix_metadata
+    end
+
+    def inspect(io : IO) : Nil
+      io << "thompson::NFA(\n"
+      @states.each_with_index do |state, index|
+        mark = if index == @start_anchored.to_i
+                 '^'
+               elsif index == @start_unanchored.to_i
+                 '>'
+               else
+                 ' '
+               end
+        io << mark << index.to_s.rjust(6, '0') << ": "
+        state.inspect(io)
+        io << '\n'
+      end
+      if @start_pattern.size > 1
+        io << '\n'
+        @start_pattern.each_with_index do |sid, pid|
+          io << "START(" << pid.to_s.rjust(6, '0') << "): " << sid.to_i << '\n'
+        end
+      end
+      io << "\ntransition equivalence classes: "
+      @byte_classes.inspect(io)
+      io << "\n)\n"
     end
 
     def self.config : ::Regex::Automata::HirCompilerConfig
@@ -2104,7 +2198,7 @@ module Regex::Automata::NFA
     end
 
     def self.always_match : NFA
-      builder = Builder.new(utf8: true)
+      builder = Builder.new
       start_id = builder.add_state(Capture.new(StateID.new(0), PatternID.new(0), 0, 0))
       end_id = builder.add_state(Capture.new(StateID.new(0), PatternID.new(0), 0, 1))
       match_id = builder.add_state(Match.new(PatternID.new(0)))
@@ -2118,7 +2212,7 @@ module Regex::Automata::NFA
 
     def self.never_match : NFA
       fail_id = StateID.new(0)
-      new([Fail.new] of State, fail_id, fail_id, [] of StateID, true, false, GroupInfo.empty)
+      new([Fail.new] of State, fail_id, fail_id, [] of StateID, false, false, GroupInfo.empty)
     end
 
     # Get number of states
@@ -2170,12 +2264,12 @@ module Regex::Automata::NFA
       @look_set_prefix_any
     end
 
-    def look_set_prefix_all : Regex::Automata::LookSet
-      @look_set_prefix_all
-    end
-
     def byte_classes : Regex::Automata::ByteClasses
       @byte_classes
+    end
+
+    def byte_class_set : Regex::Automata::ByteClassSet
+      @byte_class_set.dup
     end
 
     def memory_usage : Int32
@@ -2443,10 +2537,6 @@ module Regex::Automata::NFA
       result
     end
 
-    private def compute_has_capture : Bool
-      @states.any?(&.is_a?(Capture))
-    end
-
     private def state_memory_usage(state : State) : Int32
       case state
       when ByteRange, Look, BinaryUnion, Capture, Match, Fail, Empty
@@ -2462,7 +2552,7 @@ module Regex::Automata::NFA
       end
     end
 
-    private def compute_byte_classes : Regex::Automata::ByteClasses
+    private def compute_byte_class_set : Regex::Automata::ByteClassSet
       set = Regex::Automata::ByteClassSet.empty
       @states.each do |state|
         case state
@@ -2475,73 +2565,47 @@ module Regex::Automata::NFA
         when Dense
           state.iter.each { |trans| set.set_range(trans.start, trans.end) }
         when Look
-          look_from_kind(state.kind).iter.each do |look|
+          looks = look_from_kind(state.kind)
+          @look_set_any = @look_set_any.union(looks)
+          looks.iter.each do |look|
             @look_matcher.add_to_byteset(look, set)
           end
+        when Capture
+          @has_capture = true
         end
       end
-      set.byte_classes
+      set
     end
 
-    private def compute_has_empty : Bool
-      return false if @start_pattern.empty?
-
-      @start_pattern.any? do |start_id|
-        epsilon_closure(Set{start_id}).any? { |id| @states[id.to_i].is_a?(Match) }
-      end
-    end
-
-    private def compute_look_set_any : Regex::Automata::LookSet
-      @states.reduce(Regex::Automata::LookSet.empty) do |set, state|
-        if state.is_a?(Look)
-          set.union(look_from_kind(state.kind))
-        else
-          set
-        end
-      end
-    end
-
-    private def compute_prefix_look_sets : Tuple(Regex::Automata::LookSet, Regex::Automata::LookSet)
-      return {Regex::Automata::LookSet.empty, Regex::Automata::LookSet.empty} if @start_pattern.empty?
-
-      any = Regex::Automata::LookSet.empty
-      all : Regex::Automata::LookSet? = nil
+    private def compute_prefix_metadata : Nil
+      stack = [] of StateID
+      seen = Regex::Automata::SparseSet.new(@states.size)
       @start_pattern.each do |start_id|
-        prefix = prefix_look_set(start_id)
-        any = any.union(prefix)
-        all = all ? all.not_nil!.intersect(prefix) : prefix
-      end
-      {any, all || Regex::Automata::LookSet.empty}
-    end
+        stack << start_id
+        seen.clear
+        prefix_any = Regex::Automata::LookSet.empty
+        until stack.empty?
+          state_id = stack.pop
+          next unless seen.insert(state_id)
 
-    private def prefix_look_set(start_id : StateID) : Regex::Automata::LookSet
-      stack = [start_id]
-      visited = Set(StateID).new
-      look_set = Regex::Automata::LookSet.empty
-
-      until stack.empty?
-        state_id = stack.pop
-        next if visited.includes?(state_id)
-        visited << state_id
-
-        case state = @states[state_id.to_i]
-        when Empty, Capture
-          stack << state.next
-        when Union
-          state.alternates.each { |next_id| stack << next_id }
-        when BinaryUnion
-          stack << state.alt1
-          stack << state.alt2
-        when Look
-          look_set = look_set.union(look_from_kind(state.kind))
-          stack << state.next
-        when Match
-          stack << state.next.not_nil! if state.next
-        when ByteRange, Sparse, Dense, Fail
+          case state = @states[state_id.to_i]
+          when ByteRange, Sparse, Dense, Fail
+          when Match
+            @has_empty = true
+          when Look
+            prefix_any = prefix_any.union(look_from_kind(state.kind))
+            stack << state.next
+          when Union
+            state.alternates.each { |next_id| stack << next_id }
+          when BinaryUnion
+            stack << state.alt2
+            stack << state.alt1
+          when Capture, Empty
+            stack << state.next
+          end
         end
+        @look_set_prefix_any = @look_set_prefix_any.union(prefix_any)
       end
-
-      look_set
     end
 
     private def look_from_kind(kind : Look::Kind) : Regex::Automata::LookSet

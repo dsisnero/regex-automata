@@ -457,7 +457,6 @@ describe Regex::Automata::NFA::NFA do
     nfa.state(nfa.start_anchored).should be_a(Regex::Automata::NFA::Look)
     nfa.look_set_any.contains_anchor.should be_true
     nfa.look_set_prefix_any.contains_anchor.should be_true
-    nfa.look_set_prefix_all.contains_anchor.should be_true
   end
 
   it "keeps the unanchored prefix for end-anchored patterns" do
@@ -471,7 +470,6 @@ describe Regex::Automata::NFA::NFA do
     nfa.state(nfa.start_unanchored).should eq(s_bin_union(2, 1))
     nfa.look_set_any.contains_anchor.should be_true
     nfa.look_set_prefix_any.should be_empty
-    nfa.look_set_prefix_all.should be_empty
   end
 
   it "tracks per-pattern starts for multi-pattern compilation" do

@@ -393,6 +393,12 @@ module Regex::Automata
     private def initialize(@set : ByteSet)
     end
 
+    def dup : ByteClassSet
+      copied = ByteClassSet.empty
+      @set.each { |byte| copied.@set.add(byte) }
+      copied
+    end
+
     def set_range(start : UInt8, finish : UInt8) : Nil
       if start > 0
         @set.add(start - 1)
