@@ -276,16 +276,16 @@ module Regex::Automata
     end
 
     protected def overwrite_from(base : Config, other : Config) : Nil
-      @accelerate = other.@accelerate || base.@accelerate
+      @accelerate = other.@accelerate.nil? ? base.@accelerate : other.@accelerate
       @prefilter = other.@prefilter || base.@prefilter
-      @minimize = other.@minimize || base.@minimize
+      @minimize = other.@minimize.nil? ? base.@minimize : other.@minimize
       @match_kind = other.@match_kind || base.@match_kind
       @start_kind = other.@start_kind || base.@start_kind
-      @starts_for_each_pattern = other.@starts_for_each_pattern || base.@starts_for_each_pattern
-      @byte_classes = other.@byte_classes || base.@byte_classes
-      @unicode_word_boundary = other.@unicode_word_boundary || base.@unicode_word_boundary
+      @starts_for_each_pattern = other.@starts_for_each_pattern.nil? ? base.@starts_for_each_pattern : other.@starts_for_each_pattern
+      @byte_classes = other.@byte_classes.nil? ? base.@byte_classes : other.@byte_classes
+      @unicode_word_boundary = other.@unicode_word_boundary.nil? ? base.@unicode_word_boundary : other.@unicode_word_boundary
       @quitset = clone_quitset(other.@quitset || base.@quitset)
-      @specialize_start_states = other.@specialize_start_states || base.@specialize_start_states
+      @specialize_start_states = other.@specialize_start_states.nil? ? base.@specialize_start_states : other.@specialize_start_states
       @dfa_size_limit = other.@dfa_size_limit || base.@dfa_size_limit
       @determinize_size_limit = other.@determinize_size_limit || base.@determinize_size_limit
     end

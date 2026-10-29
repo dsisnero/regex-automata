@@ -35,8 +35,12 @@
 
 ## Where we are
 
-- **Current focus:** phase 4, dense DFA construction, execution, and
-  transforms, is next. Phase 3c3b closes the pinned Thompson compiler source,
+- **Current focus:** phase 4b, dense DFA execution and the full vendor suite,
+  is next. Phase 4a now uses pinned `dense.rs::Builder::build_from_nfa`'s
+  clone-and-extend NFA byte-class path, preserving quit-byte boundaries and
+  singleton mode; it also fixes explicit-`false` `Config::overwrite` options.
+  The wider runtime and transform audits remain phases 4b and 4c. Phase 3c3b
+  closes the pinned Thompson compiler source,
   test, and file audit: all 74 source rows are `ported`, 19 native Rust tests
   pass, and the 38 original assertion locations retain exact Crystal graph
   evidence. The compiler now reuses its builder and Unicode scratch state,
@@ -47,8 +51,8 @@
   has no added edge, branch, or allocation. Phase 3c3a's trie/map work and
   phase 3c2's NFA/builder/error review remain complete. Phase 2f4b's scalar
   throughput gaps remain phase 8.
-- **Next up:** 4 dense DFA construction, execution, and transforms; 5 dense
-  serialization and deserialization.
+- **Next up:** 4b dense execution and vendor suite; 4c dense transforms; 5
+  dense serialization and deserialization.
 - **Status by area:** vendor fixture harness, scalar prefilter
   selection/candidate semantics, AArch64 unanchored packed Teddy, 2-500 needle
   Aho/anchored Teddy DFA, and >500-needle contiguous-NFA paths are complete.
@@ -90,6 +94,14 @@
   hybrid DFA construction adds quit-byte boundaries to that copy, mirroring
   Rust's clone-and-extend path. This is construction-only work, with no added
   search lookup.
+- **Dense builder extension and cost:** Rust
+  `src/dfa/dense.rs::Builder::build_from_nfa` always derives classes from the
+  NFA or singletons; Crystal `src/regex/automata/dfa.cr::Builder#initialize`
+  additionally accepts caller-supplied `ByteClasses` for existing Crystal
+  callers. Standard `build`/`build_from_nfa` now follow Rust; the extension
+  bypasses derivation only when explicitly supplied. It adds no search-time
+  branch or lookup. No speedup claim is inferred from the smaller alphabet on
+  this loaded host.
 - **Pool/lazy divergence and cost:** Rust `src/util/lazy.rs` alloc path maps
   to Crystal `src/regex/automata/lazy.cr` with one acquire load and CAS
   publication; Crystal's GC-safe wrapper allocates only on a factory run.
@@ -105,10 +117,10 @@
   unavailable for the pool's lifetime. This is a lifecycle divergence, not a
   search-result divergence. No throughput claim is made on this loaded host; phase 8's
   controlled comparison should include pooled Meta searches.
-- **Last completed feature commit:** phase 3c3b `port: Thompson HIR compiler algorithms`
+- **Last completed feature commit:** phase 4a `port: dense DFA alphabet-compressed construction`
   (this feature commit).
-- **Gates:** full Crystal suite passes 16,101/16,101; pinned Rust compiler
-  tests pass 19/19 offline; `make install`, format, lint, parity,
+- **Gates:** full Crystal suite passes 16,103/16,103; pinned Rust DFA API
+  tests pass 5/5 offline; `make install`, format, lint, parity,
   `git diff --check`, Crystal format-check, and no-codegen build pass. These
   are correctness gates, not performance evidence; benchmarks were skipped
   on this loaded host.
@@ -456,20 +468,36 @@ confirmation; no authorship was inferred or changed.
   tests, and the file-level review are closed; full gates pass (16,101 Crystal
   specs). The Crystal-only `Match.next` edge is removed.
 
-- [ ] **4. Dense DFA construction, execution, and transforms.** Finish
-  `src/dfa/{automaton,accel,dense,determinize,minimize,remapper,search,
-  special,start}.rs` against Rust API, regression, and suite tests. Cover
-  start/EOI and special states, byte classes, match/pattern metadata,
-  forward/reverse/overlap, anchors, earliest and match-kind modes, limits and
-  failure precedence. Run transformed-automaton adversarial cases through
-  remap/minimize/truncate/swap/shuffle, checking transitions, starts, matches,
-  accelerators, and serialized results. In dense `Builder::build_from_nfa`,
-  replace the Crystal byte-class reconstruction with Rust's clone of the
-  retained NFA `ByteClassSet` plus quit-byte boundaries; verify mixed quit/
-  non-quit classes against the pinned dense source regression. Assess Rust scratch-builder pooling
-  against Crystal's direct-key construction without assuming either is faster.
-  **Gate:** dense runtime and transform rows plus all applicable vendor dense
-  suite modes pass with explicit exclusions and no unexplained state-map drift.
+- [x] **4a. Dense DFA alphabet-compressed construction.** Follow pinned
+  `dense.rs::Builder::build_from_nfa` and `Config::overwrite`: clone the NFA's
+  retained `ByteClassSet`, add quit-byte boundaries, preserve singleton mode,
+  and honor explicit `false` overrides. Cover the mixed quit/non-quit source
+  regression, class map, transition-row indexing, accelerator implications,
+  and search behavior with tests before implementation. Keep this phase's
+  source ledger notes and [dense DFA subplan](feature-dense-dfa.md) current.
+  **Gate:** focused and full correctness gates pass; no claim that the entire
+  dense runtime, transform, or vendor suite matrix is done. The byte-class
+  spec failed before the fix, and the focused suite then passed 74/74. The
+  full suite passed 16,103/16,103 and pinned Rust DFA API tests passed 5/5
+  offline.
+
+- [ ] **4b. Dense DFA runtime and vendor suite.** Audit pinned
+  `src/dfa/{automaton,dense,determinize,search,special,start}.rs` for start/EOI
+  and special states, match/pattern metadata, forward/reverse/overlap,
+  anchors, earliest/match-kind modes, limits, and error precedence. Port and
+  run all applicable `tests/dfa/{api,regression,suite}.rs` dense modes via the
+  shared fixture harness, with exact Rust exclusions. Assess Rust scratch-
+  builder reuse against Crystal's direct-key construction without an
+  unsupported speed claim. See the [dense DFA subplan](feature-dense-dfa.md).
+  **Gate:** runtime source/test/file rows and full dense suite modes pass.
+
+- [ ] **4c. Dense DFA transforms.** Audit pinned
+  `src/dfa/{accel,dense,minimize,remapper,special}.rs` and port transformed-
+  automaton adversarial tests for remap/minimize/truncate/swap/shuffle,
+  checking transitions, starts, matches, accelerators, and serialized results.
+  Reconcile affected source/test/file rows and documented divergences. See the
+  [dense DFA subplan](feature-dense-dfa.md). **Gate:** no unexplained state-map
+  drift; full correctness gates pass. Wire compatibility itself remains 5.
 
 - [ ] **5. Vendor DFA wire compatibility, sparse DFA, and regex wrappers.**
   Port dense and sparse native/little/big-endian serialization and checked

@@ -176,7 +176,7 @@ describe "DFA::Dense" do
     accelerated.states
       .map { |state| accelerated.accelerator(state.id).to_a }
       .find { |bytes| !bytes.empty? }
-      .should eq(['\n'.ord.to_u8, 'f'.ord.to_u8])
+      .should eq(['f'.ord.to_u8])
   end
 
   it "retains the dense start byte map from the NFA look matcher" do
@@ -535,6 +535,32 @@ describe "DFA::Dense" do
     merged.get_quit('y'.ord.to_u8).should be_false
   end
 
+  it "preserves explicit false options when overwriting dense config" do
+    base = Regex::Automata::DFA::DFA.config
+      .accelerate(true)
+      .minimize(true)
+      .starts_for_each_pattern(true)
+      .byte_classes(true)
+      .unicode_word_boundary(true)
+      .specialize_start_states(true)
+    merged = base.overwrite(
+      Regex::Automata::DFA::DFA.config
+        .accelerate(false)
+        .minimize(false)
+        .starts_for_each_pattern(false)
+        .byte_classes(false)
+        .unicode_word_boundary(false)
+        .specialize_start_states(false)
+    )
+
+    merged.get_accelerate.should be_false
+    merged.get_minimize.should be_false
+    merged.get_starts_for_each_pattern.should be_false
+    merged.get_byte_classes.should be_false
+    merged.get_unicode_word_boundary.should be_false
+    merged.get_specialize_start_states.should be_false
+  end
+
   it "honors quit bytes with caller-supplied byte classes" do
     nfa = Regex::Automata::NFA::NFA.new("abc")
     config = Regex::Automata::DFA::DFA.config.quit('x'.ord.to_u8, true)
@@ -548,6 +574,44 @@ describe "DFA::Dense" do
     result = dfa.try_search_fwd(Regex::Automata::Input.new("abx"))
     result.should be_a(Regex::Automata::MatchError)
     result.as(Regex::Automata::MatchError).quit?.should be_true
+  end
+
+  it "derives dense byte classes from the retained NFA set and isolates quit bytes" do
+    # dense.rs::Builder::build_from_nfa clones the NFA ByteClassSet, then
+    # adds quit-byte boundaries before determinization.
+    nfa = Regex::Automata::NFA::NFA.new("abc")
+    quitset = Regex::Automata::ByteSet.new
+    quitset.add('x'.ord.to_u8)
+    expected_set = nfa.byte_class_set
+    expected_set.add_set(quitset)
+    expected = expected_set.byte_classes
+    original = nfa.byte_classes
+
+    dfa = Regex::Automata::DFA::Builder.from_nfa(
+      nfa,
+      Regex::Automata::DFA::DFA.config.quit('x'.ord.to_u8, true)
+    ).build
+
+    (0..255).each do |byte|
+      dfa.byte_classifier[byte].should eq(expected[byte])
+    end
+    dfa.byte_classifier.alphabet_len.should eq(expected.alphabet_len)
+    nfa.byte_classes.alphabet_len.should eq(original.alphabet_len)
+    dfa.byte_classifier['x'.ord].should_not eq(dfa.byte_classifier['y'.ord])
+    dfa.try_search_fwd(Regex::Automata::Input.new("aby")).should be_nil
+    dfa.try_search_fwd(Regex::Automata::Input.new("abx")).should eq(
+      Regex::Automata::MatchError.quit('x'.ord.to_u8, 2)
+    )
+
+    plain = Regex::Automata::DFA::Builder.from_nfa(nfa).build
+    (0..255).each do |byte|
+      plain.byte_classifier[byte].should eq(original[byte])
+    end
+    singleton = Regex::Automata::DFA::Builder.from_nfa(
+      nfa,
+      Regex::Automata::DFA::DFA.config.byte_classes(false)
+    ).build
+    singleton.byte_classifier.is_singleton.should be_true
   end
 
   it "exposes builder and config convenience constructors" do

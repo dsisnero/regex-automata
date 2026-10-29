@@ -1958,17 +1958,20 @@ module Regex::Automata::DFA
         @quitset = add_non_ascii_quit_bytes(@quitset)
       end
 
-      # Create byte classes with quit bytes in separate classes
+      # Rust dense::Builder::build_from_nfa clones the retained NFA set and
+      # adds quit-byte boundaries before deriving its transition alphabet.
       @byte_classes = case byte_classes
                       when ByteClasses
-                        # If we already have byte classes, we need to ensure quit bytes are separate
-                        # For now, just use the provided classes
                         byte_classes
                       when Int32
-                        if @quitset.empty?
-                          ByteClasses.identity
+                        if !@config.get_byte_classes
+                          ByteClasses.singletons
+                        elsif current_nfa = @nfa
+                          set = current_nfa.byte_class_set
+                          set.add_set(@quitset) unless @quitset.empty?
+                          set.byte_classes
                         else
-                          ByteClasses.with_quitset(@quitset)
+                          ByteClasses.singletons
                         end
                       else
                         raise "Unreachable"

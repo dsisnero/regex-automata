@@ -8,7 +8,7 @@ describe "DFA host regressions" do
     dfa = Regex::Automata::DFA::Builder.from_nfa(nfa_builder.build).build
 
     start_state = dfa[dfa.start]
-    next_state_id = start_state.next['a'.ord]
+    next_state_id = start_state.next[dfa.byte_classifier['a'.ord]]
 
     next_state_id.should_not eq(Regex::Automata::DFA::DEAD_STATE_ID)
     dfa[next_state_id].accepting?.should be_true
