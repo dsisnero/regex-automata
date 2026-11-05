@@ -29,13 +29,17 @@ describe "DFA::Dense" do
   end
 
   it "returns a dense match state pattern slice" do
-    dfa = Regex::Automata::DFA::DFA.new_many(["a", "a"])
+    dfa = Regex::Automata::DFA::DFA.builder
+      .configure { |config| config.match_kind(Regex::Automata::MatchKind::All) }
+      .build_many(["a", "a"])
     state = dfa.next_eoi_state(dfa.next_state(dfa.start, 'a'.ord.to_u8))
     dfa.pattern_id_slice(state).should eq([Regex::Automata::PatternID.new(0), Regex::Automata::PatternID.new(1)])
   end
 
   it "reconstructs the dense match-state pattern map" do
-    dfa = Regex::Automata::DFA::DFA.new_many(["a", "a"])
+    dfa = Regex::Automata::DFA::DFA.builder
+      .configure { |config| config.match_kind(Regex::Automata::MatchKind::All) }
+      .build_many(["a", "a"])
     state = dfa.next_eoi_state(dfa.next_state(dfa.start, 'a'.ord.to_u8))
 
     dfa.pattern_map[state].should eq([Regex::Automata::PatternID.new(0), Regex::Automata::PatternID.new(1)])
@@ -561,6 +565,16 @@ describe "DFA::Dense" do
     merged.get_specialize_start_states.should be_false
   end
 
+  it "lets an explicit nil prefilter override an attached forward prefilter for reverse DFA construction" do
+    prefilter = Regex::Automata::Prefilter.new(
+      Regex::Automata::MatchKind::LeftmostFirst,
+      ["needle"]
+    ).not_nil!
+    base = Regex::Automata::DFA::DFA.config.prefilter(prefilter)
+    merged = base.overwrite(Regex::Automata::DFA::DFA.config.prefilter(nil))
+    merged.get_prefilter.should be_nil
+  end
+
   it "honors quit bytes with caller-supplied byte classes" do
     nfa = Regex::Automata::NFA::NFA.new("abc")
     config = Regex::Automata::DFA::DFA.config.quit('x'.ord.to_u8, true)
@@ -804,6 +818,23 @@ describe "DFA::Dense" do
     error = Regex::Automata::BuildError.dfa_exceeded_size_limit(42_i64)
     error.size_limit.should eq(42_i64)
     error.is_size_limit_exceeded.should be_true
+  end
+
+  it "wraps an NFA build failure without treating it as a DFA size failure" do
+    error = expect_raises(Regex::Automata::BuildError) do
+      Regex::Automata::DFA::Builder.new
+        .thompson { |config| config.nfa_size_limit(1_i64) }
+        .build("abc")
+    end
+
+    error.should_not be_a(Regex::Automata::NFA::BuildError)
+    error.is_size_limit_exceeded.should be_false
+    error.nfa_source.should be_a(Regex::Automata::NFA::BuildError)
+
+    syntax_error = expect_raises(Regex::Automata::BuildError) do
+      Regex::Automata::DFA::Builder.new.build("(xyz")
+    end
+    syntax_error.nfa_source.should be_a(Regex::Automata::NFA::BuildError)
   end
 
   it "minimizes dense DFAs when requested" do

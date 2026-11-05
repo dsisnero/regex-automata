@@ -223,29 +223,38 @@ module Regex::Automata
 
       while at < input.end
         next_state = next_state(current_state, input.haystack[at])
-        return last_match || MatchError.quit(input.haystack[at], at) if is_quit_state?(next_state)
-        if last_match && input.get_anchored == Anchored::No && is_start_state?(next_state)
-          return last_match
-        end
+        return MatchError.quit(input.haystack[at], at) if is_quit_state?(next_state)
         break if is_dead_state?(next_state)
         current_state = next_state
-        if is_start_state?(current_state) && pre && last_match.nil?
-          candidate = pre.find(input.haystack, Span.new(at, input.end))
-          return nil unless candidate
+        if is_start_state?(current_state)
+          if pre && last_match.nil?
+            candidate = pre.find(input.haystack, Span.new(at, input.end))
+            return nil unless candidate
 
-          if candidate.start > at
-            at = candidate.start
-            unless universal_start
-              restarted = prefilter_restart_fwd(input, at)
-              return restarted if restarted.is_a?(MatchError)
-              current_state = restarted.as(StateID)
+            if candidate.start > at
+              at = candidate.start
+              unless universal_start
+                restarted = prefilter_restart_fwd(input, at)
+                return restarted if restarted.is_a?(MatchError)
+                current_state = restarted.as(StateID)
+              end
+              next
             end
+          elsif pre.nil? && is_accel_state?(current_state)
+            at = Regex::Automata.find_fwd(accelerator(current_state), input.haystack, at + 1) || input.end
             next
           end
         end
         if is_match_state?(current_state)
           last_match = HalfMatch.new(match_pattern(current_state, 0), at)
           return last_match if input.get_earliest
+          if is_accel_state?(current_state)
+            at = Regex::Automata.find_fwd(accelerator(current_state), input.haystack, at + 1) || input.end
+            next
+          end
+        elsif is_accel_state?(current_state)
+          at = Regex::Automata.find_fwd(accelerator(current_state), input.haystack, at + 1) || input.end
+          next
         end
         at += 1
       end
@@ -257,7 +266,7 @@ module Regex::Automata
                           next_eoi_state(current_state)
                         end
         if input.end < input.haystack.size && is_quit_state?(current_state)
-          return last_match || MatchError.quit(input.haystack[input.end], input.end)
+          return MatchError.quit(input.haystack[input.end], input.end)
         end
         if is_match_state?(current_state)
           offset = input.end < input.haystack.size ? input.end : input.haystack.size
@@ -315,9 +324,18 @@ module Regex::Automata
         break if is_dead_state?(next_state)
 
         current_state = next_state
-        if is_match_state?(current_state)
+        if is_start_state?(current_state)
+          if is_accel_state?(current_state)
+            at = Regex::Automata.find_rev(accelerator(current_state), input.haystack, at).try(&.+(1)) || input.start
+          end
+        elsif is_match_state?(current_state)
           last_match = HalfMatch.new(match_pattern(current_state, 0), at + 1)
           return last_match if input.get_earliest
+          if is_accel_state?(current_state)
+            at = Regex::Automata.find_rev(accelerator(current_state), input.haystack, at).try(&.+(1)) || input.start
+          end
+        elsif is_accel_state?(current_state)
+          at = Regex::Automata.find_rev(accelerator(current_state), input.haystack, at).try(&.+(1)) || input.start
         end
 
         break if at == input.start
@@ -531,6 +549,22 @@ module Regex::Automata
         .as(Array(Tuple(Int32, Array(PatternID))))
         .flat_map { |(_, patterns)| patterns }
         .uniq
+    end
+
+    # Adds every pattern found by an overlapping Input search without clearing
+    # the caller's set. A too-small set silently drops out-of-range IDs, as in
+    # Rust's Automaton::try_which_overlapping_matches.
+    def try_which_overlapping_matches(input : Input, patset : PatternSet) : Nil | MatchError
+      state = OverlappingState.start
+      loop do
+        result = try_search_overlapping_fwd(input, state)
+        return result if result.is_a?(MatchError)
+        break unless found = state.get_match
+
+        patset.try_insert(found.pattern)
+        break if patset.is_full || input.get_earliest
+      end
+      nil
     end
 
     private def overlap_eoi_fwd(input : Input, state : OverlappingState, current_state : StateID) : Nil | MatchError

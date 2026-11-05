@@ -7,13 +7,18 @@ module Regex::Automata
   class BuildError < Error
     getter? size_limit_exceeded : Bool
     getter size_limit : Int64?
+    getter nfa_source : Exception?
 
-    def initialize(message : String? = nil, @size_limit_exceeded : Bool = false, @size_limit : Int64? = nil)
+    def initialize(message : String? = nil, @size_limit_exceeded : Bool = false, @size_limit : Int64? = nil, @nfa_source : Exception? = nil)
       super(message)
     end
 
     def is_size_limit_exceeded : Bool
       @size_limit_exceeded
+    end
+
+    def self.nfa(error : NFA::BuildError) : BuildError
+      new(error.message, nfa_source: error)
     end
 
     def self.unsupported_dfa_word_boundary_unicode : BuildError

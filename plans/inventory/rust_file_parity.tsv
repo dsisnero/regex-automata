@@ -1,17 +1,17 @@
 rust_file	api_rows	file_review	crystal_refs	notes
 src/dfa/accel.rs	31	pending	-	API-item ledger exists; file-level private-function review remains.
-src/dfa/automaton.rs	31	pending	-	API-item ledger exists; file-level private-function review remains.
-src/dfa/dense.rs	196	pending	-	API-item ledger exists; file-level private-function review remains.
-src/dfa/determinize.rs	16	pending	-	API-item ledger exists; file-level private-function review remains.
+src/dfa/automaton.rs	31	partial	src/regex/automata/automaton.cr;spec/dfa_api_spec.cr;spec/dfa_vendor_suite_spec.cr	Runtime Input searches, UTF-8 empty-match skipping, overlap state, and caller-owned PatternSet which API reviewed against pinned trait defaults; Rust reference forwarding and remaining docs/private paths require file-level closure.
+src/dfa/dense.rs	196	partial	src/regex/automata/dfa.cr;spec/dfa_dense_spec.cr;spec/dfa_vendor_suite_spec.cr	Alphabet-compressed construction and seven-mode runtime matrix reviewed; state shuffling/transforms and native wire paths remain phases 4c/5.
+src/dfa/determinize.rs	16	partial	src/regex/automata/dfa.cr;spec/dfa_vendor_suite_spec.cr	Runtime subset construction and start groups reviewed; Rust scratch builder/cache-key reuse is not yet ported and belongs to phase 8 construction optimization audit.
 src/dfa/minimize.rs	18	pending	-	API-item ledger exists; file-level private-function review remains.
 src/dfa/mod.rs	1	pending	-	API-item ledger exists; file-level private-function review remains.
 src/dfa/onepass.rs	123	pending	-	API-item ledger exists; file-level private-function review remains.
 src/dfa/regex.rs	24	pending	-	API-item ledger exists; file-level private-function review remains.
 src/dfa/remapper.rs	13	pending	-	API-item ledger exists; file-level private-function review remains.
-src/dfa/search.rs	0	pending	src/regex/automata/dfa.cr	No API-item row; file-level algorithm/namespace review is required.
+src/dfa/search.rs	0	partial	src/regex/automata/automaton.cr;src/regex/automata/dfa.cr;spec/dfa_api_spec.cr;spec/quit_after_match_spec.cr;spec/dfa_vendor_suite_spec.cr	Forward/reverse/overlap, prefilter restart, EOI, quit precedence, and accelerator branches reviewed against pinned source; Rust four-step loop unrolling remains phase 8 throughput work without a speed claim.
 src/dfa/sparse.rs	93	pending	-	API-item ledger exists; file-level private-function review remains.
-src/dfa/special.rs	20	pending	-	API-item ledger exists; file-level private-function review remains.
-src/dfa/start.rs	5	pending	-	API-item ledger exists; file-level private-function review remains.
+src/dfa/special.rs	20	partial	src/regex/automata/special.cr;spec/dfa_api_spec.cr	Runtime special-state range predicates reviewed; remapping and wire validation remain phases 4c/5.
+src/dfa/start.rs	5	partial	src/regex/automata/search.cr;src/regex/automata/dfa.cr;spec/dfa_api_spec.cr	Both/anchored/unanchored runtime start support reviewed; native wire encoding remains phase 5.
 src/hybrid/dfa.rs	111	pending	-	API-item ledger exists; file-level private-function review remains.
 src/hybrid/error.rs	14	pending	-	API-item ledger exists; file-level private-function review remains.
 src/hybrid/id.rs	24	pending	-	API-item ledger exists; file-level private-function review remains.
@@ -44,7 +44,7 @@ src/nfa/thompson/pikevm.rs	68	reviewed	src/regex/automata/pikevm.cr;spec/pikevm_
 src/nfa/thompson/range_trie.rs	28	reviewed	src/regex/automata/nfa.cr:RangeTrie;spec/nfa_range_trie_vendor_spec.cr	All pinned split partitions, ordered overlapping insertion/iteration, Rust Debug layout, fixed-size inline NextInsert storage, state free-list, and scratch-stack reuse reviewed.
 src/util/alphabet.rs	50	reviewed	src/regex/automata/byte_classes.cr;src/regex/automata/byte_set.cr;spec/byte_classes_spec.cr	Reviewed Unit, ByteClasses, ByteClassSet, ByteSet, iterators, wire lengths, and Debug ranges against pinned source and six vendor tests. Rust byte-255 alphabet bound now rejects malformed wire maps; Crystal-only signature/quitset builders relabel final class at construction, with no search-path cost.
 src/util/captures.rs	60	pending	-	API-item ledger exists; file-level private-function review remains.
-src/util/determinize/mod.rs	0	reviewed	src/regex/automata/determinize.cr;spec/determinize_spec.cr;spec/hybrid_spec.cr	Reviewed next, epsilon_closure, add_nfa_states, and start look-behind against pinned Rust. Conditional-closure and repeated-union priority are tested through Hybrid and the dense builder; dense NFA transition states are not yet in Crystal and remain phase 3.
+src/util/determinize/mod.rs	0	reviewed	src/regex/automata/determinize.cr;src/regex/automata/dfa.cr;spec/determinize_spec.cr;spec/hybrid_spec.cr;spec/dfa_vendor_suite_spec.cr	Reviewed next, epsilon_closure, add_nfa_states, and start look-behind against pinned Rust. Dense now uses ordered NFA subsets and the newly-needed-look closure predicate; seven-mode vendor matrix verifies delayed match and look behavior.
 src/util/determinize/state.rs	64	reviewed	src/regex/automata/determinize_state.cr;spec/determinize_state_spec.cr	Reviewed header flags, native-endian pattern IDs, signed delta varints, actual backing-buffer capacity on builder reuse, and state lookup representation; five pinned Rust property tests pass offline, with deterministic Crystal boundary/property samples.
 src/util/empty.rs	0	reviewed	src/regex/automata/empty.cr;spec/utf8_empty_parity_spec.cr	No API-item row; Rust algorithm and Crystal behavior were reviewed in prior feature specs.
 src/util/escape.rs	2	reviewed	src/regex/automata/escape.cr;spec/escape_spec.cr;spec/byte_classes_spec.cr	Reviewed DebugByte and DebugHaystack source, invalid UTF-8/control escapes, and alphabet Unit delegation.

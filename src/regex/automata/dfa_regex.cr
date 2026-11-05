@@ -136,10 +136,14 @@ module Regex::Automata::DFA
     # assert !re.is_match("foobar")
     # ```
     def is_match(haystack : String | Bytes) : Bool
-      input = Input.new(haystack).earliest(true)
+      is_match(Input.new(haystack))
+    end
+
+    def is_match(input : Input) : Bool
+      search_input = input.clone.earliest(true)
       # Not only can we do an "earliest" search, but we can avoid doing a
       # reverse scan too.
-      result = @forward.try_search_fwd(input)
+      result = @forward.try_search_fwd(search_input)
       if result.is_a?(MatchError)
         raise "search error: #{result}"
       end
@@ -223,7 +227,11 @@ module Regex::Automata::DFA
     # assert matches[2].end == 17 # "foo123"
     # ```
     def find_iter(haystack : String | Bytes) : FindMatches
-      it = ::Regex::Automata::Searcher.new(Input.new(haystack))
+      find_iter(Input.new(haystack))
+    end
+
+    def find_iter(input : Input) : FindMatches
+      it = ::Regex::Automata::Searcher.new(input)
       FindMatches.new(self, it)
     end
 
@@ -254,9 +262,6 @@ module Regex::Automata::DFA
     # exists or not.
     def try_search(input : Input) : Match? | MatchError
       search = input.clone
-      if should_scan_leftmost_starts?(search)
-        return try_search_leftmost_by_start(search)
-      end
 
       loop do
         end_match = @forward.try_search_fwd(search)
@@ -302,22 +307,6 @@ module Regex::Automata::DFA
       end
     end
 
-    private def try_search_leftmost_by_start(input : Input) : Match? | MatchError
-      search = input.clone
-
-      until search.start > input.end
-        anchored = search.clone.anchored(Anchored::Yes)
-        match = try_search(anchored)
-        return match if match.is_a?(MatchError)
-        if found = match.as?(Match)
-          return found unless should_skip_empty_utf8_match?(search, found)
-        end
-        search.set_start(search.start + 1)
-      end
-
-      nil
-    end
-
     # Returns true if either the given input specifies an anchored search
     # or if the underlying DFA is always anchored.
     private def is_anchored(input : Input) : Bool
@@ -333,11 +322,6 @@ module Regex::Automata::DFA
 
     private def should_skip_empty_utf8_match?(input : Input, match : Match) : Bool
       match.empty? && @forward.is_utf8? && !input.is_char_boundary(match.start)
-    end
-
-    private def should_scan_leftmost_starts?(input : Input) : Bool
-      input.get_anchored == Anchored::No &&
-        !@forward.is_always_start_anchored?
     end
 
     # Return the underlying DFA responsible for forward matching.
@@ -436,9 +420,9 @@ module Regex::Automata::DFA
       forward = @dfa_builder.build_many(patterns)
 
       # Build reverse DFA with appropriate configuration
-      # Note: We don't set prefilter since Config doesn't have that method yet
       reverse_builder = @dfa_builder.configure do |config|
         config
+          .prefilter(nil)
           .specialize_start_states(false)
           .start_kind(StartKind::Anchored)
           .match_kind(MatchKind::All)

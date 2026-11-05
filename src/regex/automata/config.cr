@@ -5,6 +5,7 @@ module Regex::Automata
   class Config
     @accelerate : Bool?
     @prefilter : Prefilter?
+    @prefilter_set : Bool = false
     @minimize : Bool?
     @match_kind : MatchKind?
     @start_kind : StartKind?
@@ -76,6 +77,7 @@ module Regex::Automata
     # Set or clear the prefilter attached to DFAs built with this config.
     def prefilter(prefilter : Prefilter?) : Config
       @prefilter = prefilter
+      @prefilter_set = true
       if @specialize_start_states.nil?
         @specialize_start_states = !prefilter.nil?
       end
@@ -263,6 +265,7 @@ module Regex::Automata
     protected def copy_from(other : Config)
       @accelerate = other.@accelerate
       @prefilter = other.@prefilter
+      @prefilter_set = other.@prefilter_set
       @minimize = other.@minimize
       @match_kind = other.@match_kind
       @start_kind = other.@start_kind
@@ -277,7 +280,8 @@ module Regex::Automata
 
     protected def overwrite_from(base : Config, other : Config) : Nil
       @accelerate = other.@accelerate.nil? ? base.@accelerate : other.@accelerate
-      @prefilter = other.@prefilter || base.@prefilter
+      @prefilter = other.@prefilter_set ? other.@prefilter : base.@prefilter
+      @prefilter_set = other.@prefilter_set || base.@prefilter_set
       @minimize = other.@minimize.nil? ? base.@minimize : other.@minimize
       @match_kind = other.@match_kind || base.@match_kind
       @start_kind = other.@start_kind || base.@start_kind

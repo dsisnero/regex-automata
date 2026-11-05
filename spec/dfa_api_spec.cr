@@ -17,6 +17,17 @@ describe "DFA API" do
       dfa.try_search_overlapping_fwd(input, state).should eq(expected)
     end
 
+    it "reports a later quit even when an earlier match is pending" do
+      # Rust dfa/search.rs::find_fwd returns MatchError::quit from the search
+      # loop even when `mat` already contains an earlier match.
+      dfa = Regex::Automata::DFA::Builder.new
+        .configure(Regex::Automata::Config.new.quit('x'.ord.to_u8, true))
+        .build("a")
+
+      dfa.try_search_fwd(Regex::Automata::Input.new("ayx"))
+        .should eq(Regex::Automata::MatchError.quit('x'.ord.to_u8, 2))
+    end
+
     it "handles quit bytes in reverse direction" do
       dfa = Regex::Automata::DFA::Builder.new
         .configure { |config| config.quit('x'.ord.to_u8, true) }
@@ -96,6 +107,40 @@ describe "DFA API" do
       find.call(dfa, " foobar 4567").should eq(Regex::Automata::HalfMatch.must(0, 7))
       find.call(dfa, " 4567").should eq(Regex::Automata::HalfMatch.must(1, 5))
     end
+  end
+
+  it "ports Rust Automaton::try_which_overlapping_matches" do
+    # Pinned dfa/automaton.rs example: the set includes matches that share
+    # an ending position as well as matches at other positions.
+    patterns = [
+      "[[:word:]]+", "[0-9]+", "[[:alpha:]]+", "foo", "bar", "barfoo", "foobar",
+    ]
+    dfa = Regex::Automata::DFA::Builder.new
+      .configure(Regex::Automata::DFA::DFA.config.match_kind(Regex::Automata::MatchKind::All))
+      .build_many(patterns)
+    patset = Regex::Automata::PatternSet.new(dfa.pattern_len)
+
+    dfa.try_which_overlapping_matches(Regex::Automata::Input.new("foobar"), patset).should be_nil
+    patset.iter.map(&.to_i).to_a.should eq([0, 2, 3, 4, 6])
+  end
+
+  it "preserves Rust's which-set reuse, capacity, and earliest rules" do
+    dfa = Regex::Automata::DFA::Builder.new
+      .configure(Regex::Automata::DFA::DFA.config.match_kind(Regex::Automata::MatchKind::All))
+      .build_many(["a", "b"])
+    patset = Regex::Automata::PatternSet.new(2)
+    patset.insert(Regex::Automata::PatternID.new(1))
+
+    dfa.try_which_overlapping_matches(Regex::Automata::Input.new("a"), patset).should be_nil
+    patset.iter.map(&.to_i).to_a.should eq([0, 1])
+
+    small = Regex::Automata::PatternSet.new(1)
+    dfa.try_which_overlapping_matches(Regex::Automata::Input.new("b"), small).should be_nil
+    small.iter.map(&.to_i).to_a.should be_empty
+
+    earliest = Regex::Automata::PatternSet.new(2)
+    dfa.try_which_overlapping_matches(Regex::Automata::Input.new("ab").earliest(true), earliest).should be_nil
+    earliest.iter.map(&.to_i).to_a.should eq([0])
   end
 
   describe "dense metadata" do
@@ -314,6 +359,24 @@ describe "DFA API" do
       dfa.try_search_rev("ab".to_slice).should eq(dfa_no_accel.try_search_rev("ab".to_slice))
     end
 
+    it "keeps non-overlapping Input searches equivalent with accelerator states" do
+      forward = Regex::Automata::DFA::Builder.new.build("a[^x]*x")
+      forward_plain = Regex::Automata::DFA::Builder.new
+        .configure { |config| config.accelerate(false) }
+        .build("a[^x]*x")
+      reverse = Regex::Automata::DFA::Builder.new
+        .thompson { |config| config.reverse(true) }
+        .build("a[^x]*x")
+      reverse_plain = Regex::Automata::DFA::Builder.new
+        .configure { |config| config.accelerate(false) }
+        .thompson { |config| config.reverse(true) }
+        .build("a[^x]*x")
+      input = Regex::Automata::Input.new("za" + "y" * 256 + "xq")
+
+      forward.try_search_fwd(input).should eq(forward_plain.try_search_fwd(input))
+      reverse.try_search_rev(input).should eq(reverse_plain.try_search_rev(input))
+    end
+
     it "reports overlapping matches without suffix duplicates" do
       dfa = Regex::Automata::DFA::Builder.new.build("abc")
 
@@ -324,7 +387,9 @@ describe "DFA API" do
     end
 
     it "reports overlapping multi-pattern matches at the same end position" do
-      dfa = Regex::Automata::DFA::DFA.new_many(["a", "a"])
+      dfa = Regex::Automata::DFA::DFA.builder
+        .configure { |config| config.match_kind(Regex::Automata::MatchKind::All) }
+        .build_many(["a", "a"])
 
       dfa.try_search_overlapping_fwd("a".to_slice).should eq([
         {1, [Regex::Automata::PatternID.new(0), Regex::Automata::PatternID.new(1)]},

@@ -85,6 +85,21 @@ describe "DFA::Regex" do
     matches[2].end.should eq(17) # "foo123"
   end
 
+  it "accepts bounded and anchored Input for Rust Regex#is_match and #find_iter" do
+    # regex-automata/src/dfa/regex.rs accepts Into<Input> for both APIs;
+    # tests/dfa/suite.rs supplies the fixture's bounds and anchor mode.
+    re = Regex::Automata::DFA::Regex.new("a")
+    bounded = Regex::Automata::Input.new("a a a").range(2...5)
+    re.is_match(bounded.clone).should be_true
+    re.find_iter(bounded.clone).to_a.should eq([
+      Regex::Automata::Match.must(0, 2...3),
+      Regex::Automata::Match.must(0, 4...5),
+    ])
+    anchored = bounded.clone.anchored(Regex::Automata::Anchored::Yes)
+    re.find_iter(anchored).to_a.should eq([Regex::Automata::Match.must(0, 2...3)])
+    re.is_match(Regex::Automata::Input.new("a a a").range(1...5).anchored(Regex::Automata::Anchored::Yes)).should be_false
+  end
+
   it "supports direct iterator advancement and exhaustion" do
     it = Regex::Automata::DFA::Regex.new_many(["[a-z]+", "[0-9]+"]).find_iter("abc 12")
 

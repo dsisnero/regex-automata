@@ -6,10 +6,10 @@
   `72d650cb0a880a01ab6dc2137c0888e8f89740f7` (regex-automata 0.4.18).
   Do not substitute remembered Rust behavior or a newer upstream revision.
 - Working source ledger: [rust_port_inventory.tsv](inventory/rust_port_inventory.tsv)
-  (1,936 Rust API items: 1,428 `ported`, 238 `missing`, 90 `partial`, 173
+  (1,936 Rust API items: 1,429 `ported`, 238 `missing`, 89 `partial`, 173
   `intentional_divergence`, 7 `skipped`). Test ledger:
-  [rust_test_parity.tsv](inventory/rust_test_parity.tsv) (220 rows: 163
-  `ported`, 47 `partial`, 9 `intentional_divergence`, 1 `skipped`). These are **review
+  [rust_test_parity.tsv](inventory/rust_test_parity.tsv) (220 rows: 170
+  `ported`, 40 `partial`, 9 `intentional_divergence`, 1 `skipped`). These are **review
   queues**, not a count of absent behaviors or a completion percentage. The
   generated manifests are item inventories, so a file-level pass is also
   required for private algorithms without discovered rows.
@@ -35,24 +35,21 @@
 
 ## Where we are
 
-- **Current focus:** phase 4b, dense DFA execution and the full vendor suite,
-  is next. Phase 4a now uses pinned `dense.rs::Builder::build_from_nfa`'s
-  clone-and-extend NFA byte-class path, preserving quit-byte boundaries and
-  singleton mode; it also fixes explicit-`false` `Config::overwrite` options.
-  The wider runtime and transform audits remain phases 4b and 4c. Phase 3c3b
-  closes the pinned Thompson compiler source,
-  test, and file audit: all 74 source rows are `ported`, 19 native Rust tests
-  pass, and the 38 original assertion locations retain exact Crystal graph
-  evidence. The compiler now reuses its builder and Unicode scratch state,
-  lowers literals/looks without extra Match states, normalizes Crystal raw
-  dots through Rust's HIR class path, and has a terminal `Match` with no
-  Crystal-only `next` edge. The direct Builder convenience helpers convert
-  Match endpoints to Empty only while composing graphs; final NFA search
-  has no added edge, branch, or allocation. Phase 3c3a's trie/map work and
-  phase 3c2's NFA/builder/error review remain complete. Phase 2f4b's scalar
-  throughput gaps remain phase 8.
-- **Next up:** 4b dense execution and vendor suite; 4c dense transforms; 5
-  dense serialization and deserialization.
+- **Current focus:** phase 4b dense DFA execution and the full vendor suite is
+  complete. `spec/dfa_vendor_suite_spec.cr` runs all seven pinned dense modes:
+  per mode, 1,194 fixture cases yield 1,150 after Rust's `expensive` blacklist,
+  46 Unicode-word/non-ASCII skips, five expected compile errors, and 1,099
+  compiled cases exercising `is_match` and `find`; 77 overlapping cases also
+  exercise `try_which_overlapping_matches`. Rust-derived red-green specs cover
+  CRLF/EOI, priority and ordered subsets, implicit Unicode-word looks,
+  reverse suffix starts, quit precedence, accelerator paths, and DFA NFA-error
+  wrapping. The seven-mode matrix and unfiltered Crystal suite pass
+  16,280/16,280. Runtime source and test inventory rows are reconciled;
+  remaining transform, wire, and performance work is explicitly assigned to
+  phases 4c, 5, and 8. No timing result from this loaded host is used as
+  performance evidence.
+- **Next up:** phase 4c dense transforms, then phase 5 dense serialization,
+  sparse DFA, and regex wrappers.
 - **Status by area:** vendor fixture harness, scalar prefilter
   selection/candidate semantics, AArch64 unanchored packed Teddy, 2-500 needle
   Aho/anchored Teddy DFA, and >500-needle contiguous-NFA paths are complete.
@@ -117,9 +114,9 @@
   unavailable for the pool's lifetime. This is a lifecycle divergence, not a
   search-result divergence. No throughput claim is made on this loaded host; phase 8's
   controlled comparison should include pooled Meta searches.
-- **Last completed feature commit:** phase 4a `port: dense DFA alphabet-compressed construction`
+- **Last completed feature commit:** phase 4b `port: dense DFA runtime and vendor suite`
   (this feature commit).
-- **Gates:** full Crystal suite passes 16,103/16,103; pinned Rust DFA API
+- **Gates:** full Crystal suite passes 16,280/16,280; pinned Rust DFA API
   tests pass 5/5 offline; `make install`, format, lint, parity,
   `git diff --check`, Crystal format-check, and no-codegen build pass. These
   are correctness gates, not performance evidence; benchmarks were skipped
@@ -481,7 +478,7 @@ confirmation; no authorship was inferred or changed.
   full suite passed 16,103/16,103 and pinned Rust DFA API tests passed 5/5
   offline.
 
-- [ ] **4b. Dense DFA runtime and vendor suite.** Audit pinned
+- [x] **4b. Dense DFA runtime and vendor suite.** Audit pinned
   `src/dfa/{automaton,dense,determinize,search,special,start}.rs` for start/EOI
   and special states, match/pattern metadata, forward/reverse/overlap,
   anchors, earliest/match-kind modes, limits, and error precedence. Port and
@@ -544,6 +541,14 @@ confirmation; no authorship was inferred or changed.
   memmem Finder dispatch and accelerator reverse scans; avoid retained scalar
   needle copies where Meta can preserve its literal mapping; compare x86 Teddy
   C bridge and pooled Meta searches against pinned Rust under controlled load.
+  For dense DFA construction/search, compare `src/dfa/determinize.rs` scratch
+  `StateBuilder` reuse and byte-key cache with Crystal's ordered-array keys in
+  `src/regex/automata/dfa.cr`, then port the reusable scratch path if it lowers
+  construction allocation without priority drift. Review Rust's four-step
+  unrolled `src/dfa/search.rs` loops against Crystal's scalar
+  `src/regex/automata/automaton.cr` loops and port or justify only with
+  controlled hot-path evidence; these are open optimizations, not accepted
+  intentional divergences or speed claims on this loaded host.
   The current Crystal memmem verifier can take O(haystack × needle) work on
   repeated first-byte candidates, unlike Rust's Two-Way fallback; treat that
   as an unresolved algorithmic risk, not merely a missing benchmark.

@@ -137,9 +137,10 @@ REGEX
   end
 
   it "ports unminimized_prefilter" do
-    prefilter = Regex::Automata::Prefilter
-      .new(Regex::Automata::MatchKind::LeftmostFirst, ["abcd"])
-      .not_nil!
+    hirs = DFA_SUITE_PATTERNS.map do |pattern|
+      Regex::Automata::Syntax.parse_with(pattern, Regex::Automata::Syntax::Config.new)
+    end
+    prefilter = Regex::Automata::Prefilter.from_hirs_prefix(Regex::Automata::MatchKind::LeftmostFirst, hirs)
     builder = Regex::Automata::DFA::Regex.builder
       .dense(Regex::Automata::DFA::DFA.config.prefilter(prefilter))
 
@@ -188,9 +189,10 @@ REGEX
   end
 
   it "ports sparse_unminimized_prefilter" do
-    prefilter = Regex::Automata::Prefilter
-      .new(Regex::Automata::MatchKind::LeftmostFirst, ["abcd"])
-      .not_nil!
+    hirs = DFA_SUITE_PATTERNS.map do |pattern|
+      Regex::Automata::Syntax.parse_with(pattern, Regex::Automata::Syntax::Config.new)
+    end
+    prefilter = Regex::Automata::Prefilter.from_hirs_prefix(Regex::Automata::MatchKind::LeftmostFirst, hirs)
     builder = Regex::Automata::DFA::Regex.builder
       .dense(Regex::Automata::DFA::DFA.config.prefilter(prefilter))
 

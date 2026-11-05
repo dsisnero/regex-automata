@@ -19,7 +19,7 @@ module Regex::Automata::DFA
 
         incoming.first.size.times do |unit|
           sources = incoming_sources(incoming, splitter, unit)
-          next if sources.empty?
+          next unless sources
 
           partition_count = partitions.size
           partition_count.times do |partition_id|
@@ -90,12 +90,16 @@ module Regex::Automata::DFA
       incoming
     end
 
-    private def incoming_sources(incoming : Array(Array(Array(Int32))), splitter : Array(Int32), unit : Int32) : Array(Bool)
+    private def incoming_sources(incoming : Array(Array(Array(Int32))), splitter : Array(Int32), unit : Int32) : Array(Bool)?
       sources = Array.new(@dfa.states.size, false)
+      found = false
       splitter.each do |target|
-        incoming[target][unit].each { |source| sources[source] = true }
+        incoming[target][unit].each do |source|
+          sources[source] = true
+          found = true
+        end
       end
-      sources
+      found ? sources : nil
     end
 
     private def split(group : Array(Int32), sources : Array(Bool)) : Tuple(Array(Int32), Array(Int32))
