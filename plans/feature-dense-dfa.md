@@ -137,3 +137,23 @@ Source of truth: pinned `vendor/regex/regex-automata/src/dfa/` and
   transitions, starts, match IDs, accelerators, and serialized results.
 - Mark file-level rows only after the private algorithm review. Dense wire
   compatibility and sparse/wrapper suite modes remain phase 5.
+- Rust `minimize.rs::initial_partitions` groups match states by pattern-ID
+  list, nonmatches together (including dead), and quit separately. A new
+  characterization spec was red because Crystal also partitioned by look
+  metadata and kept dead separate (4 states instead of Rust's 2); the Rust
+  partition rule makes it green. Rust `dense.rs::Builder::build_from_nfa`
+  shuffles, then minimizes, then accelerates. Crystal previously selected
+  accelerators before minimization, so the builder now re-evaluates and
+  reorders accelerated states after a minimized build. A transform matrix
+  covers both minimization and acceleration settings, specialized starts,
+  every byte/EOI target, accelerator self-loops, start/match separation, and
+  search equivalence. Focused Crystal transforms and 127 DFA examples pass;
+  pinned Rust DFA regression integration tests pass 2/2 offline. The first
+  traced full gate stalled at
+  `specialized_start_states/regression/reverse-inner-required-class-separator-010`
+  on this loaded host; the exact case passed in a fresh process. A bounded
+  unfiltered retry completed 16,282/16,282, and both changed minimized vendor
+  modes passed 25/25 independently. No elapsed time is treated as performance
+  evidence. The transform implementation and inventories are signed off for
+  4c; native Rust wire compatibility remains phase 5, while construction
+  allocation/throughput comparison remains phase 8.

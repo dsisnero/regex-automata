@@ -1,16 +1,16 @@
 rust_file	api_rows	file_review	crystal_refs	notes
-src/dfa/accel.rs	31	pending	-	API-item ledger exists; file-level private-function review remains.
+src/dfa/accel.rs	31	partial	src/regex/automata/accel.cr;src/regex/automata/dfa.cr;spec/accel_spec.cr;spec/dfa_transform_spec.cr	Accelerator candidate selection, 1-3 exit bytes, space rejection, contiguous state IDs, and search invariants reviewed; native wire validation belongs to phase 5 and controlled memchr throughput to phase 8.
 src/dfa/automaton.rs	31	partial	src/regex/automata/automaton.cr;spec/dfa_api_spec.cr;spec/dfa_vendor_suite_spec.cr	Runtime Input searches, UTF-8 empty-match skipping, overlap state, and caller-owned PatternSet which API reviewed against pinned trait defaults; Rust reference forwarding and remaining docs/private paths require file-level closure.
-src/dfa/dense.rs	196	partial	src/regex/automata/dfa.cr;spec/dfa_dense_spec.cr;spec/dfa_vendor_suite_spec.cr	Alphabet-compressed construction and seven-mode runtime matrix reviewed; state shuffling/transforms and native wire paths remain phases 4c/5.
+src/dfa/dense.rs	196	partial	src/regex/automata/dfa.cr;spec/dfa_dense_spec.cr;spec/dfa_transform_spec.cr;spec/dfa_vendor_suite_spec.cr	Construction shuffling, Hopcroft-before-acceleration order, state/transition/start/match/accelerator ID repair, and seven-mode runtime matrix reviewed; native wire compatibility remains phase 5.
 src/dfa/determinize.rs	16	partial	src/regex/automata/dfa.cr;spec/dfa_vendor_suite_spec.cr	Runtime subset construction and start groups reviewed; Rust scratch builder/cache-key reuse is not yet ported and belongs to phase 8 construction optimization audit.
-src/dfa/minimize.rs	18	pending	-	API-item ledger exists; file-level private-function review remains.
+src/dfa/minimize.rs	18	partial	src/regex/automata/minimize.cr;spec/dfa_transform_spec.cr;spec/dfa_dense_spec.cr	Hopcroft partitions and incoming byte/EOI refinement reviewed against pinned Rust; red-green metadata-merging and transform matrix covered. Rust private Debug text and allocation strategy are not behavioral parity claims; performance audit remains phase 8.
 src/dfa/mod.rs	1	pending	-	API-item ledger exists; file-level private-function review remains.
 src/dfa/onepass.rs	123	pending	-	API-item ledger exists; file-level private-function review remains.
 src/dfa/regex.rs	24	pending	-	API-item ledger exists; file-level private-function review remains.
-src/dfa/remapper.rs	13	pending	-	API-item ledger exists; file-level private-function review remains.
+src/dfa/remapper.rs	13	partial	src/regex/automata/dfa.cr;spec/dfa_dense_spec.cr;spec/dfa_transform_spec.cr	Dense final-order permutation repairs transition, EOI, starts, match and accelerator IDs in one construction pass, equivalent to Rust swap-cycle remapper; OnePass variant remains its later engine phase.
 src/dfa/search.rs	0	partial	src/regex/automata/automaton.cr;src/regex/automata/dfa.cr;spec/dfa_api_spec.cr;spec/quit_after_match_spec.cr;spec/dfa_vendor_suite_spec.cr	Forward/reverse/overlap, prefilter restart, EOI, quit precedence, and accelerator branches reviewed against pinned source; Rust four-step loop unrolling remains phase 8 throughput work without a speed claim.
 src/dfa/sparse.rs	93	pending	-	API-item ledger exists; file-level private-function review remains.
-src/dfa/special.rs	20	partial	src/regex/automata/special.cr;spec/dfa_api_spec.cr	Runtime special-state range predicates reviewed; remapping and wire validation remain phases 4c/5.
+src/dfa/special.rs	20	partial	src/regex/automata/special.cr;spec/dfa_api_spec.cr;spec/dfa_transform_spec.cr	Runtime special-state ranges and transform remapping reviewed; native wire validation remains phase 5.
 src/dfa/start.rs	5	partial	src/regex/automata/search.cr;src/regex/automata/dfa.cr;spec/dfa_api_spec.cr	Both/anchored/unanchored runtime start support reviewed; native wire encoding remains phase 5.
 src/hybrid/dfa.rs	111	pending	-	API-item ledger exists; file-level private-function review remains.
 src/hybrid/error.rs	14	pending	-	API-item ledger exists; file-level private-function review remains.

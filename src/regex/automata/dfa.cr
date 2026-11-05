@@ -2389,7 +2389,7 @@ module Regex::Automata::DFA
         anchored_start_states,
         pattern_start_states
       )
-      accelerators = if @config.accelerate?
+      accelerators = if @config.accelerate? && !@config.get_minimize
                        compute_accelerators(@dfa_state_count, @transition_table, @byte_classes)
                      else
                        Array.new(@dfa_state_count) { Bytes.empty }
@@ -2448,6 +2448,7 @@ module Regex::Automata::DFA
 
       if @config.get_minimize
         dfa = Minimizer.new(dfa).run
+        dfa = accelerate_minimized_dfa(dfa) if @config.accelerate?
       end
 
       if limit = @config.get_dfa_size_limit
@@ -2457,6 +2458,43 @@ module Regex::Automata::DFA
       end
 
       dfa
+    end
+
+    # Rust dense::Builder::build_from_nfa minimizes before selecting and
+    # shuffling accelerated states. Rebuild the minimized transition graph in
+    # the same logical-ID space used by the construction-time shuffler.
+    private def accelerate_minimized_dfa(dfa : DFA) : DFA
+      tt = dfa.tt.not_nil!
+      state_count = dfa.state_len
+      metas = dfa.states.map do |state|
+        StateMeta.new(Set(StateID).new, state.look_have, state.look_need,
+          state.is_from_word?, state.is_half_crlf?, state.match.dup)
+      end
+      logical = ->(id : StateID) { StateID.new(tt.to_index(id)) }
+      unanchored_starts = dfa.st.unanchored_states.transform_values { |id| logical.call(id) }
+      anchored_starts = dfa.st.anchored_states.transform_values { |id| logical.call(id) }
+      pattern_starts = dfa.st.pattern_states.transform_values do |starts|
+        starts.transform_values { |id| logical.call(id) }
+      end
+      accelerators = compute_accelerators(state_count, tt, dfa.byte_classifier)
+      metas, tt, unanchored_id, anchored_id, unanchored_starts, anchored_starts, pattern_starts, accelerators = reorder_accelerated_states(
+        state_count, metas, tt,
+        logical.call(dfa.st.unanchored), logical.call(dfa.st.anchored),
+        unanchored_starts, anchored_starts, pattern_starts, accelerators
+      )
+      start_ids = (unanchored_starts.values + anchored_starts.values + pattern_starts.values.flat_map(&.values)).to_set
+      states = materialize_states_from_metadata(metas, tt, start_ids)
+      st = StartTable.new(
+        dfa.st.kind, unanchored_id, anchored_id,
+        unanchored_starts, anchored_starts, pattern_starts,
+        DFA.compute_universal_start(states, unanchored_starts),
+        DFA.compute_universal_start(states, anchored_starts),
+        start_map: dfa.st.start_map
+      )
+      accelerated = DFA.new(states, tt, unanchored_id, dfa.byte_classifier,
+        anchored_id, accelerators, dfa.get_prefilter, dfa.quitset, dfa.flags, st)
+      accelerated.special.set_no_special_start_states unless @config.specialize_start_states?
+      accelerated
     end
 
     private def syntax_parser : ::Regex::Syntax::Parser

@@ -1,6 +1,6 @@
 module Regex::Automata::DFA
-  # A dense-DFA minimizer that merges equivalent states while preserving the
-  # current port's observable state metadata.
+  # Hopcroft minimization of dense DFA behavior, matching Rust's partitions
+  # by pattern IDs, nonmatches, and quit before transition refinement.
   class Minimizer
     def initialize(@dfa : DFA)
     end
@@ -9,7 +9,6 @@ module Regex::Automata::DFA
       return @dfa if @dfa.states.size <= 2
 
       partitions = initial_partitions
-      part_of = partition_map(partitions)
       waiting = partitions.map(&.dup)
       incoming = incoming_transitions
 
@@ -28,10 +27,7 @@ module Regex::Automata::DFA
             next if inside.empty? || outside.empty?
 
             partitions[partition_id] = inside
-            new_partition_id = partitions.size
             partitions << outside
-            outside.each { |state| part_of[state] = new_partition_id }
-
             if waiting_index = waiting.index(group)
               waiting[waiting_index] = inside
               waiting << outside
@@ -48,32 +44,23 @@ module Regex::Automata::DFA
     end
 
     private def initial_partitions : Array(Array(Int32))
-      grouped = {} of Tuple(Symbol, Array(PatternID), LookSet, LookSet, Bool, Bool) => Array(Int32)
+      grouped = {} of Tuple(Symbol, Array(PatternID)) => Array(Int32)
 
       @dfa.states.each_with_index do |state, index|
-        kind = case index
-               when DEAD_STATE_ID.to_i
-                 :dead
-               when QUIT_STATE_ID.to_i
+        kind = if index == QUIT_STATE_ID.to_i
                  :quit
+               elsif state.match.empty?
+                 :nonmatch
                else
-                 :normal
+                 :match
                end
-        key = {kind, state.match, state.look_need, state.look_have, state.is_from_word?, state.is_half_crlf?}
+        # Rust partitions by match pattern IDs, non-match, and quit only.
+        # Look metadata is a determinization aid, not observable DFA behavior.
+        key = {kind, state.match}
         (grouped[key] ||= [] of Int32) << index
       end
 
       grouped.values.sort_by(&.first)
-    end
-
-    private def partition_map(partitions : Array(Array(Int32))) : Array(Int32)
-      part_of = Array.new(@dfa.states.size, 0)
-      partitions.each_with_index do |group, partition_id|
-        group.each do |state_index|
-          part_of[state_index] = partition_id
-        end
-      end
-      part_of
     end
 
     # Reverse transition index, with the final slot representing EOI. This is

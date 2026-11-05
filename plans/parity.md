@@ -6,8 +6,8 @@
   `72d650cb0a880a01ab6dc2137c0888e8f89740f7` (regex-automata 0.4.18).
   Do not substitute remembered Rust behavior or a newer upstream revision.
 - Working source ledger: [rust_port_inventory.tsv](inventory/rust_port_inventory.tsv)
-  (1,936 Rust API items: 1,429 `ported`, 238 `missing`, 89 `partial`, 173
-  `intentional_divergence`, 7 `skipped`). Test ledger:
+  (1,936 Rust API items: 1,429 `ported`, 238 `missing`, 88 `partial`, 173
+  `intentional_divergence`, 8 `skipped`). Test ledger:
   [rust_test_parity.tsv](inventory/rust_test_parity.tsv) (220 rows: 170
   `ported`, 40 `partial`, 9 `intentional_divergence`, 1 `skipped`). These are **review
   queues**, not a count of absent behaviors or a completion percentage. The
@@ -35,21 +35,20 @@
 
 ## Where we are
 
-- **Current focus:** phase 4b dense DFA execution and the full vendor suite is
-  complete. `spec/dfa_vendor_suite_spec.cr` runs all seven pinned dense modes:
-  per mode, 1,194 fixture cases yield 1,150 after Rust's `expensive` blacklist,
-  46 Unicode-word/non-ASCII skips, five expected compile errors, and 1,099
-  compiled cases exercising `is_match` and `find`; 77 overlapping cases also
-  exercise `try_which_overlapping_matches`. Rust-derived red-green specs cover
-  CRLF/EOI, priority and ordered subsets, implicit Unicode-word looks,
-  reverse suffix starts, quit precedence, accelerator paths, and DFA NFA-error
-  wrapping. The seven-mode matrix and unfiltered Crystal suite pass
-  16,280/16,280. Runtime source and test inventory rows are reconciled;
-  remaining transform, wire, and performance work is explicitly assigned to
-  phases 4c, 5, and 8. No timing result from this loaded host is used as
-  performance evidence.
-- **Next up:** phase 4c dense transforms, then phase 5 dense serialization,
-  sparse DFA, and regex wrappers.
+- **Current focus:** phase 4c dense DFA transforms is complete. A pinned
+  Rust Hopcroft partition assertion was red (equivalent nonmatches split by
+  Crystal-only look metadata), then green after grouping only by match pattern
+  IDs, nonmatch, and quit. The builder now follows Rust's shuffle, minimize,
+  accelerate order. An adversarial eight-configuration matrix checks all
+  byte/EOI targets, start/match separation, accelerator self-loops, and search
+  equivalence; focused Crystal DFA tests pass 127/127, both minimized vendor
+  modes pass 25/25, pinned Rust DFA regression tests pass 2/2 offline, and
+  the unfiltered Crystal suite passes 16,282/16,282. One traced full run
+  stalled at a specialized-start vendor case that passed in isolation; the
+  bounded unfiltered retry completed. Wire compatibility and controlled
+  construction-cost comparison remain phases 5 and 8. No loaded-host timing
+  is used as performance evidence.
+- **Next up:** phase 5 dense serialization, sparse DFA, and regex wrappers.
 - **Status by area:** vendor fixture harness, scalar prefilter
   selection/candidate semantics, AArch64 unanchored packed Teddy, 2-500 needle
   Aho/anchored Teddy DFA, and >500-needle contiguous-NFA paths are complete.
@@ -99,6 +98,15 @@
   bypasses derivation only when explicitly supplied. It adds no search-time
   branch or lookup. No speedup claim is inferred from the smaller alphabet on
   this loaded host.
+- **Dense transform representation and cost:** Rust
+  `src/dfa/{remapper,minimize,dense}.rs` uses in-place row swaps followed by
+  swap-cycle ID repair; Crystal `src/regex/automata/{dfa,minimize}.cr` rebuilds
+  a final-order transition table and materialized state array together because
+  both representations are retained. The transform tests cover equivalent
+  transition, EOI, start, match and accelerator IDs, while the seven-mode
+  vendor suite checks search behavior. This is construction-only work with no
+  extra search-time branch; its allocation and construction-time cost are not
+  established on this loaded host and remain a phase 8 comparison.
 - **Pool/lazy divergence and cost:** Rust `src/util/lazy.rs` alloc path maps
   to Crystal `src/regex/automata/lazy.cr` with one acquire load and CAS
   publication; Crystal's GC-safe wrapper allocates only on a factory run.
@@ -114,10 +122,10 @@
   unavailable for the pool's lifetime. This is a lifecycle divergence, not a
   search-result divergence. No throughput claim is made on this loaded host; phase 8's
   controlled comparison should include pooled Meta searches.
-- **Last completed feature commit:** phase 4b `port: dense DFA runtime and vendor suite`
+- **Last completed feature commit:** phase 4c `port: dense DFA transforms`
   (this feature commit).
-- **Gates:** full Crystal suite passes 16,280/16,280; pinned Rust DFA API
-  tests pass 5/5 offline; `make install`, format, lint, parity,
+- **Gates:** full Crystal suite passes 16,282/16,282; pinned Rust DFA
+  regression tests pass 2/2 offline; `make install`, format, lint, parity,
   `git diff --check`, Crystal format-check, and no-codegen build pass. These
   are correctness gates, not performance evidence; benchmarks were skipped
   on this loaded host.
@@ -488,7 +496,7 @@ confirmation; no authorship was inferred or changed.
   unsupported speed claim. See the [dense DFA subplan](feature-dense-dfa.md).
   **Gate:** runtime source/test/file rows and full dense suite modes pass.
 
-- [ ] **4c. Dense DFA transforms.** Audit pinned
+- [x] **4c. Dense DFA transforms.** Audit pinned
   `src/dfa/{accel,dense,minimize,remapper,special}.rs` and port transformed-
   automaton adversarial tests for remap/minimize/truncate/swap/shuffle,
   checking transitions, starts, matches, accelerators, and serialized results.
