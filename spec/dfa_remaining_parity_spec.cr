@@ -78,10 +78,6 @@ private def roundtrip_sparse_regex(re : Regex::Automata::DFA::Regex) : Regex::Au
   Regex::Automata::DFA::Regex.builder.build_from_dfas(forward, reverse)
 end
 
-private def dense_byte_class_count_offset(dfa : Regex::Automata::DFA::DFA) : Int32
-  8 + 4 + 4 + 4 + 4 + 4 + (Regex::Automata::Start.len * 2 * 4) + 4 + (dfa.st.pattern_states.size * (4 + Regex::Automata::Start.len * 4)) + 256
-end
-
 private def write_u32_le_spec(bytes : Bytes, offset : Int32, value : UInt32) : Nil
   bytes[offset] = (value & 0xFF).to_u8
   bytes[offset + 1] = ((value >> 8) & 0xFF).to_u8
@@ -241,28 +237,24 @@ REGEX
     assert_multi_pattern_v2_behavior(roundtrip_sparse_regex(re))
   end
 
-  it "ports invalid_byte_classes" do
+  it "rejects an invalid native byte class map" do
     dfa = Regex::Automata::DFA::DFA.new("abc")
     bytes = dfa.to_bytes_little_endian[0]
     corrupted = bytes.dup
-    offset = dense_byte_class_count_offset(dfa)
-
-    write_u32_le_spec(corrupted, offset, 1_u32)
+    corrupted[56] = 255_u8
 
     expect_raises(Regex::Automata::DeserializeError) do
       Regex::Automata::DFA::DFA.from_bytes(corrupted)
     end
   end
 
-  it "ports invalid_byte_classes_min" do
+  it "rejects an invalid native byte class map after minimization" do
     dfa = Regex::Automata::DFA::DFA.builder
       .configure(Regex::Automata::DFA::DFA.config.minimize(true))
       .build("(foo|bar|baz)")
     bytes = dfa.to_bytes_little_endian[0]
     corrupted = bytes.dup
-    offset = dense_byte_class_count_offset(dfa)
-
-    write_u32_le_spec(corrupted, offset, 1_u32)
+    corrupted[56] = 255_u8
 
     expect_raises(Regex::Automata::DeserializeError) do
       Regex::Automata::DFA::DFA.from_bytes(corrupted)

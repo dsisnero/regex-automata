@@ -57,6 +57,11 @@ private def dense_vendor_check(test : VendorRegexSuite::Case, mode : String) : N
   end
 
   re = dense_vendor_build(test, mode)
+  if mode == "serialization"
+    forward = Regex::Automata::DFA::DFA.from_bytes(re.forward.to_bytes_native_endian[0])[0]
+    reverse = Regex::Automata::DFA::DFA.from_bytes(re.reverse.to_bytes_native_endian[0])[0]
+    re = Regex::Automata::DFA::Regex.builder.build_from_dfas(forward, reverse)
+  end
   input = Regex::Automata::Input.new(test.haystack)
     .range(test.bounds[0]...test.bounds[1])
     .anchored(test.anchored ? Regex::Automata::Anchored::Yes : Regex::Automata::Anchored::No)
@@ -110,7 +115,7 @@ describe "pinned dense DFA TOML suite" do
     dense_vendor_check(test, "minimized_no_byte_class")
   end
 
-  %w(default prefilter specialized_start_states no_byte_class nfa_shrink minimized_default minimized_no_byte_class).each do |mode|
+  %w(default prefilter specialized_start_states no_byte_class nfa_shrink minimized_default minimized_no_byte_class serialization).each do |mode|
     VendorRegexSuite.load.groups.each do |group|
       next if group == "expensive" # Rust TestRunner::blacklist("expensive").
       it "#{mode}: #{group} is_match/find/which" do

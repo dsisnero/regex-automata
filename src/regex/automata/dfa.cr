@@ -188,6 +188,7 @@ module Regex::Automata::DFA
         @st = @st.remap { |id| @tt.not_nil!.to_state_id(id.to_i) }
       end
       @ms = MatchStates.from_states(@states, @tt)
+      @wire_accels = nil
       @special = build_special
     end
 
@@ -238,12 +239,6 @@ module Regex::Automata::DFA
       Builder.from_nfa(nfa).build
     end
 
-    # Deserialize a DFA from bytes
-    # Returns a tuple of (DFA, bytes_read) or raises DeserializeError
-    def self.from_bytes(slice : Bytes) : Tuple(DFA, Int32)
-      from_bytes_with_endianness(slice, detect_serialized_endianness(slice))
-    end
-
     def self.build_transition_table(states : Array(State), byte_classifier : ByteClasses) : TransitionTable
       stride2 = compute_stride2(byte_classifier)
       tt = TransitionTable.new(byte_classifier, stride2, states.size)
@@ -284,636 +279,8 @@ module Regex::Automata::DFA
       stride2
     end
 
-    private def self.from_bytes_with_endianness(slice : Bytes, endianness : Symbol) : Tuple(DFA, Int32)
-      offset = 0
-
-      ensure_bytes_available(slice, offset, 8, "magic bytes")
-
-      # Check magic
-      magic = slice[offset, 8]
-      unless magic == "CRDFA001".to_slice
-        raise DeserializeError.new("Invalid magic bytes")
-      end
-      offset += 8
-
-      # Read version
-      ensure_bytes_available(slice, offset, 4, "version")
-      version = read_u32(slice, offset, endianness)
-      unless version == 1 || version == 2 || version == 3 || version == 4 || version == 5
-        raise DeserializeError.new("Unsupported version: #{version}")
-      end
-      offset += 4
-
-      # Read flags
-      ensure_bytes_available(slice, offset, 4, "flags")
-      flags = flags_from_u32(read_u32(slice, offset, endianness))
-      offset += 4
-
-      # Read state count
-      ensure_bytes_available(slice, offset, 4, "state count")
-      state_count = read_u32(slice, offset, endianness).to_i32
-      offset += 4
-
-      # Read start states
-      ensure_bytes_available(slice, offset, 8, "start states")
-      start_unanchored_unsigned = read_u32(slice, offset, endianness)
-      start_unanchored = StateID.new(unsigned_to_signed(start_unanchored_unsigned))
-      offset += 4
-      start_anchored_unsigned = read_u32(slice, offset, endianness)
-      start_anchored = StateID.new(unsigned_to_signed(start_anchored_unsigned))
-      offset += 4
-
-      start_table = nil
-      start_map = StartByteMap.new(LookMatcher.new)
-      if version >= 2
-        unanchored_states = {} of Start => StateID
-        anchored_states = {} of Start => StateID
-        Start.each do |start_kind|
-          ensure_bytes_available(slice, offset, 4, "unanchored start state")
-          start_id = StateID.new(unsigned_to_signed(read_u32(slice, offset, endianness)))
-          offset += 4
-          unanchored_states[start_kind] = start_id
-        end
-        Start.each do |start_kind|
-          ensure_bytes_available(slice, offset, 4, "anchored start state")
-          start_id = StateID.new(unsigned_to_signed(read_u32(slice, offset, endianness)))
-          offset += 4
-          anchored_states[start_kind] = start_id
-        end
-        pattern_states = {} of PatternID => Hash(Start, StateID)
-        if version >= 4
-          ensure_bytes_available(slice, offset, 4, "pattern start state count")
-          pattern_state_count = read_u32(slice, offset, endianness).to_i32
-          offset += 4
-          pattern_state_count.times do
-            ensure_bytes_available(slice, offset, 4, "pattern start pattern id")
-            pattern_id = PatternID.new(read_u32(slice, offset, endianness).to_i32)
-            offset += 4
-            states = {} of Start => StateID
-            Start.each do |start_kind|
-              ensure_bytes_available(slice, offset, 4, "pattern start state")
-              start_id = StateID.new(unsigned_to_signed(read_u32(slice, offset, endianness)))
-              offset += 4
-              states[start_kind] = start_id
-            end
-            pattern_states[pattern_id] = states
-          end
-        end
-        if version >= 5
-          ensure_bytes_available(slice, offset, 256, "start byte map")
-          start_map, read = StartByteMap.from_bytes(slice[offset, slice.size - offset])
-          offset += read
-        end
-        start_table = StartTable.new(
-          flags.is_anchored ? StartKind::Anchored : StartKind::Both,
-          start_unanchored,
-          start_anchored,
-          unanchored_states,
-          anchored_states,
-          pattern_states,
-          start_map: start_map
-        )
-      end
-
-      # Read byte classes count
-      ensure_bytes_available(slice, offset, 4, "byte class count")
-      byte_classes_count = read_u32(slice, offset, endianness).to_i32
-      offset += 4
-
-      # Read byte class mapping
-      ensure_bytes_available(slice, offset, 256, "byte class map")
-      class_mapping = Array.new(256) do
-        byte_class = slice[offset].to_i32
-        offset += 1
-        byte_class
-      end
-
-      # Create ByteClasses object
-      byte_classes_obj = ByteClasses.from_mapping(class_mapping, byte_classes_count)
-
-      stride2 = 0
-      stride = 1
-      while stride < byte_classes_obj.alphabet_len
-        stride <<= 1
-        stride2 += 1
-      end
-
-      if start_unanchored.to_i >= 0
-        start_unanchored = deserialize_serialized_state_id!(
-          start_unanchored,
-          state_count,
-          stride2,
-          flags.premultiplied,
-          "unanchored start state"
-        )
-      end
-      if start_anchored.to_i >= 0
-        start_anchored = deserialize_serialized_state_id!(
-          start_anchored,
-          state_count,
-          stride2,
-          flags.premultiplied,
-          "anchored start state"
-        )
-      end
-      if start_table
-        start_table = start_table.remap do |id|
-          next id if id.to_i < 0
-          deserialize_serialized_state_id!(
-            id,
-            state_count,
-            stride2,
-            flags.premultiplied,
-            "start table state"
-          )
-        end
-      end
-
-      # Read states
-      states = Array(State).new(state_count)
-      state_count.times do |state_index|
-        # Read state ID
-        ensure_bytes_available(slice, offset, 4, "state id")
-        id_unsigned = read_u32(slice, offset, endianness)
-        id = deserialize_serialized_state_id!(
-          StateID.new(unsigned_to_signed(id_unsigned)),
-          state_count,
-          stride2,
-          flags.premultiplied,
-          "state id"
-        )
-        offset += 4
-
-        # Read transitions
-        ensure_bytes_available(slice, offset, 4, "transition count")
-        trans_count = read_u32(slice, offset, endianness).to_i32
-        offset += 4
-        unless trans_count == byte_classes_count
-          raise DeserializeError.new("invalid transition count #{trans_count} for state #{state_index}")
-        end
-        ensure_bytes_available(slice, offset, trans_count * 4, "state transitions")
-        next_states = Array.new(trans_count) do
-          next_id_unsigned = read_u32(slice, offset, endianness)
-          offset += 4
-          deserialize_serialized_state_id!(
-            StateID.new(unsigned_to_signed(next_id_unsigned)),
-            state_count,
-            stride2,
-            flags.premultiplied,
-            "transition state"
-          )
-        end
-
-        # Read match patterns
-        ensure_bytes_available(slice, offset, 4, "match count")
-        match_count = read_u32(slice, offset, endianness).to_i32
-        offset += 4
-        ensure_bytes_available(slice, offset, match_count * 4, "match pattern ids")
-        match_patterns = Array.new(match_count) do
-          PatternID.new(read_u32(slice, offset, endianness).to_i32)
-        end
-        offset += match_count * 4
-
-        # Read look sets and flags
-        ensure_bytes_available(slice, offset, 14, "state metadata")
-        look_need = LookSet.new(read_u32(slice, offset, endianness))
-        offset += 4
-        look_have = LookSet.new(read_u32(slice, offset, endianness))
-        offset += 4
-        is_from_word = slice[offset] != 0
-        offset += 1
-        is_half_crlf = slice[offset] != 0
-        offset += 1
-        eoi_next_unsigned = read_u32(slice, offset, endianness)
-        eoi_next = deserialize_serialized_state_id!(
-          StateID.new(unsigned_to_signed(eoi_next_unsigned)),
-          state_count,
-          stride2,
-          flags.premultiplied,
-          "EOI transition state"
-        )
-        offset += 4
-
-        # Create state
-        state = State.new(id, trans_count, look_need, look_have, is_from_word, is_half_crlf)
-        state.next = next_states
-        state.match = match_patterns
-        state.eoi_next = eoi_next
-        states << state
-      end
-
-      validate_start_states!(start_unanchored, start_anchored, start_table, states)
-
-      if st = start_table
-        start_table = StartTable.new(
-          st.kind,
-          st.unanchored,
-          st.anchored,
-          st.unanchored_states,
-          st.anchored_states,
-          st.pattern_states,
-          compute_universal_start(states, st.unanchored_states),
-          compute_universal_start(states, st.anchored_states),
-          start_map: st.start_map
-        )
-      end
-
-      # Read accelerators
-      ensure_bytes_available(slice, offset, 4, "accelerator count")
-      accel_count = read_u32(slice, offset, endianness).to_i32
-      offset += 4
-      unless accel_count == state_count
-        raise DeserializeError.new("invalid accelerator count #{accel_count}, expected #{state_count}")
-      end
-      accelerators = Array.new(accel_count) do
-        ensure_bytes_available(slice, offset, 4, "accelerator length")
-        accel_size = read_u32(slice, offset, endianness).to_i32
-        offset += 4
-        ensure_bytes_available(slice, offset, accel_size, "accelerator bytes")
-        accel = slice[offset, accel_size]
-        offset += accel_size
-        accel
-      end
-
-      # Read quit set
-      ensure_bytes_available(slice, offset, 32, "quit byte set")
-      quit_bytes = slice[offset, 32]
-      offset += 32
-      quitset, _quitset_read = ByteSet.from_bytes(quit_bytes)
-
-      # Create DFA
-      dfa = DFA.new(states, nil, start_unanchored, byte_classes_obj, start_anchored, accelerators, nil, quitset, flags, start_table)
-
-      {dfa, offset}
-    end
-
-    # Start states are used by the search routines before consuming a byte.
-    # A match state here would violate their delayed-match invariant and can
-    # cause a malformed serialized DFA to report an incorrect match.
-    private def self.validate_start_states!(unanchored : StateID, anchored : StateID, table : StartTable?, states : Array(State)) : Nil
-      ids = [unanchored, anchored]
-      if table
-        ids << table.unanchored
-        ids << table.anchored
-        ids.concat(table.unanchored_states.values)
-        ids.concat(table.anchored_states.values)
-        table.pattern_states.each_value { |start_states| ids.concat(start_states.values) }
-      end
-
-      ids.each do |id|
-        next if id.to_i < 0
-        if states.any? { |state| state.id == id && state.accepting? }
-          raise DeserializeError.new("start states cannot be match states")
-        end
-      end
-    end
-
-    private def self.read_u32(slice : Bytes, offset : Int32, endianness : Symbol) : UInt32
-      case endianness
-      when :little
-        slice[offset].to_u32 |
-          (slice[offset + 1].to_u32 << 8) |
-          (slice[offset + 2].to_u32 << 16) |
-          (slice[offset + 3].to_u32 << 24)
-      when :big
-        (slice[offset].to_u32 << 24) |
-          (slice[offset + 1].to_u32 << 16) |
-          (slice[offset + 2].to_u32 << 8) |
-          slice[offset + 3].to_u32
-      when :native
-        read_u32(slice, offset, :little)
-      else
-        raise "Unsupported endianness: #{endianness}"
-      end
-    end
-
-    private def self.read_u64(slice : Bytes, offset : Int32, endianness : Symbol) : UInt64
-      case endianness
-      when :little
-        value = 0_u64
-        (0..7).each do |i|
-          value |= slice[offset + i].to_u64 << (i * 8)
-        end
-        value
-      when :big
-        value = 0_u64
-        (0..7).each do |i|
-          value |= slice[offset + i].to_u64 << ((7 - i) * 8)
-        end
-        value
-      when :native
-        read_u64(slice, offset, :little)
-      else
-        raise "Unsupported endianness: #{endianness}"
-      end
-    end
-
-    private def self.unsigned_to_signed(unsigned : UInt32) : Int32
-      if unsigned >= 0x80000000_u32
-        # Negative value stored as two's complement
-        -((0xFFFFFFFF_u32 - unsigned + 1).to_i32)
-      else
-        unsigned.to_i32
-      end
-    end
-
-    # Serialize this DFA to bytes in little-endian format
-    # Returns a tuple of (bytes, bytes_written)
-    def to_bytes_little_endian : Tuple(Bytes, Int32)
-      to_bytes_with_endianness(:little)
-    end
-
-    # Serialize this DFA to bytes in big-endian format
-    # Returns a tuple of (bytes, bytes_written)
-    def to_bytes_big_endian : Tuple(Bytes, Int32)
-      to_bytes_with_endianness(:big)
-    end
-
-    # Serialize this DFA to bytes in native-endian format
-    # Returns a tuple of (bytes, bytes_written)
-    def to_bytes_native_endian : Tuple(Bytes, Int32)
-      to_bytes_with_endianness(:native)
-    end
-
-    # Serialize this DFA into the given buffer in little-endian format.
-    # Returns the number of bytes written or raises when the buffer is too small.
-    def write_to_little_endian(dst : Bytes) : Int32
-      write_to_with_endianness(dst, :little)
-    end
-
-    # Serialize this DFA into the given buffer in big-endian format.
-    # Returns the number of bytes written or raises when the buffer is too small.
-    def write_to_big_endian(dst : Bytes) : Int32
-      write_to_with_endianness(dst, :big)
-    end
-
-    # Serialize this DFA into the given buffer in native-endian format.
-    # Returns the number of bytes written or raises when the buffer is too small.
-    def write_to_native_endian(dst : Bytes) : Int32
-      write_to_with_endianness(dst, :native)
-    end
-
-    # Return the number of bytes required to serialize this DFA.
-    def write_to_len : Int32
-      to_bytes_native_endian[1]
-    end
-
-    private def to_bytes_with_endianness(endianness : Symbol) : Tuple(Bytes, Int32)
-      # Calculate total size needed
-      total_size = 0
-
-      # Header: magic (8 bytes), version (4 bytes), flags (4 bytes)
-      total_size += 8 + 4 + 4
-
-      # State count (4 bytes), start_unanchored (4 bytes), start_anchored (4 bytes)
-      total_size += 4 + 4 + 4
-      total_size += (Start.len * 2 * 4)
-      total_size += 4
-      total_size += @st.pattern_states.size * (4 + Start.len * 4)
-      total_size += @st.start_map.write_to_len
-
-      # Byte classes count (4 bytes) + byte class mapping (256 bytes)
-      total_size += 4 + 256
-
-      # For each state:
-      @states.each do |state|
-        # id (4 bytes), transitions count (4 bytes), match patterns count (4 bytes)
-        total_size += 4 + 4 + 4
-        # transitions (each 4 bytes)
-        total_size += state.next.size * 4
-        # match patterns (each 4 bytes)
-        total_size += state.match.size * 4
-        # look_need (4 bytes), look_have (4 bytes), is_from_word (1 byte), is_half_crlf (1 byte), eoi_next (4 bytes)
-        total_size += 4 + 4 + 1 + 1 + 4
-      end
-
-      # Accelerators: count (4 bytes) + for each accelerator: length (4 bytes) + bytes
-      total_size += 4
-      @accelerators.each do |accel|
-        total_size += 4 + accel.size
-      end
-
-      # Quit set: 32 bytes (256 bits / 8)
-      total_size += 32
-
-      # Allocate buffer
-      buffer = Bytes.new(total_size)
-      offset = 0
-
-      # Write magic "CRDFA001"
-      buffer[offset, 8].copy_from("CRDFA001".to_slice)
-      offset += 8
-
-      # Write version
-      write_u32(5, buffer, offset, endianness)
-      offset += 4
-
-      # Write flags
-      write_u32(flags_to_u32, buffer, offset, endianness)
-      offset += 4
-
-      # Write state count
-      write_u32(@states.size.to_u32, buffer, offset, endianness)
-      offset += 4
-
-      # Write start states
-      start_unanchored_value = @start_unanchored.to_i
-      start_unanchored_unsigned = start_unanchored_value < 0 ? (0xFFFFFFFF_u32 + start_unanchored_value + 1).to_u32 : start_unanchored_value.to_u32
-      write_u32(start_unanchored_unsigned, buffer, offset, endianness)
-      offset += 4
-
-      start_anchored_value = @start_anchored.to_i
-      start_anchored_unsigned = start_anchored_value < 0 ? (0xFFFFFFFF_u32 + start_anchored_value + 1).to_u32 : start_anchored_value.to_u32
-      write_u32(start_anchored_unsigned, buffer, offset, endianness)
-      offset += 4
-
-      Start.each do |start_kind|
-        write_u32((@st.unanchored_states[start_kind]? || @st.unanchored).to_i.to_u32, buffer, offset, endianness)
-        offset += 4
-      end
-      Start.each do |start_kind|
-        write_u32((@st.anchored_states[start_kind]? || @st.anchored).to_i.to_u32, buffer, offset, endianness)
-        offset += 4
-      end
-      write_u32(@st.pattern_states.size.to_u32, buffer, offset, endianness)
-      offset += 4
-      @st.pattern_states.each do |pattern_id, states|
-        write_u32(pattern_id.to_i.to_u32, buffer, offset, endianness)
-        offset += 4
-        Start.each do |start_kind|
-          write_u32((states[start_kind]? || states[Start::Text]).to_i.to_u32, buffer, offset, endianness)
-          offset += 4
-        end
-      end
-      offset += @st.start_map.write_to(buffer[offset, @st.start_map.write_to_len])
-
-      # Write byte classes count
-      write_u32(@byte_classes.to_u32, buffer, offset, endianness)
-      offset += 4
-
-      # Write byte class mapping
-      (0..255).each do |byte|
-        buffer[offset] = @byte_classifier[byte].to_u8
-        offset += 1
-      end
-
-      # Write states
-      @states.each do |state|
-        # Write state ID
-        id_value = state.id.to_i
-        id_unsigned = id_value < 0 ? (0xFFFFFFFF_u32 + id_value + 1).to_u32 : id_value.to_u32
-        write_u32(id_unsigned, buffer, offset, endianness)
-        offset += 4
-
-        # Write transitions count and transitions
-        write_u32(state.next.size.to_u32, buffer, offset, endianness)
-        offset += 4
-        state.next.each do |next_id|
-          # Convert signed to unsigned, preserving negative values as large positive values
-          value = next_id.to_i
-          unsigned_value = value < 0 ? (0xFFFFFFFF_u32 + value + 1).to_u32 : value.to_u32
-          write_u32(unsigned_value, buffer, offset, endianness)
-          offset += 4
-        end
-
-        # Write match patterns count and patterns
-        write_u32(state.match.size.to_u32, buffer, offset, endianness)
-        offset += 4
-        state.match.each do |pattern_id|
-          write_u32(pattern_id.to_i.to_u32, buffer, offset, endianness)
-          offset += 4
-        end
-
-        # Write look sets and flags
-        write_u32(state.look_need.to_u32, buffer, offset, endianness)
-        offset += 4
-        write_u32(state.look_have.to_u32, buffer, offset, endianness)
-        offset += 4
-        buffer[offset] = state.is_from_word? ? 1_u8 : 0_u8
-        offset += 1
-        buffer[offset] = state.is_half_crlf? ? 1_u8 : 0_u8
-        offset += 1
-        eoi_next_value = state.eoi_next.to_i
-        eoi_next_unsigned = eoi_next_value < 0 ? (0xFFFFFFFF_u32 + eoi_next_value + 1).to_u32 : eoi_next_value.to_u32
-        write_u32(eoi_next_unsigned, buffer, offset, endianness)
-        offset += 4
-      end
-
-      # Write accelerators
-      write_u32(@accelerators.size.to_u32, buffer, offset, endianness)
-      offset += 4
-      @accelerators.each do |accel|
-        write_u32(accel.size.to_u32, buffer, offset, endianness)
-        offset += 4
-        buffer[offset, accel.size].copy_from(accel)
-        offset += accel.size
-      end
-
-      # Write quit set (32 bytes for 256 bits)
-      quit_bytes = @quitset.to_bytes
-      buffer[offset, 32].copy_from(quit_bytes)
-      offset += 32
-
-      {buffer, offset}
-    end
-
-    private def write_to_with_endianness(dst : Bytes, endianness : Symbol) : Int32
-      bytes, written = to_bytes_with_endianness(endianness)
-      if dst.size < written
-        raise SerializeError.new("buffer too small: need #{written} bytes, got #{dst.size}")
-      end
-      dst[0, written].copy_from(bytes[0, written])
-      written
-    end
-
-    private def write_u32(value : UInt32, buffer : Bytes, offset : Int32, endianness : Symbol)
-      case endianness
-      when :little
-        buffer[offset] = (value & 0xFF).to_u8
-        buffer[offset + 1] = ((value >> 8) & 0xFF).to_u8
-        buffer[offset + 2] = ((value >> 16) & 0xFF).to_u8
-        buffer[offset + 3] = ((value >> 24) & 0xFF).to_u8
-      when :big
-        buffer[offset] = ((value >> 24) & 0xFF).to_u8
-        buffer[offset + 1] = ((value >> 16) & 0xFF).to_u8
-        buffer[offset + 2] = ((value >> 8) & 0xFF).to_u8
-        buffer[offset + 3] = (value & 0xFF).to_u8
-      when :native
-        # Native is little-endian on most systems
-        write_u32(value, buffer, offset, :little)
-      end
-    end
-
-    private def write_u64(value : UInt64, buffer : Bytes, offset : Int32, endianness : Symbol)
-      case endianness
-      when :little
-        (0..7).each do |i|
-          buffer[offset + i] = ((value >> (i * 8)) & 0xFF).to_u8
-        end
-      when :big
-        (0..7).each do |i|
-          buffer[offset + i] = ((value >> ((7 - i) * 8)) & 0xFF).to_u8
-        end
-      when :native
-        write_u64(value, buffer, offset, :little)
-      end
-    end
-
     def start : StateID
       @start_unanchored
-    end
-
-    private def flags_to_u32 : UInt32
-      @flags.to_u32
-    end
-
-    private def self.flags_from_u32(value : UInt32) : DFAFlags
-      DFAFlags.from_u32(value)
-    end
-
-    private def self.detect_serialized_endianness(slice : Bytes) : Symbol
-      if slice.size < 12
-        raise DeserializeError.new("serialized DFA too short")
-      end
-
-      little = read_u32(slice, 8, :little)
-      return :little if supported_serialized_version?(little)
-
-      big = read_u32(slice, 8, :big)
-      return :big if supported_serialized_version?(big)
-
-      raise DeserializeError.new("Unsupported version: #{little}")
-    end
-
-    private def self.supported_serialized_version?(version : UInt32) : Bool
-      version == 1 || version == 2 || version == 3 || version == 4 || version == 5
-    end
-
-    private def self.ensure_bytes_available(slice : Bytes, offset : Int32, len : Int32, what : String) : Nil
-      if len < 0 || offset < 0 || offset + len > slice.size
-        raise DeserializeError.new("serialized DFA too short while reading #{what}")
-      end
-    end
-
-    private def self.validate_serialized_state_id!(id : StateID, state_count : Int32, what : String) : Nil
-      unless 0 <= id.to_i < state_count
-        raise DeserializeError.new("invalid #{what}: #{id.to_i}")
-      end
-    end
-
-    private def self.deserialize_serialized_state_id!(id : StateID, state_count : Int32, stride2 : Int32, premultiplied : Bool, what : String) : StateID
-      if premultiplied
-        mask = (1 << stride2) - 1
-        if id.to_i >= 0 && (id.to_i & mask) != 0
-          raise DeserializeError.new("invalid #{what}: #{id.to_i}")
-        end
-        remapped = StateID.new(id.to_i >> stride2)
-        validate_serialized_state_id!(remapped, state_count, what)
-        remapped
-      else
-        validate_serialized_state_id!(id, state_count, what)
-        id
-      end
     end
 
     def self.compute_universal_start(states : Array(State), start_states : Hash(Start, StateID)) : StateID?
@@ -1359,7 +726,7 @@ module Regex::Automata::DFA
     # Returns true when this DFA has specialized anchored start states for
     # individual patterns.
     def starts_for_each_pattern? : Bool
-      !@st.pattern_states.empty?
+      !@st.pattern_len.nil?
     end
 
     # Returns the byte-to-start-configuration map retained from DFA
@@ -1432,6 +799,7 @@ module Regex::Automata::DFA
         @states[table.to_index(id)].match.concat(pattern_ids)
       end
       @ms = MatchStates.from_map(matches, @ms.pattern_len, table)
+      @wire_accels = nil
       @special = build_special
     end
 
@@ -1485,6 +853,7 @@ module Regex::Automata::DFA
       table = @tt.not_nil!
       raise ArgumentError.new("invalid start state") unless table.is_valid(id)
       @st.set_start(anchored, start, id, pattern)
+      @wire_accels = nil
       @special = build_special
     end
 
@@ -1501,6 +870,7 @@ module Regex::Automata::DFA
       @states << State.new(id, @byte_classes)
       @accelerators << Bytes.empty
       @ms = MatchStates.from_states(@states, table, @ms.pattern_len)
+      @wire_accels = nil
       @special = build_special
       id
     end
@@ -1529,6 +899,7 @@ module Regex::Automata::DFA
       @states.truncate(0, len)
       @accelerators.truncate(0, len)
       @ms = MatchStates.from_states(@states, table, @ms.pattern_len)
+      @wire_accels = nil
       @special = build_special
     end
 
@@ -1625,9 +996,29 @@ module Regex::Automata::DFA
       self
     end
 
-    # Return an owned view of this DFA.
+    # Copy owned tables directly. A serialization round trip is not a clone:
+    # the pinned native ByteSet reader has observable bucket behavior.
     def to_owned : DFA
-      self
+      table = @tt || raise "missing dense transition table"
+      copied_table = table.to_owned
+      copied_states = @states.map_with_index do |state, index|
+        copy = state.dup(StateID.new(index))
+        copy.next = state.next.map { |id| StateID.new(table.to_index(id)) }
+        copy.eoi_next = StateID.new(table.to_index(state.eoi_next))
+        copy
+      end
+      copied_quitset = ByteSet.new
+      @quitset.each { |byte| copied_quitset.add(byte) }
+      copy = DFA.new(copied_states, copied_table,
+        StateID.new(table.to_index(@start_unanchored)), @byte_classifier,
+        StateID.new(table.to_index(@start_anchored)), @accelerators.map(&.dup),
+        @prefilter, copied_quitset, @flags)
+      copy.restore_wire_metadata(@st.to_owned, @special,
+        @ms.to_owned.with_state_mapping(@ms.to_map.keys, copied_table), @wire_padding.try(&.dup))
+      if raw = @wire_accels
+        copy.retain_wire_accels(raw)
+      end
+      copy
     end
 
     # Returns the start state for the given configuration
@@ -2428,7 +1819,8 @@ module Regex::Automata::DFA
         pattern_start_states,
         DFA.compute_universal_start(@dfa_states, unanchored_start_states),
         DFA.compute_universal_start(@dfa_states, anchored_start_states),
-        start_map: StartByteMap.new(nfa.look_matcher)
+        start_map: StartByteMap.new(nfa.look_matcher),
+        pattern_len: @config.starts_for_each_pattern? ? nfa.pattern_len : nil
       )
 
       dfa = DFA.new(@dfa_states, @transition_table, unanchored_start_id, @byte_classes, anchored_start_id, accelerators, nil, @quitset, flags, st)
@@ -2489,7 +1881,8 @@ module Regex::Automata::DFA
         unanchored_starts, anchored_starts, pattern_starts,
         DFA.compute_universal_start(states, unanchored_starts),
         DFA.compute_universal_start(states, anchored_starts),
-        start_map: dfa.st.start_map
+        start_map: dfa.st.start_map,
+        pattern_len: dfa.st.pattern_len
       )
       accelerated = DFA.new(states, tt, unanchored_id, dfa.byte_classifier,
         anchored_id, accelerators, dfa.get_prefilter, dfa.quitset, dfa.flags, st)
@@ -2941,3 +2334,5 @@ module Regex::Automata::DFA
     end
   end
 end
+
+require "./dense_wire"

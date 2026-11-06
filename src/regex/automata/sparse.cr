@@ -25,9 +25,7 @@ module Regex::Automata::DFA
       end
 
       def self.from_dense(dense : ::Regex::Automata::DFA::DFA) : DFA
-        body = dense.to_bytes_native_endian[0]
-        cloned = ::Regex::Automata::DFA::DFA.from_bytes(body)[0]
-        new(cloned)
+        new(dense.to_owned)
       end
 
       def self.from_bytes(slice : Bytes) : Tuple(DFA, Int32)
@@ -61,7 +59,7 @@ module Regex::Automata::DFA
       end
 
       def to_owned : DFA
-        self.class.from_bytes(to_bytes_native_endian[0])[0]
+        self.class.from_dense(@dense)
       end
 
       def to_sparse : DFA

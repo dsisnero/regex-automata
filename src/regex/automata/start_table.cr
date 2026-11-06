@@ -96,6 +96,7 @@ module Regex::Automata
   # the DFA API no longer reaches into raw instance variables directly.
   struct StartTable
     getter kind : StartKind
+    getter pattern_len : Int32?
     getter dead : StateID
     getter unanchored : StateID
     getter anchored : StateID
@@ -106,12 +107,15 @@ module Regex::Automata
     getter pattern_states : Hash(PatternID, Hash(Start, StateID))
     getter start_map : StartByteMap
 
-    def initialize(@kind : StartKind, @unanchored : StateID, @anchored : StateID, unanchored_states : Hash(Start, StateID)? = nil, anchored_states : Hash(Start, StateID)? = nil, pattern_states : Hash(PatternID, Hash(Start, StateID))? = nil, @universal_start_unanchored : StateID? = nil, @universal_start_anchored : StateID? = nil, @dead : StateID = StateID.new(0), @start_map : StartByteMap = StartByteMap.new(LookMatcher.new))
+    def initialize(@kind : StartKind, @unanchored : StateID, @anchored : StateID, unanchored_states : Hash(Start, StateID)? = nil, anchored_states : Hash(Start, StateID)? = nil, pattern_states : Hash(PatternID, Hash(Start, StateID))? = nil, @universal_start_unanchored : StateID? = nil, @universal_start_anchored : StateID? = nil, @dead : StateID = StateID.new(0), @start_map : StartByteMap = StartByteMap.new(LookMatcher.new), @pattern_len : Int32? = nil, infer_universal_starts : Bool = true)
       @unanchored_states = unanchored_states || default_states(@unanchored)
       @anchored_states = anchored_states || default_states(@anchored)
       @pattern_states = pattern_states || {} of PatternID => Hash(Start, StateID)
-      @universal_start_unanchored ||= compute_universal_start(@unanchored_states, Anchored::No)
-      @universal_start_anchored ||= compute_universal_start(@anchored_states, Anchored::Yes)
+      @pattern_len ||= @pattern_states.empty? ? nil : @pattern_states.keys.max_by(&.to_i).to_i + 1
+      if infer_universal_starts
+        @universal_start_unanchored ||= compute_universal_start(@unanchored_states, Anchored::No)
+        @universal_start_anchored ||= compute_universal_start(@anchored_states, Anchored::Yes)
+      end
     end
 
     # Creates a well-formed start matrix whose every entry points at the dead
@@ -143,7 +147,7 @@ module Regex::Automata
         @anchored_states[start]? || @anchored
       when Anchored::Pattern
         return UnsupportedAnchoredStartError.new(anchored, pattern) unless pattern
-        return UnsupportedAnchoredStartError.new(anchored, pattern) if @pattern_states.empty?
+        return UnsupportedAnchoredStartError.new(anchored, pattern) if @pattern_len.nil?
         states = @pattern_states[pattern]?
         return @dead unless states
         states[start]? || states[Start::Text]? || UnsupportedAnchoredStartError.new(anchored, pattern)
@@ -232,14 +236,14 @@ module Regex::Automata
       offset += @start_map.write_to(dst[offset, @start_map.write_to_len])
       write_u32(Start.len.to_u32, dst, offset, endian)
       offset += 4
-      pattern_len = @pattern_states.empty? ? UInt32::MAX : (@pattern_states.keys.max_by(&.to_i).to_i + 1).to_u32
+      pattern_len = @pattern_len.try(&.to_u32) || UInt32::MAX
       write_u32(pattern_len, dst, offset, endian)
       offset += 4
       write_u32(optional_state_id(@universal_start_unanchored), dst, offset, endian)
       offset += 4
       write_u32(optional_state_id(@universal_start_anchored), dst, offset, endian)
       offset += 4
-      table.each do |id|
+      table.first(12).each do |id|
         write_u32(id.to_i.to_u32, dst, offset, endian)
         offset += 4
       end
@@ -275,12 +279,14 @@ module Regex::Automata
       offset += 4
       raw_pattern_len = read_u32(slice, offset, endian)
       offset += 4
+      raise DeserializeError.new("invalid number of patterns") if raw_pattern_len != UInt32::MAX && raw_pattern_len > PatternID::LIMIT.to_u32
       pattern_len = raw_pattern_len == UInt32::MAX ? 0 : raw_pattern_len.to_i
       raise DeserializeError.new("invalid number of patterns") if pattern_len > PatternID::LIMIT
       universal_unanchored = read_optional_state_id(slice, offset, endian, "universal unanchored start")
       offset += 4
       universal_anchored = read_optional_state_id(slice, offset, endian, "universal anchored start")
       offset += 4
+      raise DeserializeError.new("buffer too small for start ID table") if pattern_len > (slice.size - offset - 48) // (Start.len * 4)
       ids = Array(StateID).new(12 + pattern_len * Start.len)
       (12 + pattern_len * Start.len).times do
         ids << read_state_id(slice, offset, endian, "start ID")
@@ -298,7 +304,8 @@ module Regex::Automata
         Start.each { |start| states[start] = ids[(2 + pattern_index) * Start.len + start.to_i] }
         pattern_states[PatternID.new(pattern_index)] = states
       end
-      {StartTable.new(kind, unanchored_states[Start::Text], anchored_states[Start::Text], unanchored_states, anchored_states, pattern_states, universal_unanchored, universal_anchored, StateID::ZERO, start_map), offset}
+      table = StartTable.new(kind, unanchored_states[Start::Text], anchored_states[Start::Text], unanchored_states, anchored_states, pattern_states, universal_unanchored, universal_anchored, StateID::ZERO, start_map, raw_pattern_len == UInt32::MAX ? nil : pattern_len, infer_universal_starts: false)
+      {table, offset}
     end
 
     # Returns an independent owned copy suitable for DFA transformations.
@@ -313,7 +320,9 @@ module Regex::Automata
         @universal_start_unanchored,
         @universal_start_anchored,
         @dead,
-        @start_map
+        @start_map,
+        @pattern_len,
+        infer_universal_starts: false
       )
     end
 
@@ -365,7 +374,9 @@ module Regex::Automata
         universal_unanchored,
         universal_anchored,
         (yield @dead),
-        @start_map
+        @start_map,
+        @pattern_len,
+        infer_universal_starts: false
       )
     end
 
@@ -398,7 +409,7 @@ module Regex::Automata
     end
 
     private def pattern_wire_len : Int32
-      @pattern_states.empty? ? 0 : @pattern_states.keys.max_by(&.to_i).to_i + 1
+      @pattern_len || 0
     end
 
     private def optional_state_id(id : StateID?) : UInt32

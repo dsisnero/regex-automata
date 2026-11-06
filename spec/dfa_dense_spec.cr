@@ -726,11 +726,14 @@ describe "DFA::Dense" do
     dfa.get_prefilter.should be(prefilter)
     dfa.flags.has_prefilter.should be_true
     dfa.as_ref.should be(dfa)
-    dfa.to_owned.should be(dfa)
+    owned = dfa.to_owned
+    owned.should_not be(dfa)
+    owned.get_prefilter.should be(prefilter)
 
     dfa.set_prefilter(nil)
     dfa.get_prefilter.should be_nil
     dfa.flags.has_prefilter.should be_false
+    owned.get_prefilter.should be(prefilter)
   end
 
   it "preserves a pending leftmost match when a prefilter finds a later candidate" do
@@ -973,31 +976,32 @@ describe "DFA::Dense" do
     end
   end
 
-  it "round-trips little, big, and native-endian dense bytes" do
+  it "round-trips native-endian dense bytes and rejects the opposite endianness" do
     dfa = Regex::Automata::DFA::Builder.new
       .configure { |config| config.starts_for_each_pattern(true) }
       .build_many(["foo[0-9]+", "bar[0-9]+"])
-
-    {dfa.to_bytes_little_endian, dfa.to_bytes_big_endian, dfa.to_bytes_native_endian}.each do |serialized|
-      bytes, written = serialized
-      roundtrip, read = Regex::Automata::DFA::DFA.from_bytes(bytes)
-
-      read.should eq(written)
-      roundtrip.try_search_fwd(Regex::Automata::Input.new("foo123")).should eq(
-        Regex::Automata::HalfMatch.must(0, 6)
-      )
-      roundtrip.try_search_fwd(Regex::Automata::Input.new("bar456")).should eq(
-        Regex::Automata::HalfMatch.must(1, 6)
-      )
+    bytes, padding = dfa.to_bytes_native_endian
+    roundtrip, read = Regex::Automata::DFA::DFA.from_bytes(bytes)
+    read.should eq(bytes.size)
+    padding.should be >= 0
+    padding.should be < 4
+    roundtrip.try_search_fwd(Regex::Automata::Input.new("foo123")).should eq(Regex::Automata::HalfMatch.must(0, 6))
+    roundtrip.try_search_fwd(Regex::Automata::Input.new("bar456")).should eq(Regex::Automata::HalfMatch.must(1, 6))
+    opposite = Regex::Automata::DFA::DFA.native_wire_endian == :little ? dfa.to_bytes_big_endian[0] : dfa.to_bytes_little_endian[0]
+    expect_raises(Regex::Automata::DeserializeError, /endianness mismatch/) do
+      Regex::Automata::DFA::DFA.from_bytes(opposite)
     end
   end
 
   it "writes dense bytes into caller-provided buffers" do
     dfa = Regex::Automata::DFA::DFA.new("abc")
 
-    little_bytes, little_written = dfa.to_bytes_little_endian
-    big_bytes, big_written = dfa.to_bytes_big_endian
-    native_bytes, native_written = dfa.to_bytes_native_endian
+    little_bytes, _ = dfa.to_bytes_little_endian
+    little_written = dfa.write_to_len
+    big_bytes, _ = dfa.to_bytes_big_endian
+    big_written = dfa.write_to_len
+    native_bytes, _ = dfa.to_bytes_native_endian
+    native_written = dfa.write_to_len
 
     dfa.write_to_len.should eq(native_written)
 
@@ -1024,7 +1028,8 @@ describe "DFA::Dense" do
     bytes = dfa.to_bytes_little_endian[0].dup
     invalid_start = ((dfa.size + 10) << dfa.stride2).to_u32
 
-    write_u32_le(bytes, 28, invalid_start)
+    start_offset = 312 + dfa.state_len * dfa.stride * 4 + 276
+    write_u32_le(bytes, start_offset, invalid_start)
 
     expect_raises(Regex::Automata::DeserializeError) do
       Regex::Automata::DFA::DFA.from_bytes(bytes)
@@ -1036,9 +1041,8 @@ describe "DFA::Dense" do
     bytes = dfa.to_bytes_little_endian[0].dup
     match_id = dfa.states.find(&.accepting?).not_nil!.id.to_i.to_u32
 
-    # The format writes the two compatibility starts followed by six
-    # unanchored and six anchored start-table entries.
-    (20...76).step(4) { |offset| write_u32_le(bytes, offset, match_id) }
+    start_offset = 312 + dfa.state_len * dfa.stride * 4 + 276
+    (start_offset...(start_offset + 48)).step(4) { |offset| write_u32_le(bytes, offset, match_id) }
 
     error = expect_raises(Regex::Automata::DeserializeError) do
       Regex::Automata::DFA::DFA.from_bytes(bytes)

@@ -494,13 +494,13 @@ describe "DFA API" do
       # Create a simple DFA
       dfa = Regex::Automata::DFA::Builder.new.build("abc")
 
-      # Serialize to little-endian
-      bytes, bytes_written = dfa.to_bytes_little_endian
-      bytes_written.should be > 0
+      # Serialize to native endian.
+      bytes, padding = dfa.to_bytes_native_endian
+      bytes.size.should eq(dfa.write_to_len + padding)
 
       # Deserialize
       dfa2, bytes_read = Regex::Automata::DFA::DFA.from_bytes(bytes)
-      bytes_read.should eq(bytes_written)
+      bytes_read.should eq(bytes.size)
 
       # Test that deserialized DFA works
       result = dfa2.try_search_fwd("abc".to_slice)
@@ -521,13 +521,13 @@ describe "DFA API" do
         .configure(config)
         .build("abcd")
 
-      # Serialize to little-endian (from_bytes assumes little-endian)
-      bytes, bytes_written = dfa.to_bytes_little_endian
-      bytes_written.should be > 0
+      # Serialize to native endian, as required by Rust from_bytes.
+      bytes, padding = dfa.to_bytes_native_endian
+      bytes.size.should eq(dfa.write_to_len + padding)
 
       # Deserialize
       dfa2, bytes_read = Regex::Automata::DFA::DFA.from_bytes(bytes)
-      bytes_read.should eq(bytes_written)
+      bytes_read.should eq(bytes.size)
 
       # Test that quit bytes still work
       result = dfa2.try_search_fwd("abcxyz".to_slice)
@@ -538,13 +538,13 @@ describe "DFA API" do
       # Create a multi-pattern DFA
       dfa = Regex::Automata::DFA::DFA.new_many(["abc", "def"])
 
-      # Serialize to little-endian (from_bytes assumes little-endian)
-      bytes, bytes_written = dfa.to_bytes_little_endian
-      bytes_written.should be > 0
+      # Serialize to native endian, as required by Rust from_bytes.
+      bytes, padding = dfa.to_bytes_native_endian
+      bytes.size.should eq(dfa.write_to_len + padding)
 
       # Deserialize
       dfa2, bytes_read = Regex::Automata::DFA::DFA.from_bytes(bytes)
-      bytes_read.should eq(bytes_written)
+      bytes_read.should eq(bytes.size)
 
       # Test that both patterns work
       result1 = dfa2.try_search_fwd("abc".to_slice)
@@ -559,7 +559,7 @@ describe "DFA API" do
         .configure { |config| config.start_kind(Regex::Automata::StartKind::Anchored) }
         .build("(?-u:\\b)abc")
 
-      serialized = dfa.to_bytes_little_endian
+      serialized = dfa.to_bytes_native_endian
       bytes = serialized[0]
       deserialized = Regex::Automata::DFA::DFA.from_bytes(bytes)
       dfa2 = deserialized[0]

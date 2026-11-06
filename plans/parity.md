@@ -6,10 +6,10 @@
   `72d650cb0a880a01ab6dc2137c0888e8f89740f7` (regex-automata 0.4.18).
   Do not substitute remembered Rust behavior or a newer upstream revision.
 - Working source ledger: [rust_port_inventory.tsv](inventory/rust_port_inventory.tsv)
-  (1,936 Rust API items: 1,429 `ported`, 238 `missing`, 88 `partial`, 173
+  (1,936 Rust API items: 1,436 `ported`, 238 `missing`, 85 `partial`, 169
   `intentional_divergence`, 8 `skipped`). Test ledger:
-  [rust_test_parity.tsv](inventory/rust_test_parity.tsv) (220 rows: 170
-  `ported`, 40 `partial`, 9 `intentional_divergence`, 1 `skipped`). These are **review
+  [rust_test_parity.tsv](inventory/rust_test_parity.tsv) (220 rows: 175
+  `ported`, 35 `partial`, 9 `intentional_divergence`, 1 `skipped`). These are **review
   queues**, not a count of absent behaviors or a completion percentage. The
   generated manifests are item inventories, so a file-level pass is also
   required for private algorithms without discovered rows.
@@ -35,20 +35,15 @@
 
 ## Where we are
 
-- **Current focus:** phase 4c dense DFA transforms is complete. A pinned
-  Rust Hopcroft partition assertion was red (equivalent nonmatches split by
-  Crystal-only look metadata), then green after grouping only by match pattern
-  IDs, nonmatch, and quit. The builder now follows Rust's shuffle, minimize,
-  accelerate order. An adversarial eight-configuration matrix checks all
-  byte/EOI targets, start/match separation, accelerator self-loops, and search
-  equivalence; focused Crystal DFA tests pass 127/127, both minimized vendor
-  modes pass 25/25, pinned Rust DFA regression tests pass 2/2 offline, and
-  the unfiltered Crystal suite passes 16,282/16,282. One traced full run
-  stalled at a specialized-start vendor case that passed in isolation; the
-  bounded unfiltered retry completed. Wire compatibility and controlled
-  construction-cost comparison remain phases 5 and 8. No loaded-host timing
-  is used as performance evidence.
-- **Next up:** phase 5 dense serialization, sparse DFA, and regex wrappers.
+- **Current focus:** phase 5a dense native wire compatibility is complete.
+  Crystal reads the pinned Rust v2 generated forward/reverse DFA bytes and
+  writes LE/BE/native layouts checked by a pinned offline Rust consumer over
+  nine cases. Native fuzz inputs, malformed boundaries, match-first
+  validation, owned copies, optional starts, and full serialization mode pass.
+  See the [DFA wire feature plan](feature-dfa-wire.md) for representation
+  costs and the pin's low-bucket-twice quit-byte decoder behavior.
+- **Next up:** phase 5b sparse native storage and wire compatibility, then 5c
+  regex wrapper review. Phases 5a–5c replace the former combined phase 5.
 - **Status by area:** vendor fixture harness, scalar prefilter
   selection/candidate semantics, AArch64 unanchored packed Teddy, 2-500 needle
   Aho/anchored Teddy DFA, and >500-needle contiguous-NFA paths are complete.
@@ -122,13 +117,14 @@
   unavailable for the pool's lifetime. This is a lifecycle divergence, not a
   search-result divergence. No throughput claim is made on this loaded host; phase 8's
   controlled comparison should include pooled Meta searches.
-- **Last completed feature commit:** phase 4c `port: dense DFA transforms`
+- **Last completed feature commit:** phase 5a `port: dense native wire compatibility`
   (this feature commit).
-- **Gates:** full Crystal suite passes 16,282/16,282; pinned Rust DFA
-  regression tests pass 2/2 offline; `make install`, format, lint, parity,
-  `git diff --check`, Crystal format-check, and no-codegen build pass. These
-  are correctness gates, not performance evidence; benchmarks were skipped
-  on this loaded host.
+- **Gates:** full Crystal suite passes 16,319/16,319; pinned Rust dense unit
+  tests pass 6/6, generated fixtures 1/1, dense fuzz 2/2, and full dense
+  serialization vendor mode 1/1. Crystal serialization mode passes all 24
+  non-expensive TOML groups. The nine-case offline Rust consumer, `make install`,
+  format, lint, parity, whitespace/format checks, and no-codegen build pass.
+  These are correctness gates; no loaded-host performance claim is made.
 
 ## Feature-loop rules
 
@@ -504,17 +500,24 @@ confirmation; no authorship was inferred or changed.
   [dense DFA subplan](feature-dense-dfa.md). **Gate:** no unexplained state-map
   drift; full correctness gates pass. Wire compatibility itself remains 5.
 
-- [ ] **5. Vendor DFA wire compatibility, sparse DFA, and regex wrappers.**
-  Port dense and sparse native/little/big-endian serialization and checked
-  malformed-input behavior from `src/dfa/{dense,sparse,regex}.rs` and
-  `tests/{dfa,gen,fuzz}/**`. Replay the checked-in `multi_pattern_v2` forward
-  and reverse `.dfa` files and fuzz crash inputs as **Rust bytes**, not rebuilt
-  Crystal DFAs. Bring sparse state queries, conversion, memory, and wire
-  layout into parity or record the exact public incompatibility and necessity
-  of dense-backed storage. Cover dense/sparse wrapper construction, reverse,
-  iterators, multi-pattern/captures, and always-anchored semantics. **Gate:**
-  vendored bytes and malformed cases have reproducible results, and generated
-  test rows are not signed off by Crystal-only round trips.
+- [x] **5a. Dense native wire compatibility.** Port dense v2 wire readers,
+  writers, validation, generated Rust byte fixtures, dense fuzz regressions,
+  and the full native serialization vendor mode. See the
+  [DFA wire feature plan](feature-dfa-wire.md). **Gate:** actual Rust bytes
+  and cross-language writes pass; dense wire source/test rows are reconciled.
+
+- [ ] **5b. Sparse native storage and wire compatibility.** Port packed
+  byte-offset states, dense conversion, queries, memory, starts, match and
+  accelerator data, wire formats, exact generated bytes, sparse fuzz inputs,
+  and all supported sparse vendor modes. See the
+  [DFA wire feature plan](feature-dfa-wire.md). **Gate:** sparse source/test
+  rows and file review close with native byte and search evidence.
+
+- [ ] **5c. DFA regex wrappers.** Review dense/sparse construction, reverse,
+  iterators, multi-pattern matches, errors, and always-anchored semantics
+  against `src/dfa/regex.rs` and its tests. See the
+  [DFA wire feature plan](feature-dfa-wire.md). **Gate:** wrapper source/test
+  rows have evidence-backed dispositions and applicable vendor modes pass.
 
 - [ ] **6. One-pass DFA engine.** Finish `src/dfa/onepass.rs` and
   `tests/dfa/onepass/**`: source-level admission/rejection, transition and

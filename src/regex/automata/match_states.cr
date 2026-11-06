@@ -69,9 +69,12 @@ module Regex::Automata
     # that association, so the returned standalone metadata has no state map.
     def self.from_bytes(slice : Bytes, endian : Symbol = :little) : Tuple(MatchStates, Int32)
       offset = 0
-      state_len = read_u32(slice, offset, endian, "match state length").to_i
+      raw_state_len = read_u32(slice, offset, endian, "match state length")
+      raise DeserializeError.new("invalid match state length") if raw_state_len > Int32::MAX.to_u32
+      state_len = raw_state_len.to_i32
       offset += 4
       raise DeserializeError.new("match state offset pairs overflow") if state_len > (Int32::MAX // 2)
+      raise DeserializeError.new("buffer too small for match state slices") if state_len > (slice.size - offset) // 8
       slices = Array(Tuple(Int32, Int32)).new(state_len)
       state_len.times do
         start = read_u32(slice, offset, endian, "match state slices")
@@ -85,8 +88,11 @@ module Regex::Automata
       offset += 4
       raise DeserializeError.new("invalid pattern length") if pattern_len_raw > Int32::MAX.to_u32
       pattern_len = pattern_len_raw.to_i32
-      id_len = read_u32(slice, offset, endian, "pattern ID length").to_i
+      raw_id_len = read_u32(slice, offset, endian, "pattern ID length")
+      raise DeserializeError.new("invalid pattern ID length") if raw_id_len > Int32::MAX.to_u32
+      id_len = raw_id_len.to_i32
       offset += 4
+      raise DeserializeError.new("buffer too small for match pattern IDs") if id_len > (slice.size - offset) // 4
       pattern_ids = Array(PatternID).new(id_len)
       id_len.times do
         value = read_u32(slice, offset, endian, "match pattern IDs")
@@ -206,12 +212,20 @@ module Regex::Automata
 
       @slices.each do |start, len|
         return DeserializeError.generic("invalid pattern ID start offset") if start < 0 || start > @pattern_ids.size
-        return DeserializeError.generic("invalid pattern ID length") if len < 0 || start + len > @pattern_ids.size
+        return DeserializeError.generic("invalid pattern ID length") if len < 0 || len > @pattern_ids.size - start
         @pattern_ids[start, len].each do |pattern_id|
           return DeserializeError.generic("invalid pattern ID") if pattern_id.to_i < 0 || pattern_id.to_i >= @pattern_len
         end
       end
       nil
+    end
+
+    # Attach native match slices to the containing DFA without expanding or
+    # duplicating Rust's shared pattern-ID slices.
+    def with_state_mapping(ids : Array(StateID), table : TransitionTable) : MatchStates
+      mapping = Array(Int32?).new(table.len, nil)
+      ids.each_with_index { |id, index| mapping[table.to_index(id)] = index }
+      MatchStates.new(mapping, @slices, @pattern_ids, @pattern_len, table)
     end
 
     def to_owned : MatchStates

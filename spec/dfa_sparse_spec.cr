@@ -63,15 +63,13 @@ describe "DFA::Sparse" do
     )
   end
 
-  it "round-trips sparse serialization in all endianness helpers" do
+  it "round-trips sparse serialization with native-endian dense storage" do
     sparse = Regex::Automata::DFA::Builder.new
       .configure { |config| config.starts_for_each_pattern(true) }
       .build_many(["foo[0-9]+", "bar[0-9]+"])
       .to_sparse
 
     {
-      sparse.to_bytes_little_endian,
-      sparse.to_bytes_big_endian,
       sparse.to_bytes_native_endian,
     }.each do |serialized|
       bytes, written = serialized

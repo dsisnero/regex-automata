@@ -1,0 +1,32 @@
+// Offline consumer for scripts/check_dense_wire.sh. This compiles against the
+// pinned vendor checkout, never a registry version of regex-automata.
+use regex_automata::{dfa::{dense::DFA, Automaton}, HalfMatch, Input};
+fn main() {
+    for name in ["abc", "padding", "always", "never", "multi", "empty-patterns", "quitset", "vendor-fwd", "vendor-rev"] {
+        let base = format!("temp/dense-wire-oracle/{name}");
+        let bytes = std::fs::read(format!("{base}.dfa")).unwrap();
+        let (dfa, read) = DFA::from_bytes(&bytes).unwrap();
+        assert_eq!(read, bytes.len());
+        if name == "vendor-rev" {
+            assert!(dfa.try_search_fwd(&Input::new("abc")).is_err());
+        }
+        let expected = match name {
+            "abc" | "padding" => Some(HalfMatch::must(0, 3)),
+            "always" => Some(HalfMatch::must(0, 0)),
+            "never" | "empty-patterns" | "multi" => None,
+            "vendor-rev" => None,
+            _ => dfa.try_search_fwd(&Input::new("abc")).unwrap(),
+        };
+        if name != "vendor-rev" {
+            assert_eq!(dfa.try_search_fwd(&Input::new("abc")).unwrap(), expected);
+        }
+        if name == "multi" {
+            assert_eq!(dfa.try_search_fwd(&Input::new("bar456")).unwrap(), Some(HalfMatch::must(1, 6)));
+        }
+        for (extension, result) in [("le", dfa.to_bytes_little_endian()), ("be", dfa.to_bytes_big_endian())] {
+            let expected = std::fs::read(format!("{base}.expected-{extension}")).unwrap();
+            assert_eq!(&result.0[result.1..], expected.as_slice(), "{name}/{extension}");
+        }
+        println!("{name}: Rust checked {read} Crystal bytes and both endian writes");
+    }
+}

@@ -37,3 +37,16 @@ separate signoff work.
 Use `make install` for dependencies, `make parity` for inventory drift, and
 `make clean` to remove this repo's `./temp` directory. On this heavily loaded
 host, one-off timings are not reliable performance evidence.
+
+## Dense DFA wire compatibility
+
+Dense DFA serialization uses the pinned Rust native v2 format. The reader
+accepts the host's native endianness and checks alignment; the writers support
+little, big, and native endian output. The `to_bytes_*` tuple contains bytes
+and initial alignment padding, while `write_to_*` returns bytes written.
+The former Crystal `CRDFA001` format is superseded.
+
+The [DFA wire feature plan](../plans/feature-dfa-wire.md) records generated
+Rust byte fixtures, malformed-input coverage, the offline cross-language
+check (`scripts/check_dense_wire.sh`), and the pin's quit-byte decoding behavior.
+Sparse native layout and wrapper signoff remain separate phases in that plan.
