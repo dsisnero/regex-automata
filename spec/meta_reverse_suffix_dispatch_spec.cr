@@ -119,7 +119,8 @@ describe "pinned Rust ReverseSuffix dispatch" do
     caps.get_match.should be_nil
     slots = [0, 3, 0, 3] of Int32?
     re.search_slots_with(cache, input, slots).should be_nil
-    slots.should eq([nil, nil, nil, nil])
+    # Rust returns None before writing output slots on this clean miss.
+    slots.should eq([0, 3, 0, 3])
     cache.pike_scratch_allocated_for_spec?.should be_false
   end
 

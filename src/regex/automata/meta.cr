@@ -20,6 +20,21 @@ module Regex::Automata::Meta
     @core_capmatches : ::Regex::Automata::Captures
     @reverse_inner_hybrid_cache : ::Regex::Automata::Hybrid::Cache?
 
+    def clone : Cache
+      copy = dup
+      copy.copy_owned_state
+      copy
+    end
+
+    protected def copy_owned_state : Nil
+      @cache = @cache.try(&.clone)
+      @core_hybrid_cache = @core_hybrid_cache.try(&.clone)
+      @core_onepass_cache = @core_onepass_cache.try(&.clone)
+      @core_backtrack_cache = @core_backtrack_cache.try(&.clone)
+      @reverse_inner_hybrid_cache = @reverse_inner_hybrid_cache.try(&.clone)
+      @core_capmatches = @core_capmatches.clone
+    end
+
     def initialize(regex : Regex)
       @pikevm = regex.pikevm?
       @cache = nil
@@ -31,15 +46,17 @@ module Regex::Automata::Meta
     end
 
     def reset(regex : Regex) : Nil
-      return unless @pikevm = regex.pikevm?
-      @pikevm.not_nil!.reset_cache(raw_cache)
+      vm = regex.pikevm?
+      return unless vm
+      @pikevm = vm
+      vm.reset_cache(raw_cache)
       if engine = regex.core_hybrid
-        @core_hybrid_cache = engine.create_cache unless @core_hybrid_cache
-        engine.reset_cache(@core_hybrid_cache.not_nil!)
+        scratch = @core_hybrid_cache || raise "missing hybrid cache during reset"
+        engine.reset_cache(scratch)
       end
       if engine = regex.core_onepass
-        @core_onepass_cache = engine.create_cache unless @core_onepass_cache
-        engine.reset_cache(@core_onepass_cache.not_nil!)
+        scratch = @core_onepass_cache || raise "missing one-pass cache during reset"
+        engine.reset_cache(scratch)
       end
       if engine = regex.core_backtrack
         @core_backtrack_cache = engine.create_cache unless @core_backtrack_cache
@@ -89,7 +106,7 @@ module Regex::Automata::Meta
           hybrid.reset_cache(existing)
           yield existing
         else
-          yield hybrid.create_cache
+          raise "missing reverse hybrid cache during reset"
         end
       end
     end
@@ -118,6 +135,10 @@ module Regex::Automata::Meta
     @byte_classes : Bool?
     @line_terminator : UInt8?
     @pool_capacity : Int32?
+
+    def clone : Config
+      dup
+    end
 
     def initialize(
       *,
@@ -281,7 +302,10 @@ module Regex::Automata::Meta
     end
 
     def get_pool_capacity : Int32
-      Math.max(1, @pool_capacity || 8)
+      @pool_capacity || begin
+        count = ::Regex::Automata::AVAILABLE_PARALLELISM.get
+        count > 0 ? count : 8
+      end
     end
 
     def overwrite(other : Config) : Config
@@ -367,6 +391,10 @@ module Regex::Automata::Meta
     @config : Config
     @syntax_config : ::Regex::Automata::Syntax::Config
 
+    def clone : Builder
+      dup
+    end
+
     def initialize
       @config = Config.new
       @syntax_config = ::Regex::Automata::Syntax::Config.new
@@ -387,13 +415,44 @@ module Regex::Automata::Meta
     end
 
     def build_many(patterns : Enumerable(String)) : Regex
-      hirs = [] of ::Regex::Syntax::Hir::Hir
-      parser = effective_syntax_config.apply(::Regex::Syntax::ParserBuilder.new).build
-      patterns.each_with_index do |pattern, index|
+      patterns = patterns.to_a
+      syntax = @syntax_config
+      parser = ::Regex::Syntax::AstParser.new(
+        unicode: syntax.unicode, ignore_whitespace: syntax.ignore_whitespace,
+        ignore_case: syntax.case_insensitive, multi_line: syntax.multi_line,
+        dot_matches_new_line: syntax.dot_matches_new_line,
+        swap_greed: syntax.swap_greed, crlf: syntax.crlf,
+        nest_limit: Math.min(syntax.nest_limit.to_u64, Int32::MAX.to_u64).to_i32,
+        octal: syntax.octal)
+      # Rust parses every AST before translating any HIR. This determines
+      # which pattern's error wins when both stages can fail.
+      asts = patterns.map_with_index do |pattern, index|
         begin
-          hirs << parser.parse(pattern)
-        rescue ex : ::Regex::Syntax::AST::Error | ::Regex::Syntax::Hir::Error
+          parser.parse(pattern)
+        rescue ex : ::Regex::Syntax::AST::Error
           raise BuildError.syntax_error(::Regex::Automata::PatternID.new(index.to_i32), ex)
+        end
+      end
+      hirs = asts.map_with_index do |ast, index|
+        begin
+          translator = ::Regex::Syntax::Translator.new(
+            unicode: syntax.unicode, utf8: syntax.utf8,
+            ignore_case: syntax.case_insensitive, multi_line: syntax.multi_line,
+            dot_matches_new_line: syntax.dot_matches_new_line,
+            swap_greed: syntax.swap_greed, ignore_whitespace: syntax.ignore_whitespace,
+            crlf: syntax.crlf, line_terminator: syntax.line_terminator)
+          ::Regex::Syntax::Hir::Hir.new(translator.translate(ast.root))
+        rescue ex : ::Regex::Syntax::ParseError
+          # The dependency's combined Parser uses this same typed conversion.
+          kind = case ex.message
+                 when "Unicode not allowed"     then ::Regex::Syntax::Hir::ErrorKind::UnicodeNotAllowed
+                 when "invalid UTF-8"           then ::Regex::Syntax::Hir::ErrorKind::InvalidUtf8
+                 when "invalid line terminator" then ::Regex::Syntax::Hir::ErrorKind::InvalidLineTerminator
+                 else
+                   ex.message.to_s.starts_with?("invalid Unicode property value") ? ::Regex::Syntax::Hir::ErrorKind::UnicodePropertyValueNotFound : ::Regex::Syntax::Hir::ErrorKind::UnicodePropertyNotFound
+                 end
+          error = ::Regex::Syntax::Hir::Error.new(kind, patterns[index], ex.span || ast.span, ex.message.to_s)
+          raise BuildError.syntax_error(::Regex::Automata::PatternID.new(index.to_i32), error)
         end
       end
       build_many_from_hir(hirs)
@@ -417,7 +476,7 @@ module Regex::Automata::Meta
       compile_config = ::Regex::Automata::HirCompilerConfig.new(
         utf8: @config.get_utf8_empty,
         nfa_size_limit: @config.get_nfa_size_limit,
-        which_captures: effective_which_captures,
+        which_captures: @config.get_which_captures,
         look_matcher: ::Regex::Automata::LookMatcher.new(@config.get_line_terminator)
       )
       nfa = ::Regex::Automata::HirCompiler.new(compile_config, hir_syntax_config).build_many_from_hir(hirs_array)
@@ -475,7 +534,7 @@ module Regex::Automata::Meta
           raise BuildError.size_limit(limit, ex)
         end
       end
-      raise BuildError.new(message: "error building NFA", size_limit_exceeded: ex.is_size_limit_exceeded)
+      raise BuildError.new(message: "error building NFA", size_limit_exceeded: ex.is_size_limit_exceeded, source: ex)
     end
 
     private def build_core_onepass(nfa : ::Regex::Automata::NFA::NFA, props : ::Regex::Syntax::Hir::Properties) : ::Regex::Automata::DFA::OnePass::DFA?
@@ -485,7 +544,7 @@ module Regex::Automata::Meta
         .match_kind(@config.get_match_kind)
         .starts_for_each_pattern(true)
         .byte_classes(@config.get_byte_classes)
-        .size_limit(@config.get_onepass_size_limit.try(&.to_i32))
+        .size_limit(@config.get_onepass_size_limit)
       ::Regex::Automata::DFA::OnePass::Builder.new.configure(config).build_from_nfa(nfa)
     rescue ::Regex::Automata::DFA::OnePass::BuildError
       nil
@@ -565,19 +624,6 @@ module Regex::Automata::Meta
       ::Regex::Automata::Hybrid::RegexBuilder.new.build_from_dfas(forward, reverse)
     rescue ::Regex::Automata::Hybrid::BuildError
       nil
-    end
-
-    private def effective_which_captures : ::Regex::Automata::NFA::WhichCaptures
-      case @config.get_which_captures
-      when ::Regex::Automata::NFA::WhichCaptures::None
-        ::Regex::Automata::NFA::WhichCaptures::Implicit
-      else
-        @config.get_which_captures
-      end
-    end
-
-    private def effective_syntax_config : ::Regex::Automata::Syntax::Config
-      @syntax_config.line_terminator(@config.get_line_terminator)
     end
 
     private def exact_literal_strategy(
@@ -1175,6 +1221,8 @@ module Regex::Automata::Meta
     @reverse_inner_forward_dfa : ::Regex::Automata::DFA::DFA?
     @reverse_inner_hybrid : ::Regex::Automata::Hybrid::DFA?
     @reverse_inner_forward_hybrid : ::Regex::Automata::Hybrid::DFA?
+    @minimum_len : UInt64?
+    @maximum_len : UInt64?
     @always_anchored_start : Bool
     @always_anchored_end : Bool
     @pool : ::Regex::Automata::Pool(Cache)
@@ -1207,12 +1255,30 @@ module Regex::Automata::Meta
       @info_memory_usage : Int32 = 0,
     )
       @group_info = @nfa.try(&.group_info) || ::Regex::Automata::GroupInfo.new([[nil] of String?])
+      @minimum_len = props_union.minimum_len
+      @maximum_len = props_union.maximum_len
       @static_captures_len = props_union.static_explicit_captures_len.try { |len| len + 1 }
       @always_anchored_start = props_union.look_set_prefix.contains(::Regex::Syntax::Hir::Look::Kind::StartText)
       @always_anchored_end = props_union.look_set_suffix.contains(::Regex::Syntax::Hir::Look::Kind::EndText)
       factory = CachePoolFactory.new
       @pool = ::Regex::Automata::Pool(Cache).with_capacity(@config.get_pool_capacity) { factory.call }
       factory.regex = self
+    end
+
+    def clone : Regex
+      copy = dup
+      copy.replace_pool
+      copy
+    end
+
+    protected def replace_pool : Nil
+      @pool = new_pool
+    end
+
+    private def new_pool : ::Regex::Automata::Pool(Cache)
+      factory = CachePoolFactory.new
+      factory.regex = self
+      ::Regex::Automata::Pool(Cache).with_capacity(@config.get_pool_capacity) { factory.call }
     end
 
     def self.new(pattern : String) : Regex
@@ -1311,30 +1377,27 @@ module Regex::Automata::Meta
     end
 
     def search(input : ::Regex::Automata::Input) : ::Regex::Automata::Match?
-      return nil if impossible_input?(input)
+      return nil if captures_disabled? || impossible_input?(input)
       @pool.with { |cache| search_with(cache, input) }
     end
 
     def search_half(input : ::Regex::Automata::Input) : ::Regex::Automata::HalfMatch?
-      return nil if impossible_input?(input)
+      return nil if captures_disabled? || impossible_input?(input)
       @pool.with { |cache| search_half_with(cache, input) }
     end
 
     def search_captures(input : ::Regex::Automata::Input, caps : ::Regex::Automata::Captures) : Nil
-      if impossible_input?(input)
-        caps.clear
-        return
-      end
-      @pool.with { |cache| search_captures_with(cache, input, caps) }
+      caps.set_pattern(nil)
+      caps.set_pattern(search_slots(input, caps.slots))
     end
 
     def search_slots(input : ::Regex::Automata::Input, slots : Array(::Regex::Automata::NonMaxUsize?)) : ::Regex::Automata::PatternID?
-      return nil if impossible_input?(input)
+      return nil if captures_disabled? || impossible_input?(input)
       @pool.with { |cache| search_slots_with(cache, input, slots) }
     end
 
     def search_slots(input : ::Regex::Automata::Input, slots : Array(Int32?)) : ::Regex::Automata::PatternID?
-      return nil if impossible_input?(input)
+      return nil if captures_disabled? || impossible_input?(input)
       @pool.with { |cache| search_slots_with(cache, input, slots) }
     end
 
@@ -1344,7 +1407,7 @@ module Regex::Automata::Meta
     end
 
     def search_with(cache : Cache, input : ::Regex::Automata::Input) : ::Regex::Automata::Match?
-      return nil if impossible_input?(input)
+      return nil if captures_disabled? || impossible_input?(input)
       if reverse_anchored_selected?
         return core_search(cache, input) if input.anchored.is_anchored
         result = reverse_anchored_search(cache, input)
@@ -1377,7 +1440,7 @@ module Regex::Automata::Meta
     end
 
     def search_half_with(cache : Cache, input : ::Regex::Automata::Input) : ::Regex::Automata::HalfMatch?
-      return nil if impossible_input?(input)
+      return nil if captures_disabled? || impossible_input?(input)
       if reverse_anchored_selected?
         return core_search_half(cache, input) if input.anchored.is_anchored
         result = reverse_anchored_search(cache, input)
@@ -1426,57 +1489,17 @@ module Regex::Automata::Meta
     end
 
     def search_captures_with(cache : Cache, input : ::Regex::Automata::Input, caps : ::Regex::Automata::Captures) : Nil
-      if impossible_input?(input)
-        caps.clear
-        return
-      end
-      if reverse_anchored_selected?
-        if input.anchored.is_anchored
-          caps.set_pattern(core_search_slots(cache, input, caps.slots))
-          return
-        end
-        result = reverse_anchored_search(cache, input)
-        if result.is_a?(::Regex::Automata::MatchError)
-          caps.set_pattern(core_search_slots_nofail(cache, input, caps.slots))
-        elsif result
-          search_captures_from_match(cache, input, caps, result)
-        else
-          caps.clear
-        end
-        return
-      end
-      if literal = literal_search(input)
-        set_match_captures(caps, literal)
-        return
-      end
-      if reverse_suffix_selected?
-        caps.set_pattern(reverse_suffix_search_slots(cache, input, caps.slots))
-        return
-      end
-      if reverse_inner_selected?
-        caps.set_pattern(reverse_inner_search_slots(cache, input, caps.slots))
-        return
-      end
-      if literal_strategy?
-        caps.clear
-        return
-      end
-      slots = caps.slots
-      pattern = core_search_slots(cache, input, slots)
-      caps.set_pattern(pattern)
+      caps.set_pattern(nil)
+      caps.set_pattern(search_slots_with(cache, input, caps.slots))
     end
 
     def search_slots_with(cache : Cache, input : ::Regex::Automata::Input, slots : Array(::Regex::Automata::NonMaxUsize?)) : ::Regex::Automata::PatternID?
-      if impossible_input?(input)
-        clear_slots(slots)
-        return nil
-      end
+      return nil if captures_disabled? || impossible_input?(input)
       if reverse_anchored_selected?
         return core_search_slots(cache, input, slots) if input.anchored.is_anchored
         result = reverse_anchored_search(cache, input)
         return core_search_slots_nofail(cache, input, slots) if result.is_a?(::Regex::Automata::MatchError)
         return search_slots_from_match(cache, input, slots, result) if result
-        clear_slots(slots)
         return nil
       end
       if literal = literal_search(input)
@@ -1490,23 +1513,18 @@ module Regex::Automata::Meta
         return reverse_inner_search_slots(cache, input, slots)
       end
       if literal_strategy?
-        clear_slots(slots)
         return nil
       end
       core_search_slots(cache, input, slots)
     end
 
     def search_slots_with(cache : Cache, input : ::Regex::Automata::Input, slots : Array(Int32?)) : ::Regex::Automata::PatternID?
-      if impossible_input?(input)
-        clear_slots(slots)
-        return nil
-      end
+      return nil if captures_disabled? || impossible_input?(input)
       if reverse_anchored_selected?
         return core_search_slots(cache, input, slots) if input.anchored.is_anchored
         result = reverse_anchored_search(cache, input)
         return core_search_slots_nofail(cache, input, slots) if result.is_a?(::Regex::Automata::MatchError)
         return search_slots_from_match(cache, input, slots, result) if result
-        clear_slots(slots)
         return nil
       end
       if literal = literal_search(input)
@@ -1520,7 +1538,6 @@ module Regex::Automata::Meta
         return reverse_inner_search_slots(cache, input, slots)
       end
       if literal_strategy?
-        clear_slots(slots)
         return nil
       end
       core_search_slots(cache, input, slots)
@@ -1623,7 +1640,7 @@ module Regex::Automata::Meta
     end
 
     private def core_search_slots(cache : Cache, input : ::Regex::Automata::Input, slots : Array(Int32?)) : ::Regex::Automata::PatternID?
-      converted = Array(::Regex::Automata::NonMaxUsize?).new(slots.size, nil)
+      converted = slots.map { |slot| slot.try { |offset| ::Regex::Automata::NonMaxUsize.new(offset) } }
       result = core_search_slots(cache, input, converted)
       converted.each_with_index { |slot, index| slots[index] = slot.try(&.get) }
       result
@@ -1632,7 +1649,6 @@ module Regex::Automata::Meta
     private def core_search_slots(cache : Cache, input : ::Regex::Automata::Input, slots : Array(::Regex::Automata::NonMaxUsize?)) : ::Regex::Automata::PatternID?
       if slots.size <= @group_info.implicit_slot_len
         found = core_search(cache, input)
-        slots.fill(nil)
         return nil unless found
         index = found.pattern.to_i * 2
         slots[index] = ::Regex::Automata::NonMaxUsize.new(found.start) if index < slots.size
@@ -1666,7 +1682,7 @@ module Regex::Automata::Meta
     end
 
     private def core_search_slots_nofail(cache : Cache, input : ::Regex::Automata::Input, slots : Array(Int32?)) : ::Regex::Automata::PatternID?
-      converted = Array(::Regex::Automata::NonMaxUsize?).new(slots.size, nil)
+      converted = slots.map { |slot| slot.try { |offset| ::Regex::Automata::NonMaxUsize.new(offset) } }
       result = core_search_slots_nofail(cache, input, converted)
       converted.each_with_index { |slot, index| slots[index] = slot.try(&.get) }
       result
@@ -1693,8 +1709,14 @@ module Regex::Automata::Meta
         return core_is_match_nofail(cache, input) if result.is_a?(::Regex::Automata::Meta::RetryError)
         return !result.nil?
       end
+      if reverse_anchored_selected?
+        return core_is_match(cache, input) if input.anchored.is_anchored
+        result = reverse_anchored_search(cache, input)
+        return core_is_match_nofail(cache, input) if result.is_a?(::Regex::Automata::MatchError)
+        return !result.nil?
+      end
       return core_is_match(cache, input) if core_strategy?
-      !search_half_with(cache, input).nil?
+      !literal_search(input).nil?
     end
 
     def find(haystack : String | Bytes | ::Regex::Automata::Input) : ::Regex::Automata::Match?
@@ -1719,6 +1741,10 @@ module Regex::Automata::Meta
 
     def splitn(limit : Int32, haystack : String | Bytes | ::Regex::Automata::Input) : SplitN
       SplitN.new(self, normalize_input(haystack), limit)
+    end
+
+    def splitn(haystack : String | Bytes | ::Regex::Automata::Input, limit : Int32) : SplitN
+      splitn(limit, haystack)
     end
 
     private def normalize_input(input : ::Regex::Automata::Input) : ::Regex::Automata::Input
@@ -1751,6 +1777,7 @@ module Regex::Automata::Meta
       prefilter = @literal_prefilter
       pattern_ids = @literal_pattern_ids
       return nil unless prefilter && pattern_ids
+      return nil if input.is_done
 
       span = ::Regex::Automata::Span.new(input.start, input.end)
       if prefilter.indexed_matcher?
@@ -1758,11 +1785,7 @@ module Regex::Automata::Meta
         when ::Regex::Automata::Anchored::No
           prefilter.find_with_index(input.haystack, span)
         when ::Regex::Automata::Anchored::Yes, ::Regex::Automata::Anchored::Pattern
-          if input.anchored == ::Regex::Automata::Anchored::Pattern && input.pattern != pattern_ids[0]
-            nil
-          else
-            prefilter.prefix_with_index(input.haystack, span)
-          end
+          prefilter.prefix_with_index(input.haystack, span)
         else
           nil
         end
@@ -1771,12 +1794,8 @@ module Regex::Automata::Meta
       case input.anchored
       when ::Regex::Automata::Anchored::No
         literal_find_candidate(input.haystack, span, needles, pattern_ids, nil)
-      when ::Regex::Automata::Anchored::Yes
+      when ::Regex::Automata::Anchored::Yes, ::Regex::Automata::Anchored::Pattern
         literal_prefix_candidate(input.haystack, span, needles, pattern_ids, nil)
-      when ::Regex::Automata::Anchored::Pattern
-        pattern = input.pattern
-        return nil unless pattern
-        literal_prefix_candidate(input.haystack, span, needles, pattern_ids, pattern)
       else
         nil
       end
@@ -1882,7 +1901,17 @@ module Regex::Automata::Meta
       return true if @always_anchored_start && input.start > 0
       return true if @always_anchored_end && input.end < input.haystack.size
 
+      minlen = @minimum_len
+      return false unless minlen
+      return true if input.get_span.len.to_u64 < minlen
+      if (input.anchored.is_anchored || @always_anchored_start) && @always_anchored_end
+        return true if @maximum_len.try { |maxlen| input.get_span.len.to_u64 > maxlen }
+      end
       false
+    end
+
+    private def captures_disabled? : Bool
+      @config.get_which_captures == ::Regex::Automata::NFA::WhichCaptures::None
     end
 
     private def reverse_anchored_selected? : Bool
@@ -1948,7 +1977,6 @@ module Regex::Automata::Meta
       return core_search_slots(cache, input, slots) if input.anchored.is_anchored
       unless capture_search_needed?(slots.size)
         found = search_with(cache, input)
-        clear_slots(slots)
         return nil unless found
         set_match_slots(slots, found)
         return found.pattern
@@ -1966,7 +1994,6 @@ module Regex::Automata::Meta
           .anchored(::Regex::Automata::Anchored::Pattern, result.pattern)
         core_search_slots_nofail(cache, scoped, slots)
       else
-        clear_slots(slots)
         nil
       end
     end
@@ -2019,7 +2046,6 @@ module Regex::Automata::Meta
       return core_search_slots(cache, input, slots) if input.anchored.is_anchored
       unless capture_search_needed?(slots.size)
         found = search_with(cache, input)
-        clear_slots(slots)
         return nil unless found
         set_match_slots(slots, found)
         return found.pattern
@@ -2037,7 +2063,6 @@ module Regex::Automata::Meta
           .anchored(::Regex::Automata::Anchored::Pattern, result.pattern)
         core_search_slots_nofail(cache, scoped, slots)
       else
-        clear_slots(slots)
         nil
       end
     end
@@ -2115,32 +2140,10 @@ module Regex::Automata::Meta
       dfa : ::Regex::Automata::DFA::DFA,
       input : ::Regex::Automata::Input,
     ) : ::Regex::Automata::Match? | ::Regex::Automata::MatchError
-      slice = input.haystack[input.start, input.end - input.start]
-      result = dfa.try_search_rev(slice)
+      result = dfa.try_search_rev(input.clone.anchored(::Regex::Automata::Anchored::Yes))
       return result if result.is_a?(::Regex::Automata::MatchError)
-      return nil unless result.is_a?(Tuple(Int32, Array(::Regex::Automata::PatternID)))
-
-      start_offset, pattern_ids = result
-      pattern_id = pattern_ids.first?
-      return nil unless pattern_id
-
-      ::Regex::Automata::Match.new(pattern_id, input.start + start_offset, input.end)
-    end
-
-    private def search_captures_from_match(
-      cache : Cache,
-      input : ::Regex::Automata::Input,
-      caps : ::Regex::Automata::Captures,
-      match : ::Regex::Automata::Match,
-    ) : Nil
-      if capture_search_needed?(caps.slot_len)
-        scoped = input.clone
-          .span(match.start...match.end)
-          .anchored(::Regex::Automata::Anchored::Pattern, match.pattern)
-        pikevm.search(cache.raw_cache, scoped, caps)
-      else
-        set_match_captures(caps, match)
-      end
+      return nil unless result.is_a?(::Regex::Automata::HalfMatch)
+      ::Regex::Automata::Match.new(result.pattern, result.offset, input.end)
     end
 
     private def search_slots_from_match(
@@ -2150,11 +2153,10 @@ module Regex::Automata::Meta
       match : ::Regex::Automata::Match,
     ) : ::Regex::Automata::PatternID?
       if capture_search_needed?(slots.size)
-        clear_slots(slots)
         scoped = input.clone
           .span(match.start...match.end)
           .anchored(::Regex::Automata::Anchored::Pattern, match.pattern)
-        pikevm.search_slots(cache.raw_cache, scoped, slots)
+        core_search_slots_nofail(cache, scoped, slots)
       else
         set_match_slots(slots, match)
         match.pattern
@@ -2168,11 +2170,10 @@ module Regex::Automata::Meta
       match : ::Regex::Automata::Match,
     ) : ::Regex::Automata::PatternID?
       if capture_search_needed?(slots.size)
-        clear_slots(slots)
         scoped = input.clone
           .span(match.start...match.end)
           .anchored(::Regex::Automata::Anchored::Pattern, match.pattern)
-        pikevm.search_slots(cache.raw_cache, scoped, slots)
+        core_search_slots_nofail(cache, scoped, slots)
       else
         set_match_slots(slots, match)
         match.pattern
@@ -2183,50 +2184,16 @@ module Regex::Automata::Meta
       slot_len > @group_info.implicit_slot_len
     end
 
-    private def set_match_captures(caps : ::Regex::Automata::Captures, match : ::Regex::Automata::Match) : Nil
-      caps.clear
-      caps.set_pattern(match.pattern)
-      slots = caps.slots_mut
-      slot_pair = @group_info.slots(match.pattern, 0)
-      return unless slot_pair
-
-      slot_start, slot_end = slot_pair
-      return if slot_end >= slots.size
-
-      slots[slot_start] = match.start
-      slots[slot_end] = match.end
-    end
-
-    private def clear_slots(slots : Array(::Regex::Automata::NonMaxUsize?)) : Nil
-      slots.map! { nil }
-    end
-
-    private def clear_slots(slots : Array(Int32?)) : Nil
-      slots.map! { nil }
-    end
-
     private def set_match_slots(slots : Array(::Regex::Automata::NonMaxUsize?), match : ::Regex::Automata::Match) : Nil
-      clear_slots(slots)
-      slot_pair = @group_info.slots(match.pattern, 0)
-      return unless slot_pair
-
-      slot_start, slot_end = slot_pair
-      return if slot_end >= slots.size
-
-      slots[slot_start] = ::Regex::Automata::NonMaxUsize.new(match.start)
-      slots[slot_end] = ::Regex::Automata::NonMaxUsize.new(match.end)
+      index = match.pattern.to_i * 2
+      slots[index] = ::Regex::Automata::NonMaxUsize.new(match.start) if index < slots.size
+      slots[index + 1] = ::Regex::Automata::NonMaxUsize.new(match.end) if index + 1 < slots.size
     end
 
     private def set_match_slots(slots : Array(Int32?), match : ::Regex::Automata::Match) : Nil
-      clear_slots(slots)
-      slot_pair = @group_info.slots(match.pattern, 0)
-      return unless slot_pair
-
-      slot_start, slot_end = slot_pair
-      return if slot_end >= slots.size
-
-      slots[slot_start] = match.start
-      slots[slot_end] = match.end
+      index = match.pattern.to_i * 2
+      slots[index] = match.start if index < slots.size
+      slots[index + 1] = match.end if index + 1 < slots.size
     end
   end
 
@@ -2337,25 +2304,26 @@ module Regex::Automata::Meta
     include Iterator(::Regex::Automata::Span)
     getter last_end : Int32
 
-    def initialize(@regex : Regex, @input : ::Regex::Automata::Input)
-      @matches = @regex.find_iter(@input)
-      @last_end = @input.start
-      @done = false
+    def initialize(regex : Regex, input : ::Regex::Automata::Input)
+      @matches = regex.find_iter(input)
+      @last_end = 0
     end
 
-    getter input : ::Regex::Automata::Input
+    def input : ::Regex::Automata::Input
+      @matches.input
+    end
 
     def next
-      return stop if @done
-
       if match = @matches.next
         span = ::Regex::Automata::Span.new(@last_end, match.start)
         @last_end = match.end
         return span
       end
-
-      @done = true
-      ::Regex::Automata::Span.new(@last_end, @input.end)
+      len = input.haystack.size
+      return stop if @last_end > len
+      span = ::Regex::Automata::Span.new(@last_end, len)
+      @last_end = len + 1
+      span
     end
 
     def close : Nil
@@ -2366,33 +2334,27 @@ module Regex::Automata::Meta
   class SplitN
     include Iterator(::Regex::Automata::Span)
 
-    def initialize(@regex : Regex, @input : ::Regex::Automata::Input, limit : Int32)
-      @remaining = limit
-      @split = Split.new(@regex, @input)
-      @done = limit <= 0
-      @last_end = @input.start
-      @split.close if @done
+    def initialize(regex : Regex, input : ::Regex::Automata::Input, @remaining : Int32)
+      @split = Split.new(regex, input)
+      @split.close if @remaining <= 0
     end
 
     def input : ::Regex::Automata::Input
       @split.input
     end
 
+    def size_hint : Tuple(Int32, Int32)
+      {0, Math.max(@remaining, 0)}
+    end
+
     def next
-      return stop if @done
-      if @remaining == 1
-        @done = true
-        @split.close
-        return ::Regex::Automata::Span.new(@last_end, @input.end)
-      end
-
-      span = @split.next
-      return stop if span.is_a?(Iterator::Stop)
-
-      typed = span.as(::Regex::Automata::Span)
-      @last_end = @split.last_end
-      @remaining -= 1 if @remaining > 0
-      typed
+      return stop if @remaining <= 0
+      @remaining -= 1
+      return @split.next if @remaining > 0
+      @split.close
+      len = input.haystack.size
+      return stop if @split.last_end > len
+      ::Regex::Automata::Span.new(@split.last_end, len)
     end
 
     def close : Nil

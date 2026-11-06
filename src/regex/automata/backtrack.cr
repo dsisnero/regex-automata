@@ -113,6 +113,17 @@ module Regex::Automata::NFA
       @stack : Array(Frame)
       @visited : Visited
 
+      def clone : Cache
+        copy = dup
+        copy.copy_owned_state
+        copy
+      end
+
+      protected def copy_owned_state : Nil
+        @stack = @stack.dup
+        @visited = @visited.clone
+      end
+
       def initialize(re : BoundedBacktracker)
         @stack = [] of Frame
         @visited = Visited.new(re)
@@ -156,6 +167,16 @@ module Regex::Automata::NFA
     private class Visited
       @bitset : Array(UInt64)
       @stride : Int32
+
+      def clone : Visited
+        copy = dup
+        copy.copy_owned_state
+        copy
+      end
+
+      protected def copy_owned_state : Nil
+        @bitset = @bitset.dup
+      end
 
       def initialize(re : BoundedBacktracker)
         @bitset = [] of UInt64

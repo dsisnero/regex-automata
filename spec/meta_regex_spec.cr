@@ -22,7 +22,7 @@ describe Regex::Automata::Meta::Regex do
     merged = base.overwrite(Regex::Automata::Meta::Regex.config.pool_capacity(0))
 
     base.get_pool_capacity.should eq(3)
-    merged.get_pool_capacity.should eq(1)
+    merged.get_pool_capacity.should eq(0)
   end
 
   it "uses Rust's finite Meta engine limits unless explicitly disabled" do

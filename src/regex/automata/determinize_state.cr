@@ -89,6 +89,16 @@ module Regex::Automata::Determinize
   class StateBuilderEmpty
     @repr : Array(UInt8)
 
+    def clone : StateBuilderEmpty
+      copy = dup
+      copy.copy_owned_state
+      copy
+    end
+
+    protected def copy_owned_state : Nil
+      @repr = @repr.dup
+    end
+
     def initialize
       @repr = [] of UInt8
     end

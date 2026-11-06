@@ -6,10 +6,10 @@
   `72d650cb0a880a01ab6dc2137c0888e8f89740f7` (regex-automata 0.4.18).
   Do not substitute remembered Rust behavior or a newer upstream revision.
 - Working source ledger: [rust_port_inventory.tsv](inventory/rust_port_inventory.tsv)
-  (1,936 Rust API items: 1,558 `ported`, 145 `missing`, 37 `partial`, 181
-  `intentional_divergence`, 15 `skipped`). Test ledger:
-  [rust_test_parity.tsv](inventory/rust_test_parity.tsv) (220 rows: 190
-  `ported`, 20 `partial`, 9 `intentional_divergence`, 1 `skipped`). These are **review
+  (1,936 Rust API items: 1,723 `ported`, 0 `missing`, 19 `partial`, 181
+  `intentional_divergence`, 13 `skipped`). Test ledger:
+  [rust_test_parity.tsv](inventory/rust_test_parity.tsv) (220 rows: 209
+  `ported`, 1 `partial`, 9 `intentional_divergence`, 1 `skipped`). These are **review
   queues**, not a count of absent behaviors or a completion percentage. The
   generated manifests are item inventories, so a file-level pass is also
   required for private algorithms without discovered rows.
@@ -36,14 +36,20 @@
 
 ## Where we are
 
-- **Current focus:** phase 6 one-pass DFA is complete (this feature commit).
-  Flat packed transitions, source admission/limits, captures/cache and the
-  complete three-mode matrix pass. Full gate: 17,434/17,434; see the
-  [one-pass feature plan](feature-onepass-dfa.md) for source proofs and costs.
-- **Next up:** phase 7 Meta strategy and complete facade behavior: review the
-  pinned strategy modules and nearest tests, then close configured engine
-  restrictions, capture/multi-pattern paths, cache/pool/reset and fallback
-  precedence with all five supported vendor modes before its feature commit.
+- **Current focus:** phase 8, the final existing cross-engine/shared-utility
+  audit and controlled performance signoff. Phase 7 Meta is complete:
+  [feature evidence](feature-meta.md), all 275 API rows and 11 file reviews,
+  five-mode vendor matrix and full gates are closed.
+- **Next up:** audit the remaining 19 partial API rows and one partial test,
+  reconcile pending/private file reviews and existing divergences, then close
+  the shared construction/search/prefilter costs already listed in phase 8.
+  No further implementation phase has been added. Do not infer completion
+  from the zero missing-row count; the listed shared algorithm/performance
+  work remains real and open.
+- **Dependency correction:** grouped dot translation now preserves the syntax
+  terminator through `regex-syntax` commit `1623e24`. The dedicated pushed
+  branch and review draft are recorded in the [Meta plan](feature-meta.md).
+  Its full 21,832-spec shard gate passes; no temporary-path dependency remains.
 - **Status by area:** vendor fixture harness, scalar prefilter
   selection/candidate semantics, AArch64 unanchored packed Teddy, 2-500 needle
   Aho/anchored Teddy DFA, and >500-needle contiguous-NFA paths are complete.
@@ -117,19 +123,17 @@
   unavailable for the pool's lifetime. This is a lifecycle divergence, not a
   search-result divergence. No throughput claim is made on this loaded host; phase 8's
   controlled comparison should include pooled Meta searches.
-- **Last completed feature commit:** phase 6 `port: one-pass DFA engine parity`
-  (this feature commit). Regex wrapper phase 5c is `887355b`; sparse phase 5b
-  is `ebf762c`; dense native wire phase 5a is `853c6c6`.
-- **Gates:** full Crystal suite passes 17,434/17,434; 1,547 focused one-pass
-  and affected compiler checks pass. The 987-spec vendor matrix requires the
-  same 328 case IDs per mode as Rust (120 admitted, 208 rejected), exact
-  admitted table shapes/payload memory, captures and shared-engine results.
-  Pinned Rust passes eight one-pass unit tests, five integration tests and
-  23 doctests offline; the reproducible oracle and retained-workspace probes
-  pass. Existing dense/sparse 10/18-case consumers and all nine fuzz rejections
-  also pass. Install, format, lint, parity, whitespace/format checks and
-  no-codegen build pass. These are correctness gates, with no loaded-host
-  performance claim.
+- **Last completed feature commit:** phase 7 `port: Meta strategy and facade
+  parity` (this feature commit). Prior phase 6 is `6e45c59`; wrapper phase 5c
+  is `887355b`, sparse phase 5b `ebf762c`, dense phase 5a `853c6c6`.
+- **Gates:** **23,382/23,382 full Crystal specs** and 15,453 affected-engine
+  focused specs pass. The Meta matrix runs 1,186 admissible cases per mode,
+  5,930 examples total, including build errors and overlapping pattern sets.
+  Pinned Rust passes 68 Meta units, all five integration modes and 77 doctests.
+  The grouped-terminator dependency regression also passes all 21,832 shard
+  specs and downstream contracts. Install, format, lint, parity, whitespace/
+  format checks and no-codegen build pass. These are correctness gates; no
+  loaded-host throughput claim is made.
 
 ## Feature-loop rules
 
@@ -535,7 +539,7 @@ confirmation; no authorship was inferred or changed.
   the one-pass source/test ledger is reviewed and its full supported vendor
   matrix passes, beyond the existing 12-case anchored reader.
 
-- [ ] **7. Meta strategy and complete facade behavior.** Finish
+- [x] **7. Meta strategy and complete facade behavior.** Finish
   `src/meta/{error,limited,literal,prefix,regex,reverse_inner,
   reverse_suffix,stopat,strategy,wrappers}.rs` and `tests/meta/**`. Recheck
   each strategy's Rust admission, name/diagnostic path, guards, ordered
@@ -545,7 +549,7 @@ confirmation; no authorship was inferred or changed.
   `no_dfa_hybrid_onepass`, `no_dfa_hybrid_onepass_backtrack`). **Gate:** every
   Meta source/test row is justified and all five full mode matrices pass;
   previous reverse-strategy spot checks remain regression evidence, not a
-  substitute for this gate.
+  substitute for this gate. See the [bounded Meta checklist](feature-meta.md).
 
 - [ ] **8. Cross-engine adversarial audit and vendor signoff.** Replay shared
   vendor case IDs across every engine/mode that Rust admits; classify each

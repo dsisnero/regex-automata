@@ -78,7 +78,7 @@ describe "pinned Rust ReverseAnchored dispatch" do
     slots.should eq([0, 5])
   end
 
-  it "clears capture and slot results on a clean reverse miss without Core scratch" do
+  it "clears the capture marker and retains slots on a clean reverse miss without Core scratch" do
     re = Regex::Automata::Meta::Regex.new("(foo)$")
     cache = re.create_cache
     re.reverse_anchored_selected_for_spec?.should be_true
@@ -88,7 +88,8 @@ describe "pinned Rust ReverseAnchored dispatch" do
     re.search_captures_with(cache, Regex::Automata::Input.new("xxbar"), caps)
     caps.get_match.should be_nil
     re.search_slots_with(cache, Regex::Automata::Input.new("xxbar"), slots).should be_nil
-    slots.should eq([nil, nil, nil, nil])
+    # Rust returns None before writing output slots on this clean miss.
+    slots.should eq([0, 3, 0, 3])
     cache.pike_scratch_allocated_for_spec?.should be_false
   end
 

@@ -542,6 +542,24 @@ module Regex::Automata::Hybrid
     property progress : SearchProgress?
     property state_saver : StateSaver
 
+    def clone : Cache
+      copy = dup
+      copy.copy_owned_state
+      copy
+    end
+
+    protected def copy_owned_state : Nil
+      @trans = @trans.dup
+      @starts = @starts.dup
+      @states = @states.dup
+      @states_to_id = @states_to_id.dup
+      @stack = @stack.dup
+      @sparses = @sparses.clone
+      @scratch_state_builder = @scratch_state_builder.clone
+      @progress = @progress.try(&.dup)
+      @state_saver = @state_saver.dup
+    end
+
     def initialize(@dfa : DFA)
       @trans = [] of LazyStateID
       @starts = [] of LazyStateID
@@ -1918,6 +1936,17 @@ module Regex::Automata::Hybrid
   class RegexCache
     getter forward : Cache
     getter reverse : Cache
+
+    def clone : RegexCache
+      copy = dup
+      copy.copy_owned_state
+      copy
+    end
+
+    protected def copy_owned_state : Nil
+      @forward = @forward.clone
+      @reverse = @reverse.clone
+    end
 
     def initialize(re : Regex)
       @forward = re.forward.create_cache

@@ -20,7 +20,7 @@ repository: https://github.com/dsisnero/regex-automata
 dependencies:
   regex-syntax:
     github: dsisnero/regex-syntax
-    commit: 077d107e69b62251fb95f29f897a6bf10fbb8067
+    commit: 1623e24e374171bcc165e7ca7e82f5a9fd5336db
 
 development_dependencies:
   ameba:

@@ -101,6 +101,18 @@ module Regex::Automata::NFA
       getter next : ActiveStates
       getter stack : Array(EpsilonFrame)
 
+      def clone : Cache
+        copy = dup
+        copy.copy_owned_state
+        copy
+      end
+
+      protected def copy_owned_state : Nil
+        @curr = @curr.clone
+        @next = @next.clone
+        @stack = @stack.dup
+      end
+
       def initialize(re : PikeVM)
         @stack = [] of EpsilonFrame
         @curr = ActiveStates.new(re)
@@ -186,6 +198,16 @@ module Regex::Automata::NFA
       @slots_per_state : Int32
       @slots_for_captures : Int32
 
+      def clone : SlotTable
+        copy = dup
+        copy.copy_owned_state
+        copy
+      end
+
+      protected def copy_owned_state : Nil
+        @table = @table.dup
+      end
+
       def initialize
         @table = [] of Int32?
         @used_len = 0
@@ -250,6 +272,17 @@ module Regex::Automata::NFA
     private class ActiveStates
       getter set : Regex::Automata::SparseSet
       getter slot_table : SlotTable
+
+      def clone : ActiveStates
+        copy = dup
+        copy.copy_owned_state
+        copy
+      end
+
+      protected def copy_owned_state : Nil
+        @set = @set.clone
+        @slot_table = @slot_table.clone
+      end
 
       def initialize(re : PikeVM)
         @set = Regex::Automata::SparseSet.new(re.get_nfa.states.size.to_i32)

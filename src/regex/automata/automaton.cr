@@ -321,7 +321,7 @@ module Regex::Automata
       loop do
         next_state = next_state(current_state, input.haystack[at])
         return MatchError.quit(input.haystack[at], at) if is_quit_state?(next_state)
-        break if is_dead_state?(next_state)
+        return last_match if is_dead_state?(next_state)
 
         current_state = next_state
         if is_start_state?(current_state)

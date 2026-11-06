@@ -6,6 +6,17 @@ module Regex::Automata
     @sparse : Array(StateID)
     @len : Int32
 
+    def clone : SparseSet
+      copy = dup
+      copy.copy_owned_state
+      copy
+    end
+
+    protected def copy_owned_state : Nil
+      @dense = @dense.dup
+      @sparse = @sparse.dup
+    end
+
     def initialize(capacity : Int32)
       @dense = [] of StateID
       @sparse = [] of StateID
@@ -115,6 +126,17 @@ module Regex::Automata
   class SparseSets
     getter set1 : SparseSet
     getter set2 : SparseSet
+
+    def clone : SparseSets
+      copy = dup
+      copy.copy_owned_state
+      copy
+    end
+
+    protected def copy_owned_state : Nil
+      @set1 = @set1.clone
+      @set2 = @set2.clone
+    end
 
     def initialize(capacity : Int32)
       @set1 = SparseSet.new(capacity)

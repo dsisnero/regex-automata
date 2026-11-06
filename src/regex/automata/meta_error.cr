@@ -2,24 +2,30 @@ module Regex::Automata::Meta
   class BuildError < ::Regex::Automata::BuildError
     getter pattern : ::Regex::Automata::PatternID?
     getter size_limit : Int64?
-    getter syntax_error : String?
+    getter syntax_error : Exception?
 
     def initialize(
       *,
       message : String? = nil,
       @pattern : ::Regex::Automata::PatternID? = nil,
       @size_limit : Int64? = nil,
-      @syntax_error : String? = nil,
+      @syntax_error : Exception? = nil,
+      source : Exception? = nil,
       size_limit_exceeded : Bool = false,
     )
       super(message, size_limit_exceeded, @size_limit)
+      @cause = source || @syntax_error
+    end
+
+    def clone : BuildError
+      dup
     end
 
     def self.syntax_error(pid : ::Regex::Automata::PatternID, error) : BuildError
       BuildError.new(
         message: "error parsing pattern #{pid.to_i}",
         pattern: pid,
-        syntax_error: error.message
+        syntax_error: error
       )
     end
 
@@ -31,7 +37,8 @@ module Regex::Automata::Meta
       BuildError.new(
         message: "error building NFA",
         size_limit: limit,
-        size_limit_exceeded: true
+        size_limit_exceeded: true,
+        source: error
       )
     end
   end
