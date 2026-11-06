@@ -285,7 +285,7 @@ describe Regex::Automata::DFA::OnePass::DFA do
     expect_raises(Regex::Automata::DFA::OnePass::BuildError, /not one-pass/) do
       Regex::Automata::DFA::OnePass::DFA.new("a*a")
     end
-    expect_raises(Regex::Automata::DFA::OnePass::BuildError, /not one-pass/) do
+    expect_raises(Regex::Automata::DFA::OnePass::BuildError, /error building NFA/) do
       Regex::Automata::DFA::OnePass::DFA.new("(?s-u:.)*?")
     end
     expect_raises(Regex::Automata::DFA::OnePass::BuildError, /not one-pass/) do

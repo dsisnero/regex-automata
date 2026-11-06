@@ -25,3 +25,9 @@ through the shared Automaton interface. Dense native wire handling lives in
 `dense_wire.cr`; sparse state and wire handling live together in `sparse.cr`.
 The [wire feature plan](../plans/feature-dfa-wire.md) records the pinned byte
 fixtures, interoperability checks, representation costs, and remaining work.
+
+One-pass DFAs use flat 64-bit rows with inline match metadata and explicit
+capture/look bits. A retained NFA supplies group and look metadata; searches
+execute the compiled table with separate transition scratch and result slots.
+The [one-pass plan](../plans/feature-onepass-dfa.md) records exact Rust fixture
+shapes, admission decisions, capture regressions and representation costs.

@@ -6,10 +6,10 @@
   `72d650cb0a880a01ab6dc2137c0888e8f89740f7` (regex-automata 0.4.18).
   Do not substitute remembered Rust behavior or a newer upstream revision.
 - Working source ledger: [rust_port_inventory.tsv](inventory/rust_port_inventory.tsv)
-  (1,936 Rust API items: 1,479 `ported`, 187 `missing`, 83 `partial`, 177
-  `intentional_divergence`, 10 `skipped`). Test ledger:
-  [rust_test_parity.tsv](inventory/rust_test_parity.tsv) (220 rows: 187
-  `ported`, 23 `partial`, 9 `intentional_divergence`, 1 `skipped`). These are **review
+  (1,936 Rust API items: 1,558 `ported`, 145 `missing`, 37 `partial`, 181
+  `intentional_divergence`, 15 `skipped`). Test ledger:
+  [rust_test_parity.tsv](inventory/rust_test_parity.tsv) (220 rows: 190
+  `ported`, 20 `partial`, 9 `intentional_divergence`, 1 `skipped`). These are **review
   queues**, not a count of absent behaviors or a completion percentage. The
   generated manifests are item inventories, so a file-level pass is also
   required for private algorithms without discovered rows.
@@ -30,18 +30,20 @@
 - Ten test rows that had labeled Crystal's dense/sparse wire layout or pooled
   mutex as an `intentional_divergence` were returned to `partial` in phase 1.
   Phase 2f3 now ports the pool owner/sharding path; its measured throughput
-  remains unproven on this loaded host. Native vendor wire cases and the
-  controlled comparison remain phase 8 work.
+  remains unproven on this loaded host. Native dense/sparse wire cases
+  closed in phase 5; broader cross-engine adversarial and controlled
+  performance signoff remain phase 8 work.
 
 ## Where we are
 
-- **Current focus:** phase 5 is complete: dense native wire (`853c6c6`),
-  sparse packed storage/native wire (`ebf762c`), and regex wrapper contracts
-  (this feature commit). Full Crystal gate: 16,429/16,429. See the
-  [DFA wire feature plan](feature-dfa-wire.md) for source, oracle and cost notes.
-- **Next up:** phase 6 one-pass DFA: review the pinned source and nearest tests,
-  port failing specs first, then complete its admission, compiled tables,
-  captures/cache and supported vendor matrix before its feature commit.
+- **Current focus:** phase 6 one-pass DFA is complete (this feature commit).
+  Flat packed transitions, source admission/limits, captures/cache and the
+  complete three-mode matrix pass. Full gate: 17,434/17,434; see the
+  [one-pass feature plan](feature-onepass-dfa.md) for source proofs and costs.
+- **Next up:** phase 7 Meta strategy and complete facade behavior: review the
+  pinned strategy modules and nearest tests, then close configured engine
+  restrictions, capture/multi-pattern paths, cache/pool/reset and fallback
+  precedence with all five supported vendor modes before its feature commit.
 - **Status by area:** vendor fixture harness, scalar prefilter
   selection/candidate semantics, AArch64 unanchored packed Teddy, 2-500 needle
   Aho/anchored Teddy DFA, and >500-needle contiguous-NFA paths are complete.
@@ -115,16 +117,19 @@
   unavailable for the pool's lifetime. This is a lifecycle divergence, not a
   search-result divergence. No throughput claim is made on this loaded host; phase 8's
   controlled comparison should include pooled Meta searches.
-- **Last completed feature commit:** phase 5c `port: DFA regex wrapper contracts`
-  (this feature commit). Sparse phase 5b is `ebf762c`; dense phase 5a is `853c6c6`.
-- **Gates:** full Crystal suite passes 16,429/16,429; 115 focused wrapper,
-  transform and native wire checks pass. Pinned Rust regex doctests pass 15/15
-  offline; the source-characterization wrapper oracle passes, including clone
-  isolation. The 10-case dense and 18-case sparse Rust consumers agree on
-  native/endian/search results and confirm all nine fuzz rejections. The full
-  gate includes all supported dense/sparse vendor modes. Install, format,
-  lint, parity, whitespace/format checks and no-codegen build pass. These are
-  correctness gates, with no loaded-host performance claim.
+- **Last completed feature commit:** phase 6 `port: one-pass DFA engine parity`
+  (this feature commit). Regex wrapper phase 5c is `887355b`; sparse phase 5b
+  is `ebf762c`; dense native wire phase 5a is `853c6c6`.
+- **Gates:** full Crystal suite passes 17,434/17,434; 1,547 focused one-pass
+  and affected compiler checks pass. The 987-spec vendor matrix requires the
+  same 328 case IDs per mode as Rust (120 admitted, 208 rejected), exact
+  admitted table shapes/payload memory, captures and shared-engine results.
+  Pinned Rust passes eight one-pass unit tests, five integration tests and
+  23 doctests offline; the reproducible oracle and retained-workspace probes
+  pass. Existing dense/sparse 10/18-case consumers and all nine fuzz rejections
+  also pass. Install, format, lint, parity, whitespace/format checks and
+  no-codegen build pass. These are correctness gates, with no loaded-host
+  performance claim.
 
 ## Feature-loop rules
 
@@ -519,13 +524,14 @@ confirmation; no authorship was inferred or changed.
   [DFA wire feature plan](feature-dfa-wire.md). **Gate:** wrapper source/test
   rows have evidence-backed dispositions and applicable vendor modes pass.
 
-- [ ] **6. One-pass DFA engine.** Finish `src/dfa/onepass.rs` and
+- [x] **6. One-pass DFA engine.** Finish `src/dfa/onepass.rs` and
   `tests/dfa/onepass/**`: source-level admission/rejection, transition and
   match-side epsilon/slot representation, table queries, limits, cache/reset,
   captures, and errors. Run every admissible case in vendor `default`,
   `no_byte_classes`, and `starts_for_each_pattern` modes through the shared
   runner, with the Rust non-anchored and UTF-8-empty exclusions/behavior.
-  Compare admitted results with other engines on the same case IDs. **Gate:**
+  Compare admitted results with other engines on the same case IDs. See the
+  [one-pass feature plan](feature-onepass-dfa.md). **Gate:**
   the one-pass source/test ledger is reviewed and its full supported vendor
   matrix passes, beyond the existing 12-case anchored reader.
 

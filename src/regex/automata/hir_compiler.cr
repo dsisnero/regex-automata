@@ -193,7 +193,7 @@ module Regex::Automata
       reset_builder
       @group_info = build_group_info([{PatternID.new(0), hir}] of Tuple(PatternID, Regex::Syntax::Hir::Hir))
 
-      prefix_start, prefix_loop = build_unanchored_prefix_placeholder unless anchored_for_all?([hir])
+      prefix_start, prefix_loop = build_prefix_placeholder(anchored_for_all?([hir]))
       ref = compile_pattern(hir, PatternID.new(0))
 
       @builder.add_pattern_start(ref.start)
@@ -202,6 +202,7 @@ module Regex::Automata
         @builder.set_state(prefix_start, NFA::BinaryUnion.new(ref.start, prefix_loop))
         @builder.set_start_unanchored(prefix_start)
       else
+        @builder.update_transition_target(prefix_start, ref.start)
         @builder.set_start_unanchored(ref.start)
       end
 
@@ -222,7 +223,7 @@ module Regex::Automata
       pattern_hirs = hirs_array.map_with_index { |hir, i| {PatternID.new(i.to_i32), hir} }
       @group_info = build_group_info(pattern_hirs)
 
-      prefix_start, prefix_loop = build_unanchored_prefix_placeholder unless anchored_for_all?(hirs_array)
+      prefix_start, prefix_loop = build_prefix_placeholder(anchored_for_all?(hirs_array))
 
       pattern_starts = [] of StateID
       hirs_array.each_with_index do |hir, i|
@@ -238,6 +239,7 @@ module Regex::Automata
         @builder.set_state(prefix_start, NFA::BinaryUnion.new(start_id, prefix_loop))
         @builder.set_start_unanchored(prefix_start)
       else
+        @builder.update_transition_target(prefix_start, start_id)
         @builder.set_start_unanchored(start_id)
       end
 
@@ -341,10 +343,19 @@ module Regex::Automata
       end
     end
 
+    private def build_prefix_placeholder(anchored : Bool) : Tuple(StateID, StateID?)
+      return {@builder.add_empty, nil} if anchored
+      build_unanchored_prefix_placeholder
+    end
+
     private def build_unanchored_prefix_placeholder : Tuple(StateID, StateID)
       union_id = @builder.add_state(NFA::BinaryUnion.new(StateID.new(0), StateID.new(0)))
+      # Rust compiles AnyByte via c_byte_class: its patchable end is allocated
+      # before the consuming state. Preserve these intermediate IDs because
+      # the bounded UTF-8 cache hashes transition targets before finalization.
+      ending = @builder.add_state(NFA::Empty.new(union_id))
       loop_id = @builder.add_state(
-        NFA::ByteRange.new(NFA::Transition.new(0_u8, 255_u8, union_id))
+        NFA::ByteRange.new(NFA::Transition.new(0_u8, 255_u8, ending))
       )
       {union_id, loop_id}
     end

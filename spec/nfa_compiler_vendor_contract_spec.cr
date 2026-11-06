@@ -103,13 +103,17 @@ describe "pinned Thompson compiler terminal Match lowering" do
   it "does not allocate a spare Match for each literal byte" do
     compiler = Regex::Automata::NFA::NFA.compiler
     compiler.build("a")
-    compiler.vendor_compiler_state_count.should eq(6)
+    # Rust retains: prefix UnionReverse, Empty end, consuming Sparse,
+    # implicit start, literal byte, implicit end, and one terminal Match.
+    compiler.vendor_compiler_state_count.should eq(7)
+    compiler.vendor_compiler_match_count.should eq(1)
   end
 
   it "lowers look assertions directly to patchable states" do
     compiler = Regex::Automata::NFA::NFA.compiler
     compiler.build("^")
-    compiler.vendor_compiler_state_count.should eq(4)
+    # The anchored prefix is a temporary Empty in Rust, removed at build.
+    compiler.vendor_compiler_state_count.should eq(5)
   end
 end
 

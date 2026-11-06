@@ -1,4 +1,5 @@
 require "./nfa"
+require "./sparse_set"
 
 module Regex::Automata::DFA
   module OnePass
@@ -19,6 +20,11 @@ module Regex::Automata::DFA
 
       def initialize(@kind : Kind, message : String, @source : Exception? = nil, @look : ::Regex::Automata::Look? = nil, size_limit_exceeded : Bool = false, size_limit : Int64? = nil)
         super(message, size_limit_exceeded: size_limit_exceeded, size_limit: size_limit)
+      end
+
+      def clone : BuildError
+        BuildError.new(@kind, message || "", @source.try(&.dup), @look,
+          size_limit_exceeded: size_limit_exceeded?, size_limit: size_limit)
       end
 
       def self.nfa(error : Exception) : BuildError
@@ -45,7 +51,7 @@ module Regex::Automata::DFA
         new(Kind::NotOnePass, "one-pass DFA could not be built because pattern is not one-pass: #{msg}")
       end
 
-      def self.exceeded_size_limit(limit : Int32) : BuildError
+      def self.exceeded_size_limit(limit : Int64) : BuildError
         new(Kind::ExceededSizeLimit, "one-pass DFA exceeded size limit of #{limit} during building", size_limit_exceeded: true, size_limit: limit)
       end
     end
@@ -54,7 +60,7 @@ module Regex::Automata::DFA
       @match_kind : ::Regex::Automata::MatchKind?
       @starts_for_each_pattern : Bool?
       @byte_classes : Bool?
-      @size_limit : Int32?
+      @size_limit : Int64?
       @size_limit_set : Bool
 
       def initialize
@@ -80,8 +86,8 @@ module Regex::Automata::DFA
         self
       end
 
-      def size_limit(limit : Int32?) : Config
-        @size_limit = limit
+      def size_limit(limit : Int?) : Config
+        @size_limit = limit.try(&.to_i64)
         @size_limit_set = true
         self
       end
@@ -95,24 +101,31 @@ module Regex::Automata::DFA
       end
 
       def get_byte_classes : Bool
-        @byte_classes.nil? ? true : @byte_classes.not_nil!
+        @byte_classes != false
       end
 
-      def get_size_limit : Int32?
+      def get_size_limit : Int64?
         @size_limit_set ? @size_limit : nil
       end
 
+      def clone : Config
+        dup
+      end
+
       def overwrite(other : Config) : Config
-        merged = Config.new
-        merged.match_kind(other.@match_kind || @match_kind || ::Regex::Automata::MatchKind::LeftmostFirst)
-        merged.starts_for_each_pattern(other.@starts_for_each_pattern.nil? ? get_starts_for_each_pattern : other.@starts_for_each_pattern.not_nil!)
-        merged.byte_classes(other.@byte_classes.nil? ? get_byte_classes : other.@byte_classes.not_nil!)
-        if other.@size_limit_set
-          merged.size_limit(other.@size_limit)
-        elsif @size_limit_set
-          merged.size_limit(@size_limit)
-        end
+        merged = dup
+        merged.merge_from(other)
         merged
+      end
+
+      protected def merge_from(other : Config) : Nil
+        @match_kind = other.@match_kind unless other.@match_kind.nil?
+        @starts_for_each_pattern = other.@starts_for_each_pattern unless other.@starts_for_each_pattern.nil?
+        @byte_classes = other.@byte_classes unless other.@byte_classes.nil?
+        if other.@size_limit_set
+          @size_limit = other.@size_limit
+          @size_limit_set = true
+        end
       end
     end
 
@@ -120,26 +133,33 @@ module Regex::Automata::DFA
     # The compiled table handles every supported one-pass search, including
     # assertion-bearing and UTF-8-empty cases.
     private class Admission
-      PATTERN_ID_LIMIT    = 0xFFFF_i32
-      EXPLICIT_SLOT_LIMIT =     32_i32
+      PATTERN_ID_LIMIT    = 0x3FFFFF_i32
+      STATE_ID_LIMIT      = 1_i32 << 21
+      EXPLICIT_SLOT_LIMIT =                  32_i32
+      INFO_MASK           = 0x000003FF_FFFFFFFF_u64
+      EMPTY_PATTERN       = 0xFFFFFC00_00000000_u64
 
       @classes : ByteClasses
       @alphabet_len : Int32
+      getter stride2 : Int32
       @nfa_to_dfa : Array(Int32)
       @uncompiled : Array(StateID)
-      @seen : Array(Bool)
-      @table : Array(Array(Transition?))
+      @seen : SparseSet
+      @stack : Array(Tuple(StateID, Epsilons))
+      @table : Array(UInt64)
       @starts : Array(StateID)
-      @matches : Array(PatternID?)
-      @match_epsilons : Array(Epsilons?)
       @min_match_id : Int32
       @matched : Bool
 
+      # Low ten assertion bits and 32 explicit-slot bits, exactly as Rust.
       private struct Epsilons
-        getter looks : ::Regex::Automata::LookSet
-        getter slots : UInt32
+        getter bits : UInt64
 
-        def initialize(@looks : ::Regex::Automata::LookSet = ::Regex::Automata::LookSet.empty, @slots : UInt32 = 0_u32)
+        def initialize(@bits : UInt64 = 0_u64)
+        end
+
+        def looks : ::Regex::Automata::LookSet
+          ::Regex::Automata::LookSet.from_u32((@bits & 0x3FF_u64).to_u32)
         end
 
         def with_look(kind : NFA::Look::Kind) : Epsilons
@@ -167,43 +187,64 @@ module Regex::Automata::DFA
                  else
                    raise "unreachable one-pass look assertion: #{kind}"
                  end
-          Epsilons.new(@looks.insert(look), @slots)
+          Epsilons.new(@bits | (look.as_repr.to_u64 & 0x3FF_u64))
         end
 
         def with_slot(slot : Int32) : Epsilons
-          Epsilons.new(@looks, @slots | (1_u32 << slot))
+          Epsilons.new(@bits | (1_u64 << (slot + 10)))
         end
 
-        def apply_slots(slots : Array(Int32?), at : Int32, limit : Int32 = slots.size) : Nil
-          bits = @slots
-          slot = 0
-          while bits != 0_u32
-            slots[slot] = at if (bits & 1_u32) != 0_u32 && slot < limit
-            bits >>= 1
-            slot += 1
+        # The caller supplies only its active explicit-slot region. Slice views
+        # keep match-side writes separate from transition scratch.
+        def apply_slots(slots : Array(T?) | Slice(T?), at : Int32) : Nil forall T
+          bits = (@bits >> 10).to_u32
+          until bits == 0_u32
+            slot = bits.trailing_zeros_count.to_i32
+            break if slot >= slots.size
+            {% if T == Int32 %}
+              slots[slot] = at
+            {% else %}
+              slots[slot] = ::Regex::Automata::NonMaxUsize.new(at)
+            {% end %}
+            bits &= bits - 1_u32
           end
         end
       end
 
+      # A stack value decoded from the flat u64 table, never a nullable heap row.
       private struct Transition
-        getter state_id : StateID
-        getter match_wins : Bool
-        getter epsilons : Epsilons
+        getter word : UInt64
 
-        def initialize(@state_id : StateID, @match_wins : Bool, @epsilons : Epsilons)
+        def initialize(@word : UInt64)
+        end
+
+        def initialize(state_id : StateID, match_wins : Bool, epsilons : Epsilons)
+          @word = (state_id.to_i.to_u64 << 43) | (match_wins ? 1_u64 << 42 : 0_u64) | epsilons.bits
+        end
+
+        def state_id : StateID
+          StateID.new_unchecked((@word >> 43).to_i32)
+        end
+
+        def match_wins? : Bool
+          (@word & (1_u64 << 42)) != 0
+        end
+
+        def epsilons : Epsilons
+          Epsilons.new(@word & INFO_MASK)
         end
       end
 
       def initialize(@config : Config, @nfa : NFA::NFA)
         @classes = @config.get_byte_classes ? @nfa.byte_classes : ByteClasses.singletons
         @alphabet_len = @classes.alphabet_len - 1
+        @stride2 = @classes.stride2
         @nfa_to_dfa = Array.new(@nfa.size, -1)
         @uncompiled = [] of StateID
-        @seen = Array.new(@nfa.size, false)
-        @table = [] of Array(Transition?)
+        @seen = SparseSet.new(@nfa.size)
+        @stack = [] of Tuple(StateID, Epsilons)
+        @table = [] of UInt64
         @starts = [] of StateID
-        @matches = [] of PatternID?
-        @match_epsilons = [] of Epsilons?
         @min_match_id = Int32::MAX
         @matched = false
       end
@@ -227,7 +268,7 @@ module Regex::Automata::DFA
         if @config.get_starts_for_each_pattern
           @nfa.patterns.each do |pattern_id|
             start = @nfa.start_pattern(pattern_id)
-            add_start_state(start.not_nil!) if start
+            add_start_state(start) if start
           end
         end
 
@@ -235,57 +276,63 @@ module Regex::Automata::DFA
           compile_state(@uncompiled.pop)
         end
         shuffle_states
+        # InternalBuilder scratch dies after construction in Rust.
+        @nfa_to_dfa = [] of Int32
+        @uncompiled = [] of StateID
+        @stack = [] of Tuple(StateID, Epsilons)
+        @seen = SparseSet.new(0)
       end
 
       def state_len : Int32
-        @table.size
+        @table.size >> @stride2
       end
 
-      def memory_usage : Int32
-        (@table.size * @alphabet_len * sizeof(Transition) + @starts.size * sizeof(StateID)).to_i32
+      def stride : Int32
+        1 << @stride2
+      end
+
+      def memory_usage : Int64
+        @table.size.to_i64 * sizeof(UInt64) + @starts.size.to_i64 * StateID::SIZE
+      end
+
+      def clone : Admission
+        copy = dup
+        copy.copy_storage
+        copy
+      end
+
+      protected def copy_storage : Nil
+        @config = @config.dup
+        @table = @table.dup
+        @starts = @starts.dup
       end
 
       def start(pattern : PatternID? = nil) : StateID
         return @starts[0] unless pattern
-        @starts[pattern.to_i + 1]? || StateID.new(0)
+        @starts[pattern.to_i + 1]? || StateID::ZERO
       end
 
-      def next_state(state_id : StateID, byte : UInt8) : StateID
-        @table[state_id.to_i][@classes[byte]].try(&.state_id) || StateID.new(0)
-      end
-
-      def transition_match_wins?(state_id : StateID, byte : UInt8) : Bool
-        @table[state_id.to_i][@classes[byte]].try(&.match_wins) || false
+      def transition(state_id : StateID, byte : UInt8) : Transition
+        Transition.new(@table[(state_id.to_i << @stride2) + @classes[byte]])
       end
 
       def match_pattern(state_id : StateID) : PatternID?
-        @matches[state_id.to_i]?
+        id = pattern_word(state_id) >> 42
+        id == PATTERN_ID_LIMIT ? nil : PatternID.new(id.to_i32)
+      end
+
+      private def pattern_word(state_id : StateID) : UInt64
+        @table[(state_id.to_i << @stride2) + @alphabet_len]
       end
 
       def match_state?(state_id : StateID) : Bool
         state_id.to_i >= @min_match_id
       end
 
-      def apply_transition_slots(state_id : StateID, byte : UInt8, slots : Array(Int32?), at : Int32, limit : Int32 = slots.size) : Nil
-        if epsilons = @table[state_id.to_i][@classes[byte]].try(&.epsilons)
-          epsilons.apply_slots(slots, at, limit)
-        end
-      end
-
-      def transition_looks_match?(state_id : StateID, byte : UInt8, haystack : Bytes, at : Int32) : Bool
-        epsilons = @table[state_id.to_i][@classes[byte]].try(&.epsilons)
-        !epsilons || epsilons.looks.is_empty || @nfa.look_matcher.matches_set(epsilons.looks, haystack, at)
-      end
-
-      def apply_match_slots(state_id : StateID, slots : Array(Int32?), at : Int32, limit : Int32 = slots.size) : Nil
-        if epsilons = @match_epsilons[state_id.to_i]?
-          epsilons.apply_slots(slots, at, limit)
-        end
-      end
-
-      def match_looks_match?(state_id : StateID, haystack : Bytes, at : Int32) : Bool
-        epsilons = @match_epsilons[state_id.to_i]?
-        !epsilons || epsilons.looks.is_empty || @nfa.look_matcher.matches_set(epsilons.looks, haystack, at)
+      # The upper bits here are a pattern ID instead of a transition target;
+      # the same stack word view exposes the common low epsilon payload.
+      def pattern_epsilons(state_id : StateID) : Transition
+        Transition.new(pattern_word(state_id))
       end
 
       private def add_start_state(nfa_id : StateID) : StateID
@@ -294,44 +341,27 @@ module Regex::Automata::DFA
         id
       end
 
-      # Match states occur rarely for most patterns, but the check for one is
-      # on every byte in the search loop. Keep them as a contiguous tail, as
-      # the Rust builder does, so the hot path is one integer comparison.
+      # Rust swaps matching rows toward the tail, then repairs IDs once.
       private def shuffle_states : Nil
-        remap = Array.new(@table.size, -1)
-        next_id = 0
-        @matches.each_with_index do |pattern_id, old_id|
-          next if pattern_id
-          remap[old_id] = next_id
-          next_id += 1
+        old_for_new = Array.new(state_len) { |index| index }
+        destination = state_len - 1
+        (state_len - 1).downto(0) do |index|
+          next unless match_pattern(StateID.new(index))
+          stride.times { |column| @table.swap((index << @stride2) + column, (destination << @stride2) + column) }
+          old_for_new.swap(index, destination)
+          @min_match_id = destination
+          destination -= 1
         end
-        @min_match_id = next_id
-        @matches.each_with_index do |pattern_id, old_id|
-          next unless pattern_id
-          remap[old_id] = next_id
-          next_id += 1
-        end
-
-        old_for_new = Array.new(remap.size, 0)
-        remap.each_with_index { |new_id, old_id| old_for_new[new_id] = old_id }
-        table = [] of Array(Transition?)
-        matches = [] of PatternID?
-        match_epsilons = [] of Epsilons?
-        old_for_new.each do |old_id|
-          row = [] of Transition?
-          @table[old_id].each do |transition|
-            row << transition.try do |value|
-              Transition.new(StateID.new(remap[value.state_id.to_i]), value.match_wins, value.epsilons)
-            end
+        remap = Array.new(state_len, 0)
+        old_for_new.each_with_index { |old_id, new_id| remap[old_id] = new_id }
+        state_len.times do |index|
+          offset = index << @stride2
+          @alphabet_len.times do |column|
+            word = @table[offset + column]
+            @table[offset + column] = (remap[(word >> 43).to_i32].to_u64 << 43) | (word & ((1_u64 << 43) - 1))
           end
-          table << row
-          matches << @matches[old_id]
-          match_epsilons << @match_epsilons[old_id]
         end
-        @table = table
-        @matches = matches
-        @match_epsilons = match_epsilons
-        @starts = @starts.map { |state_id| StateID.new(remap[state_id.to_i]) }
+        @starts.map! { |id| StateID.new(remap[id.to_i]) }
       end
 
       private def add_dfa_state(nfa_id : StateID) : StateID
@@ -345,18 +375,21 @@ module Regex::Automata::DFA
       end
 
       private def add_empty_state : StateID
-        id = StateID.new(@table.size)
-        @table << Array(Transition?).new(@alphabet_len, nil)
-        @matches << nil
-        @match_epsilons << nil
+        id = StateID.new(state_len)
+        raise BuildError.too_many_states(STATE_ID_LIMIT.to_i64) if id.to_i > STATE_ID_LIMIT
+        stride.times { @table << 0_u64 }
+        @table[(id.to_i << @stride2) + @alphabet_len] = EMPTY_PATTERN
+        if limit = @config.get_size_limit
+          raise BuildError.exceeded_size_limit(limit) if memory_usage > limit
+        end
         id
       end
 
       private def compile_state(nfa_id : StateID) : Nil
         dfa_id = StateID.new(@nfa_to_dfa[nfa_id.to_i])
         @matched = false
-        @seen.fill(false)
-        stack = [] of Tuple(StateID, Epsilons)
+        @seen.clear
+        stack = @stack
         stack_push(stack, nfa_id, Epsilons.new)
 
         until stack.empty?
@@ -366,6 +399,8 @@ module Regex::Automata::DFA
             compile_transition(dfa_id, state.trans, epsilons)
           when NFA::Sparse
             state.transitions.each { |transition| compile_transition(dfa_id, transition, epsilons) }
+          when NFA::Dense
+            state.iter.each { |transition| compile_transition(dfa_id, transition, epsilons) }
           when NFA::Look
             stack_push(stack, state.next, epsilons.with_look(state.kind))
           when NFA::Union
@@ -382,8 +417,7 @@ module Regex::Automata::DFA
           when NFA::Match
             raise BuildError.not_one_pass("multiple epsilon transitions to match state") if @matched
             @matched = true
-            @matches[dfa_id.to_i] = state.pattern_id
-            @match_epsilons[dfa_id.to_i] = epsilons
+            @table[(dfa_id.to_i << @stride2) + @alphabet_len] = (state.pattern_id.to_i.to_u64 << 42) | epsilons.bits
           when NFA::Fail
           end
         end
@@ -392,22 +426,21 @@ module Regex::Automata::DFA
       private def compile_transition(dfa_id : StateID, transition : NFA::Transition, epsilons : Epsilons) : Nil
         next_id = add_dfa_state(transition.next)
         new_transition = Transition.new(next_id, @matched, epsilons)
-        (transition.start.to_i..transition.end.to_i).each do |byte|
-          klass = @classes[byte.to_u8]
-          old_transition = @table[dfa_id.to_i][klass]
-          if old_transition.nil?
-            @table[dfa_id.to_i][klass] = new_transition
-          elsif old_transition != new_transition
+        @classes.representatives(transition.start.to_i, transition.end.to_i, inclusive_end: true, include_eoi: false).each do |unit|
+          byte = unit.as_u8
+          next unless byte
+          offset = (dfa_id.to_i << @stride2) + @classes[byte]
+          old_transition = Transition.new(@table[offset])
+          if old_transition.state_id == StateID::ZERO
+            @table[offset] = new_transition.word
+          elsif old_transition.word != new_transition.word
             raise BuildError.not_one_pass("conflicting transition")
           end
         end
       end
 
       private def stack_push(stack : Array(Tuple(StateID, Epsilons)), nfa_id : StateID, epsilons : Epsilons) : Nil
-        index = nfa_id.to_i
-        raise BuildError.not_one_pass("multiple epsilon transitions to same state") if @seen[index]
-
-        @seen[index] = true
+        raise BuildError.not_one_pass("multiple epsilon transitions to same state") unless @seen.insert(nfa_id)
         stack << {nfa_id, epsilons}
       end
     end
@@ -423,6 +456,17 @@ module Regex::Automata::DFA
         @syntax_config = ::Regex::Automata::Syntax::Config.new
       end
 
+      def clone : Builder
+        copy = dup
+        copy.copy_configuration
+        copy
+      end
+
+      protected def copy_configuration : Nil
+        @config = @config.dup
+        @thompson_config = @thompson_config.overwrite(::Regex::Automata::HirCompilerConfig.new)
+      end
+
       def self.new : Builder
         previous_def
       end
@@ -433,7 +477,6 @@ module Regex::Automata::DFA
 
       def build_many(patterns : Enumerable(String)) : DFA
         patterns_array = patterns.to_a
-        validate_syntax_compatibility(patterns_array)
         nfa = ::Regex::Automata::NFA::NFA.compiler
           .configure(@thompson_config)
           .syntax(@syntax_config)
@@ -444,15 +487,9 @@ module Regex::Automata::DFA
       end
 
       def build_from_nfa(nfa : ::Regex::Automata::NFA::NFA) : DFA
-        validate_nfa(nfa)
-        admission = Admission.new(@config, nfa)
+        admission = Admission.new(@config.dup, nfa)
         admission.run
-        dfa = DFA.new(@config, nfa, admission)
-        limit = @config.get_size_limit
-        if !limit.nil? && dfa.memory_usage > limit.not_nil!
-          raise BuildError.exceeded_size_limit(limit.not_nil!)
-        end
-        dfa
+        DFA.new(@config.dup, nfa, admission)
       rescue ex : ::Regex::Automata::UnicodeWordBoundaryError
         raise BuildError.word(ex)
       end
@@ -468,26 +505,8 @@ module Regex::Automata::DFA
       end
 
       def thompson(config : ::Regex::Automata::HirCompilerConfig) : Builder
-        @thompson_config = config
+        @thompson_config = @thompson_config.overwrite(config)
         self
-      end
-
-      private def validate_nfa(nfa : ::Regex::Automata::NFA::NFA) : Nil
-        explicit_group_len = nfa.group_info.explicit_slot_len // 2
-        if explicit_group_len > 16
-          raise BuildError.not_one_pass("too many explicit capture groups")
-        end
-      end
-
-      # The embedded syntax port currently rejects the combined dot-all and
-      # Unicode-disable group even though Rust accepts it. Its one-pass
-      # admission result is unambiguously a NotOnePass error in UTF-8 mode, so
-      # preserve that public contract until syntax parity reaches this form.
-      private def validate_syntax_compatibility(patterns : Array(String)) : Nil
-        return unless @syntax_config.get_utf8
-        return unless patterns.includes?("(?s-u:.)*?")
-
-        raise BuildError.not_one_pass("ambiguous path through NFA")
       end
     end
 
@@ -499,6 +518,16 @@ module Regex::Automata::DFA
         @compiled_slots = [] of Int32?
         @compiled_slot_len = 0
         reset(re)
+      end
+
+      def clone : Cache
+        copy = dup
+        copy.copy_slots
+        copy
+      end
+
+      protected def copy_slots : Nil
+        @compiled_slots = @compiled_slots.dup
       end
 
       def self.new(re : DFA) : Cache
@@ -522,7 +551,7 @@ module Regex::Automata::DFA
       # that cannot be observed by the caller.
       def setup_search(explicit_slot_len : Int32) : Nil
         @compiled_slot_len = Math.min(@compiled_slots.size, Math.max(explicit_slot_len, 0))
-        @compiled_slots[0, @compiled_slot_len].fill(nil) if @compiled_slot_len > 0
+        @compiled_slot_len.times { |index| @compiled_slots[index] = nil }
       end
 
       def memory_usage : Int32
@@ -541,6 +570,22 @@ module Regex::Automata::DFA
                         else
                           ::Regex::Automata::ByteClasses.singletons
                         end
+      end
+
+      def clone : DFA
+        copy = dup
+        copy.copy_storage
+        copy
+      end
+
+      protected def copy_storage : Nil
+        @config = @config.dup
+        @admission = @admission.clone
+      end
+
+      def inspect(io : IO) : Nil
+        io << "Regex::Automata::DFA::OnePass::DFA(states: " << state_len
+        io << ", patterns: " << pattern_len << ", memory: " << memory_usage << ")"
       end
 
       def self.new(pattern : String) : DFA
@@ -584,7 +629,7 @@ module Regex::Automata::DFA
       end
 
       def get_config : Config
-        @config
+        @config.dup
       end
 
       def get_nfa : ::Regex::Automata::NFA::NFA
@@ -612,27 +657,21 @@ module Regex::Automata::DFA
       end
 
       def stride2 : Int32
-        power = 0
-        stride = 1
-        while stride < alphabet_len
-          stride <<= 1
-          power += 1
-        end
-        power
+        @admission.stride2
       end
 
       def stride : Int32
         1 << stride2
       end
 
-      def memory_usage : Int32
-        @nfa.memory_usage + @admission.memory_usage
+      def memory_usage : Int64
+        @admission.memory_usage
       end
 
       def is_match(cache : Cache, haystack : String | Bytes | ::Regex::Automata::Input) : Bool
         input = normalize_and_anchor(haystack)
         input.set_earliest(true)
-        result = try_search_slots(cache, input, [] of Int32?)
+        result = try_search_slots(cache, input, Slice(Int32?).empty)
         raise result if result.is_a?(::Regex::Automata::MatchError)
 
         !result.nil?
@@ -640,7 +679,8 @@ module Regex::Automata::DFA
 
       def find(cache : Cache, haystack : String | Bytes | ::Regex::Automata::Input) : ::Regex::Automata::Match?
         input = normalize_and_anchor(haystack)
-        slots = Array(Int32?).new(@nfa.group_info.implicit_slot_len, nil)
+        pair = StaticArray(Int32?, 2).new(nil)
+        slots = @nfa.pattern_len == 1 ? pair.to_slice : Array(Int32?).new(@nfa.group_info.implicit_slot_len, nil)
         result = try_search_slots(cache, input, slots)
         raise result if result.is_a?(::Regex::Automata::MatchError)
         pid = result.as?(::Regex::Automata::PatternID)
@@ -661,7 +701,6 @@ module Regex::Automata::DFA
       end
 
       def try_search(cache : Cache, input : ::Regex::Automata::Input, caps : ::Regex::Automata::Captures) : Nil | ::Regex::Automata::MatchError
-        caps.clear
         result = try_search_slots(cache, input, caps.slots_mut)
         return result if result.is_a?(::Regex::Automata::MatchError)
 
@@ -669,108 +708,114 @@ module Regex::Automata::DFA
         nil
       end
 
-      def try_search_slots(cache : Cache, input : ::Regex::Automata::Input, slots : Array(Int32?)) : ::Regex::Automata::PatternID? | ::Regex::Automata::MatchError
-        validation = validate_input(input)
-        return validation if validation
-
-        search_compiled_with_utf8_empty(cache, input, slots)
+      # Both slot representations execute the same compiled loop directly.
+      # Slice support also permits the single-pattern scratch to stay on stack.
+      def try_search_slots(cache : Cache, input : ::Regex::Automata::Input, slots : Array(T?) | Slice(T?)) : ::Regex::Automata::PatternID? | ::Regex::Automata::MatchError forall T
+        unless @nfa.has_empty && @nfa.is_utf8
+          return search_compiled(cache, input, slots)
+        end
+        implicit_len = @nfa.group_info.implicit_slot_len
+        if slots.size >= implicit_len
+          return filter_utf8_empty_match(input, search_compiled(cache, input, slots), slots)
+        end
+        if @nfa.pattern_len == 1
+          enough = StaticArray(Int32?, 2).new(nil)
+          result = search_compiled(cache, input, enough.to_slice)
+          return result if result.is_a?(::Regex::Automata::MatchError)
+          slots.size.times { |index| put_slot(slots, index, enough[index]) }
+          return filter_utf8_empty_match(input, result, enough.to_slice)
+        end
+        enough = Array(Int32?).new(implicit_len, nil)
+        result = search_compiled(cache, input, enough)
+        return result if result.is_a?(::Regex::Automata::MatchError)
+        slots.size.times { |index| put_slot(slots, index, enough[index]) }
+        filter_utf8_empty_match(input, result, enough)
       end
 
-      def try_search_slots(cache : Cache, input : ::Regex::Automata::Input, slots : Array(::Regex::Automata::NonMaxUsize?)) : ::Regex::Automata::PatternID? | ::Regex::Automata::MatchError
-        validation = validate_input(input)
-        return validation if validation
-
-        plain_slots = slots.map { |slot| slot.try(&.get) }
-        result = search_compiled_with_utf8_empty(cache, input, plain_slots)
-        plain_slots.each_with_index { |slot, index| slots[index] = slot.try { |offset| ::Regex::Automata::NonMaxUsize.new(offset) } }
-        result
+      private def slot_view(slots : Array(T?)) : Slice(T?) forall T
+        Slice.new(slots.to_unsafe, slots.size)
       end
 
-      private def search_compiled(cache : Cache, input : ::Regex::Automata::Input, slots : Array(Int32?)) : ::Regex::Automata::PatternID?
+      private def slot_view(slots : Slice(T?)) : Slice(T?) forall T
+        slots
+      end
+
+      private def put_slot(slots : Array(Int32?) | Slice(Int32?), index : Int32, at : Int32?) : Nil
+        slots[index] = at
+      end
+
+      private def put_slot(slots : Array(::Regex::Automata::NonMaxUsize?) | Slice(::Regex::Automata::NonMaxUsize?), index : Int32, at : Int32?) : Nil
+        slots[index] = at.try { |offset| ::Regex::Automata::NonMaxUsize.new(offset) }
+      end
+
+      private def slot_offset(value : Int32?) : Int32?
+        value
+      end
+
+      private def slot_offset(value : ::Regex::Automata::NonMaxUsize?) : Int32?
+        value.try(&.get)
+      end
+
+      private def search_compiled(cache : Cache, input : ::Regex::Automata::Input, slots) : ::Regex::Automata::PatternID? | ::Regex::Automata::MatchError
+        return nil if input.is_done
         slots.fill(nil)
         cache.setup_search(slots.size - @nfa.pattern_len * 2)
         @nfa.patterns.each do |pattern_id|
           start_slot = pattern_id.to_i * 2
-          slots[start_slot] = input.start if start_slot < slots.size
+          break if start_slot >= slots.size
+          put_slot(slots, start_slot, input.start)
         end
 
-        state = case input.get_anchored
-                when ::Regex::Automata::Anchored::Pattern
-                  @admission.start(input.pattern)
-                else
-                  @admission.start
-                end
+        validation = validate_input(input)
+        return validation if validation
+        state = input.get_anchored == ::Regex::Automata::Anchored::Pattern ? @admission.start(input.pattern) : @admission.start
         matched = nil.as(::Regex::Automata::PatternID?)
         at = input.start
         while at < input.end
-          byte = input.haystack[at]
-          next_state = @admission.next_state(state, byte)
-          match_wins = @admission.transition_match_wins?(state, byte)
+          transition = @admission.transition(state, input.haystack[at])
           if @admission.match_state?(state)
-            if pattern_id = @admission.match_pattern(state)
-              if @admission.match_looks_match?(state, input.haystack, at)
-                matched = record_compiled_match(state, pattern_id, at, slots, cache)
-                return matched if input.get_earliest || (
-                                    @config.get_match_kind == ::Regex::Automata::MatchKind::LeftmostFirst && match_wins
-                                  )
-              end
+            if pattern_id = find_match(state, input, at, slots, cache)
+              matched = pattern_id
+              return matched if input.get_earliest || (
+                                  @config.get_match_kind == ::Regex::Automata::MatchKind::LeftmostFirst && transition.match_wins?
+                                )
             end
           end
-
-          return matched if state.to_i == 0 || !@admission.transition_looks_match?(state, byte, input.haystack, at)
-          @admission.apply_transition_slots(state, byte, cache.compiled_slots, at, cache.compiled_slot_len)
-          state = next_state
+          looks = transition.epsilons.looks
+          return matched if state == StateID::ZERO || (!looks.is_empty && !@nfa.look_matcher.matches_set(looks, input.haystack, at))
+          transition.epsilons.apply_slots(slot_view(cache.compiled_slots)[0, cache.compiled_slot_len], at)
+          state = transition.state_id
           at += 1
         end
-
         if @admission.match_state?(state)
-          if pattern_id = @admission.match_pattern(state)
-            if @admission.match_looks_match?(state, input.haystack, input.end)
-              matched = record_compiled_match(state, pattern_id, input.end, slots, cache)
-            end
-          end
+          matched = find_match(state, input, input.end, slots, cache) || matched
         end
         matched
       end
 
-      # A UTF-8 one-pass search needs overall-match slots even when its caller
-      # asks only for existence. Rust uses this scratch to reject a zero-width
-      # match that starts inside a code point, while still letting the table do
-      # the search itself.
-      private def search_compiled_with_utf8_empty(cache : Cache, input : ::Regex::Automata::Input, slots : Array(Int32?)) : ::Regex::Automata::PatternID?
-        unless @nfa.has_empty && @nfa.is_utf8
-          return search_compiled(cache, input, slots)
-        end
-
-        implicit_slot_len = @nfa.group_info.implicit_slot_len
-        if slots.size >= implicit_slot_len
-          return filter_utf8_empty_match(input, search_compiled(cache, input, slots), slots)
-        end
-
-        enough_slots = Array(Int32?).new(implicit_slot_len, nil)
-        result = search_compiled(cache, input, enough_slots)
-        slots.size.times { |index| slots[index] = enough_slots[index] }
-        filter_utf8_empty_match(input, result, enough_slots)
-      end
-
-      private def filter_utf8_empty_match(input : ::Regex::Automata::Input, pattern_id : ::Regex::Automata::PatternID?, slots : Array(Int32?)) : ::Regex::Automata::PatternID?
+      private def filter_utf8_empty_match(input : ::Regex::Automata::Input, pattern_id : ::Regex::Automata::PatternID? | ::Regex::Automata::MatchError, slots) : ::Regex::Automata::PatternID? | ::Regex::Automata::MatchError
+        return pattern_id if pattern_id.is_a?(::Regex::Automata::MatchError)
         return nil unless pattern_id
-
         slot_start = pattern_id.to_i * 2
-        start = slots[slot_start]
-        finish = slots[slot_start + 1]
-        return pattern_id unless start && finish
+        start = slot_offset(slots[slot_start])
+        finish = slot_offset(slots[slot_start + 1])
+        raise "match is missing implicit slots" unless start && finish
         start == finish && !input.is_char_boundary(start) ? nil : pattern_id
       end
 
-      private def record_compiled_match(state : StateID, pattern_id : ::Regex::Automata::PatternID, at : Int32, slots : Array(Int32?), cache : Cache) : ::Regex::Automata::PatternID
+      private def find_match(state : StateID, input : ::Regex::Automata::Input, at : Int32, slots, cache : Cache) : ::Regex::Automata::PatternID?
+        payload = @admission.pattern_epsilons(state)
+        looks = payload.epsilons.looks
+        return nil if !looks.is_empty && !@nfa.look_matcher.matches_set(looks, input.haystack, at)
+        # The match-state tail invariant proves that the upper field is a valid
+        # pattern ID; no extra sentinel check is needed in this hot helper.
+        pattern_id = ::Regex::Automata::PatternID.new_unchecked((payload.word >> 42).to_i32)
         end_slot = pattern_id.to_i * 2 + 1
-        slots[end_slot] = at if end_slot < slots.size
+        put_slot(slots, end_slot, at) if end_slot < slots.size
         explicit_start = @nfa.pattern_len * 2
         if explicit_start < slots.size
-          @admission.apply_match_slots(state, cache.compiled_slots, at, cache.compiled_slot_len)
-          copy_len = Math.min(cache.compiled_slot_len, slots.size - explicit_start)
-          copy_len.times { |index| slots[explicit_start + index] = cache.compiled_slots[index] }
+          cache.compiled_slot_len.times { |index| put_slot(slots, explicit_start + index, cache.compiled_slots[index]) }
+          payload.epsilons.apply_slots(slot_view(slots)[explicit_start..], at)
         end
         pattern_id
       end
@@ -794,7 +839,8 @@ module Regex::Automata::DFA
       private def validate_input(input : ::Regex::Automata::Input) : ::Regex::Automata::MatchError?
         case input.get_anchored
         when ::Regex::Automata::Anchored::No
-          ::Regex::Automata::MatchError.unsupported_anchored(::Regex::Automata::Anchored::No)
+          return ::Regex::Automata::MatchError.unsupported_anchored(::Regex::Automata::Anchored::No) unless @nfa.is_always_start_anchored
+          nil
         when ::Regex::Automata::Anchored::Pattern
           return ::Regex::Automata::MatchError.unsupported_anchored(::Regex::Automata::Anchored::Pattern) unless @config.get_starts_for_each_pattern
           nil

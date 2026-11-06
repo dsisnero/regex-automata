@@ -1,0 +1,986 @@
+# rust-lang/regex 72d650cb0a880a01ab6dc2137c0888e8f89740f7 regex-automata 0.4.18
+# mode\tcase\tstatus\tstate_len/alphabet_len/stride/memory or error
+default	anchored/greedy	ok	5	5	8	324
+default	anchored/greedy-earliest	ok	5	5	8	324
+default	anchored/nongreedy	ok	5	5	8	324
+default	anchored/nongreedy-all	ok	5	5	8	324
+default	anchored/word-boundary-unicode-01	ok	319	112	128	326660
+default	anchored/word-boundary-nounicode-01	ok	3	9	16	388
+default	anchored/no-match-at-start	ok	11	18	32	2820
+default	anchored/no-match-at-start-bounds	ok	11	18	32	2820
+default	anchored/no-match-at-start-reverse-inner	ok	12	20	32	3076
+default	anchored/no-match-at-start-reverse-inner-bounds	ok	12	20	32	3076
+default	anchored/no-match-at-start-reverse-anchored	ok	12	20	32	3076
+default	anchored/no-match-at-start-reverse-anchored-bounds	ok	12	20	32	3076
+default	crlf/onepass-wrong-crlf-anchored	ok	10	18	32	2564
+default	iter/anchored1	ok	3	3	4	100
+default	iter/anchored2	ok	3	3	4	100
+default	iter/anchored3	ok	3	3	4	100
+default	line-terminator/word-boundary-at	ok	3	10	16	388
+default	line-terminator/not-word-boundary-at	ok	3	10	16	388
+default	misc/ascii-literal-anchored	ok	3	3	4	100
+default	misc/ascii-literal-anchored-not	ok	3	3	4	100
+default	no-unicode/anchored-iter-empty-utf8	ok	2	1	2	36
+default	regression/ruff-whitespace-around-keywords	ok	4	4	8	260
+default	utf8/empty-utf8yes-anchored	ok	2	1	2	36
+default	utf8/empty-utf8yes-anchored-overlapping	ok	2	1	2	36
+default	utf8/empty-utf8no-anchored	ok	2	1	2	36
+default	utf8/empty-utf8no-anchored-overlapping	ok	2	1	2	36
+default	utf8/empty-utf8yes-anchored-bounds	ok	2	1	2	36
+default	utf8/empty-utf8yes-anchored-bounds-overlapping	ok	2	1	2	36
+default	utf8/empty-utf8no-anchored-bounds	ok	2	1	2	36
+default	utf8/empty-utf8no-anchored-bounds-overlapping	ok	2	1	2	36
+default	utf8/empty-utf8yes-anchored-startbound	ok	2	1	2	36
+default	utf8/empty-utf8yes-anchored-startbound-overlapping	ok	2	1	2	36
+default	utf8/empty-utf8no-anchored-startbound	ok	2	1	2	36
+default	utf8/empty-utf8no-anchored-startbound-overlapping	ok	2	1	2	36
+default	utf8/empty-utf8yes-anchored-endbound	ok	2	1	2	36
+default	utf8/empty-utf8yes-anchored-endbound-overlapping	ok	2	1	2	36
+default	utf8/empty-utf8no-anchored-endbound	ok	2	1	2	36
+default	utf8/empty-utf8no-anchored-endbound-overlapping	ok	2	1	2	36
+default	word-boundary/alt-with-assertion-repetition	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/basic/basic7	ok	4	5	8	260
+default	fowler/basic/basic9	ok	3	3	4	100
+default	fowler/basic/basic10	ok	3	3	4	100
+default	fowler/basic/basic12	ok	3	3	4	100
+default	fowler/basic/basic15	ok	3	3	4	100
+default	fowler/basic/basic17	ok	4	5	8	260
+default	fowler/basic/basic19	ok	4	5	8	260
+default	fowler/basic/basic20	ok	2	1	2	36
+default	fowler/basic/basic21	ok	2	1	2	36
+default	fowler/basic/basic23	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic24	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic25	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic26	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic27	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic29	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic30	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic32	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic33	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic34	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic35	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic36	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic37	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic38	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic39	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic41	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic42	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic43	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic44	ok	6	4	8	388
+default	fowler/basic/basic47	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic48	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic51	ok	5	11	16	644
+default	fowler/basic/basic53	ok	3	5	8	196
+default	fowler/basic/basic54	ok	3	5	8	196
+default	fowler/basic/basic57	ok	3	3	4	100
+default	fowler/basic/basic65	ok	3	3	4	100
+default	fowler/basic/basic66	ok	3	3	4	100
+default	fowler/basic/basic67	ok	10	16	32	2564
+default	fowler/basic/basic68	ok	4	5	8	260
+default	fowler/basic/basic69	ok	5	5	8	324
+default	fowler/basic/basic70	ok	5	3	4	164
+default	fowler/basic/basic72	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic74	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic78	ok	3	3	4	100
+default	fowler/basic/basic80	ok	3	3	4	100
+default	fowler/basic/basic81	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic86	ok	10	16	32	2564
+default	fowler/basic/basic89	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic90	ok	2	1	2	36
+default	fowler/basic/basic91	ok	2	1	2	36
+default	fowler/basic/basic92	ok	2	1	2	36
+default	fowler/basic/basic93	ok	3	3	4	100
+default	fowler/basic/basic94	ok	5	5	8	324
+default	fowler/basic/basic97	ok	4	5	8	260
+default	fowler/basic/basic98	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic99	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic100	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic101	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic102	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic103	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic104	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic105	ok	5	5	8	324
+default	fowler/basic/basic106	ok	5	5	8	324
+default	fowler/basic/basic107	ok	5	5	8	324
+default	fowler/basic/basic109	ok	2	1	2	36
+default	fowler/basic/basic111	ok	12	20	32	3076
+default	fowler/basic/basic112	ok	12	20	32	3076
+default	fowler/basic/basic113	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic114	ok	5	5	8	324
+default	fowler/basic/basic115	ok	5	5	8	324
+default	fowler/basic/basic117	ok	4	6	8	260
+default	fowler/basic/basic118	ok	4	6	8	260
+default	fowler/basic/basic119	ok	4	5	8	260
+default	fowler/basic/basic120	ok	5	6	8	324
+default	fowler/basic/basic121	ok	12	18	32	3076
+default	fowler/basic/basic122	ok	12	20	32	3076
+default	fowler/basic/basic123	ok	12	20	32	3076
+default	fowler/basic/basic124	ok	5	6	8	324
+default	fowler/basic/basic125	ok	5	6	8	324
+default	fowler/basic/basic126	ok	5	6	8	324
+default	fowler/basic/basic127	ok	4	6	8	260
+default	fowler/basic/basic128	ok	4	6	8	260
+default	fowler/basic/basic129	ok	3	3	4	100
+default	fowler/basic/basic130	ok	5	5	8	324
+default	fowler/basic/basic132	ok	3	3	4	100
+default	fowler/basic/basic133	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/basic/basic134	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/basic/basic135	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/basic/basic136	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/basic/basic137	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/basic/basic138	ok	4	4	8	260
+default	fowler/basic/basic139	ok	10	16	32	2564
+default	fowler/basic/basic140	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/basic/basic141	ok	3	3	4	100
+default	fowler/basic/basic142	ok	4	4	8	260
+default	fowler/basic/basic143	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic144	ok	3	3	4	100
+default	fowler/basic/basic145	ok	4	4	8	260
+default	fowler/basic/basic146	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/basic/basic147	ok	8	9	16	1028
+default	fowler/basic/basic151	ok	5	5	8	324
+default	fowler/basic/basic153	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic154	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic155	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic156	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic157	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic158	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic159	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic160	ok	6	6	8	388
+default	fowler/basic/basic161	ok	3	9	16	388
+default	fowler/basic/basic163	ok	18	26	32	4612
+default	fowler/basic/basic164	ok	18	26	32	4612
+default	fowler/basic/basic166	ok	3	3	4	100
+default	fowler/basic/basic167	ok	16	21	32	4100
+default	fowler/basic/basic168	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic169	ok	6	6	8	388
+default	fowler/basic/basic170	ok	6	6	8	388
+default	fowler/basic/basic171	ok	5	7	8	324
+default	fowler/basic/basic172	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic173	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic174	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic175	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic176	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic177	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic178	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic179	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic180	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic181	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic182	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic183	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic184	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic185	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic186	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic187	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic188	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic189	ok	5	5	8	324
+default	fowler/basic/basic190	ok	10	16	32	2564
+default	fowler/basic/basic191	ok	10	16	32	2564
+default	fowler/basic/basic192	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic193	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic194	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic195	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic196	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic197	ok	12	13	16	1540
+default	fowler/basic/basic199	ok	12	13	16	1540
+default	fowler/basic/basic200	ok	12	13	16	1540
+default	fowler/basic/basic202	ok	12	13	16	1540
+default	fowler/basic/basic203	ok	12	13	16	1540
+default	fowler/basic/basic205	ok	12	13	16	1540
+default	fowler/basic/basic206	ok	11	13	16	1412
+default	fowler/basic/basic208	ok	11	13	16	1412
+default	fowler/basic/basic209	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic210	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic211	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic212	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic213	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic214	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic215	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic216	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic217	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic218	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic219	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic220	ok	6	5	8	388
+default	fowler/basic/basic221	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic222	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/basic/basic223	ok	6	5	8	388
+default	fowler/nullsubexpr/nullsubexpr3	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr4	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr5	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr6	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr7	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr8	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr9	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr10	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr11	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr12	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr13	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr14	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr15	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr17	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr18	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr20	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr21	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr22	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr23	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr24	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr25	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr26	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr27	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr28	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr29	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr30	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr31	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr32	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr33	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr34	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr35	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr36	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr37	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr38	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr39	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr40	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr41	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr42	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr43	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr46	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr64	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr65	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr66	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr68	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr69	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr70	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/nullsubexpr/nullsubexpr72	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/nullsubexpr/nullsubexpr73	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/nullsubexpr/nullsubexpr74	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition18	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition20	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition24	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition28	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition30	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition31	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition34	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition35	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition38	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition40	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition41	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition42	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition44	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition46	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition47	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition50	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition52	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition53	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition54	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition56	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition57	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition59	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition61	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition63	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition64	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition65	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition67	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition68	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition70	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition73	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition75	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition76	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition77	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition79	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition80	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition81	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition83	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition-expensive90	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/repetition/repetition-expensive91	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/repetition/repetition-expensive92	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition-expensive93	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition-expensive94	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition-expensive95	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition-expensive96	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition-expensive97	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition-expensive98	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition-expensive100	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+default	fowler/repetition/repetition-expensive102	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition-expensive104	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition-expensive106	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition-expensive108	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition-expensive110	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition-expensive112	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition-expensive114	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition-expensive115	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition-expensive127	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition-expensive129	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition-expensive130	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition-expensive131	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition-expensive134	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition-expensive136	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition-expensive137	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition-expensive138	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition-expensive141	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition-expensive143	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition-expensive149	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition-expensive151	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition-expensive153	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition-expensive155	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition-expensive158	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition-expensive160	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition-expensive162	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition-expensive164	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition-expensive167	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+default	fowler/repetition/repetition-expensive169	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	anchored/greedy	ok	5	256	512	20484
+no_byte_classes	anchored/greedy-earliest	ok	5	256	512	20484
+no_byte_classes	anchored/nongreedy	ok	5	256	512	20484
+no_byte_classes	anchored/nongreedy-all	ok	5	256	512	20484
+no_byte_classes	anchored/word-boundary-unicode-01	ok	319	256	512	1306628
+no_byte_classes	anchored/word-boundary-nounicode-01	ok	3	256	512	12292
+no_byte_classes	anchored/no-match-at-start	ok	11	256	512	45060
+no_byte_classes	anchored/no-match-at-start-bounds	ok	11	256	512	45060
+no_byte_classes	anchored/no-match-at-start-reverse-inner	ok	12	256	512	49156
+no_byte_classes	anchored/no-match-at-start-reverse-inner-bounds	ok	12	256	512	49156
+no_byte_classes	anchored/no-match-at-start-reverse-anchored	ok	12	256	512	49156
+no_byte_classes	anchored/no-match-at-start-reverse-anchored-bounds	ok	12	256	512	49156
+no_byte_classes	crlf/onepass-wrong-crlf-anchored	ok	10	256	512	40964
+no_byte_classes	iter/anchored1	ok	3	256	512	12292
+no_byte_classes	iter/anchored2	ok	3	256	512	12292
+no_byte_classes	iter/anchored3	ok	3	256	512	12292
+no_byte_classes	line-terminator/word-boundary-at	ok	3	256	512	12292
+no_byte_classes	line-terminator/not-word-boundary-at	ok	3	256	512	12292
+no_byte_classes	misc/ascii-literal-anchored	ok	3	256	512	12292
+no_byte_classes	misc/ascii-literal-anchored-not	ok	3	256	512	12292
+no_byte_classes	no-unicode/anchored-iter-empty-utf8	ok	2	256	512	8196
+no_byte_classes	regression/ruff-whitespace-around-keywords	ok	4	256	512	16388
+no_byte_classes	utf8/empty-utf8yes-anchored	ok	2	256	512	8196
+no_byte_classes	utf8/empty-utf8yes-anchored-overlapping	ok	2	256	512	8196
+no_byte_classes	utf8/empty-utf8no-anchored	ok	2	256	512	8196
+no_byte_classes	utf8/empty-utf8no-anchored-overlapping	ok	2	256	512	8196
+no_byte_classes	utf8/empty-utf8yes-anchored-bounds	ok	2	256	512	8196
+no_byte_classes	utf8/empty-utf8yes-anchored-bounds-overlapping	ok	2	256	512	8196
+no_byte_classes	utf8/empty-utf8no-anchored-bounds	ok	2	256	512	8196
+no_byte_classes	utf8/empty-utf8no-anchored-bounds-overlapping	ok	2	256	512	8196
+no_byte_classes	utf8/empty-utf8yes-anchored-startbound	ok	2	256	512	8196
+no_byte_classes	utf8/empty-utf8yes-anchored-startbound-overlapping	ok	2	256	512	8196
+no_byte_classes	utf8/empty-utf8no-anchored-startbound	ok	2	256	512	8196
+no_byte_classes	utf8/empty-utf8no-anchored-startbound-overlapping	ok	2	256	512	8196
+no_byte_classes	utf8/empty-utf8yes-anchored-endbound	ok	2	256	512	8196
+no_byte_classes	utf8/empty-utf8yes-anchored-endbound-overlapping	ok	2	256	512	8196
+no_byte_classes	utf8/empty-utf8no-anchored-endbound	ok	2	256	512	8196
+no_byte_classes	utf8/empty-utf8no-anchored-endbound-overlapping	ok	2	256	512	8196
+no_byte_classes	word-boundary/alt-with-assertion-repetition	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/basic/basic7	ok	4	256	512	16388
+no_byte_classes	fowler/basic/basic9	ok	3	256	512	12292
+no_byte_classes	fowler/basic/basic10	ok	3	256	512	12292
+no_byte_classes	fowler/basic/basic12	ok	3	256	512	12292
+no_byte_classes	fowler/basic/basic15	ok	3	256	512	12292
+no_byte_classes	fowler/basic/basic17	ok	4	256	512	16388
+no_byte_classes	fowler/basic/basic19	ok	4	256	512	16388
+no_byte_classes	fowler/basic/basic20	ok	2	256	512	8196
+no_byte_classes	fowler/basic/basic21	ok	2	256	512	8196
+no_byte_classes	fowler/basic/basic23	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic24	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic25	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic26	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic27	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic29	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic30	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic32	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic33	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic34	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic35	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic36	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic37	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic38	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic39	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic41	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic42	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic43	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic44	ok	6	256	512	24580
+no_byte_classes	fowler/basic/basic47	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic48	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic51	ok	5	256	512	20484
+no_byte_classes	fowler/basic/basic53	ok	3	256	512	12292
+no_byte_classes	fowler/basic/basic54	ok	3	256	512	12292
+no_byte_classes	fowler/basic/basic57	ok	3	256	512	12292
+no_byte_classes	fowler/basic/basic65	ok	3	256	512	12292
+no_byte_classes	fowler/basic/basic66	ok	3	256	512	12292
+no_byte_classes	fowler/basic/basic67	ok	10	256	512	40964
+no_byte_classes	fowler/basic/basic68	ok	4	256	512	16388
+no_byte_classes	fowler/basic/basic69	ok	5	256	512	20484
+no_byte_classes	fowler/basic/basic70	ok	5	256	512	20484
+no_byte_classes	fowler/basic/basic72	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic74	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic78	ok	3	256	512	12292
+no_byte_classes	fowler/basic/basic80	ok	3	256	512	12292
+no_byte_classes	fowler/basic/basic81	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic86	ok	10	256	512	40964
+no_byte_classes	fowler/basic/basic89	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic90	ok	2	256	512	8196
+no_byte_classes	fowler/basic/basic91	ok	2	256	512	8196
+no_byte_classes	fowler/basic/basic92	ok	2	256	512	8196
+no_byte_classes	fowler/basic/basic93	ok	3	256	512	12292
+no_byte_classes	fowler/basic/basic94	ok	5	256	512	20484
+no_byte_classes	fowler/basic/basic97	ok	4	256	512	16388
+no_byte_classes	fowler/basic/basic98	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic99	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic100	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic101	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic102	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic103	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic104	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic105	ok	5	256	512	20484
+no_byte_classes	fowler/basic/basic106	ok	5	256	512	20484
+no_byte_classes	fowler/basic/basic107	ok	5	256	512	20484
+no_byte_classes	fowler/basic/basic109	ok	2	256	512	8196
+no_byte_classes	fowler/basic/basic111	ok	12	256	512	49156
+no_byte_classes	fowler/basic/basic112	ok	12	256	512	49156
+no_byte_classes	fowler/basic/basic113	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic114	ok	5	256	512	20484
+no_byte_classes	fowler/basic/basic115	ok	5	256	512	20484
+no_byte_classes	fowler/basic/basic117	ok	4	256	512	16388
+no_byte_classes	fowler/basic/basic118	ok	4	256	512	16388
+no_byte_classes	fowler/basic/basic119	ok	4	256	512	16388
+no_byte_classes	fowler/basic/basic120	ok	5	256	512	20484
+no_byte_classes	fowler/basic/basic121	ok	12	256	512	49156
+no_byte_classes	fowler/basic/basic122	ok	12	256	512	49156
+no_byte_classes	fowler/basic/basic123	ok	12	256	512	49156
+no_byte_classes	fowler/basic/basic124	ok	5	256	512	20484
+no_byte_classes	fowler/basic/basic125	ok	5	256	512	20484
+no_byte_classes	fowler/basic/basic126	ok	5	256	512	20484
+no_byte_classes	fowler/basic/basic127	ok	4	256	512	16388
+no_byte_classes	fowler/basic/basic128	ok	4	256	512	16388
+no_byte_classes	fowler/basic/basic129	ok	3	256	512	12292
+no_byte_classes	fowler/basic/basic130	ok	5	256	512	20484
+no_byte_classes	fowler/basic/basic132	ok	3	256	512	12292
+no_byte_classes	fowler/basic/basic133	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/basic/basic134	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/basic/basic135	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/basic/basic136	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/basic/basic137	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/basic/basic138	ok	4	256	512	16388
+no_byte_classes	fowler/basic/basic139	ok	10	256	512	40964
+no_byte_classes	fowler/basic/basic140	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/basic/basic141	ok	3	256	512	12292
+no_byte_classes	fowler/basic/basic142	ok	4	256	512	16388
+no_byte_classes	fowler/basic/basic143	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic144	ok	3	256	512	12292
+no_byte_classes	fowler/basic/basic145	ok	4	256	512	16388
+no_byte_classes	fowler/basic/basic146	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/basic/basic147	ok	8	256	512	32772
+no_byte_classes	fowler/basic/basic151	ok	5	256	512	20484
+no_byte_classes	fowler/basic/basic153	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic154	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic155	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic156	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic157	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic158	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic159	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic160	ok	6	256	512	24580
+no_byte_classes	fowler/basic/basic161	ok	3	256	512	12292
+no_byte_classes	fowler/basic/basic163	ok	18	256	512	73732
+no_byte_classes	fowler/basic/basic164	ok	18	256	512	73732
+no_byte_classes	fowler/basic/basic166	ok	3	256	512	12292
+no_byte_classes	fowler/basic/basic167	ok	16	256	512	65540
+no_byte_classes	fowler/basic/basic168	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic169	ok	6	256	512	24580
+no_byte_classes	fowler/basic/basic170	ok	6	256	512	24580
+no_byte_classes	fowler/basic/basic171	ok	5	256	512	20484
+no_byte_classes	fowler/basic/basic172	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic173	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic174	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic175	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic176	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic177	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic178	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic179	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic180	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic181	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic182	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic183	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic184	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic185	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic186	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic187	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic188	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic189	ok	5	256	512	20484
+no_byte_classes	fowler/basic/basic190	ok	10	256	512	40964
+no_byte_classes	fowler/basic/basic191	ok	10	256	512	40964
+no_byte_classes	fowler/basic/basic192	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic193	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic194	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic195	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic196	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic197	ok	12	256	512	49156
+no_byte_classes	fowler/basic/basic199	ok	12	256	512	49156
+no_byte_classes	fowler/basic/basic200	ok	12	256	512	49156
+no_byte_classes	fowler/basic/basic202	ok	12	256	512	49156
+no_byte_classes	fowler/basic/basic203	ok	12	256	512	49156
+no_byte_classes	fowler/basic/basic205	ok	12	256	512	49156
+no_byte_classes	fowler/basic/basic206	ok	11	256	512	45060
+no_byte_classes	fowler/basic/basic208	ok	11	256	512	45060
+no_byte_classes	fowler/basic/basic209	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic210	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic211	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic212	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic213	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic214	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic215	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic216	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic217	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic218	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic219	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic220	ok	6	256	512	24580
+no_byte_classes	fowler/basic/basic221	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic222	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/basic/basic223	ok	6	256	512	24580
+no_byte_classes	fowler/nullsubexpr/nullsubexpr3	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr4	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr5	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr6	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr7	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr8	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr9	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr10	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr11	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr12	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr13	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr14	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr15	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr17	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr18	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr20	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr21	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr22	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr23	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr24	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr25	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr26	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr27	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr28	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr29	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr30	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr31	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr32	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr33	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr34	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr35	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr36	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr37	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr38	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr39	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr40	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr41	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr42	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr43	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr46	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr64	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr65	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr66	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr68	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr69	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr70	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/nullsubexpr/nullsubexpr72	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/nullsubexpr/nullsubexpr73	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/nullsubexpr/nullsubexpr74	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition18	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition20	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition24	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition28	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition30	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition31	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition34	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition35	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition38	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition40	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition41	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition42	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition44	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition46	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition47	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition50	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition52	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition53	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition54	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition56	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition57	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition59	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition61	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition63	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition64	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition65	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition67	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition68	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition70	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition73	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition75	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition76	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition77	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition79	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition80	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition81	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition83	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition-expensive90	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/repetition/repetition-expensive91	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/repetition/repetition-expensive92	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition-expensive93	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition-expensive94	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition-expensive95	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition-expensive96	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition-expensive97	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition-expensive98	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition-expensive100	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+no_byte_classes	fowler/repetition/repetition-expensive102	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition-expensive104	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition-expensive106	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition-expensive108	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition-expensive110	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition-expensive112	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition-expensive114	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition-expensive115	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition-expensive127	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition-expensive129	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition-expensive130	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition-expensive131	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition-expensive134	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition-expensive136	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition-expensive137	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition-expensive138	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition-expensive141	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition-expensive143	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition-expensive149	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition-expensive151	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition-expensive153	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition-expensive155	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition-expensive158	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition-expensive160	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition-expensive162	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition-expensive164	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition-expensive167	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+no_byte_classes	fowler/repetition/repetition-expensive169	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	anchored/greedy	ok	5	5	8	328
+starts_for_each_pattern	anchored/greedy-earliest	ok	5	5	8	328
+starts_for_each_pattern	anchored/nongreedy	ok	5	5	8	328
+starts_for_each_pattern	anchored/nongreedy-all	ok	5	5	8	328
+starts_for_each_pattern	anchored/word-boundary-unicode-01	ok	319	112	128	326664
+starts_for_each_pattern	anchored/word-boundary-nounicode-01	ok	3	9	16	392
+starts_for_each_pattern	anchored/no-match-at-start	ok	11	18	32	2824
+starts_for_each_pattern	anchored/no-match-at-start-bounds	ok	11	18	32	2824
+starts_for_each_pattern	anchored/no-match-at-start-reverse-inner	ok	12	20	32	3080
+starts_for_each_pattern	anchored/no-match-at-start-reverse-inner-bounds	ok	12	20	32	3080
+starts_for_each_pattern	anchored/no-match-at-start-reverse-anchored	ok	12	20	32	3080
+starts_for_each_pattern	anchored/no-match-at-start-reverse-anchored-bounds	ok	12	20	32	3080
+starts_for_each_pattern	crlf/onepass-wrong-crlf-anchored	ok	10	18	32	2568
+starts_for_each_pattern	iter/anchored1	ok	3	3	4	104
+starts_for_each_pattern	iter/anchored2	ok	3	3	4	104
+starts_for_each_pattern	iter/anchored3	ok	3	3	4	104
+starts_for_each_pattern	line-terminator/word-boundary-at	ok	3	10	16	392
+starts_for_each_pattern	line-terminator/not-word-boundary-at	ok	3	10	16	392
+starts_for_each_pattern	misc/ascii-literal-anchored	ok	3	3	4	104
+starts_for_each_pattern	misc/ascii-literal-anchored-not	ok	3	3	4	104
+starts_for_each_pattern	no-unicode/anchored-iter-empty-utf8	ok	2	1	2	40
+starts_for_each_pattern	regression/ruff-whitespace-around-keywords	ok	4	4	8	264
+starts_for_each_pattern	utf8/empty-utf8yes-anchored	ok	2	1	2	40
+starts_for_each_pattern	utf8/empty-utf8yes-anchored-overlapping	ok	2	1	2	40
+starts_for_each_pattern	utf8/empty-utf8no-anchored	ok	2	1	2	40
+starts_for_each_pattern	utf8/empty-utf8no-anchored-overlapping	ok	2	1	2	40
+starts_for_each_pattern	utf8/empty-utf8yes-anchored-bounds	ok	2	1	2	40
+starts_for_each_pattern	utf8/empty-utf8yes-anchored-bounds-overlapping	ok	2	1	2	40
+starts_for_each_pattern	utf8/empty-utf8no-anchored-bounds	ok	2	1	2	40
+starts_for_each_pattern	utf8/empty-utf8no-anchored-bounds-overlapping	ok	2	1	2	40
+starts_for_each_pattern	utf8/empty-utf8yes-anchored-startbound	ok	2	1	2	40
+starts_for_each_pattern	utf8/empty-utf8yes-anchored-startbound-overlapping	ok	2	1	2	40
+starts_for_each_pattern	utf8/empty-utf8no-anchored-startbound	ok	2	1	2	40
+starts_for_each_pattern	utf8/empty-utf8no-anchored-startbound-overlapping	ok	2	1	2	40
+starts_for_each_pattern	utf8/empty-utf8yes-anchored-endbound	ok	2	1	2	40
+starts_for_each_pattern	utf8/empty-utf8yes-anchored-endbound-overlapping	ok	2	1	2	40
+starts_for_each_pattern	utf8/empty-utf8no-anchored-endbound	ok	2	1	2	40
+starts_for_each_pattern	utf8/empty-utf8no-anchored-endbound-overlapping	ok	2	1	2	40
+starts_for_each_pattern	word-boundary/alt-with-assertion-repetition	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/basic/basic7	ok	4	5	8	264
+starts_for_each_pattern	fowler/basic/basic9	ok	3	3	4	104
+starts_for_each_pattern	fowler/basic/basic10	ok	3	3	4	104
+starts_for_each_pattern	fowler/basic/basic12	ok	3	3	4	104
+starts_for_each_pattern	fowler/basic/basic15	ok	3	3	4	104
+starts_for_each_pattern	fowler/basic/basic17	ok	4	5	8	264
+starts_for_each_pattern	fowler/basic/basic19	ok	4	5	8	264
+starts_for_each_pattern	fowler/basic/basic20	ok	2	1	2	40
+starts_for_each_pattern	fowler/basic/basic21	ok	2	1	2	40
+starts_for_each_pattern	fowler/basic/basic23	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic24	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic25	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic26	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic27	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic29	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic30	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic32	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic33	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic34	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic35	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic36	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic37	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic38	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic39	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic41	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic42	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic43	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic44	ok	6	4	8	392
+starts_for_each_pattern	fowler/basic/basic47	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic48	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic51	ok	5	11	16	648
+starts_for_each_pattern	fowler/basic/basic53	ok	3	5	8	200
+starts_for_each_pattern	fowler/basic/basic54	ok	3	5	8	200
+starts_for_each_pattern	fowler/basic/basic57	ok	3	3	4	104
+starts_for_each_pattern	fowler/basic/basic65	ok	3	3	4	104
+starts_for_each_pattern	fowler/basic/basic66	ok	3	3	4	104
+starts_for_each_pattern	fowler/basic/basic67	ok	10	16	32	2568
+starts_for_each_pattern	fowler/basic/basic68	ok	4	5	8	264
+starts_for_each_pattern	fowler/basic/basic69	ok	5	5	8	328
+starts_for_each_pattern	fowler/basic/basic70	ok	5	3	4	168
+starts_for_each_pattern	fowler/basic/basic72	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic74	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic78	ok	3	3	4	104
+starts_for_each_pattern	fowler/basic/basic80	ok	3	3	4	104
+starts_for_each_pattern	fowler/basic/basic81	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic86	ok	10	16	32	2568
+starts_for_each_pattern	fowler/basic/basic89	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic90	ok	2	1	2	40
+starts_for_each_pattern	fowler/basic/basic91	ok	2	1	2	40
+starts_for_each_pattern	fowler/basic/basic92	ok	2	1	2	40
+starts_for_each_pattern	fowler/basic/basic93	ok	3	3	4	104
+starts_for_each_pattern	fowler/basic/basic94	ok	5	5	8	328
+starts_for_each_pattern	fowler/basic/basic97	ok	4	5	8	264
+starts_for_each_pattern	fowler/basic/basic98	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic99	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic100	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic101	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic102	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic103	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic104	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic105	ok	5	5	8	328
+starts_for_each_pattern	fowler/basic/basic106	ok	5	5	8	328
+starts_for_each_pattern	fowler/basic/basic107	ok	5	5	8	328
+starts_for_each_pattern	fowler/basic/basic109	ok	2	1	2	40
+starts_for_each_pattern	fowler/basic/basic111	ok	12	20	32	3080
+starts_for_each_pattern	fowler/basic/basic112	ok	12	20	32	3080
+starts_for_each_pattern	fowler/basic/basic113	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic114	ok	5	5	8	328
+starts_for_each_pattern	fowler/basic/basic115	ok	5	5	8	328
+starts_for_each_pattern	fowler/basic/basic117	ok	4	6	8	264
+starts_for_each_pattern	fowler/basic/basic118	ok	4	6	8	264
+starts_for_each_pattern	fowler/basic/basic119	ok	4	5	8	264
+starts_for_each_pattern	fowler/basic/basic120	ok	5	6	8	328
+starts_for_each_pattern	fowler/basic/basic121	ok	12	18	32	3080
+starts_for_each_pattern	fowler/basic/basic122	ok	12	20	32	3080
+starts_for_each_pattern	fowler/basic/basic123	ok	12	20	32	3080
+starts_for_each_pattern	fowler/basic/basic124	ok	5	6	8	328
+starts_for_each_pattern	fowler/basic/basic125	ok	5	6	8	328
+starts_for_each_pattern	fowler/basic/basic126	ok	5	6	8	328
+starts_for_each_pattern	fowler/basic/basic127	ok	4	6	8	264
+starts_for_each_pattern	fowler/basic/basic128	ok	4	6	8	264
+starts_for_each_pattern	fowler/basic/basic129	ok	3	3	4	104
+starts_for_each_pattern	fowler/basic/basic130	ok	5	5	8	328
+starts_for_each_pattern	fowler/basic/basic132	ok	3	3	4	104
+starts_for_each_pattern	fowler/basic/basic133	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/basic/basic134	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/basic/basic135	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/basic/basic136	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/basic/basic137	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/basic/basic138	ok	4	4	8	264
+starts_for_each_pattern	fowler/basic/basic139	ok	10	16	32	2568
+starts_for_each_pattern	fowler/basic/basic140	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/basic/basic141	ok	3	3	4	104
+starts_for_each_pattern	fowler/basic/basic142	ok	4	4	8	264
+starts_for_each_pattern	fowler/basic/basic143	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic144	ok	3	3	4	104
+starts_for_each_pattern	fowler/basic/basic145	ok	4	4	8	264
+starts_for_each_pattern	fowler/basic/basic146	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/basic/basic147	ok	8	9	16	1032
+starts_for_each_pattern	fowler/basic/basic151	ok	5	5	8	328
+starts_for_each_pattern	fowler/basic/basic153	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic154	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic155	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic156	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic157	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic158	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic159	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic160	ok	6	6	8	392
+starts_for_each_pattern	fowler/basic/basic161	ok	3	9	16	392
+starts_for_each_pattern	fowler/basic/basic163	ok	18	26	32	4616
+starts_for_each_pattern	fowler/basic/basic164	ok	18	26	32	4616
+starts_for_each_pattern	fowler/basic/basic166	ok	3	3	4	104
+starts_for_each_pattern	fowler/basic/basic167	ok	16	21	32	4104
+starts_for_each_pattern	fowler/basic/basic168	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic169	ok	6	6	8	392
+starts_for_each_pattern	fowler/basic/basic170	ok	6	6	8	392
+starts_for_each_pattern	fowler/basic/basic171	ok	5	7	8	328
+starts_for_each_pattern	fowler/basic/basic172	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic173	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic174	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic175	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic176	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic177	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic178	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic179	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic180	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic181	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic182	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic183	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic184	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic185	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic186	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic187	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic188	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic189	ok	5	5	8	328
+starts_for_each_pattern	fowler/basic/basic190	ok	10	16	32	2568
+starts_for_each_pattern	fowler/basic/basic191	ok	10	16	32	2568
+starts_for_each_pattern	fowler/basic/basic192	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic193	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic194	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic195	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic196	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic197	ok	12	13	16	1544
+starts_for_each_pattern	fowler/basic/basic199	ok	12	13	16	1544
+starts_for_each_pattern	fowler/basic/basic200	ok	12	13	16	1544
+starts_for_each_pattern	fowler/basic/basic202	ok	12	13	16	1544
+starts_for_each_pattern	fowler/basic/basic203	ok	12	13	16	1544
+starts_for_each_pattern	fowler/basic/basic205	ok	12	13	16	1544
+starts_for_each_pattern	fowler/basic/basic206	ok	11	13	16	1416
+starts_for_each_pattern	fowler/basic/basic208	ok	11	13	16	1416
+starts_for_each_pattern	fowler/basic/basic209	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic210	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic211	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic212	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic213	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic214	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic215	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic216	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic217	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic218	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic219	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic220	ok	6	5	8	392
+starts_for_each_pattern	fowler/basic/basic221	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic222	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/basic/basic223	ok	6	5	8	392
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr3	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr4	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr5	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr6	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr7	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr8	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr9	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr10	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr11	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr12	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr13	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr14	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr15	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr17	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr18	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr20	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr21	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr22	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr23	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr24	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr25	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr26	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr27	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr28	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr29	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr30	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr31	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr32	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr33	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr34	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr35	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr36	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr37	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr38	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr39	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr40	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr41	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr42	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr43	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr46	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr64	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr65	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr66	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr68	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr69	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr70	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr72	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr73	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/nullsubexpr/nullsubexpr74	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition18	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition20	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition24	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition28	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition30	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition31	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition34	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition35	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition38	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition40	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition41	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition42	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition44	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition46	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition47	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition50	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition52	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition53	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition54	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition56	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition57	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition59	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition61	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition63	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition64	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition65	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition67	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition68	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition70	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition73	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition75	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition76	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition77	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition79	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition80	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition81	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition83	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition-expensive90	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/repetition/repetition-expensive91	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/repetition/repetition-expensive92	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition-expensive93	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition-expensive94	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition-expensive95	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition-expensive96	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition-expensive97	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition-expensive98	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition-expensive100	err	one-pass DFA could not be built because pattern is not one-pass: multiple epsilon transitions to same state
+starts_for_each_pattern	fowler/repetition/repetition-expensive102	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition-expensive104	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition-expensive106	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition-expensive108	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition-expensive110	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition-expensive112	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition-expensive114	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition-expensive115	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition-expensive127	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition-expensive129	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition-expensive130	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition-expensive131	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition-expensive134	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition-expensive136	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition-expensive137	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition-expensive138	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition-expensive141	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition-expensive143	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition-expensive149	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition-expensive151	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition-expensive153	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition-expensive155	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition-expensive158	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition-expensive160	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition-expensive162	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition-expensive164	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition-expensive167	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
+starts_for_each_pattern	fowler/repetition/repetition-expensive169	err	one-pass DFA could not be built because pattern is not one-pass: conflicting transition
