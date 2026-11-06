@@ -15,7 +15,7 @@ describe "DFA::Sparse" do
     )
   end
 
-  it "forwards unchecked transition semantics to dense" do
+  it "preserves unchecked packed transition semantics" do
     sparse = Regex::Automata::DFA::Sparse::DFA.new("foo")
     start = sparse.start_state(Regex::Automata::StartConfig.new(nil, Regex::Automata::Anchored::No)).as(Regex::Automata::StateID)
     sparse.next_state_unchecked(start, 'f'.ord.to_u8).should eq(
@@ -38,24 +38,24 @@ describe "DFA::Sparse" do
       Regex::Automata::MatchKind::LeftmostFirst,
       ["abc"]
     ).not_nil!
-    sparse = Regex::Automata::DFA::Builder.new
+    dense = Regex::Automata::DFA::Builder.new
       .configure(
         Regex::Automata::DFA::DFA.config
           .start_kind(Regex::Automata::StartKind::Anchored)
           .starts_for_each_pattern(true)
       )
       .build_many(["abc", "def"])
-      .to_sparse
+    sparse = dense.to_sparse
 
     sparse.start_kind.should eq(Regex::Automata::StartKind::Anchored)
     sparse.starts_for_each_pattern.should be_true
     sparse.byte_classes.alphabet_len.should eq(
-      sparse.dense.byte_classifier.alphabet_len
+      dense.byte_classifier.alphabet_len
     )
 
     sparse.set_prefilter(prefilter)
     sparse.get_prefilter.should be(prefilter)
-    sparse.memory_usage.should eq(sparse.write_to_len)
+    sparse.memory_usage.should be < sparse.write_to_len
     sparse.to_owned.try_search_fwd(
       Regex::Automata::Input.new("def").anchored(Regex::Automata::Anchored::Yes)
     ).should eq(
@@ -63,7 +63,7 @@ describe "DFA::Sparse" do
     )
   end
 
-  it "round-trips sparse serialization with native-endian dense storage" do
+  it "round-trips sparse native serialization" do
     sparse = Regex::Automata::DFA::Builder.new
       .configure { |config| config.starts_for_each_pattern(true) }
       .build_many(["foo[0-9]+", "bar[0-9]+"])
@@ -72,10 +72,10 @@ describe "DFA::Sparse" do
     {
       sparse.to_bytes_native_endian,
     }.each do |serialized|
-      bytes, written = serialized
+      bytes = serialized
       roundtrip, read = Regex::Automata::DFA::Sparse::DFA.from_bytes(bytes)
 
-      read.should eq(written)
+      read.should eq(bytes.size)
       roundtrip.try_search_fwd(Regex::Automata::Input.new("foo123")).should eq(
         Regex::Automata::HalfMatch.must(0, 6)
       )
@@ -87,7 +87,7 @@ describe "DFA::Sparse" do
 
   it "uses the safe owned decoder for unchecked sparse input" do
     sparse = Regex::Automata::DFA::Sparse::DFA.new("foo")
-    bytes = sparse.to_bytes_native_endian[0]
+    bytes = sparse.to_bytes_native_endian
     decoded, read = Regex::Automata::DFA::Sparse::DFA.from_bytes_unchecked(bytes)
     read.should eq(bytes.size)
     decoded.try_search_fwd(Regex::Automata::Input.new("foo")).should eq(
@@ -98,9 +98,12 @@ describe "DFA::Sparse" do
   it "writes sparse bytes into caller-provided buffers" do
     sparse = Regex::Automata::DFA::Sparse::DFA.new("abc")
 
-    little_bytes, little_written = sparse.to_bytes_little_endian
-    big_bytes, big_written = sparse.to_bytes_big_endian
-    native_bytes, native_written = sparse.to_bytes_native_endian
+    little_bytes = sparse.to_bytes_little_endian
+    little_written = little_bytes.size
+    big_bytes = sparse.to_bytes_big_endian
+    big_written = big_bytes.size
+    native_bytes = sparse.to_bytes_native_endian
+    native_written = native_bytes.size
 
     sparse.write_to_len.should eq(native_written)
 
@@ -124,6 +127,7 @@ describe "DFA::Sparse" do
   it "quits on non-ascii bytes for sparse forward heuristic unicode boundaries" do
     sparse = Regex::Automata::DFA::DFA.builder
       .configure(Regex::Automata::DFA::DFA.config.unicode_word_boundary(true))
+      .thompson { |config| config.reverse(true) }
       .thompson { |config| config.reverse(true) }
       .build("\\b[0-9]+\\b")
       .to_sparse

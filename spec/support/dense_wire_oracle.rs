@@ -29,4 +29,16 @@ fn main() {
         }
         println!("{name}: Rust checked {read} Crystal bytes and both endian writes");
     }
+    for name in [
+        "deserialize_dense_crash-9486fb7c8a93b12c12a62166b43d31640c0208a9",
+        "deserialize_dense_minimized-from-9486fb7c8a93b12c12a62166b43d31640c0208a9",
+    ] {
+        let given = std::fs::read(format!("vendor/regex/regex-automata/tests/fuzz/testdata/{name}")).unwrap();
+        let mut bytes = b"rust-regex-automata-dfa-dense\0\0\0".to_vec();
+        bytes.extend_from_slice(&0xFEFFu32.to_ne_bytes());
+        bytes.extend_from_slice(&2u32.to_ne_bytes());
+        bytes.extend_from_slice(&given[1 + usize::from(given[0])..]);
+        assert!(DFA::from_bytes(&bytes).is_err(), "fuzz {name}");
+    }
+    println!("Both pinned dense fuzz payloads are rejected by Rust");
 }

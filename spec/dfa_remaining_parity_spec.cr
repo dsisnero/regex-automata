@@ -61,8 +61,8 @@ private def to_sparse_regex(re : Regex::Automata::DFA::Regex) : Regex::Automata:
 end
 
 private def roundtrip_dense_regex(re : Regex::Automata::DFA::Regex) : Regex::Automata::DFA::Regex
-  forward_bytes = re.forward.to_bytes_native_endian[0]
-  reverse_bytes = re.reverse.to_bytes_native_endian[0]
+  forward_bytes = re.forward.as(Regex::Automata::DFA::DFA).to_bytes_native_endian[0]
+  reverse_bytes = re.reverse.as(Regex::Automata::DFA::DFA).to_bytes_native_endian[0]
   forward = Regex::Automata::DFA::DFA.from_bytes(forward_bytes)[0]
   reverse = Regex::Automata::DFA::DFA.from_bytes(reverse_bytes)[0]
   Regex::Automata::DFA::Regex.builder.build_from_dfas(forward, reverse)
@@ -71,8 +71,8 @@ end
 private def roundtrip_sparse_regex(re : Regex::Automata::DFA::Regex) : Regex::Automata::DFA::Regex
   forward_sparse = re.forward.to_sparse
   reverse_sparse = re.reverse.to_sparse
-  forward_bytes = forward_sparse.to_bytes_native_endian[0]
-  reverse_bytes = reverse_sparse.to_bytes_native_endian[0]
+  forward_bytes = forward_sparse.to_bytes_native_endian
+  reverse_bytes = reverse_sparse.to_bytes_native_endian
   forward = Regex::Automata::DFA::Sparse::DFA.from_bytes(forward_bytes)[0]
   reverse = Regex::Automata::DFA::Sparse::DFA.from_bytes(reverse_bytes)[0]
   Regex::Automata::DFA::Regex.builder.build_from_dfas(forward, reverse)

@@ -49,4 +49,8 @@ The former Crystal `CRDFA001` format is superseded.
 The [DFA wire feature plan](../plans/feature-dfa-wire.md) records generated
 Rust byte fixtures, malformed-input coverage, the offline cross-language
 check (`scripts/check_dense_wire.sh`), and the pin's quit-byte decoding behavior.
-Sparse native layout and wrapper signoff remain separate phases in that plan.
+Sparse DFAs now use Rust's packed byte-offset state representation and native
+v2 wire format. Sparse `to_bytes_*` returns `Bytes` directly; it has no dense
+alignment-padding tuple. Its memory query counts packed transition and start
+payloads, as Rust does. The former `CRSFA001` dense wrapper is superseded.
+Regex wrapper signoff remains a separate phase in the feature plan.

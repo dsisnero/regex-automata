@@ -12,7 +12,7 @@ private def dense_vendor_build(test : VendorRegexSuite::Case, mode : String) : R
   config.specialize_start_states(true) if mode == "specialized_start_states"
   config.byte_classes(false) if mode == "no_byte_class" || mode == "minimized_no_byte_class"
   config.minimize(true) if mode == "minimized_default" || mode == "minimized_no_byte_class"
-  if mode == "prefilter"
+  if mode == "prefilter" || mode == "sparse_prefilter"
     syntax = Regex::Automata::Syntax::Config.new
       .case_insensitive(test.case_insensitive)
       .unicode(test.unicode)
@@ -58,8 +58,17 @@ private def dense_vendor_check(test : VendorRegexSuite::Case, mode : String) : N
 
   re = dense_vendor_build(test, mode)
   if mode == "serialization"
-    forward = Regex::Automata::DFA::DFA.from_bytes(re.forward.to_bytes_native_endian[0])[0]
-    reverse = Regex::Automata::DFA::DFA.from_bytes(re.reverse.to_bytes_native_endian[0])[0]
+    forward = Regex::Automata::DFA::DFA.from_bytes(re.forward.as(Regex::Automata::DFA::DFA).to_bytes_native_endian[0])[0]
+    reverse = Regex::Automata::DFA::DFA.from_bytes(re.reverse.as(Regex::Automata::DFA::DFA).to_bytes_native_endian[0])[0]
+    re = Regex::Automata::DFA::Regex.builder.build_from_dfas(forward, reverse)
+  end
+  if mode.starts_with?("sparse_")
+    forward = re.forward.as(Regex::Automata::DFA::DFA).to_sparse
+    reverse = re.reverse.as(Regex::Automata::DFA::DFA).to_sparse
+    if mode == "sparse_serialization"
+      forward = Regex::Automata::DFA::Sparse::DFA.from_bytes(forward.to_bytes_native_endian)[0]
+      reverse = Regex::Automata::DFA::Sparse::DFA.from_bytes(reverse.to_bytes_native_endian)[0]
+    end
     re = Regex::Automata::DFA::Regex.builder.build_from_dfas(forward, reverse)
   end
   input = Regex::Automata::Input.new(test.haystack)
@@ -115,7 +124,7 @@ describe "pinned dense DFA TOML suite" do
     dense_vendor_check(test, "minimized_no_byte_class")
   end
 
-  %w(default prefilter specialized_start_states no_byte_class nfa_shrink minimized_default minimized_no_byte_class serialization).each do |mode|
+  %w(default prefilter specialized_start_states no_byte_class nfa_shrink minimized_default minimized_no_byte_class serialization sparse_default sparse_prefilter sparse_serialization).each do |mode|
     VendorRegexSuite.load.groups.each do |group|
       next if group == "expensive" # Rust TestRunner::blacklist("expensive").
       it "#{mode}: #{group} is_match/find/which" do

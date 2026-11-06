@@ -17,3 +17,11 @@ and follows the pinned Rust crate's engine boundaries:
 The Rust source is pinned under `vendor/regex/regex-automata/`. This page is a
 map, not a parity claim: see [the roadmap](../plans/parity.md) and
 [testing](testing.md) for current evidence and open engine gates.
+
+Dense DFAs use a flat transition table with premultiplied StateIDs. Sparse
+DFAs use packed byte-range states with byte-offset StateIDs and packed start
+IDs; conversion does not retain a dense DFA. Both execute Input searches
+through the shared Automaton interface. Dense native wire handling lives in
+`dense_wire.cr`; sparse state and wire handling live together in `sparse.cr`.
+The [wire feature plan](../plans/feature-dfa-wire.md) records the pinned byte
+fixtures, interoperability checks, representation costs, and remaining work.
