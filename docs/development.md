@@ -53,4 +53,8 @@ Sparse DFAs now use Rust's packed byte-offset state representation and native
 v2 wire format. Sparse `to_bytes_*` returns `Bytes` directly; it has no dense
 alignment-padding tuple. Its memory query counts packed transition and start
 payloads, as Rust does. The former `CRSFA001` dense wrapper is superseded.
-Regex wrapper signoff remains a separate phase in the feature plan.
+DFA regex wrappers preserve the pinned forward/reverse search contract and
+accept Input as well as String/Bytes. Wrapper builder configuration mutates
+and returns the builder; clone makes an independent configuration snapshot.
+Regex clone copies both owned automata. The feature plan records source
+oracles, wrapper representation limits and construction/search costs.

@@ -6,8 +6,8 @@
   `72d650cb0a880a01ab6dc2137c0888e8f89740f7` (regex-automata 0.4.18).
   Do not substitute remembered Rust behavior or a newer upstream revision.
 - Working source ledger: [rust_port_inventory.tsv](inventory/rust_port_inventory.tsv)
-  (1,936 Rust API items: 1,478 `ported`, 187 `missing`, 84 `partial`, 176
-  `intentional_divergence`, 11 `skipped`). Test ledger:
+  (1,936 Rust API items: 1,479 `ported`, 187 `missing`, 83 `partial`, 177
+  `intentional_divergence`, 10 `skipped`). Test ledger:
   [rust_test_parity.tsv](inventory/rust_test_parity.tsv) (220 rows: 187
   `ported`, 23 `partial`, 9 `intentional_divergence`, 1 `skipped`). These are **review
   queues**, not a count of absent behaviors or a completion percentage. The
@@ -35,14 +35,13 @@
 
 ## Where we are
 
-- **Current focus:** phase 5b sparse native storage and wire compatibility is
-  complete. Sparse DFAs retain packed byte-offset states and start IDs without
-  a dense backing object. Exact native Rust fixtures, all seven sparse fuzz
-  payloads, the eight-configuration conversion matrix, all three sparse vendor
-  modes, and a 17-case offline Rust conversion/endian/memory consumer pass.
-  See the [DFA wire feature plan](feature-dfa-wire.md).
-- **Next up:** phase 5c regex wrapper/source review, including always-anchored
-  flag derivation, reverse configuration, iterator behavior and error precedence.
+- **Current focus:** phase 5 is complete: dense native wire (`853c6c6`),
+  sparse packed storage/native wire (`ebf762c`), and regex wrapper contracts
+  (this feature commit). Full Crystal gate: 16,429/16,429. See the
+  [DFA wire feature plan](feature-dfa-wire.md) for source, oracle and cost notes.
+- **Next up:** phase 6 one-pass DFA: review the pinned source and nearest tests,
+  port failing specs first, then complete its admission, compiled tables,
+  captures/cache and supported vendor matrix before its feature commit.
 - **Status by area:** vendor fixture harness, scalar prefilter
   selection/candidate semantics, AArch64 unanchored packed Teddy, 2-500 needle
   Aho/anchored Teddy DFA, and >500-needle contiguous-NFA paths are complete.
@@ -116,13 +115,14 @@
   unavailable for the pool's lifetime. This is a lifecycle divergence, not a
   search-result divergence. No throughput claim is made on this loaded host; phase 8's
   controlled comparison should include pooled Meta searches.
-- **Last completed feature commit:** phase 5b `port: sparse native storage and wire compatibility`
-  (this feature commit). Dense native wire phase 5a is `853c6c6`.
-- **Gates:** full Crystal suite passes 16,407/16,407; 64 focused sparse/wrapper
-  checks and all 72 sparse vendor groups pass. Pinned Rust sparse unit tests
-  pass 3/3 and integration tests 11/11 offline. The 17-case Rust consumer agrees
-  on conversion, both endian writes, memory and searches; Rust also confirms
-  rejection of all seven sparse and both dense fuzz payloads. Install, format,
+- **Last completed feature commit:** phase 5c `port: DFA regex wrapper contracts`
+  (this feature commit). Sparse phase 5b is `ebf762c`; dense phase 5a is `853c6c6`.
+- **Gates:** full Crystal suite passes 16,429/16,429; 115 focused wrapper,
+  transform and native wire checks pass. Pinned Rust regex doctests pass 15/15
+  offline; the source-characterization wrapper oracle passes, including clone
+  isolation. The 10-case dense and 18-case sparse Rust consumers agree on
+  native/endian/search results and confirm all nine fuzz rejections. The full
+  gate includes all supported dense/sparse vendor modes. Install, format,
   lint, parity, whitespace/format checks and no-codegen build pass. These are
   correctness gates, with no loaded-host performance claim.
 
@@ -513,7 +513,7 @@ confirmation; no authorship was inferred or changed.
   [DFA wire feature plan](feature-dfa-wire.md). **Gate:** sparse source/test
   rows and file review close with native byte and search evidence.
 
-- [ ] **5c. DFA regex wrappers.** Review dense/sparse construction, reverse,
+- [x] **5c. DFA regex wrappers.** Review dense/sparse construction, reverse,
   iterators, multi-pattern matches, errors, and always-anchored semantics
   against `src/dfa/regex.rs` and its tests. See the
   [DFA wire feature plan](feature-dfa-wire.md). **Gate:** wrapper source/test

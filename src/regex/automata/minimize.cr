@@ -133,7 +133,8 @@ module Regex::Automata::DFA
         @dfa.get_prefilter,
         @dfa.quitset,
         @dfa.flags,
-        start_table
+        start_table,
+        @dfa.pattern_len
       )
 
       minimized.special.set_no_special_start_states if @dfa.special.no_start_states?

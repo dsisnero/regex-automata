@@ -2,7 +2,7 @@
 // pinned vendor checkout, never a registry version of regex-automata.
 use regex_automata::{dfa::{dense::DFA, Automaton}, HalfMatch, Input};
 fn main() {
-    for name in ["abc", "padding", "always", "never", "multi", "empty-patterns", "quitset", "vendor-fwd", "vendor-rev"] {
+    for name in ["shadowed", "abc", "padding", "always", "never", "multi", "empty-patterns", "quitset", "vendor-fwd", "vendor-rev"] {
         let base = format!("temp/dense-wire-oracle/{name}");
         let bytes = std::fs::read(format!("{base}.dfa")).unwrap();
         let (dfa, read) = DFA::from_bytes(&bytes).unwrap();
@@ -19,6 +19,10 @@ fn main() {
         };
         if name != "vendor-rev" {
             assert_eq!(dfa.try_search_fwd(&Input::new("abc")).unwrap(), expected);
+        }
+        if name == "shadowed" {
+            assert_eq!(dfa.pattern_len(), 3);
+            assert_eq!(dfa.try_search_fwd(&Input::new("a")).unwrap(), Some(HalfMatch::must(0, 1)));
         }
         if name == "multi" {
             assert_eq!(dfa.try_search_fwd(&Input::new("bar456")).unwrap(), Some(HalfMatch::must(1, 6)));

@@ -131,7 +131,7 @@ module Regex::Automata::DFA
     getter flags : DFAFlags
 
     # Constructor with flat transition table optimization
-    def initialize(@states : Array(State), @tt : TransitionTable?, start_unanchored : StateID, byte_classes : ByteClasses | Int32, start_anchored : StateID? = nil, accelerators : Array(Bytes)? = nil, prefilter : Prefilter? = nil, quitset : ByteSet = ByteSet.new, flags : DFAFlags = DFAFlags.new, start_table : StartTable? = nil)
+    def initialize(@states : Array(State), @tt : TransitionTable?, start_unanchored : StateID, byte_classes : ByteClasses | Int32, start_anchored : StateID? = nil, accelerators : Array(Bytes)? = nil, prefilter : Prefilter? = nil, quitset : ByteSet = ByteSet.new, flags : DFAFlags = DFAFlags.new, start_table : StartTable? = nil, pattern_len : Int32? = nil)
       # Convert start states to premultiplied IDs if we have a transition table
       if @tt
         @start_unanchored = @tt.not_nil!.to_state_id(start_unanchored.to_i)
@@ -187,7 +187,7 @@ module Regex::Automata::DFA
       if @tt && start_table
         @st = @st.remap { |id| @tt.not_nil!.to_state_id(id.to_i) }
       end
-      @ms = MatchStates.from_states(@states, @tt)
+      @ms = MatchStates.from_states(@states, @tt, pattern_len)
       @wire_accels = nil
       @special = build_special
     end
@@ -451,7 +451,7 @@ module Regex::Automata::DFA
       new_start_unanchored = old_to_new[@start_unanchored]? || StateID.new(0)
       new_start_anchored = old_to_new[@start_anchored]? || new_start_unanchored
 
-      DFA.new(new_states, nil, new_start_unanchored, @byte_classifier, new_start_anchored)
+      DFA.new(new_states, nil, new_start_unanchored, @byte_classifier, new_start_anchored, pattern_len: pattern_len)
     end
 
     # Reduce byte classes using equivalence analysis
@@ -512,7 +512,8 @@ module Regex::Automata::DFA
         @prefilter,
         @quitset,
         @flags,
-        start_table
+        start_table,
+        pattern_len
       )
     end
 
@@ -1291,6 +1292,14 @@ module Regex::Automata::DFA
       Builder.new(@config, nfa: @nfa, hir_compiler: @hir_compiler, syntax_config: syntax_config)
     end
 
+    # Snapshot configuration without sharing mutable parser options or compiler
+    # scratch. A seeded NFA is immutable during construction and can be shared.
+    def clone : Builder
+      compiler_config = @hir_compiler.config.overwrite(HirCompilerConfig.new)
+      Builder.new(@config.dup, nfa: @nfa, hir_compiler: HirCompiler.new(compiler_config),
+        byte_classes: @byte_classes, syntax_config: @syntax_config.try(&.dup))
+    end
+
     def initialize(config : Config = Config.new, nfa : NFA::NFA? = nil, hir_compiler : HirCompiler? = nil, byte_classes : ByteClasses | Int32 = 256, syntax_config : ::Regex::Syntax::ParserBuilder? = nil)
       @config = config
       @quitset = config.quitset
@@ -1382,18 +1391,7 @@ module Regex::Automata::DFA
     # Build DFA from NFA using subset construction
     # Build DFA from a pattern string
     def build(pattern : String) : DFA
-      # Parse pattern to HIR
-      hir = syntax_parser.parse(pattern)
-
-      # Compile HIR to NFA
-      nfa = @hir_compiler.build_from_hir(hir)
-
-      # Build DFA from NFA
-      Builder.from_nfa(nfa, @config).build
-    rescue ex : ::Regex::Syntax::AST::Error | ::Regex::Syntax::Hir::Error
-      raise BuildError.nfa(NFA::BuildError.syntax(ex))
-    rescue ex : NFA::BuildError
-      raise BuildError.nfa(ex)
+      build_many([pattern])
     end
 
     # Build a DFA from multiple pattern strings
@@ -1404,7 +1402,10 @@ module Regex::Automata::DFA
       end
 
       # Compile HIRs to NFA
-      nfa = @hir_compiler.build_many_from_hir(hirs)
+      # Rust dense::Builder always disables captures, even after an explicit
+      # Thompson override, and clones its compiler before changing config.
+      compiler = HirCompiler.new(@hir_compiler.config.which_captures(NFA::WhichCaptures::None))
+      nfa = compiler.build_many_from_hir(hirs)
 
       # Build DFA from NFA
       Builder.from_nfa(nfa, @config).build
@@ -1803,12 +1804,11 @@ module Regex::Automata::DFA
       # Create DFA flags from config
       flags = DFAFlags.new(
         has_byte_classes: true,
-        has_empty: dfa_has_empty?(unanchored_start_states, anchored_start_states),
+        has_empty: nfa.has_empty,
         is_utf8: nfa.utf8?,
         is_leftmost: @config.match_kind == MatchKind::LeftmostFirst,
         is_anchored: @config.start_kind == StartKind::Anchored,
-        is_always_start_anchored: @config.start_kind == StartKind::Anchored ||
-                                  nfa.start_anchored == nfa.start_unanchored
+        is_always_start_anchored: nfa.is_always_start_anchored
       )
       st = StartTable.new(
         @config.start_kind,
@@ -1823,7 +1823,7 @@ module Regex::Automata::DFA
         pattern_len: @config.starts_for_each_pattern? ? nfa.pattern_len : nil
       )
 
-      dfa = DFA.new(@dfa_states, @transition_table, unanchored_start_id, @byte_classes, anchored_start_id, accelerators, nil, @quitset, flags, st)
+      dfa = DFA.new(@dfa_states, @transition_table, unanchored_start_id, @byte_classes, anchored_start_id, accelerators, nil, @quitset, flags, st, nfa.pattern_len)
 
       # The state shuffling done before this point always assumes that start
       # states should be marked as "special," even though it isn't the
@@ -1885,7 +1885,7 @@ module Regex::Automata::DFA
         pattern_len: dfa.st.pattern_len
       )
       accelerated = DFA.new(states, tt, unanchored_id, dfa.byte_classifier,
-        anchored_id, accelerators, dfa.get_prefilter, dfa.quitset, dfa.flags, st)
+        anchored_id, accelerators, dfa.get_prefilter, dfa.quitset, dfa.flags, st, dfa.pattern_len)
       accelerated.special.set_no_special_start_states unless @config.specialize_start_states?
       accelerated
     end
@@ -1897,14 +1897,6 @@ module Regex::Automata::DFA
     private def valid_nfa_start(start : StateID, fallback : StateID? = nil) : StateID
       return start if @nfa && start.to_i >= 0 && start.to_i < @nfa.not_nil!.states.size
       fallback || StateID.new(0)
-    end
-
-    private def dfa_has_empty?(unanchored_start_states : Hash(Start, StateID), anchored_start_states : Hash(Start, StateID)) : Bool
-      start_ids = (unanchored_start_states.values + anchored_start_states.values).uniq
-      start_ids.any? do |id|
-        meta = @dfa_state_metas[id.to_i]
-        !meta.matches.empty? || !@dfa_state_metas[@transition_table.to_index(@transition_table.next_eoi_state(@transition_table.to_state_id(id.to_i)))].matches.empty?
-      end
     end
 
     private def build_start_states(nfa_start : StateID) : Hash(Start, StateID)

@@ -196,12 +196,12 @@ describe "DFA API" do
       )
     end
 
-    it "reports anchored configuration via flags" do
+    it "reports anchored support independently from semantic NFA flags" do
       dfa = Regex::Automata::DFA::Builder.new
         .configure { |config| config.start_kind(Regex::Automata::StartKind::Anchored) }
         .build("abc")
 
-      dfa.is_always_start_anchored?.should be_true
+      dfa.is_always_start_anchored?.should be_false
       dfa.start_kind.should eq(Regex::Automata::StartKind::Anchored)
       dfa.quit_id.should eq(dfa.to_state_id(1))
       dfa.quitset.empty?.should be_true
@@ -568,7 +568,7 @@ describe "DFA API" do
       word_start = dfa2.start_state(Regex::Automata::StartConfig.new('q'.ord.to_u8, Regex::Automata::Anchored::Yes)).as(Regex::Automata::StateID)
 
       text_start.should_not eq(word_start)
-      dfa2.is_always_start_anchored?.should be_true
+      dfa2.is_always_start_anchored?.should be_false
       dfa2.universal_start_state(Regex::Automata::Anchored::Yes).should be_nil
     end
 

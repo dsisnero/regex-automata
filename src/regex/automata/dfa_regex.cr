@@ -104,6 +104,11 @@ module Regex::Automata::DFA
     def initialize(@forward : AnyDFA, @reverse : AnyDFA)
     end
 
+    # An independent owned snapshot, including when the source was a view.
+    def clone : Regex
+      Regex.new(@forward.to_owned, @reverse.to_owned)
+    end
+
     # Returns true if and only if this regex matches the given haystack.
     #
     # This routine may short circuit if it knows that scanning future input
@@ -192,7 +197,11 @@ module Regex::Automata::DFA
     # assert match.end == 3 # "abc"
     # ```
     def find(haystack : String | Bytes) : Match?
-      result = try_search(Input.new(haystack))
+      find(Input.new(haystack))
+    end
+
+    def find(input : Input) : Match?
+      result = try_search(input)
       if result.is_a?(MatchError)
         raise "search error: #{result}"
       end
@@ -261,50 +270,25 @@ module Regex::Automata::DFA
     # When a search returns an error, callers cannot know whether a match
     # exists or not.
     def try_search(input : Input) : Match? | MatchError
-      search = input.clone
+      finish = @forward.try_search_fwd(input)
+      return finish if finish.is_a?(MatchError)
+      return nil unless finish
 
-      loop do
-        end_match = @forward.try_search_fwd(search)
-        return end_match if end_match.is_a?(MatchError)
-
-        end_half = end_match.as?(HalfMatch)
-        unless end_half
-          return nil if search.get_anchored != Anchored::No
-          return nil if search.start >= search.end
-          search.set_start(search.start + 1)
-          return nil if search.is_done
-          next
-        end
-
-        end_pos = end_half.offset
-        pattern = end_half.pattern
-
-        match = if search.start == end_pos
-                  Match.new(pattern, end_pos, end_pos)
-                elsif is_anchored(search)
-                  Match.new(pattern, search.start, end_pos)
-                else
-                  revsearch = search.clone
-                    .span(search.start...end_pos)
-                    .anchored(Anchored::Yes)
-                    .earliest(false)
-
-                  start_match = @reverse.try_search_rev(revsearch)
-                  return start_match if start_match.is_a?(MatchError)
-
-                  start_half = start_match.as?(HalfMatch)
-                  return nil unless start_half
-
-                  raise "start > end in match" if start_half.offset > end_pos
-                  Match.new(pattern, start_half.offset, end_pos)
-                end
-
-        return match unless should_skip_empty_utf8_match?(search, match)
-        return nil if search.get_anchored != Anchored::No
-
-        search.set_start(search.start + 1)
-        return nil if search.is_done
+      if input.start == finish.offset
+        return Match.new(finish.pattern, finish.offset, finish.offset)
       end
+      if is_anchored(input)
+        return Match.new(finish.pattern, input.start, finish.offset)
+      end
+
+      reverse_input = input.clone.span(input.start...finish.offset)
+        .anchored(Anchored::Yes).earliest(false)
+      start = @reverse.try_search_rev(reverse_input)
+      return start if start.is_a?(MatchError)
+      raise "reverse search must match if forward search does" unless start
+      raise "forward and reverse search must match same pattern" unless start.pattern == finish.pattern
+      raise "start > end in match" if start.offset > finish.offset
+      Match.new(finish.pattern, start.offset, finish.offset)
     end
 
     # Returns true if either the given input specifies an anchored search
@@ -318,10 +302,6 @@ module Regex::Automata::DFA
       else
         false
       end
-    end
-
-    private def should_skip_empty_utf8_match?(input : Input, match : Match) : Bool
-      match.empty? && @forward.is_utf8? && !input.is_char_boundary(match.start)
     end
 
     # Return the underlying DFA responsible for forward matching.
@@ -398,6 +378,10 @@ module Regex::Automata::DFA
     def initialize(@dfa_builder : Builder)
     end
 
+    def clone : RegexBuilder
+      RegexBuilder.new(@dfa_builder.clone)
+    end
+
     # Build a regex from the given pattern.
     #
     # If there was a problem parsing or compiling the pattern, then a
@@ -416,8 +400,10 @@ module Regex::Automata::DFA
     # When matches are returned, the pattern ID corresponds to the index of
     # the pattern in the slice given.
     def build_many(patterns : Enumerable(String)) : Regex
-      # Build forward DFA
-      forward = @dfa_builder.build_many(patterns)
+      # Rust receives a reusable slice. Materialize a Crystal Enumerable once
+      # so forward and reverse see the same patterns, including one-shot input.
+      pattern_list = patterns.to_a
+      forward = @dfa_builder.build_many(pattern_list)
 
       # Build reverse DFA with appropriate configuration
       reverse_builder = @dfa_builder.configure do |config|
@@ -431,7 +417,7 @@ module Regex::Automata::DFA
       # Configure Thompson NFA compiler for reverse matching
       reverse = reverse_builder.thompson do |config|
         config.reverse(true)
-      end.build_many(patterns)
+      end.build_many(pattern_list)
 
       Regex.new(forward, reverse)
     end
@@ -468,7 +454,8 @@ module Regex::Automata::DFA
     # This permits setting DFA-specific options such as quit bytes,
     # Unicode word boundary support and more.
     def configure(&block : Config -> Config) : RegexBuilder
-      RegexBuilder.new(@dfa_builder.configure(&block))
+      @dfa_builder = @dfa_builder.configure(&block)
+      self
     end
 
     # Configure the Thompson NFA compiler.
@@ -476,17 +463,31 @@ module Regex::Automata::DFA
     # This permits setting NFA-specific options such as whether to build
     # the NFA in reverse, whether to shrink the NFA and more.
     def thompson(&block : HirCompilerConfig -> HirCompilerConfig) : RegexBuilder
-      RegexBuilder.new(@dfa_builder.thompson(&block))
+      @dfa_builder = @dfa_builder.thompson(&block)
+      self
+    end
+
+    # Apply the explicit configuration form used by Rust's Builder API.
+    def thompson(config : HirCompilerConfig) : RegexBuilder
+      @dfa_builder = @dfa_builder.thompson { |current| current.overwrite(config) }
+      self
     end
 
     # Configure syntax parsing before HIR compilation.
     def syntax(&block : ::Regex::Syntax::ParserBuilder -> ::Regex::Syntax::ParserBuilder) : RegexBuilder
-      RegexBuilder.new(@dfa_builder.syntax(&block))
+      @dfa_builder = @dfa_builder.syntax(&block)
+      self
+    end
+
+    def syntax(config : ::Regex::Automata::Syntax::Config) : RegexBuilder
+      @dfa_builder = @dfa_builder.syntax { |parser| config.apply(parser) }
+      self
     end
 
     # Configure dense DFA construction directly.
     def dense(config : Config) : RegexBuilder
-      RegexBuilder.new(@dfa_builder.configure(config))
+      @dfa_builder = @dfa_builder.configure(config)
+      self
     end
   end
 end

@@ -3,6 +3,7 @@ require "../../src/regex-automata"
 include Regex::Automata
 
 examples = {
+  "shadowed"       => DFA::Builder.new.configure(DFA::DFA.config.minimize(true)).build_many(["a", "a", "(?-u:\\b\\B)"]),
   "abc"            => DFA::DFA.new("abc"),
   "always"         => DFA::DFA.always_match,
   "never"          => DFA::DFA.never_match,
