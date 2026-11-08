@@ -1,3 +1,5 @@
+require "./byte_search"
+
 module Regex::Automata
   # This module defines some core types for dealing with accelerated DFA states.
   # Briefly, a DFA state can be "accelerated" if all of its transitions except
@@ -22,28 +24,7 @@ module Regex::Automata
     raise "cannot find with empty needles" if needles.empty?
     raise "invalid needles length: #{needles.size}" if needles.size > 3
     raise IndexError.new if at < 0 || at > haystack.size
-    bs = needles
-    case needles.size
-    when 1
-      tail = haystack[at..]?
-      return nil unless tail
-      idx = tail.index(bs[0])
-      idx ? at + idx : nil
-    when 2
-      # Simple linear search for 2 bytes
-      (at...haystack.size).each do |i|
-        byte = haystack[i]
-        return i if byte == bs[0] || byte == bs[1]
-      end
-      nil
-    when 3
-      # Simple linear search for 3 bytes
-      (at...haystack.size).each do |i|
-        byte = haystack[i]
-        return i if byte == bs[0] || byte == bs[1] || byte == bs[2]
-      end
-      nil
-    end
+    ByteSearch.find(needles, haystack[at, haystack.size - at]).try { |offset| at + offset }
   end
 
   # Search for between 1 and 3 needle bytes in the given haystack in reverse,
@@ -53,27 +34,7 @@ module Regex::Automata
     raise "cannot find with empty needles" if needles.empty?
     raise "invalid needles length: #{needles.size}" if needles.size > 3
     raise IndexError.new if at < 0 || at > haystack.size
-    bs = needles
-    case needles.size
-    when 1
-      head = haystack[0...at]?
-      return nil unless head
-      head.rindex(bs[0])
-    when 2
-      # Simple linear reverse search for 2 bytes
-      (0...at).reverse_each do |i|
-        byte = haystack[i]
-        return i if byte == bs[0] || byte == bs[1]
-      end
-      nil
-    when 3
-      # Simple linear reverse search for 3 bytes
-      (0...at).reverse_each do |i|
-        byte = haystack[i]
-        return i if byte == bs[0] || byte == bs[1] || byte == bs[2]
-      end
-      nil
-    end
+    ByteSearch.find(needles, haystack[0, at], reverse: true)
   end
 
   # Accel represents a structure for determining how to "accelerate" a DFA

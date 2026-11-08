@@ -22,3 +22,48 @@ jobs:
       - run: make test
       - run: crystal tool format --check src spec
       - run: crystal build --no-codegen src/regex-automata.cr
+
+  final-signoff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+      - uses: crystal-lang/install-crystal@v1
+        with:
+          crystal: 1.22.2
+      - run: grep -qm1 'avx2' /proc/cpuinfo
+      - run: make install
+      - name: Verify native byte bridge bounds
+        run: |
+          cc -O1 -g -Wall -Wextra -fsanitize=address,undefined spec/support/byte_search_bounds.c -o temp/byte-bounds
+          temp/byte-bounds
+          cc -O1 -g -Wall -Wextra -DRA_BYTE_FORCE_SCALAR -fsanitize=address,undefined spec/support/byte_search_bounds.c -o temp/byte-bounds-scalar
+          temp/byte-bounds-scalar
+      - name: Verify AVX2, SSE2 and scalar byte and substring searches
+        run: |
+          crystal spec spec/byte_search_spec.cr spec/memmem_finder_spec.cr -Dsubstring_diagnostics
+          crystal spec spec/byte_search_spec.cr spec/memmem_finder_spec.cr -Dbyte_search_sse2 -Dsubstring_diagnostics
+          crystal spec spec/byte_search_spec.cr spec/memmem_finder_spec.cr -Dbyte_search_scalar -Dsubstring_diagnostics
+      - name: Fetch pinned Rust dependencies
+        run: cargo fetch --locked --manifest-path vendor/regex/regex-automata/Cargo.toml
+      - run: scripts/check_final_cross_engine.sh
+      - name: Verify experimental four-step DFA loops
+        run: |
+          crystal spec spec/dfa_api_spec.cr spec/dfa_vendor_suite_spec.cr spec/quit_after_match_spec.cr -Ddfa_unrolled_search
+          FINAL_CRYSTAL_FLAGS=-Ddfa_unrolled_search scripts/check_final_cross_engine.sh
+      - name: Prepare release comparisons
+        run: scripts/benchmark_final_signoff.sh prepare
+      - name: Verify identical benchmark results
+        run: scripts/benchmark_final_signoff.sh check
+      - name: Measure on idle runner
+        run: scripts/benchmark_final_signoff.sh run
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: final-signoff-evidence
+          path: |
+            temp/final-perf/*.tsv
+            temp/final-perf/*.md
+            temp/final-cross-engine/*.tsv

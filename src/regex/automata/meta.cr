@@ -1775,79 +1775,12 @@ module Regex::Automata::Meta
       input : ::Regex::Automata::Input,
     ) : Tuple(Int32, ::Regex::Automata::Span)?
       prefilter = @literal_prefilter
-      pattern_ids = @literal_pattern_ids
-      return nil unless prefilter && pattern_ids
+      return nil unless prefilter
       return nil if input.is_done
-
-      span = ::Regex::Automata::Span.new(input.start, input.end)
-      if prefilter.indexed_matcher?
-        return case input.anchored
-        when ::Regex::Automata::Anchored::No
-          prefilter.find_with_index(input.haystack, span)
-        when ::Regex::Automata::Anchored::Yes, ::Regex::Automata::Anchored::Pattern
-          prefilter.prefix_with_index(input.haystack, span)
-        else
-          nil
-        end
-      end
-      needles = prefilter.needles
-      case input.anchored
-      when ::Regex::Automata::Anchored::No
-        literal_find_candidate(input.haystack, span, needles, pattern_ids, nil)
-      when ::Regex::Automata::Anchored::Yes, ::Regex::Automata::Anchored::Pattern
-        literal_prefix_candidate(input.haystack, span, needles, pattern_ids, nil)
-      else
-        nil
-      end
-    end
-
-    private def literal_find_candidate(
-      haystack : Bytes,
-      span : ::Regex::Automata::Span,
-      needles : Array(Bytes),
-      pattern_ids : Array(::Regex::Automata::PatternID),
-      target_pattern : ::Regex::Automata::PatternID?,
-    ) : Tuple(Int32, ::Regex::Automata::Span)?
-      best_span = nil.as(::Regex::Automata::Span?)
-      best_index = Int32::MAX
-      needles.each_with_index do |needle, index|
-        next if target_pattern && pattern_ids[index] != target_pattern
-        next unless start = literal_find_needle(haystack, needle, span)
-
-        candidate = ::Regex::Automata::Span.new(start, start + needle.size)
-        if better_literal_match?(candidate, index.to_i32, best_span, best_index)
-          best_span = candidate
-          best_index = index.to_i32
-        end
-      end
-      return nil unless best_span
-
-      {best_index, best_span}
-    end
-
-    private def literal_prefix_candidate(
-      haystack : Bytes,
-      span : ::Regex::Automata::Span,
-      needles : Array(Bytes),
-      pattern_ids : Array(::Regex::Automata::PatternID),
-      target_pattern : ::Regex::Automata::PatternID?,
-    ) : Tuple(Int32, ::Regex::Automata::Span)?
-      best_index = Int32::MAX
-      best_span = nil.as(::Regex::Automata::Span?)
-      needles.each_with_index do |needle, index|
-        next if target_pattern && pattern_ids[index] != target_pattern
-        next if needle.size > span.length
-        next unless literal_starts_with?(haystack, span.start, needle)
-
-        candidate = ::Regex::Automata::Span.new(span.start, span.start + needle.size)
-        if better_literal_match?(candidate, index.to_i32, best_span, best_index)
-          best_span = candidate
-          best_index = index.to_i32
-        end
-      end
-      return nil unless best_span
-
-      {best_index, best_span}
+      span = input.get_span
+      found = input.anchored.is_anchored ? prefilter.prefix(input.haystack, span) : prefilter.find(input.haystack, span)
+      # Pre admits one pattern, so every literal has PatternID::ZERO.
+      found.try { |candidate| {0, candidate} }
     end
 
     private def literal_overlapping_matches(
@@ -1857,44 +1790,6 @@ module Regex::Automata::Meta
       candidate = literal_search_candidate(input)
       return unless candidate
       patset.insert(@literal_pattern_ids.not_nil![candidate[0]])
-    end
-
-    private def better_literal_match?(
-      candidate : ::Regex::Automata::Span,
-      index : Int32,
-      current : ::Regex::Automata::Span?,
-      current_index : Int32,
-    ) : Bool
-      return true unless current
-      return true if candidate.start < current.start
-      return false if candidate.start > current.start
-
-      index < current_index
-    end
-
-    private def literal_find_needle(
-      haystack : Bytes,
-      needle : Bytes,
-      span : ::Regex::Automata::Span,
-    ) : Int32?
-      limit = span.end - needle.size
-      at = span.start
-      while at <= limit
-        return at if literal_starts_with?(haystack, at, needle)
-        at += 1
-      end
-      nil
-    end
-
-    private def literal_starts_with?(haystack : Bytes, offset : Int32, needle : Bytes) : Bool
-      return false if offset < 0 || offset + needle.size > haystack.size
-
-      i = 0
-      while i < needle.size
-        return false if haystack[offset + i] != needle[i]
-        i += 1
-      end
-      true
     end
 
     private def impossible_input?(input : ::Regex::Automata::Input) : Bool

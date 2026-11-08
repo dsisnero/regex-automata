@@ -42,6 +42,14 @@ module Regex::Automata::Hybrid
 end
 
 describe Regex::Automata::Hybrid::LazyStateID do
+  it "checks Int32 inputs before their high bits can become tags" do
+    id = Regex::Automata::Hybrid::LazyStateID
+    max = Regex::Automata::Hybrid::LazyStateID::MAX
+    id.new(max).should eq(id.new_unchecked(max))
+    id.new(max + 1).should be_a(Regex::Automata::Hybrid::LazyStateIDError)
+    id.new(-1).should be_a(Regex::Automata::Hybrid::LazyStateIDError)
+  end
+
   it "exposes Rust's unsigned raw representation for every tag" do
     id = Regex::Automata::Hybrid::LazyStateID.new_unchecked(7)
     id.to_unknown.as_usize_unchecked.should eq((1_i64 << 31) | 7)

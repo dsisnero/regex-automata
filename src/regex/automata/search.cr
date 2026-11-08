@@ -1,3 +1,5 @@
+require "./utf8_sequences"
+
 module Regex::Automata
   class Captures
   end
@@ -303,13 +305,8 @@ module Regex::Automata
       @span_start > @span_end
     end
 
-    # Assumes valid UTF-8 input, like upstream.
     def is_char_boundary(offset : Int32) : Bool
-      return false if offset < 0 || offset > @haystack.size
-      return true if offset == 0 || offset == @haystack.size
-
-      byte = @haystack[offset]
-      byte < 0x80 || byte >= 0xC0
+      Utf8.is_boundary(@haystack, offset)
     end
 
     def clone : Input
@@ -321,7 +318,8 @@ module Regex::Automata
 
     private def validate_span(span : Span) : Nil
       haystack_size = @haystack.size
-      return if span.end <= haystack_size && span.start <= span.end + 1
+      return if span.start >= 0 && span.end >= 0 && span.end <= haystack_size &&
+                span.start.to_i64 <= span.end.to_i64 + 1
 
       raise ArgumentError.new("invalid span #{span.start}...#{span.end} for haystack of length #{haystack_size}")
     end

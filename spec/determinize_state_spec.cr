@@ -1,6 +1,6 @@
 require "./spec_helper"
 
-class Regex::Automata::Determinize::StateBuilderNFA
+struct Regex::Automata::Determinize::StateBuilderNFA
   def storage_capacity_for_spec : Int32
     @repr.remaining_capacity
   end

@@ -222,6 +222,21 @@ module Regex::Automata
       end
 
       while at < input.end
+        {% if flag?(:dfa_unrolled_search) %}
+          # Experimental pinned search.rs four-transition fast path. Each
+          # step stops before a special state so the common handler retains
+          # match/quit/prefilter precedence. The outer bound proves all four
+          # byte accesses valid; state validity is the Automaton contract.
+          while input.end - at >= 4
+            {% for step in 0...4 %}
+              fast_next = next_state_unchecked(current_state, input.haystack.unsafe_fetch(at))
+              break if is_special_state?(fast_next)
+              current_state = fast_next
+              at += 1
+            {% end %}
+          end
+          break if at == input.end
+        {% end %}
         next_state = next_state(current_state, input.haystack[at])
         return MatchError.quit(input.haystack[at], at) if is_quit_state?(next_state)
         break if is_dead_state?(next_state)
@@ -319,6 +334,18 @@ module Regex::Automata
 
       at = input.end - 1
       loop do
+        {% if flag?(:dfa_unrolled_search) %}
+          # Leave the first byte to the common handler so its existing EOI
+          # convention is unchanged after ordinary reverse transitions.
+          while at - input.start >= 4
+            {% for step in 0...4 %}
+              fast_next = next_state_unchecked(current_state, input.haystack.unsafe_fetch(at))
+              break if is_special_state?(fast_next)
+              current_state = fast_next
+              at -= 1
+            {% end %}
+          end
+        {% end %}
         next_state = next_state(current_state, input.haystack[at])
         return MatchError.quit(input.haystack[at], at) if is_quit_state?(next_state)
         return last_match if is_dead_state?(next_state)

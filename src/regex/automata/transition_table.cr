@@ -122,6 +122,11 @@ module Regex::Automata
       @table[offset]
     end
 
+    # As with Rust get_unchecked, the caller must supply a valid state ID.
+    def next_state_unchecked(state_id : StateID, byte : UInt8) : StateID
+      @table.unsafe_fetch(state_id.to_i + @classes[byte])
+    end
+
     # Get next state for given state ID and byte class
     def next_state_by_class(state_id : StateID, byte_class : Int32) : StateID
       offset = state_id.to_i + byte_class

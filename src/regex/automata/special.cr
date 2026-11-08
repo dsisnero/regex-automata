@@ -286,13 +286,9 @@ module Regex::Automata
     def write_to(buf : Bytes) : Int32
       raise SerializeError.buffer_too_small("special state ids") if buf.size < write_to_len
 
-      # Simple serialization: write all IDs as 4-byte integers
       offset = 0
       [@max, @quit_id, @min_match, @max_match, @min_accel, @max_accel, @min_start, @max_start].each do |id|
-        buf[offset] = (id.to_i >> 24).to_u8
-        buf[offset + 1] = (id.to_i >> 16).to_u8
-        buf[offset + 2] = (id.to_i >> 8).to_u8
-        buf[offset + 3] = id.to_i.to_u8
+        IO::ByteFormat::SystemEndian.encode(id.as_u32, buf[offset, 4])
         offset += 4
       end
       offset
@@ -309,8 +305,9 @@ module Regex::Automata
       ids = Array(StateID).new(8)
       offset = 0
       8.times do
-        id = (buf[offset].to_i32 << 24) | (buf[offset + 1].to_i32 << 16) | (buf[offset + 2].to_i32 << 8) | buf[offset + 3].to_i32
-        ids << StateID.new(id)
+        value = IO::ByteFormat::SystemEndian.decode(UInt32, buf[offset, 4])
+        return nil if value > StateID::MAX.as_u32
+        ids << StateID.new(value.to_i32)
         offset += 4
       end
 

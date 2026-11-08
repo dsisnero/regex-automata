@@ -9,6 +9,7 @@ require "./transition_table"
 require "./match_states"
 require "./minimize"
 require "./start_table"
+require "./determinize_state"
 require "set"
 require "regex-syntax"
 
@@ -659,10 +660,10 @@ module Regex::Automata::DFA
     # Unsafe version of next_state that assumes valid state ID
     def next_state_unchecked(current : StateID, input : UInt8) : StateID
       if tt = @tt
-        tt.next_state(current, input)
+        tt.next_state_unchecked(current, input)
       else
         byte_class = @byte_classifier[input]
-        @states[current.to_i].next[byte_class]
+        @states.unsafe_fetch(current.to_i).next.unsafe_fetch(byte_class)
       end
     end
 
@@ -682,18 +683,17 @@ module Regex::Automata::DFA
 
     # Alias for compatibility with Rust Automaton trait
     def is_match_state?(id : StateID) : Bool
-      return false if is_dead_state?(id) || is_quit_state?(id)
-      @special.is_match_state?(id) || match_state?(id)
+      @special.is_match_state?(id)
     end
 
     # Check if state is a dead state
     def is_dead_state?(id : StateID) : Bool
-      ::Regex::Automata::DFA.dead_state?(id)
+      @special.is_dead_state?(id)
     end
 
     # Check if state is a quit state
     def is_quit_state?(id : StateID) : Bool
-      ::Regex::Automata::DFA.quit_state?(id) || @special.is_quit_state?(id)
+      @special.is_quit_state?(id)
     end
 
     # Check if state is a special state (dead, quit, match, start, etc.)
@@ -703,20 +703,12 @@ module Regex::Automata::DFA
 
     # Check if state is a start state
     def is_start_state?(id : StateID) : Bool
-      return false if is_dead_state?(id) || is_quit_state?(id)
-      @special.is_start_state?(id) || @st.start_state?(id)
+      @special.is_start_state?(id)
     end
 
     # Check if state is an accelerated state
     def is_accel_state?(id : StateID) : Bool
-      return false if is_dead_state?(id) || is_quit_state?(id)
-      return true if @special.is_accel_state?(id)
-
-      state_idx = id.to_i
-      if tt = @tt
-        state_idx = tt.to_index(id)
-      end
-      !@accelerators[state_idx].empty?
+      @special.is_accel_state?(id)
     end
 
     # Returns the number of patterns in this automaton
@@ -1244,7 +1236,10 @@ module Regex::Automata::DFA
     @dfa_states : Array(State)
     @dfa_state_count : Int32
     @dfa_state_metas : Array(StateMeta)
-    @state_map : Hash(Tuple(Array(StateID), LookSet, Bool, Bool, Array(PatternID)), StateID) # ordered NFA states preserve Rust's leftmost priority
+    @state_map : Hash(Determinize::State, StateID)
+    @scratch_state_builder : Determinize::StateBuilderEmpty
+    @state_key_memory_usage : Int64
+    @built : Bool = false
     @byte_classes : ByteClasses
     @transition_table : TransitionTable
     @nfa_has_word : Bool
@@ -1383,7 +1378,9 @@ module Regex::Automata::DFA
         StateMeta.new(Set(StateID).new, LookSet.new, LookSet.new, false, false, [] of PatternID),
         StateMeta.new(Set(StateID).new, LookSet.new, LookSet.new, false, false, [] of PatternID),
       ]
-      @state_map = {} of Tuple(Array(StateID), LookSet, Bool, Bool, Array(PatternID)) => StateID
+      @state_map = {} of Determinize::State => StateID
+      @scratch_state_builder = Determinize::StateBuilderEmpty.new
+      @state_key_memory_usage = 0_i64
       @start_unanchored = nil
       @start_anchored = nil
     end
@@ -1491,6 +1488,10 @@ module Regex::Automata::DFA
 
     # Build DFA from the configured NFA
     def build : DFA
+      # The public builder is reusable. Its completed runner owns tables that
+      # the previous DFA still references, so a subsequent run needs fresh scratch.
+      return clone.build if @built
+      @built = true
       raise "No NFA configured. Use build(pattern) or provide an NFA to the builder." unless @nfa
 
       nfa = @nfa.not_nil!
@@ -2016,25 +2017,32 @@ module Regex::Automata::DFA
 
       # First compute epsilon closure with the given satisfied look conditions
       closure_ids = nfa.epsilon_closure_with_look_ordered(nfa_set, look_have)
-      closure = closure_ids.to_set
       state_matches = matches || collect_matches(closure_ids)
-
-      # Check if we already have a DFA state for this (closure, look_have, delayed matches)
-      key = {closure_ids, look_have, is_from_word, is_half_crlf, state_matches}
-      if existing = @state_map[key]?
-        return existing
-      end
-
-      dfa_id = StateID.new(@dfa_state_count)
-
-      # Compute look need set from NFA states that are look-around assertions
+      # Probe with borrowed scratch bytes; only a new cached state owns a copy.
+      builder_matches = @scratch_state_builder.into_matches
+      builder_matches.set_is_from_word if is_from_word
+      builder_matches.set_is_half_crlf if is_half_crlf
+      builder_matches.set_look_have { look_have }
+      state_matches.each { |pid| builder_matches.add_match_pattern_id(pid) }
+      builder = builder_matches.into_nfa
       look_need = LookSet.new
       closure_ids.each do |nfa_id|
+        builder.add_nfa_state_id(nfa_id)
         nfa_state = nfa.states[nfa_id.to_i]
         if nfa_state.is_a?(NFA::Look)
           look_need = look_need.union(look_from_nfa_kind(nfa_state.kind))
         end
       end
+      builder.set_look_need { look_need }
+      if existing = @state_map[Determinize::State.new(builder.as_bytes)]?
+        @scratch_state_builder = builder.clear
+        return existing
+      end
+      key = builder.to_state
+      @scratch_state_builder = builder.clear
+      @state_key_memory_usage += key.memory_usage
+      dfa_id = StateID.new(@dfa_state_count)
+      closure = closure_ids.to_set
       meta = StateMeta.new(closure, look_have, look_need, is_from_word, is_half_crlf, state_matches)
 
       # Check if any NFA state in set is a match
@@ -2159,7 +2167,8 @@ module Regex::Automata::DFA
     end
 
     private def determinize_memory_usage : Int64
-      usage = (@dfa_state_metas.size * 64 + @state_map.size * 32).to_i64
+      usage = (@dfa_state_metas.size * 64 + @state_map.size * 32).to_i64 +
+              @state_key_memory_usage + @scratch_state_builder.capacity
       @dfa_state_metas.each do |meta|
         usage += (meta.nfa_set.size * 8).to_i64
         usage += (meta.matches.size * 4).to_i64

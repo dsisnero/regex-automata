@@ -70,8 +70,8 @@ describe "DFA API" do
   end
 
   describe "universal start search" do
-    it "walks dense universal start states like the Rust automaton contract" do
-      find = ->(dfa : Regex::Automata::DFA::DFA, haystack : String) do
+    it "walks dense and sparse universal start states like the Rust automaton contract" do
+      find = ->(dfa : Regex::Automata::Automaton, haystack : String) do
         state = dfa.universal_start_state(Regex::Automata::Anchored::No).not_nil!
         last_match : Regex::Automata::HalfMatch? = nil
 
@@ -95,17 +95,21 @@ describe "DFA API" do
       end
 
       check = ->(pattern : String, haystack : String, pattern_id : Int32, offset : Int32) do
-        match = find.call(Regex::Automata::DFA::DFA.new(pattern), haystack)
-        match.should eq(Regex::Automata::HalfMatch.must(pattern_id, offset))
+        dense = Regex::Automata::DFA::DFA.new(pattern)
+        [dense, dense.to_sparse].each do |engine|
+          find.call(engine, haystack).should eq(Regex::Automata::HalfMatch.must(pattern_id, offset))
+        end
       end
 
       check.call("[a-z]+", "123 foobar 4567", 0, 10)
       check.call("[0-9]{4}", "123 foobar 4567", 0, 15)
 
       dfa = Regex::Automata::DFA::DFA.new_many(["[a-z]+", "[0-9]+"])
-      find.call(dfa, "123 foobar 4567").should eq(Regex::Automata::HalfMatch.must(1, 3))
-      find.call(dfa, " foobar 4567").should eq(Regex::Automata::HalfMatch.must(0, 7))
-      find.call(dfa, " 4567").should eq(Regex::Automata::HalfMatch.must(1, 5))
+      [dfa, dfa.to_sparse].each do |engine|
+        find.call(engine, "123 foobar 4567").should eq(Regex::Automata::HalfMatch.must(1, 3))
+        find.call(engine, " foobar 4567").should eq(Regex::Automata::HalfMatch.must(0, 7))
+        find.call(engine, " 4567").should eq(Regex::Automata::HalfMatch.must(1, 5))
+      end
     end
   end
 

@@ -63,6 +63,8 @@ describe Regex::Automata::Input do
     expect_raises(ArgumentError, /invalid span/) do
       input.set_start(8)
     end
+    expect_raises(ArgumentError, /invalid span/) { input.set_start(-1) }
+    expect_raises(ArgumentError, /invalid span/) { input.span(0...-1) }
   end
 
   it "reports UTF-8 codepoint boundaries relative to the haystack" do
@@ -73,6 +75,10 @@ describe Regex::Automata::Input do
     input.is_char_boundary(2).should be_false
     input.is_char_boundary(3).should be_true
     input.is_char_boundary(4).should be_false
+
+    invalid = Regex::Automata::Input.new(Bytes[0x80, 'a'.ord.to_u8])
+    invalid.is_char_boundary(0).should be_false
+    invalid.is_char_boundary(1).should be_true
   end
 
   it "preserves pattern-specific anchoring and earliest mode when cloned" do

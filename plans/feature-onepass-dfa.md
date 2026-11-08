@@ -111,8 +111,11 @@ Language adaptations and costs:
   `NonMaxUsize?`, directly over Array or Slice buffers. Stack Slice views
   borrow stable array storage for the duration of a call; searches never
   resize those arrays. No conversion array or per-byte heap object is used.
-  On this 64-bit host each optional scratch slot occupies eight bytes, as
-  Rust's Option<NonMaxUsize> does. Cache reports payload length times the
+  The phase 8 layout audit corrected the earlier eight-byte claim: on Crystal
+  1.22.2 on this 64-bit host, both `Int32?` and `NonMaxUsize?` occupy 16 bytes;
+  Rust's `Option<NonMaxUsize>` occupies eight. Thus Crystal scratch uses twice
+  the slot payload at this target, without an extra per-byte allocation.
+  Cache reports payload length times the
   Crystal element size, excluding object headers/unused capacity.
 - Rust Input is borrowed/value-owned; Crystal's Input is a class, so the
   convenience APIs clone its settings to anchor/force earliest without

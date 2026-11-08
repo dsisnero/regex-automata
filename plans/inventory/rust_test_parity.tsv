@@ -163,7 +163,7 @@ tests/dfa/api.rs::test::quit_fwd	ported	spec/dfa_api_spec.cr	Uses the upstream w
 tests/dfa/api.rs::test::quit_panics	ported	spec/dfa_api_spec.cr	Ports the Unicode-word-boundary/non-ASCII quit configuration rejection.
 tests/dfa/api.rs::test::quit_rev	ported	spec/dfa_api_spec.cr	Uses the upstream anchored word-class pattern and reverse quit error at byte 3.
 tests/dfa/api.rs::test::unicode_word_implicitly_works	ported	spec/dfa_api_spec.cr	Sets every non-ASCII byte to quit and asserts the exact word-boundary half match.
-tests/dfa/api.rs::test::universal_start_search	partial	spec/dfa_api_spec.cr	Ports the upstream dense universal-start traversal and exact matrix; the Rust sparse-DFA counterpart remains open with sparse parity.
+tests/dfa/api.rs::test::universal_start_search	ported	spec/dfa_api_spec.cr	Ports the exact pinned universal-start matrix through both dense and sparse DFA traversal; focused API gate and generated nine-engine native comparison pass.
 tests/dfa/onepass/regression.rs::test::too_many_slots_normal_pattern	ported	spec/dfa_onepass_spec.cr	Ports extra-slot regression.
 tests/dfa/onepass/regression.rs::test::zero_repetition_capture_group	ported	spec/dfa_onepass_spec.cr	Ports zero-repetition capture regression.
 tests/dfa/onepass/suite.rs::test::default	ported	spec/onepass_vendor_suite_spec.cr;spec/fixtures/onepass_suite.tsv;scripts/check_onepass.sh	All 328 anchored/non-leftmost-longest case IDs per mode: 120 admitted with exact Rust states/alphabet/stride/payload memory and is_match/find/captures expectations; 208 independently required NotOnePass rejections. Overlapping cases use only is_match, as Rust; other admitted cases also compare PikeVM on identical Inputs. Oracle regenerates all three modes from pin.

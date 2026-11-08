@@ -86,7 +86,7 @@ module Regex::Automata::Determinize
     end
   end
 
-  class StateBuilderEmpty
+  struct StateBuilderEmpty
     @repr : Array(UInt8)
 
     def clone : StateBuilderEmpty
@@ -120,7 +120,7 @@ module Regex::Automata::Determinize
     end
   end
 
-  class StateBuilderMatches
+  struct StateBuilderMatches
     @repr : Array(UInt8)
 
     protected def initialize(@repr : Array(UInt8))
@@ -172,7 +172,7 @@ module Regex::Automata::Determinize
     end
   end
 
-  class StateBuilderNFA
+  struct StateBuilderNFA
     @repr : Array(UInt8)
     @prev_nfa_state_id : ::Regex::Automata::StateID
 
@@ -268,7 +268,7 @@ module Regex::Automata::Determinize
     {0_u32, 0}
   end
 
-  private class Repr
+  private struct Repr
     def initialize(@bytes : Bytes)
     end
 
@@ -381,7 +381,7 @@ module Regex::Automata::Determinize
     end
   end
 
-  private class ReprVec
+  private struct ReprVec
     def initialize(@bytes : Array(UInt8))
     end
 
@@ -411,16 +411,12 @@ module Regex::Automata::Determinize
 
     def set_look_have(& : ::Regex::Automata::LookSet -> ::Regex::Automata::LookSet) : Nil
       set = yield look_have
-      bytes = Bytes.new(4)
-      set.write_repr(bytes)
-      4.times { |i| @bytes[1 + i] = bytes[i] }
+      write_u32_at(1, set.bits)
     end
 
     def set_look_need(& : ::Regex::Automata::LookSet -> ::Regex::Automata::LookSet) : Nil
       set = yield look_need
-      bytes = Bytes.new(4)
-      set.write_repr(bytes)
-      4.times { |i| @bytes[5 + i] = bytes[i] }
+      write_u32_at(5, set.bits)
     end
 
     def add_match_pattern_id(pid : ::Regex::Automata::PatternID) : Nil
@@ -461,9 +457,10 @@ module Regex::Automata::Determinize
     end
 
     private def write_u32_at(offset : Int32, value : UInt32) : Nil
-      bytes = Bytes.new(4)
-      IO::ByteFormat::SystemEndian.encode(value, bytes)
-      4.times { |i| @bytes[offset + i] = bytes[i] }
+      # Borrow the existing header just as Rust's Vec byte view does. Encoding
+      # cannot resize the Array, and the Slice validates the four-byte window.
+      bytes = Slice.new(@bytes.to_unsafe, @bytes.size)
+      IO::ByteFormat::SystemEndian.encode(value, bytes[offset, 4])
     end
   end
 

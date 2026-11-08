@@ -1,6 +1,20 @@
 require "./spec_helper"
 
 describe "pinned Rust hybrid regex wrapper contracts" do
+  {% unless flag?(:release) %}
+    it "asserts when the reverse DFA reports a different pattern" do
+      forward = Regex::Automata::Hybrid::DFA.new_many(["a", "b"])
+      reverse = Regex::Automata::Hybrid::Builder.new
+        .thompson(Regex::Automata::NFA::NFA.config.reverse(true))
+        .build_many(["b", "a"])
+      re = Regex::Automata::Hybrid::Regex.builder.build_from_dfas(forward, reverse)
+
+      expect_raises(Exception, "forward and reverse search must match same pattern") do
+        re.try_search(re.create_cache, Regex::Automata::Input.new("za"))
+      end
+    end
+  {% end %}
+
   it "asserts that forward and reverse DFAs have the same pattern count" do
     forward = Regex::Automata::Hybrid::DFA.new("foo")
     reverse = Regex::Automata::Hybrid::DFA.new_many(["foo", "bar"])

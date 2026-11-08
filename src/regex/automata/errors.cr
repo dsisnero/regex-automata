@@ -1,3 +1,5 @@
+require "./escape"
+
 module Regex::Automata
   # Base error type for regex-automata
   class Error < Exception
@@ -77,7 +79,7 @@ module Regex::Automata
     def initialize(@kind : Kind, @byte : UInt8? = nil, @offset : Int32? = nil, @len : Int32? = nil, @mode : Anchored? = nil, @pattern : PatternID? = nil)
       message = case @kind
                 when Kind::Quit
-                  "quit search after observing byte #{@byte.not_nil!} at offset #{@offset.not_nil!}"
+                  "quit search after observing byte #{DebugByte.new(@byte.not_nil!).inspect} at offset #{@offset.not_nil!}"
                 when Kind::GaveUp
                   "gave up searching at offset #{@offset.not_nil!}"
                 when Kind::HaystackTooLong

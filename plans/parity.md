@@ -6,10 +6,10 @@
   `72d650cb0a880a01ab6dc2137c0888e8f89740f7` (regex-automata 0.4.18).
   Do not substitute remembered Rust behavior or a newer upstream revision.
 - Working source ledger: [rust_port_inventory.tsv](inventory/rust_port_inventory.tsv)
-  (1,936 Rust API items: 1,723 `ported`, 0 `missing`, 19 `partial`, 181
+  (1,936 Rust API items: 1,739 `ported`, 0 `missing`, 5 `partial`, 179
   `intentional_divergence`, 13 `skipped`). Test ledger:
-  [rust_test_parity.tsv](inventory/rust_test_parity.tsv) (220 rows: 209
-  `ported`, 1 `partial`, 9 `intentional_divergence`, 1 `skipped`). These are **review
+  [rust_test_parity.tsv](inventory/rust_test_parity.tsv) (220 rows: 210
+  `ported`, 0 `partial`, 9 `intentional_divergence`, 1 `skipped`). These are **review
   queues**, not a count of absent behaviors or a completion percentage. The
   generated manifests are item inventories, so a file-level pass is also
   required for private algorithms without discovered rows.
@@ -39,13 +39,29 @@
 - **Current focus:** phase 8, the final existing cross-engine/shared-utility
   audit and controlled performance signoff. Phase 7 Meta is complete:
   [feature evidence](feature-meta.md), all 275 API rows and 11 file reviews,
-  five-mode vendor matrix and full gates are closed.
-- **Next up:** audit the remaining 19 partial API rows and one partial test,
-  reconcile pending/private file reviews and existing divergences, then close
-  the shared construction/search/prefilter costs already listed in phase 8.
-  No further implementation phase has been added. Do not infer completion
-  from the zero missing-row count; the listed shared algorithm/performance
-  work remains real and open.
+  five-mode vendor matrix and full gates are closed. The bounded
+  [final signoff checklist](feature-final-signoff.md) tracks phase 8. Current
+  source work ports the memchr 2.8.1 substring fallback and combined byte
+  scans, and removes redundant scalar needle storage. Baseline logs are
+  `temp/phase8-baseline-{lint,parity,test}.log`; all baseline gates pass (23,382
+  specs). Native Rust unit/integration/doc suites and dense/sparse wire, DFA
+  wrapper and one-pass oracles pass. All 16,848 generated nine-engine
+  results agree with pinned Rust, including the experimental unrolled build.
+  Decoder, capture extraction, replacement-parser and state-classification gaps
+  are fixed and documented in the final checklist. Final inventories and
+  controlled measurements remain open. Branch `codex/final-vendor-signoff`
+  has a local measurement checkpoint. The previous complete run passed
+  23,401 specs. The current rerun is in `temp/phase8-resume-full.log` following
+  fixes for signed Input bounds, offset-zero UTF-8 classification, quit Display,
+  and the hybrid wrapper's debug assertion. Local allocation probes show
+  7.7% less dense construction allocation on the audited workload.
+- **Next up:** check the full rerun, then obtain controlled x86 measurements
+  and decide whether to retain the unrolled DFA loops. Five API rows still
+  cover finite dense construction budgets and byte/substring SIMD evidence.
+  The file ledger separately tracks dense minimize/storage cost and Teddy.
+  Automatic review rejected publishing the local checkpoint to the public
+  branch without explicit payload/destination approval, so x86 CI awaits
+  that approval. The pinned vendor commit is unchanged.
 - **Dependency correction:** grouped dot translation now preserves the syntax
   terminator through `regex-syntax` commit `1623e24`. The dedicated pushed
   branch and review draft are recorded in the [Meta plan](feature-meta.md).
@@ -124,7 +140,7 @@
   search-result divergence. No throughput claim is made on this loaded host; phase 8's
   controlled comparison should include pooled Meta searches.
 - **Last completed feature commit:** phase 7 `port: Meta strategy and facade
-  parity` (this feature commit). Prior phase 6 is `6e45c59`; wrapper phase 5c
+  parity` (`8edddc8`). Prior phase 6 is `6e45c59`; wrapper phase 5c
   is `887355b`, sparse phase 5b `ebf762c`, dense phase 5a `853c6c6`.
 - **Gates:** **23,382/23,382 full Crystal specs** and 15,453 affected-engine
   focused specs pass. The Meta matrix runs 1,186 admissible cases per mode,

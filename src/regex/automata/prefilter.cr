@@ -1,7 +1,9 @@
+require "./byte_search"
 require "./search"
 require "./teddy_matcher"
 require "./aho_dfa"
 require "./aho_contiguous_nfa"
+require "./memmem_finder"
 require "regex-syntax"
 
 module Regex::Automata
@@ -10,10 +12,12 @@ module Regex::Automata
   class Prefilter
     getter kind : MatchKind
     getter max_needle_len : Int32
-    getter needles : Array(Bytes)
     getter strategy_name : String
 
     @needles : Array(Bytes)
+    @byte_needles : StaticArray(UInt8, 3)
+    @byte_needle_len : Int32
+    @finder : MemmemFinder?
     @is_fast : Bool
     @memory_usage : Int32
     @aho : AhoDfa | AhoContiguousNfa | Nil
@@ -83,7 +87,10 @@ module Regex::Automata
         return nil
       end
 
-      return find_byte_needles(haystack, span) if @needles.size <= 3 && @needles.all? { |needle| needle.size == 1 }
+      return find_byte_needles(haystack, span) if @byte_needle_len > 0
+      if finder = @finder
+        return finder.find(haystack[span.start, span.length]).try { |at| Span.new(span.start + at, span.start + at + @max_needle_len) }
+      end
 
       best_span = nil.as(Span?)
       best_index = Int32::MAX
@@ -117,10 +124,18 @@ module Regex::Automata
       # The pinned Memchr{,2,3}::prefix methods inspect the byte at start,
       # even when the span itself is empty. Their find methods still use the
       # bounded slice and return no candidate for an empty span.
-      if @needles.size <= 3 && @needles.all? { |needle| needle.size == 1 }
+      if @byte_needle_len > 0
         return nil if span.start >= haystack.size
-        return Span.new(span.start, span.start + 1) if @needles.any? { |needle| needle[0] == haystack[span.start] }
+        byte = haystack[span.start]
+        @byte_needle_len.times do |i|
+          return Span.new(span.start, span.start + 1) if @byte_needles[i] == byte
+        end
         return nil
+      end
+      if finder = @finder
+        needle = finder.needle
+        return nil if needle.size > span.length
+        return starts_with?(haystack, span.start, needle) ? Span.new(span.start, span.start + needle.size) : nil
       end
 
       @needles.each do |needle|
@@ -139,7 +154,17 @@ module Regex::Automata
     # Diagnostic for checking that Aho/ByteSet do not keep Rust-unneeded
     # literal copies after their compiled matcher has been built.
     def retained_needle_bytes : Int32
-      @needles.sum(&.size).to_i32
+      @needles.sum(&.size).to_i32 + (@finder.try(&.needle.size) || 0)
+    end
+
+    # Compatibility inspection API: scalar literals are reconstructed only
+    # when requested, rather than retained as heap-owned one-byte slices.
+    def needles : Array(Bytes)
+      if @byte_needle_len > 0
+        return Array.new(@byte_needle_len) { |i| Bytes[@byte_needles[i]] }
+      end
+      return [finder.needle] if finder = @finder
+      @needles
     end
 
     def find_with_index(haystack : Bytes, span : Span) : Tuple(Int32, Span)?
@@ -173,11 +198,19 @@ module Regex::Automata
     private def initialize(@kind : MatchKind, @needles : Array(Bytes), @max_needle_len : Int32, @memory_usage : Int32, @is_fast : Bool)
       @byte_set = nil
       @teddy = nil
+      @finder = nil
+      @byte_needles = StaticArray(UInt8, 3).new(0_u8)
+      @byte_needle_len = 0
+      if @needles.size <= 3 && @needles.all? { |needle| needle.size == 1 }
+        @byte_needle_len = @needles.size
+        @needles.each_with_index { |needle, i| @byte_needles[i] = needle[0] }
+      end
       @strategy_name = if @needles.size == 1
                          if @needles[0].size == 1
                            @memory_usage = 0
                            "memchr"
                          else
+                           @finder = MemmemFinder.new(@needles[0])
                            "memmem"
                          end
                        elsif @needles.size == 2 && @needles.all? { |needle| needle.size == 1 }
@@ -213,7 +246,7 @@ module Regex::Automata
         @memory_usage = aho.memory_usage + (@teddy.try(&.memory_usage) || 0)
         @is_fast = false if @needles.size > 64
       end
-      @needles = [] of Bytes if @aho && !@teddy || @byte_set
+      @needles = [] of Bytes if @aho && !@teddy || @byte_set || @byte_needle_len > 0 || @finder
     end
 
     private def self.bytes_for(needle) : Bytes
@@ -232,20 +265,9 @@ module Regex::Automata
     # Slice#index uses libc memchr for bytes. Bound the slice first, as Rust's
     # memchr wrapper does, so a short span never scans the rest of the input.
     private def find_byte_needles(haystack : Bytes, span : Span) : Span?
-      best_span = nil.as(Span?)
-      best_index = Int32::MAX
       window = haystack[span.start, span.length]
-      @needles.each_with_index do |needle, index|
-        found = window.index(needle[0])
-        next unless found
-
-        candidate = Span.new(span.start + found, span.start + found + 1)
-        if better_match?(candidate, index.to_i32, best_span, best_index)
-          best_span = candidate
-          best_index = index.to_i32
-        end
-      end
-      best_span
+      ByteSearch.find(@byte_needles[0], @byte_needles[1], @byte_needles[2], @byte_needle_len, window)
+        .try { |offset| Span.new(span.start + offset, span.start + offset + 1) }
     end
 
     private def better_match?(candidate : Span, index : Int32, current : Span?, current_index : Int32) : Bool

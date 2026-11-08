@@ -51,6 +51,25 @@ private def assert_interpolates(
 end
 
 describe Regex::Automata::Interpolate do
+  it "parses a braced leading plus as an unsigned numeric reference" do
+    assert_interpolates({"+1" => 0}, ["wrong", "one"], "${+1}", "one")
+    assert_interpolates({" 1" => 0, "1_0" => 0, "-0" => 0}, ["named", "one"], "${ 1}/${1_0}/${-0}", "named/named/named")
+  end
+
+  it "distinguishes full-width numeric indexes from overflowing names" do
+    result = String.build do |dst|
+      Regex::Automata::Interpolate.string(
+        "${18446744073709551615}/${18446744073709551616}",
+        ->(index : UInt64, out : IO) { out << "index:#{index}"; nil },
+        ->(name : String) { name == "18446744073709551616" ? 7_u64 : nil },
+        dst)
+    end
+    result.should eq("index:18446744073709551615/index:7")
+    # The compatibility Int32 callback cannot address such a group, and the
+    # numeric text must not accidentally invoke the name lookup instead.
+    assert_interpolates({"2147483648" => 0}, ["wrong"], "${2147483648}", "")
+  end
+
   it "matches the vendored replacement semantics for names, indices, and escapes" do
     assert_interpolates({"foo" => 2}, ["", "", "xxx"], "test $foo test", "test xxx test")
     assert_interpolates({"foo" => 2}, ["", "", "xxx"], "test$footest", "test")

@@ -211,7 +211,7 @@ module Regex::Automata
       end
 
       @slices.each do |start, len|
-        return DeserializeError.generic("invalid pattern ID start offset") if start < 0 || start > @pattern_ids.size
+        return DeserializeError.generic("invalid pattern ID start offset") if start < 0 || start >= @pattern_ids.size
         return DeserializeError.generic("invalid pattern ID length") if len < 0 || len > @pattern_ids.size - start
         @pattern_ids[start, len].each do |pattern_id|
           return DeserializeError.generic("invalid pattern ID") if pattern_id.to_i < 0 || pattern_id.to_i >= @pattern_len

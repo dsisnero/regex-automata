@@ -7,7 +7,7 @@ module Regex::Automata
       end
     end
 
-    private alias Ref = Int32 | CaptureNameRef
+    private alias Ref = UInt64 | CaptureNameRef
 
     private struct CaptureRef
       getter cap : Ref
@@ -19,18 +19,21 @@ module Regex::Automata
 
     def self.string(
       replacement : String,
-      append : Int32, IO -> Nil,
-      name_to_index : String -> Int32?,
+      append : T, IO -> Nil,
+      name_to_index : String -> T?,
       dst : IO,
-    ) : Nil
+    ) : Nil forall T
       each_part(replacement.to_slice) do |part|
         case part
         when Bytes
           dst << String.new(part)
         when CaptureRef
           case cap = part.cap
-          when Int32
-            append.call(cap, dst)
+          when UInt64
+            # Crystal capture buffers have Int32 indexes, while callers of
+            # the public interpolation helper may use the full usize domain.
+            # An out-of-domain numeric index cannot name a capture group.
+            append.call(T.new(cap), dst) if cap <= T::MAX.to_u64
           when CaptureNameRef
             if index = name_to_index.call(cap.name)
               append.call(index, dst)
@@ -42,18 +45,18 @@ module Regex::Automata
 
     def self.bytes(
       replacement : Bytes,
-      append : Int32, Array(UInt8) -> Nil,
-      name_to_index : String -> Int32?,
+      append : T, Array(UInt8) -> Nil,
+      name_to_index : String -> T?,
       dst : Array(UInt8),
-    ) : Nil
+    ) : Nil forall T
       each_part(replacement) do |part|
         case part
         when Bytes
           part.each { |byte| dst << byte }
         when CaptureRef
           case cap = part.cap
-          when Int32
-            append.call(cap, dst)
+          when UInt64
+            append.call(T.new(cap), dst) if cap <= T::MAX.to_u64
           when CaptureNameRef
             if index = name_to_index.call(cap.name)
               append.call(index, dst)
@@ -123,9 +126,12 @@ module Regex::Automata
     end
 
     private def self.ref_from_name(name : String) : Ref
-      if name.each_char.all?(&.ascii_number?)
-        if value = name.to_i64?
-          return value.to_i32 if value <= Int32::MAX
+      # Rust usize::from_str accepts one leading '+', rejects whitespace,
+      # separators and negatives, and treats overflow as a named reference.
+      digits = name.starts_with?('+') ? name.byte_slice(1) : name
+      if !digits.empty? && digits.each_byte.all? { |byte| '0'.ord <= byte <= '9'.ord }
+        if value = name.to_u64?(whitespace: false)
+          return value
         end
       end
       CaptureNameRef.new(name)
