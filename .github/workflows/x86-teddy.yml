@@ -25,6 +25,10 @@ jobs:
 
   final-signoff:
     runs-on: ubuntu-latest
+    env:
+      # The harnesses generate standalone manifests with exact registry pins.
+      # A fresh runner needs to fetch those crates during the build.
+      CARGO_NET_OFFLINE: "false"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -46,8 +50,6 @@ jobs:
           crystal spec spec/byte_search_spec.cr spec/memmem_finder_spec.cr -Dsubstring_diagnostics
           crystal spec spec/byte_search_spec.cr spec/memmem_finder_spec.cr -Dbyte_search_sse2 -Dsubstring_diagnostics
           crystal spec spec/byte_search_spec.cr spec/memmem_finder_spec.cr -Dbyte_search_scalar -Dsubstring_diagnostics
-      - name: Fetch pinned Rust dependencies
-        run: cargo fetch --locked --manifest-path vendor/regex/regex-automata/Cargo.toml
       - run: scripts/check_final_cross_engine.sh
       - name: Verify experimental four-step DFA loops
         run: |

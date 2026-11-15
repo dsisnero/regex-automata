@@ -5,6 +5,7 @@ root="$PWD"
 work="$root/temp/final-perf"
 export CRYSTAL_CACHE_DIR="$root/temp/crystal-cache"
 export CARGO_TARGET_DIR="$root/temp/rust-target"
+export CARGO_NET_OFFLINE="${CARGO_NET_OFFLINE:-true}"
 mkdir -p "$work"
 case "${1:-check}" in
   prepare)
@@ -25,7 +26,7 @@ regex-automata = { path = "../../vendor/regex/regex-automata" }
 memchr = "=2.8.1"
 aho-corasick = "=1.1.4"
 MANIFEST
-    cargo build --offline --release --manifest-path "$work/Cargo.toml"
+    cargo build --release --manifest-path "$work/Cargo.toml"
     crystal build --release "$work/baseline/bench/final_signoff.cr" -o "$work/baseline-bench"
     crystal build --release bench/final_signoff.cr -o "$work/current-bench"
     crystal build --release -Ddfa_unrolled_search bench/final_signoff.cr -o "$work/unrolled-bench"
