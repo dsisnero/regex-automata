@@ -22,8 +22,22 @@ module Regex::Automata::ByteSearch
 
   def find(a : UInt8, b : UInt8, c : UInt8, count : Int32, haystack : Bytes, reverse : Bool = false) : Int32?
     return haystack.index(a) if count == 1 && !reverse
+    {% if flag?(:x86_64) && !flag?(:byte_search_sse2) && !flag?(:byte_search_scalar) %}
+      # The x86 runner found libc faster for two forward needles and
+      # comparable for three. Reverse scans still use the combined kernel.
+      unless reverse
+        found = first_offset(haystack.index(a), haystack.index(b))
+        return found if count == 2
+        return first_offset(found, haystack.index(c)) if count == 3
+      end
+    {% end %}
     offset = LibByteSearchNative.find(haystack.to_unsafe, haystack.size.to_u64, a, b, c, count, reverse ? 1 : 0)
     offset < 0 ? nil : offset.to_i32
+  end
+
+  private def first_offset(a : Int32?, b : Int32?) : Int32?
+    return b unless a
+    b ? Math.min(a, b) : a
   end
 
   def pair(needle : Bytes, a : Int32, b : Int32, haystack : Bytes, verify : Bool) : Int32?

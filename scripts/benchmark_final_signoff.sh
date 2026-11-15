@@ -29,22 +29,22 @@ MANIFEST
     cargo build --release --manifest-path "$work/Cargo.toml"
     crystal build --release "$work/baseline/bench/final_signoff.cr" -o "$work/baseline-bench"
     crystal build --release bench/final_signoff.cr -o "$work/current-bench"
-    crystal build --release -Ddfa_unrolled_search bench/final_signoff.cr -o "$work/unrolled-bench"
+    crystal build --release -Ddfa_scalar_search bench/final_signoff.cr -o "$work/scalar-bench"
     ;;
   check)
     "$work/baseline-bench" --check > "$work/baseline-check.tsv"
     "$work/current-bench" --check > "$work/current-check.tsv"
-    "$work/unrolled-bench" --check > "$work/unrolled-check.tsv"
+    "$work/scalar-bench" --check > "$work/scalar-check.tsv"
     "$CARGO_TARGET_DIR/release/final-signoff-bench" --check > "$work/rust-check.tsv"
     diff -u "$work/rust-check.tsv" "$work/baseline-check.tsv"
     diff -u "$work/rust-check.tsv" "$work/current-check.tsv"
-    diff -u "$work/rust-check.tsv" "$work/unrolled-check.tsv"
+    diff -u "$work/rust-check.tsv" "$work/scalar-check.tsv"
     ;;
   run)
     # Do not time on the operator's loaded host. CI must pass the idle gate
     # before each separate process, after all builds and correctness gates.
     for run in 1 2 3; do
-      for implementation in baseline current unrolled rust; do
+      for implementation in baseline current scalar rust; do
         python3 scripts/final_perf_idle.py
         if [[ "$implementation" == rust ]]; then
           binary="$CARGO_TARGET_DIR/release/final-signoff-bench"

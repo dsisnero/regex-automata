@@ -79,8 +79,8 @@ Cargo version requirement; only the locked source controls this port.
 | module/reexport and `macros.rs` files | `src/regex-automata.cr` and namespaces | All default engine/utility modules are included. Rust cfg/no-std packaging and disabled log/debug/trace macro expansion introduce no additional default runtime algorithm or search allocation. |
 
 Five API rows remain partial. Dense Runner memory accounts for encoded keys
-and scratch payload but still estimates the Crystal metadata and scans its
-state rows for each finite-limit check. Matching the Rust byte thresholds
+and scratch payload. Crystal now maintains the metadata estimate incrementally
+and performs each finite-limit check in constant time. Matching the Rust byte thresholds
 remains open. Combined memchr2/3 find and memmem Finder new/find are implemented,
 with x86 runtime validation and controlled measurements outstanding. Scratch
 get/put now have source, ownership and allocation evidence in the API ledger.
@@ -95,12 +95,15 @@ experimental `-Ddfa_unrolled_search`, and pinned Rust. All 20 benchmark result
 checks agree locally, without collecting timings. Separate `--alloc` probes are recorded below; this loaded host remains
 unsuitable for timings.
 
-Automatic approval review rejected publishing the checkpoint to the public
-`dsisnero/regex-automata` branch because explicit payload/destination approval
-was missing. A user approval question is pending. No root-repo push or remote
-CI run occurred. Do not retry or work around that rejection without approval.
-The final inventory/source review, controlled evidence and final quality gates
-remain required; there is no phase 9.
+The user approved pushing `a273a0f`. The first x86 run passed the full
+Crystal suite, Teddy and all three byte/search backends. The measurement job
+stopped at Cargo's missing workspace lockfile. The pushed CI repair
+`589748a` uses the standalone oracle and benchmark manifests to fetch their
+exact dependency pins. Local harness runs default to offline. Run
+`43685805706` then exposed both scripts being stored in Git as 0644.
+Commit `ae3a2b0` records mode 0755. The
+[latest x86 run](https://github.com/dsisnero/regex-automata/actions/runs/43686039721)
+passed both jobs, including the Linux correctness gates and measurements.
 
 ## Allocation experiments (no timing evidence)
 
@@ -150,7 +153,7 @@ The prior complete Crystal run passed **23,401 examples**
 (`temp/phase8-final-full-test.log`). The signed Input range, UTF-8 boundary,
 quit Display and hybrid debug-assertion fixes pass all **53 focused specs**
 and the independent Rust oracle. All **16,848** cross-engine results still
-match. The full rerun is logged in `temp/phase8-resume-full.log`.
+match. The full rerun passed **23,402 specs** (`temp/phase8-resume-full.log`).
 Lint, compile, format, diff and inventory gates pass. The working API ledger
 uses comma-separated file references so the current parity skill can verify
 each cited file individually.
@@ -163,3 +166,53 @@ formats the byte when an exception is constructed. The hybrid reverse
 pattern-ID check compiles in debug builds, as in pinned Rust. Crystal Input
 accepts signed offsets and rejects negatives at construction of the search
 span. Rust's unsigned offsets exclude those values by type.
+
+
+## Finite construction budget
+
+Both `dfa/dense.rs::Config::determinize_size_limit` doctests pass against
+pinned Rust. For `\w{20}`, Rust rejects 700,000 bytes with both start modes
+and 200,000 with anchored starts. It accepts 800,000 and 300,000 respectively
+and reports a match. Crystal rejects all four limits with a typed construction
+size error. With a 16,000,000-byte limit, Crystal builds and reports end offset
+20 in both configurations. The Rust runner accounts for encoded states and its reusable NFA
+stack. Crystal also retains a separate StateMeta closure representation and
+uses a different scratch allocator. Copying Rust's estimated byte count would
+ignore storage required by the Crystal builder. This is an observable budget
+admission difference.
+
+`dfa.cr::Builder#determinize_memory_usage` now adds metadata payload costs
+as rows are appended, including specialized start copies. The check is O(1)
+per insertion at finite limits, with one integer update per appended row and
+no search cost. The four Crystal probe results are identical before and after
+the change. The 73 focused state-cache, dense and transform specs pass, as do
+lint and the inventory gates. All 23,402 specs pass with incremental accounting
+(`temp/phase8-budget-full.log`).
+
+## x86 retention decisions
+
+Run 43686039721 passed the full Crystal suite, AVX2/SSE2/scalar bridge tests,
+pinned native comparisons, and the benchmark correctness checks.
+[Full measurements](evidence/phase8-x86-43686039721.md).
+
+- Forward four-step DFA search went from 285 to 166 µs per 64 KiB workload,
+  a 42% improvement. It is the default. Reverse unrolling went from 328 to
+  432 µs, a 32% regression. The reverse loop remains scalar.
+- The first two-byte forward kernel was 47–48% slower than phase 7.
+  Three-byte performance was within 1%. Default x86 forward scans use the
+  measured phase 7 libc strategy. Reverse scans continue to use the bridge.
+- The packed-pair verifier for short needles was roughly 10× slower than
+  phase 7 on the short workload. The x86 short path uses a libc scan for
+  the ranked rare byte and verifies at most 32 bytes per candidate.
+  Long and periodic workloads keep the Two-Way candidate path, which
+  reduced this runner's 3.7–7.5 ms cases to about 2 µs.
+- Teddy 2/16 remained about 3.8× slower and the 65-string case about 15%
+  slower than pinned Rust. Phase 7 Crystal and the checkpoint were within
+  1%. The x86 bridge's existing gap remains visible in the evidence.
+- Dense build allocation fell from about 429,410 to 396,701 GC bytes per
+  operation on the x86 workload. Pooled and explicit-cache Meta searches
+  were each about 15× faster than phase 7 on this workload.
+
+The revised harness now compares the default forward loop to the scalar
+forward build with the same reverse loop. The final retained paths need
+their own run to confirm the short-path corrections.

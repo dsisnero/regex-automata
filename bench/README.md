@@ -20,5 +20,5 @@ the recorded runner. Preserve raw samples and regressions alongside summaries.
 `--alloc` on a Crystal benchmark binary performs only the separate fixed-count
 allocation probes, with no clock samples. This can be used on a busy host to
 check allocation changes; it supplies no throughput or latency evidence.
-`unrolled` is an experimental build with `-Ddfa_unrolled_search`; its raw data
-is preserved separately so the four-step loop decision is based on measurement.
+`scalar` is a comparison build with `-Ddfa_scalar_search`. The default build
+uses the four-step forward loop. Both builds use the scalar reverse loop.

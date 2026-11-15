@@ -56,10 +56,28 @@ module Regex::Automata
       return haystack.index(@needle[0]) if @needle.size == 1
       if @packed
         return rabin_karp(haystack) if haystack.size < @pair_min_len
-        return ByteSearch.pair(@needle, @pair_a, @pair_b, haystack, verify: true)
+        {% if flag?(:x86_64) && !flag?(:byte_search_sse2) %}
+          return find_short(haystack)
+        {% else %}
+          return ByteSearch.pair(@needle, @pair_a, @pair_b, haystack, verify: true)
+        {% end %}
       end
       return rabin_karp(haystack) if haystack.size < 16
       @small_period ? find_small(haystack) : find_large(haystack)
+    end
+
+    # For at most 32 needle bytes, a rare-byte libc scan and bounded
+    # verification avoid the x86 packed-pair regression on short literals.
+    private def find_short(haystack : Bytes) : Int32?
+      last = haystack.size - @needle.size
+      candidates = haystack[@pair_a, last + 1]
+      from = 0
+      while from <= last
+        return nil unless at = candidates.index(@needle[@pair_a], from)
+        return at if haystack[at, @needle.size] == @needle
+        from = at + 1
+      end
+      nil
     end
 
     private def pair_offsets : Tuple(Int32, Int32)

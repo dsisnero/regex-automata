@@ -1239,6 +1239,7 @@ module Regex::Automata::DFA
     @state_map : Hash(Determinize::State, StateID)
     @scratch_state_builder : Determinize::StateBuilderEmpty
     @state_key_memory_usage : Int64
+    @state_meta_payload_bytes : Int64 = 0_i64
     @built : Bool = false
     @byte_classes : ByteClasses
     @transition_table : TransitionTable
@@ -1953,7 +1954,7 @@ module Regex::Automata::DFA
     private def clone_dfa_state(source_id : StateID) : StateID
       source_meta = @dfa_state_metas[source_id.to_i]
       new_id = StateID.new(@dfa_state_count)
-      @dfa_state_metas << source_meta
+      append_state_meta(source_meta)
       @transition_table.add_state
       @transition_table.copy_state(@transition_table.to_state_id(source_id.to_i), @transition_table.to_state_id(new_id.to_i))
       @dfa_state_count += 1
@@ -2057,7 +2058,7 @@ module Regex::Automata::DFA
         end
       end
 
-      @dfa_state_metas << meta
+      append_state_meta(meta)
       @transition_table.add_state
       @dfa_state_count += 1
       @state_map[key] = dfa_id
@@ -2167,13 +2168,15 @@ module Regex::Automata::DFA
     end
 
     private def determinize_memory_usage : Int64
-      usage = (@dfa_state_metas.size * 64 + @state_map.size * 32).to_i64 +
-              @state_key_memory_usage + @scratch_state_builder.capacity
-      @dfa_state_metas.each do |meta|
-        usage += (meta.nfa_set.size * 8).to_i64
-        usage += (meta.matches.size * 4).to_i64
-      end
-      usage
+      @dfa_state_metas.size.to_i64 * 64 + @state_map.size.to_i64 * 32 +
+        @state_key_memory_usage + @scratch_state_builder.capacity + @state_meta_payload_bytes
+    end
+
+    private def append_state_meta(meta : StateMeta) : Nil
+      @dfa_state_metas << meta
+      # Preserve the per-row Crystal estimate, including specialized start
+      # copies, while keeping finite-budget checks constant-time as in Rust.
+      @state_meta_payload_bytes += meta.nfa_set.size.to_i64 * 8 + meta.matches.size.to_i64 * 4
     end
 
     private def reorder_special_states(state_count : Int32, metas : Array(StateMeta), tt : TransitionTable, unanchored_start_id : StateID, anchored_start_id : StateID, unanchored_start_states : Hash(Start, StateID), anchored_start_states : Hash(Start, StateID), pattern_start_states : Hash(PatternID, Hash(Start, StateID))) : Tuple(Array(StateMeta), TransitionTable, StateID, StateID, Hash(Start, StateID), Hash(Start, StateID), Hash(PatternID, Hash(Start, StateID)))

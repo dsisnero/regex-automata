@@ -186,7 +186,10 @@ module Regex::Automata
       self
     end
 
-    # Set an optional size limit for determinization scratch space.
+    # Set an optional byte limit for estimated auxiliary storage during
+    # determinization. This excludes the DFA's transition storage. The
+    # estimate uses the Crystal builder's representation and can differ
+    # from the budget needed by Rust for the same pattern.
     def determinize_size_limit(bytes : Int64?) : Config
       @determinize_size_limit = bytes
       self

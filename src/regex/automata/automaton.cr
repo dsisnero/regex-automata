@@ -27,6 +27,10 @@ module Regex::Automata
     # function must be defined for all possible values of `input`.
     abstract def next_state(current : StateID, input : UInt8) : StateID
 
+    def next_state_unchecked(current : StateID, input : UInt8) : StateID
+      next_state(current, input)
+    end
+
     # Transitions from the current state to the next state for the special
     # EOI symbol.
     #
@@ -222,8 +226,8 @@ module Regex::Automata
       end
 
       while at < input.end
-        {% if flag?(:dfa_unrolled_search) %}
-          # Experimental pinned search.rs four-transition fast path. Each
+        {% unless flag?(:dfa_scalar_search) %}
+          # Four-transition fast path from pinned dfa/search.rs. Each
           # step stops before a special state so the common handler retains
           # match/quit/prefilter precedence. The outer bound proves all four
           # byte accesses valid; state validity is the Automaton contract.
@@ -334,18 +338,6 @@ module Regex::Automata
 
       at = input.end - 1
       loop do
-        {% if flag?(:dfa_unrolled_search) %}
-          # Leave the first byte to the common handler so its existing EOI
-          # convention is unchanged after ordinary reverse transitions.
-          while at - input.start >= 4
-            {% for step in 0...4 %}
-              fast_next = next_state_unchecked(current_state, input.haystack.unsafe_fetch(at))
-              break if is_special_state?(fast_next)
-              current_state = fast_next
-              at -= 1
-            {% end %}
-          end
-        {% end %}
         next_state = next_state(current_state, input.haystack[at])
         return MatchError.quit(input.haystack[at], at) if is_quit_state?(next_state)
         return last_match if is_dead_state?(next_state)

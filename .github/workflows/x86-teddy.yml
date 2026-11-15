@@ -51,10 +51,10 @@ jobs:
           crystal spec spec/byte_search_spec.cr spec/memmem_finder_spec.cr -Dbyte_search_sse2 -Dsubstring_diagnostics
           crystal spec spec/byte_search_spec.cr spec/memmem_finder_spec.cr -Dbyte_search_scalar -Dsubstring_diagnostics
       - run: scripts/check_final_cross_engine.sh
-      - name: Verify experimental four-step DFA loops
+      - name: Verify scalar comparison build
         run: |
-          crystal spec spec/dfa_api_spec.cr spec/dfa_vendor_suite_spec.cr spec/quit_after_match_spec.cr -Ddfa_unrolled_search
-          FINAL_CRYSTAL_FLAGS=-Ddfa_unrolled_search scripts/check_final_cross_engine.sh
+          crystal spec spec/dfa_api_spec.cr spec/dfa_vendor_suite_spec.cr spec/quit_after_match_spec.cr -Ddfa_scalar_search
+          FINAL_CRYSTAL_FLAGS=-Ddfa_scalar_search scripts/check_final_cross_engine.sh
       - name: Prepare release comparisons
         run: scripts/benchmark_final_signoff.sh prepare
       - name: Verify identical benchmark results

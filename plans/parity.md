@@ -50,18 +50,24 @@
   Decoder, capture extraction, replacement-parser and state-classification gaps
   are fixed and documented in the final checklist. Final inventories and
   controlled measurements remain open. Branch `codex/final-vendor-signoff`
-  has a local measurement checkpoint. The previous complete run passed
-  23,401 specs. The current rerun is in `temp/phase8-resume-full.log` following
-  fixes for signed Input bounds, offset-zero UTF-8 classification, quit Display,
-  and the hybrid wrapper's debug assertion. Local allocation probes show
-  7.7% less dense construction allocation on the audited workload.
-- **Next up:** check the full rerun, then obtain controlled x86 measurements
-  and decide whether to retain the unrolled DFA loops. Five API rows still
-  cover finite dense construction budgets and byte/substring SIMD evidence.
-  The file ledger separately tracks dense minimize/storage cost and Teddy.
-  Automatic review rejected publishing the local checkpoint to the public
-  branch without explicit payload/destination approval, so x86 CI awaits
-  that approval. The pinned vendor commit is unchanged.
+  is published on GitHub. All 23,402 local specs passed at `a273a0f`.
+  The [first x86 run](https://github.com/dsisnero/regex-automata/actions/runs/43682798950)
+  passed the Teddy suite and AVX2/SSE2/scalar bridge checks. Cargo's missing
+  vendor workspace lockfile stopped the measurement job. Commit `589748a`
+  lets CI build the standalone harnesses with their exact dependency pins.
+  The next run found missing executable modes on both harness scripts.
+  Commit `ae3a2b0` records those modes, and the
+  [rerun](https://github.com/dsisnero/regex-automata/actions/runs/43686039721)
+  passed both x86 jobs. The [measurements](evidence/phase8-x86-43686039721.md)
+  support the four-step forward loop and scalar reverse loop. The x86
+  two-byte and short-needle misses regressed in the experimental native
+  kernels. The current candidate selects libc scans for those cases and
+  retains Two-Way plus packed-pair candidates for long needles.
+  All 23,402 local specs passed after the incremental budget-accounting
+  change. Focused checks pass with the resulting retention changes.
+- **Next up:** validate the retained paths in the updated x86 harness and
+  run the full gates. Exact finite-budget admission still differs from
+  pinned Rust, as recorded in the final signoff checklist.
 - **Dependency correction:** grouped dot translation now preserves the syntax
   terminator through `regex-syntax` commit `1623e24`. The dedicated pushed
   branch and review draft are recorded in the [Meta plan](feature-meta.md).
