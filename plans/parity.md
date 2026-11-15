@@ -6,7 +6,7 @@
   `72d650cb0a880a01ab6dc2137c0888e8f89740f7` (regex-automata 0.4.18).
   Do not substitute remembered Rust behavior or a newer upstream revision.
 - Working source ledger: [rust_port_inventory.tsv](inventory/rust_port_inventory.tsv)
-  (1,936 Rust API items: 1,739 `ported`, 0 `missing`, 5 `partial`, 179
+  (1,936 Rust API items: 1,740 `ported`, 0 `missing`, 0 `partial`, 183
   `intentional_divergence`, 13 `skipped`). Test ledger:
   [rust_test_parity.tsv](inventory/rust_test_parity.tsv) (220 rows: 210
   `ported`, 0 `partial`, 9 `intentional_divergence`, 1 `skipped`). These are **review
@@ -29,59 +29,34 @@
   exclusions must be counted separately.
 - Ten test rows that had labeled Crystal's dense/sparse wire layout or pooled
   mutex as an `intentional_divergence` were returned to `partial` in phase 1.
-  Phase 2f3 now ports the pool owner/sharding path; its measured throughput
-  remains unproven on this loaded host. Native dense/sparse wire cases
-  closed in phase 5; broader cross-engine adversarial and controlled
-  performance signoff remain phase 8 work.
+  Phase 2f3 ported the pool owner/sharding path. Native dense/sparse wire
+  cases closed in phase 5. The phase 8 x86 evidence records the pooled
+  throughput and cross-engine checks.
 
 ## Where we are
 
-- **Current focus:** phase 8, the final existing cross-engine/shared-utility
-  audit and controlled performance signoff. Phase 7 Meta is complete:
-  [feature evidence](feature-meta.md), all 275 API rows and 11 file reviews,
-  five-mode vendor matrix and full gates are closed. The bounded
-  [final signoff checklist](feature-final-signoff.md) tracks phase 8. Current
-  source work ports the memchr 2.8.1 substring fallback and combined byte
-  scans, and removes redundant scalar needle storage. Baseline logs are
-  `temp/phase8-baseline-{lint,parity,test}.log`; all baseline gates pass (23,382
-  specs). Native Rust unit/integration/doc suites and dense/sparse wire, DFA
-  wrapper and one-pass oracles pass. All 16,848 generated nine-engine
-  results agree with pinned Rust, including the experimental unrolled build.
-  Decoder, capture extraction, replacement-parser and state-classification gaps
-  are fixed and documented in the final checklist. Final inventories and
-  controlled measurements remain open. Branch `codex/final-vendor-signoff`
-  is published on GitHub. All 23,402 local specs passed at `a273a0f`.
-  The [first x86 run](https://github.com/dsisnero/regex-automata/actions/runs/43682798950)
-  passed the Teddy suite and AVX2/SSE2/scalar bridge checks. Cargo's missing
-  vendor workspace lockfile stopped the measurement job. Commit `589748a`
-  lets CI build the standalone harnesses with their exact dependency pins.
-  The next run found missing executable modes on both harness scripts.
-  Commit `ae3a2b0` records those modes, and the
-  [rerun](https://github.com/dsisnero/regex-automata/actions/runs/43686039721)
-  passed both x86 jobs. The [measurements](evidence/phase8-x86-43686039721.md)
-  support the four-step forward loop and scalar reverse loop. The x86
-  two-byte and short-needle misses regressed in the experimental native
-  kernels. The current candidate selects libc scans for those cases and
-  retains Two-Way plus packed-pair candidates for long needles.
-  All 23,402 local specs passed after the incremental budget-accounting
-  change. Focused checks pass with the resulting retention changes.
-- **Next up:** validate the retained paths in the updated x86 harness and
-  run the full gates. Exact finite-budget admission still differs from
-  pinned Rust, as recorded in the final signoff checklist.
+- **Current status:** phase 8 is complete at the pinned regex-automata
+  0.4.18 checkout. All 1,936 API rows, 220 test rows and 72 file reviews
+  have dispositions. The tested implementation is on
+  `codex/final-vendor-signoff` at `4a7e8e8`. See the
+  [final signoff checklist](feature-final-signoff.md) and the
+  [retained-path measurements](evidence/phase8-x86-43692303102.md).
+- **Gates:** 23,402 Crystal specs pass locally and on x86. The pinned Rust
+  suite passes 204 unit tests, 60 integration tests and 459 doctests with
+  two upstream ignores. Dense and sparse wire/fuzz, DFA wrapper, one-pass
+  and 16,848 cross-engine comparisons pass. Install, format, lint, inventory,
+  type-check and diff checks pass.
+- **Next up:** review the signoff branch for integration. The measured x86
+  path keeps forward unrolling, scalar reverse search, and libc forward
+  byte and short-literal scans. Finite DFA construction budgets use the
+  Crystal storage estimate. Tight Rust byte limits may need to be retuned.
 - **Dependency correction:** grouped dot translation now preserves the syntax
   terminator through `regex-syntax` commit `1623e24`. The dedicated pushed
   branch and review draft are recorded in the [Meta plan](feature-meta.md).
   Its full 21,832-spec shard gate passes; no temporary-path dependency remains.
-- **Status by area:** vendor fixture harness, scalar prefilter
-  selection/candidate semantics, AArch64 unanchored packed Teddy, 2-500 needle
-  Aho/anchored Teddy DFA, and >500-needle contiguous-NFA paths are complete.
-  Phase 2e implements and verifies x86 SSSE3/slim AVX2/fat AVX2 dispatch,
-  Rust's packed-plus-anchored-DFA allocation accounting, and dense/hybrid/
-  PikeVM/backtracker/Meta consumption. Phase 2f1 closes alphabet/escape/UTF-8,
-  Unicode table, and primitive-ID source-file reviews. Phase 2f2 closes the
-  five numeric/syntax/determinization/sparse-set files. Remaining shared
-  utilities and engine matrices beyond hybrid remain open in phase 2f4
-  and 3-8.
+- **Status by area:** all planned engine matrices and source reviews have
+  dispositions. The final measured choices and representation differences
+  are recorded in the signoff above.
 - **Scoping notes:** The pinned two-pattern AArch64 memory oracles are 2,537
   and 1,956 bytes, and the 65-pattern DFA oracle is 5,684 bytes. Rust's
   x86 slim AVX2 adds one verifier-ID copy. Aho/ByteSet now release original
@@ -92,9 +67,8 @@
   Rust `aho-corasick` 1.1.4 `packed/teddy/{generic,vector}.rs` maps to
   Crystal `teddy_matcher.cr` plus `teddy_native.c`. The search performs one C
   FFI call, Rust-style vector nibble shuffles and set-bit candidate scanning,
-  with no per-candidate heap allocation; the FFI boundary's measured cost is
-  not established by this loaded host. Phase 8 owns a controlled x86 A/B
-  throughput comparison against pinned Rust before any speed claim. The
+  with no per-candidate heap allocation. The x86 comparison measures the
+  complete search and does not isolate FFI cost. The
   Crystal-only signature/quitset byte-class reducers now relabel byte 255's
   group last at construction; the search lookup remains one table access.
 - **Thompson representation divergence and cost:** Rust
@@ -128,8 +102,8 @@
   both representations are retained. The transform tests cover equivalent
   transition, EOI, start, match and accelerator IDs, while the seven-mode
   vendor suite checks search behavior. This is construction-only work with no
-  extra search-time branch; its allocation and construction-time cost are not
-  established on this loaded host and remain a phase 8 comparison.
+  extra search-time branch. The phase 8 signoff records storage and rebuild
+  costs. The x86 comparison measures total dense construction.
 - **Pool/lazy divergence and cost:** Rust `src/util/lazy.rs` alloc path maps
   to Crystal `src/regex/automata/lazy.cr` with one acquire load and CAS
   publication; Crystal's GC-safe wrapper allocates only on a factory run.
@@ -143,19 +117,10 @@
   on exhaustion/`each` or explicit `#close`, and raw guards require `#put`.
   Abandoning a raw guard/iterator without closing can leave its owner cache
   unavailable for the pool's lifetime. This is a lifecycle divergence, not a
-  search-result divergence. No throughput claim is made on this loaded host; phase 8's
-  controlled comparison should include pooled Meta searches.
-- **Last completed feature commit:** phase 7 `port: Meta strategy and facade
-  parity` (`8edddc8`). Prior phase 6 is `6e45c59`; wrapper phase 5c
-  is `887355b`, sparse phase 5b `ebf762c`, dense phase 5a `853c6c6`.
-- **Gates:** **23,382/23,382 full Crystal specs** and 15,453 affected-engine
-  focused specs pass. The Meta matrix runs 1,186 admissible cases per mode,
-  5,930 examples total, including build errors and overlapping pattern sets.
-  Pinned Rust passes 68 Meta units, all five integration modes and 77 doctests.
-  The grouped-terminator dependency regression also passes all 21,832 shard
-  specs and downstream contracts. Install, format, lint, parity, whitespace/
-  format checks and no-codegen build pass. These are correctness gates; no
-  loaded-host throughput claim is made.
+  search-result divergence. The controlled x86 run compares pooled and
+  explicit-cache Meta search with phase 7 and pinned Rust.
+- **Last completed feature:** phase 8 final vendor signoff. Phase 7 Meta
+  facade parity is `8edddc8`. See the gate results above.
 
 ## Feature-loop rules
 
@@ -409,9 +374,8 @@ confirmation; no authorship was inferred or changed.
   combined SIMD scan; accelerator 2/3 search remains a scalar loop; memmem
   still verifies first-byte probes instead of using pinned memchr 2.8.1's
   packed-pair/Two-Way Finder. Retained scalar needle copies for Meta are also
-  not signed off. These are **unresolved performance/retention gaps**, not
-  accepted intentional divergences; phase 8 owns implementation and controlled
-  measurement before final parity signoff. **Gate:** result/error contracts and
+  not signed off. Phase 8 resolves the performance and retention review and documents the
+  measured dispatch decisions. **Gate:** result/error contracts and
   source/test rows are reconciled, with no throughput claim on this loaded host.
 
 - [x] **3a. PikeVM vendor matrix and source review.** Run the pinned
@@ -573,7 +537,7 @@ confirmation; no authorship was inferred or changed.
   previous reverse-strategy spot checks remain regression evidence, not a
   substitute for this gate. See the [bounded Meta checklist](feature-meta.md).
 
-- [ ] **8. Cross-engine adversarial audit and vendor signoff.** Replay shared
+- [x] **8. Cross-engine adversarial audit and vendor signoff.** Replay shared
   vendor case IDs across every engine/mode that Rust admits; classify each
   mismatch and engine-specific exclusion. Independently cover generated/fuzz
   families, malformed wire, transformed DFAs, bounds, Unicode, captures,
@@ -589,13 +553,10 @@ confirmation; no authorship was inferred or changed.
   `src/regex/automata/dfa.cr`, then port the reusable scratch path if it lowers
   construction allocation without priority drift. Review Rust's four-step
   unrolled `src/dfa/search.rs` loops against Crystal's scalar
-  `src/regex/automata/automaton.cr` loops and port or justify only with
-  controlled hot-path evidence; these are open optimizations, not accepted
-  intentional divergences or speed claims on this loaded host.
-  The current Crystal memmem verifier can take O(haystack × needle) work on
-  repeated first-byte candidates, unlike Rust's Two-Way fallback; treat that
-  as an unresolved algorithmic risk, not merely a missing benchmark.
-  Do not run or interpret benchmarks while competing process load is high.
+  `src/regex/automata/automaton.cr` loops. Controlled x86 results support the
+  forward loop and scalar reverse. Long needles now use the Two-Way
+  fallback. The [signoff evidence](feature-final-signoff.md) records the
+  retained paths, target-specific differences and gates.
   Recheck the vendor submodule pin; if it
   changed, regenerate the generated manifests and repeat the affected audit.
   **Gate:** full Rust and Crystal quality gates pass, inventories are current,

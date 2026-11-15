@@ -3,21 +3,13 @@
 This is the existing final phase, pinned to `rust-lang/regex`
 `72d650cb0a880a01ab6dc2137c0888e8f89740f7`. It adds no regex feature or phase.
 
-- [ ] Reconcile the 19 partial API rows, one partial test, pending/private file
-  reviews and existing divergence dispositions against pinned source/evidence.
-- [ ] Close the named shared algorithm/cost gaps: scalar prefilter retention,
-  combined byte/reverse scans, memchr 2.8.1 Finder dispatch/Two-Way fallback,
-  dense determinizer scratch/key reuse, and DFA loop/transform costs.
-- [ ] Replay admitted vendor IDs and bounded generated/adversarial families
-  across engines; verify native wire, malformed/fuzz, transformed, bounded,
-  Unicode/capture/quit behavior and public examples with independent Rust.
-- [ ] Obtain controlled performance/allocation evidence for kept optimization
-  changes, including the existing x86 Teddy bridge and Meta pool comparisons.
-  This busy host is not a timing oracle. Use the existing x86 workflow route
-  after the patch is reviewable; do not interpret loaded-host timings.
-- [ ] Run required native/Crystal/inventory gates, update the roadmap and make
-  one atomic final-phase commit. No final signoff while required evidence or
-  known material gaps remain open.
+- [x] Reconcile all source, test and file review rows against the pinned
+  checkout. Record target-specific dispatch and layout differences.
+- [x] Review shared search paths, scalar retention and dense scratch reuse.
+- [x] Verify generated and vendor suites, malformed wire, transformed DFAs,
+  bounds, Unicode, captures, quit behavior and public examples.
+- [x] Measure the kept optimization paths on the controlled x86 runner.
+- [x] Pass the Rust, Crystal, native oracle and inventory gates.
 
 ## Current evidence
 
@@ -50,8 +42,7 @@ Cargo version requirement; only the locked source controls this port.
 - `spec/support/byte_search_bounds.c` passes AddressSanitizer and
   UndefinedBehaviorSanitizer on the current AArch64 target. Exact-sized
   buffers exercise aligned/unaligned tails, both directions and packed pairs.
-  x86 runtime evidence is still pending; a successful cross-compile is not
-  runtime proof.
+  The later x86 runner passed the sanitizer checks on its native target.
 - `spec/final_shared_contract_spec.cr` and `spec/dfa_state_cache_spec.cr` exposed the standalone native-endian
   special-state overflow, strict empty match-slice validation, repeated dense
   builder ownership, eager extraction and string extraction splitting a code
@@ -78,32 +69,17 @@ Cargo version requirement; only the locked source controls this port.
 | `util/primitives.rs` and `dfa/onepass.rs` optional slots | `types.cr`, `onepass.cr`, `captures.cr` | Crystal optional Int32/NonMaxUsize slots occupy 16 bytes on the audited 64-bit Crystal 1.22.2 target, versus Rust's eight-byte Option niche. The previous one-pass note claiming equal width was corrected. No per-byte conversion array is introduced. |
 | module/reexport and `macros.rs` files | `src/regex-automata.cr` and namespaces | All default engine/utility modules are included. Rust cfg/no-std packaging and disabled log/debug/trace macro expansion introduce no additional default runtime algorithm or search allocation. |
 
-Five API rows remain partial. Dense Runner memory accounts for encoded keys
-and scratch payload. Crystal now maintains the metadata estimate incrementally
-and performs each finite-limit check in constant time. Matching the Rust byte thresholds
-remains open. Combined memchr2/3 find and memmem Finder new/find are implemented,
-with x86 runtime validation and controlled measurements outstanding. Scratch
-get/put now have source, ownership and allocation evidence in the API ledger.
+The source ledger has 1,740 ported items, 183 intentional divergences and
+13 skipped entries. The test ledger has 210 ported tests, nine intentional
+divergences and one skipped test. All 72 file reviews have a disposition.
 
-## Measurement checkpoint and approval
+## Measurement builds
 
-Local branch `codex/final-vendor-signoff` contains a measurement checkpoint
-(initially `65f21f9`, subsequently amended with review fixes). It is **not
-final phase closure**. The
-controlled workflow compares baseline `8edddc8`, current scalar/default loops,
-experimental `-Ddfa_unrolled_search`, and pinned Rust. All 20 benchmark result
-checks agree locally, without collecting timings. Separate `--alloc` probes are recorded below; this loaded host remains
-unsuitable for timings.
-
-The user approved pushing `a273a0f`. The first x86 run passed the full
-Crystal suite, Teddy and all three byte/search backends. The measurement job
-stopped at Cargo's missing workspace lockfile. The pushed CI repair
-`589748a` uses the standalone oracle and benchmark manifests to fetch their
-exact dependency pins. Local harness runs default to offline. Run
-`43685805706` then exposed both scripts being stored in Git as 0644.
-Commit `ae3a2b0` records mode 0755. The
-[latest x86 run](https://github.com/dsisnero/regex-automata/actions/runs/43686039721)
-passed both jobs, including the Linux correctness gates and measurements.
+CI compares the phase 7 baseline at `8edddc8`, the current Crystal build,
+a scalar forward comparison build and pinned Rust. The initial experiment
+unrolled both directions. The successful retention run tests the production
+forward and reverse choices on the same workloads. Local harness runs default
+to offline. CI builds the standalone Cargo manifests with exact dependency pins.
 
 ## Allocation experiments (no timing evidence)
 
@@ -121,7 +97,7 @@ under `temp/final-perf/*alloc*.tsv`.
 | Initial byte-key/scratch port with class views | 559,377 | Rejected: 30% allocation regression |
 | Stack Repr/ReprVec views | 441,584 | Still regressed |
 | Direct writes into the existing header | 430,494 | Flat; insufficient on its own |
-| Value-typed builder stages as in Rust | 396,939 | Keep for 7.7% allocation reduction; controlled timing still required |
+| Value-typed builder stages as in Rust | 396,939 | Kept. The later x86 run confirmed 7.7% less allocation on its build workload. |
 
 The private borrowed views and three builder stages are now structs, matching
 Rust's value wrappers. Their byte buffers retain the same owned/scratch
@@ -175,11 +151,14 @@ pinned Rust. For `\w{20}`, Rust rejects 700,000 bytes with both start modes
 and 200,000 with anchored starts. It accepts 800,000 and 300,000 respectively
 and reports a match. Crystal rejects all four limits with a typed construction
 size error. With a 16,000,000-byte limit, Crystal builds and reports end offset
-20 in both configurations. The Rust runner accounts for encoded states and its reusable NFA
-stack. Crystal also retains a separate StateMeta closure representation and
+20 in both configurations. The Rust runner accounts for encoded states and
+its reusable NFA stack. Crystal also retains a separate StateMeta closure representation and
 uses a different scratch allocator. Copying Rust's estimated byte count would
 ignore storage required by the Crystal builder. This is an observable budget
-admission difference.
+admission difference. The configured cap continues to constrain the estimated
+auxiliary storage of whichever builder is in use. Once admitted, both
+engines report the same observed match offsets. Callers using tight Rust
+budgets may need to retune them for Crystal.
 
 `dfa.cr::Builder#determinize_memory_usage` now adds metadata payload costs
 as rows are appended, including specialized start copies. The check is O(1)
@@ -213,6 +192,57 @@ pinned native comparisons, and the benchmark correctness checks.
   operation on the x86 workload. Pooled and explicit-cache Meta searches
   were each about 15× faster than phase 7 on this workload.
 
-The revised harness now compares the default forward loop to the scalar
-forward build with the same reverse loop. The final retained paths need
-their own run to confirm the short-path corrections.
+## Retained-path confirmation
+
+Run [43692303102](https://github.com/dsisnero/regex-automata/actions/runs/43692303102)
+passed both x86 jobs on `4a7e8e8`.
+[Retained-path measurements](evidence/phase8-x86-43692303102.md).
+
+- Byte 1–3 and short substring cases are within 1% of phase 7. The default
+  x86 implementation uses libc forward byte scans. The short substring
+  verifier scans for a ranked byte and compares at most 32 bytes per
+  candidate, bounding verification work by a constant times haystack size.
+  Other vector targets retain the packed short verifier, and all vector
+  targets continue to use pair candidates for eligible long needles.
+- Forward four-step search took 153.5 µs per 64 KiB versus 211.5 µs for
+  scalar forward search, a 27% reduction. The scalar reverse comparison
+  stayed within 1% across the two current builds. The four-step forward
+  loop adds no search allocations on this workload.
+- Dense build used 396,694 GC bytes/op versus 429,618 in phase 7 (7.7% less).
+  Pooled Meta search took 49.8 ns versus 785.8 ns in phase 7 and 17.5 ns
+  in pinned Rust. Teddy 2/16 took about 2.5 times as long as Rust. The
+  65-needle row measures the Aho-Corasick fallback despite its historical
+  label. That row was 17% slower than phase 7 and 15% slower than Rust on
+  this run. The matcher implementations are unchanged from phase 7.
+  These measurements describe each workload and do not isolate individual
+  system or function costs.
+
+## Dense transform representation and cost
+
+Rust's `dfa/{remapper,minimize,dense}.rs` swaps dense rows in place and
+repairs IDs. Crystal's `dfa.cr` exposes the existing materialized `states`
+array, so its transforms rebuild rows and synchronize that graph with the
+flat table. The retained graph adds one State per row and one StateID per
+logical transition alongside the flat backing table. `minimize.cr` uses
+array partitions and a Boolean source mark array for splitter membership.
+The reverse relation includes one entry per logical transition, including
+EOI. It allocates marks and split arrays during refinement. Rebuilding
+takes a pass over the new rows and start references. These costs are limited
+to construction and storage. Search uses the flat table and requires no
+additional branch for the materialized graph. The native wire oracles,
+transformed fixtures and minimized cross-engine matrix verify search
+results, starts, match metadata, transition and accelerator behavior.
+
+## Signoff gates
+
+- Crystal `make test` on the retained-path commit passes all 23,402 specs.
+- Pinned Rust passes 204 unit tests, 60 integration tests and 459 doctests
+  with two upstream ignores. Dense and sparse wire and fuzz, DFA wrapper,
+  one-pass and cross-engine oracles pass.
+- The x86 run passes the native bounds checks, AVX2/SSE2/scalar variants,
+  default and scalar forward comparison builds, and the controlled benchmark.
+- Install, format, lint, inventory, type-check and diff checks pass.
+
+Phase 8 closes with the documented budget admission and dispatch differences.
+The two successful x86 runs record the remaining throughput differences from
+pinned Rust. The signoff branch holds the tested implementation and evidence.
