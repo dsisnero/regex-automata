@@ -37,8 +37,7 @@
 
 - **Current status:** phase 8 is complete at the pinned regex-automata
   0.4.18 checkout. All 1,936 API rows, 220 test rows and 72 file reviews
-  have dispositions. The tested implementation is on
-  `codex/final-vendor-signoff` at `4a7e8e8`. See the
+  have dispositions. The signoff is integrated into `main` at `949d3aa`. See the
   [final signoff checklist](feature-final-signoff.md) and the
   [retained-path measurements](evidence/phase8-x86-43692303102.md).
 - **Gates:** 23,402 Crystal specs pass locally and on x86. The pinned Rust
@@ -46,10 +45,10 @@
   two upstream ignores. Dense and sparse wire/fuzz, DFA wrapper, one-pass
   and 16,848 cross-engine comparisons pass. Install, format, lint, inventory,
   type-check and diff checks pass.
-- **Next up:** review the signoff branch for integration. The measured x86
-  path keeps forward unrolling, scalar reverse search, and libc forward
-  byte and short-literal scans. Finite DFA construction budgets use the
-  Crystal storage estimate. Tight Rust byte limits may need to be retuned.
+- **Release notes:** The measured x86 path keeps forward unrolling, scalar
+  reverse search, and libc forward byte and short-literal scans. Finite DFA
+  construction budgets use the Crystal storage estimate. Tight Rust byte
+  limits may need to be retuned. [Changelog](../CHANGELOG.md)
 - **Dependency correction:** grouped dot translation now preserves the syntax
   terminator through `regex-syntax` commit `1623e24`. The dedicated pushed
   branch and review draft are recorded in the [Meta plan](feature-meta.md).

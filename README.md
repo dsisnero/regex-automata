@@ -1,8 +1,7 @@
 # regex-automata
 
-Crystal regular-expression automata and shared search APIs. The library is
-under active development; see [Development](docs/development.md) for its
-current compatibility status and source of truth.
+Crystal regular-expression automata and shared search APIs, ported from
+Rust's regex-automata.
 
 ## Installation
 
@@ -12,6 +11,7 @@ Add to `shard.yml`:
 dependencies:
   regex-automata:
     github: dsisnero/regex-automata
+    version: "~> 0.2.0"
 ```
 
 Then run:
@@ -32,10 +32,10 @@ puts({match.not_nil!.start, match.not_nil!.end}) # => {0, 3}
 
 ## Status
 
-Meta, Thompson NFA, dense/sparse/one-pass DFA, and lazy hybrid interfaces are
-available. Compatibility is still being verified; consult
-[Development](docs/development.md) before relying on a specific engine or wire
-format.
+Version 0.2.0 completes the verification plan for the pinned Rust
+regex-automata 0.4.18 checkout. The port includes Meta, Thompson NFA,
+dense, sparse and one-pass DFAs, and lazy hybrid search. See the release
+notes for wire compatibility and build-limit changes. [Changelog](CHANGELOG.md)
 
 ## Development and verification
 
@@ -57,6 +57,7 @@ make parity     # Check Rust source and test inventories
 - [Coding guidelines](docs/coding-guidelines.md)
 - [Testing](docs/testing.md)
 - [PR workflow](docs/pr-workflow.md)
+- [Changelog](CHANGELOG.md)
 
 ## License
 
