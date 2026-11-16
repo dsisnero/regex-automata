@@ -73,3 +73,48 @@ describe "pinned dense DFA transforms" do
     end
   end
 end
+
+module Regex::Automata
+  describe DFA::DFA do
+    it "removes unreachable states without losing delayed matches" do
+      original = DFA::Builder.new.build("ab")
+      # The constructor takes row indices. Materialized states expose
+      # premultiplied IDs in v0.2.0.
+      states = original.states.map_with_index do |state, index|
+        copy = state.dup(StateID.new(index))
+        copy.next.map! { |id| StateID.new(original.to_index(id)) }
+        copy.eoi_next = StateID.new(original.to_index(copy.eoi_next))
+        copy
+      end
+      states << DFA::State.new(StateID.new(states.size), original.byte_classes)
+      extended = DFA::DFA.new(states, nil, StateID.new(original.to_index(original.start)),
+        original.byte_classifier, StateID.new(original.to_index(original.start_anchored)))
+      optimized = extended.remove_dead_states
+      optimized.size.should be < extended.size
+      state = optimized.next_state(optimized.start, 'a'.ord.to_u8)
+      state = optimized.next_state(state, 'b'.ord.to_u8)
+      optimized.is_match_state?(state).should be_false
+      optimized.is_match_state?(optimized.next_eoi_state(state)).should be_true
+      optimized.find_longest_match("ab").should eq({2, [PatternID.new(0)]})
+      optimized.find_longest_match("ab!").should eq({2, [PatternID.new(0)]})
+      optimized.find_longest_match("!").should be_nil
+      optimized.is_dead_state?(DFA::DEAD_STATE_ID).should be_true
+    end
+
+    it "keeps contextual and per-pattern starts and reports quit after pruning" do
+      config = DFA::Config.new.starts_for_each_pattern(true).quit('!'.ord.to_u8, true)
+      original = DFA::Builder.new.configure(config).build_many(["(?m:^ab)", "cd"])
+      original.add_empty_state
+      pruned = original.remove_dead_states
+      pruned.size.should be < original.size
+
+      line_start = Input.new("\nab").span(1...3).anchored(Anchored::Yes)
+      mid_line = Input.new("xab").span(1...3).anchored(Anchored::Yes)
+      pattern_start = Input.new("cd").anchored_pattern(PatternID.new(1))
+      pruned.try_search_fwd(line_start).should eq(HalfMatch.must(0, 3))
+      pruned.try_search_fwd(mid_line).should be_nil
+      pruned.try_search_fwd(pattern_start).should eq(HalfMatch.must(1, 2))
+      pruned.try_search_fwd(Input.new("xx!ab")).should eq(MatchError.quit('!'.ord.to_u8, 2))
+    end
+  end
+end

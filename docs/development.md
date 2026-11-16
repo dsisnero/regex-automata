@@ -6,7 +6,7 @@ the checked-in `vendor/regex/regex-automata/` submodule, pinned to
 `72d650cb0a880a01ab6dc2137c0888e8f89740f7` (regex-automata 0.4.18;
 regex-syntax 0.8.11). Do not silently substitute a newer upstream release.
 
-The Crystal shard release is 0.2.0. The signoff covers engine-specific vendor
+The Crystal shard release is 0.2.1. The signoff covers engine-specific vendor
 matrices, 16,848 cross-engine comparisons, and native dense and sparse wire
 formats. It records the differences in storage, search dispatch and finite
 DFA determinization limits. [Final vendor signoff](../plans/feature-final-signoff.md)

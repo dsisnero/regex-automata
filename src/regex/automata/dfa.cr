@@ -352,107 +352,73 @@ module Regex::Automata::DFA
       @states[state_idx]
     end
 
-    # Remove dead states (unreachable or can't reach accept state)
+    # Remove unreachable states and states that cannot reach a match or quit.
     def remove_dead_states : DFA
-      # Forward reachable from start
-      forward = Set{@start_unanchored}
-      stack = [@start_unanchored]
-      while !stack.empty?
-        state_id = stack.pop
-        state_idx = state_id.to_i
-        if tt = @tt
-          state_idx = tt.to_index(state_id)
-        end
-        current_state = @states[state_idx]
-        current_state.next.each do |next_id|
-          if !is_terminal_state?(next_id) && !forward.includes?(next_id)
-            forward.add(next_id)
-            stack.push(next_id)
-          end
+      # Traverse public state IDs, including contextual starts and EOI edges.
+      forward = Set{@start_unanchored, @start_anchored, @st.unanchored, @st.anchored, @st.dead}
+      @st.iter.each { |entry| forward.add(entry[0]) }
+      if id = @st.universal_start_unanchored
+        forward.add(id)
+      end
+      if id = @st.universal_start_anchored
+        forward.add(id)
+      end
+
+      stack = forward.to_a
+      until stack.empty?
+        each_state_target(self[stack.pop]) do |target|
+          stack << target if !is_terminal_state?(target) && forward.add?(target)
         end
       end
 
-      # Backward reachable from accepting states
-      backward = Set(StateID).new
-      # Build reverse transitions
-      reverse = Array(Set(StateID)).new(@states.size) { Set(StateID).new }
-      @states.each_with_index do |state, i|
-        state.next.each do |next_id|
-          if !is_terminal_state?(next_id)
-            next_index = if tt = @tt
-                           tt.to_index(next_id)
-                         else
-                           next_id.to_i
-                         end
-            reverse[next_index].add(state.id)
-          end
-        end
-      end
-
-      # Start from accepting states
-      stack.clear
+      # Paths to quit are observable even if they never reach a match.
+      reverse = Array.new(@states.size) { Set(StateID).new }
       @states.each do |state|
-        if state.accepting?
-          state_id = state.id
-          backward.add(state_id)
-          stack.push(state_id)
+        each_state_target(state) do |target|
+          reverse[to_index(target)].add(state.id) unless is_dead_state?(target)
+        end
+        stack << state.id if state.accepting? || is_quit_state?(state.id)
+      end
+
+      backward = stack.to_set
+      until stack.empty?
+        reverse[to_index(stack.pop)].each do |predecessor|
+          stack << predecessor if backward.add?(predecessor)
         end
       end
 
-      # BFS from accepting states
-      while !stack.empty?
-        state_id = stack.pop
-        state_idx = if tt = @tt
-                      tt.to_index(state_id)
-                    else
-                      state_id.to_i
-                    end
-        reverse[state_idx].each do |prev_id|
-          unless backward.includes?(prev_id)
-            backward.add(prev_id)
-            stack.push(prev_id)
-          end
-        end
-      end
-
-      # Live states = intersection
       live = forward & backward
+      live.add(DEAD_STATE_ID)
+      live.add(quit_id) if is_quit_state?(quit_id)
       return self if live.size == @states.size
 
-      # Create mapping from old to new state IDs
-      old_to_new = {} of StateID => StateID
-      new_states = [] of State
-      live.to_a.sort_by(&.to_i).each_with_index do |old_id, new_index|
-        new_id = StateID.new(new_index)
-        old_to_new[old_id] = new_id
-        # Create copy of state with new ID
-        state_idx = old_id.to_i
-        if tt = @tt
-          state_idx = tt.to_index(old_id)
-        end
-        old_state = @states[state_idx]
-        new_state = old_state.dup(new_id)
-        new_states << new_state
+      # The constructor takes ordinary row indices for the new states.
+      ids = live.to_a.sort!
+      indices = {} of StateID => StateID
+      ids.each_with_index { |id, index| indices[id] = StateID.new(index) }
+      states = ids.map do |id|
+        state = self[id].dup(indices[id])
+        state.next.map! { |target| indices.fetch(target, DEAD_STATE_ID) }
+        state.eoi_next = indices.fetch(state.eoi_next, DEAD_STATE_ID)
+        state
       end
-
-      # Update transitions in new states
-      new_states.each do |state|
-        state.next.each_with_index do |next_id, i|
-          if old_to_new.has_key?(next_id)
-            state.next[i] = old_to_new[next_id]
-          elsif is_quit_state?(next_id)
-            state.next[i] = QUIT_STATE_ID
-          else
-            state.next[i] = DEAD_STATE_ID
-          end
-        end
+      starts = @st.remap { |id| indices.fetch(id, DEAD_STATE_ID) }
+      pruned = DFA.new(states, nil, indices.fetch(@start_unanchored, DEAD_STATE_ID),
+        @byte_classifier, indices.fetch(@start_anchored, DEAD_STATE_ID),
+        ids.map { |id| @accelerators[to_index(id)] }, @prefilter, @quitset, @flags,
+        starts, pattern_len: pattern_len)
+      pruned.update_special do |special|
+        # A newly adjacent ordinary row can resemble a synthetic quit row.
+        special.set_quit_id(pruned.to_state_id(indices.fetch(quit_id, DEAD_STATE_ID).to_i))
+        special.set_no_special_start_states if @special.no_start_states?
+        special
       end
+      pruned
+    end
 
-      # Update start state
-      new_start_unanchored = old_to_new[@start_unanchored]? || StateID.new(0)
-      new_start_anchored = old_to_new[@start_anchored]? || new_start_unanchored
-
-      DFA.new(new_states, nil, new_start_unanchored, @byte_classifier, new_start_anchored, pattern_len: pattern_len)
+    private def each_state_target(state : State, & : StateID ->) : Nil
+      state.next.each { |target| yield target }
+      yield state.eoi_next
     end
 
     # Reduce byte classes using equivalence analysis

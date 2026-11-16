@@ -49,6 +49,10 @@
   reverse search, and libc forward byte and short-literal scans. Finite DFA
   construction budgets use the Crystal storage estimate. Tight Rust byte
   limits may need to be retuned. [Changelog](../CHANGELOG.md)
+- **v0.2.1 patch:** Dense DFA dead-state removal preserves end-of-input
+  transitions, start states, and quit behavior. The patch passed 23,404
+  Crystal specs locally and 253 downstream Logos specs. The pinned Rust DFA
+  reader loaded the pruned automaton and confirmed the reported match cases.
 - **Dependency correction:** grouped dot translation now preserves the syntax
   terminator through `regex-syntax` commit `1623e24`. The dedicated pushed
   branch and review draft are recorded in the [Meta plan](feature-meta.md).
