@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Fix dense DFA dead-state removal so pruning preserves delayed end-of-input
+  matches, contextual and per-pattern starts, and quit behavior.
+
 ## v0.2.0
 
 This release completes the Crystal port's signoff against Rust
