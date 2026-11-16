@@ -34,7 +34,6 @@ require "./regex/automata/match_states"
 require "./regex/automata/start_table"
 
 module Regex::Automata
-  VERSION = "0.1.2"
-
-  # Deterministic Finite Automaton and hybrid compatibility API
+  # The Crystal shard release version. See shard.yml for dependency metadata.
+  VERSION = "0.2.0"
 end

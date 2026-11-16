@@ -6,13 +6,14 @@ the checked-in `vendor/regex/regex-automata/` submodule, pinned to
 `72d650cb0a880a01ab6dc2137c0888e8f89740f7` (regex-automata 0.4.18;
 regex-syntax 0.8.11). Do not silently substitute a newer upstream release.
 
-The current compatibility status and feature sequence are in
-[plans/parity.md](../plans/parity.md). Its **Where we are** block is the resume
-point; [docs/resuming.md](resuming.md) gives the session checklist. Source and
-test dispositions live in `plans/inventory/`. The checked-in Rust tests are
-the behavioral contract, while passing Crystal-only tests are not proof of
-parity. Full engine-specific vendor matrices and wire compatibility remain
-separate signoff work.
+The Crystal shard release is 0.2.0. The signoff covers engine-specific vendor
+matrices, 16,848 cross-engine comparisons, and native dense and sparse wire
+formats. It records the differences in storage, search dispatch and finite
+DFA determinization limits. [Final vendor signoff](../plans/feature-final-signoff.md)
+
+The **Where we are** block tracks the port. Source and test dispositions live
+in `plans/inventory/`. Use the checked-in Rust tests as the behavioral
+contract. [Parity roadmap](../plans/parity.md) · [Resuming work](resuming.md)
 
 ## Layout
 
