@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v0.2.1
+
 - Fix dense DFA dead-state removal so pruning preserves delayed end-of-input
   matches, contextual and per-pattern starts, and quit behavior.
 
